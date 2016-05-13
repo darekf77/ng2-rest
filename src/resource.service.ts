@@ -19,7 +19,7 @@ export class Resource {
 
     add<T>(endpoint: ENDPOINTS, model: string) {
         this.endpoints[ENDPOINTS.API].models[model] =
-            new Rest<T>(this.endpoints[ENDPOINTS.API].url + model, this.http);
+            new Rest<T>(this.endpoints[ENDPOINTS.API].url + '/' + model, this.http);
     }
 
     api(endpoint: ENDPOINTS, model: string): Rest<any> {
