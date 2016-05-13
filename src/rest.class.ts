@@ -15,28 +15,27 @@ export class Rest<T> {
         this.headers.append('Accept', 'application/json');
     }
 
-    query = (): Observable<Response> => {
+    query = (): Observable<any> => {
         return this.http.get(this.endpoint).map(res => res.json());
     }
 
-    get = (id: any): Observable<Response> => {
-        console.log('SIEMA FROM GET !!');
+    get = (id: any): Observable<any> => {
         return this.http.get(this.endpoint + id).map(res => res.json());
     }
 
-    save = (item: T): Observable<Response> => {
+    save = (item: T): Observable<any> => {
         let toAdd = JSON.stringify(item);
 
         return this.http.post(this.endpoint, toAdd,
             { headers: this.headers }).map(res => res.json());
     }
 
-    update = (id: any, itemToUpdate: T): Observable<Response> => {
+    update = (id: any, itemToUpdate: T): Observable<any> => {
         return this.http.put(this.endpoint + id, JSON.stringify(itemToUpdate),
             { headers: this.headers }).map(res => res.json());
     }
 
-    remove = (id: number): Observable<Response> => {
+    remove = (id: any): Observable<any> => {
         return this.http.delete(this.endpoint + id);
     }
 
