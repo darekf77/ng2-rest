@@ -53,8 +53,10 @@ and define endpoinsts url   (for now inside npm package - resource.service.ts): 
 	
 and add provider when you bootstrapping your app:
 
+    import { Resource } from 'ng2-rest/ng2-rest';
+    
     bootstrap(App, [
-        SOME_APP_PROVIDERS, 
-        Resource // from ng2-rest
-     ]);
-
+          SOME_APP_PROVIDERS, 
+          Resource // our ng2-rest
+       ]);
+    
