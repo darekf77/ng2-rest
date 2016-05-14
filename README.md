@@ -56,30 +56,21 @@ Map your urls and models
                 
                 }
               }
+             }
+
+Use it:
 		
-		giveMeSampleUsers() {
-			// exacly the same as in angular 1.x $resource 
-			// ex. get,query,save,update,remove
-			this.rest.api(ENDPOINTS.API, 'users')
-			 .query() // 
-			 .subscribe((users) => {
-	            console.log('users', users);
-	        })
-		}
 
-before that you need to define your endpoints ENUM  (for now inside npm package - endpoints.enum.ts):
-
-    export enum ENDPOINTS {
-	    API,
-	    OTHER_SUPER_API 
-	}
-
-and define endpoinsts url   (for now inside npm package - resource.service.ts): :
-
-    this.endpoints[ENDPOINTS.API] = {
-       url: 'http://localhost:3002/api/',
-       models: {}
-    };
+    giveMeSampleUsers() {
+    
+ 		this.rest.api(ENDPOINTS.API, 'users')
+		 .query() // 
+		 .subscribe((users) => {
+            console.log('users', users);
+        })
+        
+     }
+		
 
 Available methods:
 - **query** ( fetch array of your models )

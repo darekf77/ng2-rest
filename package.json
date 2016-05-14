@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "1.0.12",
+  "version": "1.0.17",
   "description": "rest package for angular 2",
   "main": "index.js",
   "scripts": {
@@ -31,7 +31,6 @@
     "rxjs": "5.0.0-beta.6",
     "es6-promise": "^3.1.2"
   },
-  "readme": "## ng2-rest ##\n\nMultiendpoint REST api with angular2\n\n\n\nTo install package run:\n\n    npm install ng2-rest --save\n\n\nSimple use:\n\n    import { Resource, ENDPOINTS } from '../../../shared/rest';\n    import { User } from './user';\n    \n    @Injectable()\n    export class SampleServiceORComponent {\n        constructor(private rest: Resource) {\n            rest.add<User>(ENDPOINTS.API, 'users'); // define your models\n            }\n          }\n\t\t\n\t\tgiveMeSampleUsers() {\n\t\t\t// exacly the same as in angular 1.x $resource \n\t\t\t// ex. get,query,save,update,remove\n\t\t\tthis.rest.api(ENDPOINTS.API, 'users')\n\t\t\t .query() // \n\t\t\t .subscribe((users) => {\n\t            console.log('users', users);\n\t        })\n\t\t}\n\nbefore that you need to define your endpoints ENUM  (for now inside npm package - endpoints.enum.ts):\n\n    export enum ENDPOINTS {\n\t    API,\n\t    OTHER_SUPER_API \n\t}\n\nand define endpoinsts url   (for now inside npm package - resource.service.ts): :\n\n    this.endpoints[ENDPOINTS.API] = {\n       url: 'http://localhost:3002/api/',\n       models: {}\n    };\n\n\t// and another\n\tthis.endpoints[ENDPOINTS.OTHER_SUPER_API] = {\n       url: 'http://super.example.api.com/',\n       models: {}\n    };\n\t\nand add provider when you bootstrapping your app:\n\n    bootstrap(App, [\n        SOME_APP_PROVIDERS, \n        Resource // from ng2-rest\n     ]);\n\n",
   "readmeFilename": "README.md",
   "gitHead": "03201bb70d036d4d999c12f93b423bcbcac8d96a",
   "_id": "ng2-rest@1.0.2",
