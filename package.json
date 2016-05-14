@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "description": "rest package for angular 2",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,10 @@
   },
   "keywords": [
     "angular2",
-    "rest"
+    "rest",
+    "angular 2",
+    "$resource",
+    "resource"
   ],
   "author": {
     "name": "Dariusz Filipiak"
