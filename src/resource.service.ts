@@ -2,30 +2,48 @@ import { Injectable, Inject } from '@angular/core';
 import { Http, Response, Headers } from '@angular/http';
 
 import { Rest } from './rest.class';
-import { ENDPOINTS } from './endpoints.enum';
 
-
-export class Resource {
+@Injectable()
+export class Resource<E> {
 
     endpoints = {};
     constructor( @Inject(Http) private http: Http) {
 
-        this.endpoints[ENDPOINTS.API] = {
-            url: 'http://localhost:3002/api/',
+    }
+
+    map(endpoint: E, url: string) {
+        let e = <string>(endpoint).toString();
+        if (this.endpoints[e] !== undefined) {
+            throw new Error('Cannot use map function at the same API endpoint again');
+        }
+        this.endpoints[e] = {
+            url: url,
             models: {}
         };
-
     }
 
-    add<T>(endpoint: ENDPOINTS, model: string) {
-        this.endpoints[ENDPOINTS.API].models[model] =
-            new Rest<T>(this.endpoints[ENDPOINTS.API].url + '/' + model, this.http);
+    add<T>(endpoint: E, model: string) {
+        let e = <string>(endpoint).toString();
+        if ( this.endpoints[e] === undefined) {
+            throw new Error('Endpoint is not mapped !');
+        }
+        if ( this.endpoints[e].models[model] !== undefined ) {
+            throw new Error(`Model ${model} is already defined in endpoint`);
+        }
+        this.endpoints[e].models[model] =
+            new Rest<T>(this.endpoints[e].url
+                + '/' + model + '/', this.http);
     }
 
-    api(endpoint: ENDPOINTS, model: string): Rest<any> {
-        return this.endpoints[endpoint].models[model];
+    api(endpoint: E, model: string): Rest<any> {
+        let e = <string>(endpoint).toString();
+        if ( this.endpoints[e] === undefined) {
+            throw new Error('Endpoint is not mapped !');
+        }
+        if ( this.endpoints[e].models[model] === undefined ) {
+            throw new Error(`Model ${model} is undefined in this endpoint`);
+        }
+        return this.endpoints[<string>(endpoint).toString()].models[model];
     }
-
-
-
+    
 }
