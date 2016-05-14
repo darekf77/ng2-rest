@@ -19,7 +19,7 @@ Simple use:
 
 
     import { Resource } from 'ng2-rest/ng2-rest';
-    import { User } from './user'; // your interface for data
+    
 and class to your bootstrap:
 
     bootstrap(App, [
@@ -34,14 +34,25 @@ build your enum with endpoints ( you can also use strings, but enum's are better
     	    OTHER_API
     	}
 
-Define your urls and models
+
+Define interfaces for response
+
+    import { User, Book, Weather } from './models' // interface
+
+Map your urls and models
    
      @Injectable()
         export class SampleServiceORComponent {
             constructor(private rest: Resource) {
             
+	            // map endpoints and urls
 	            this.rest.map(ENDPOINTS.API, 'http://localhost:/api');
-                rest.add<User>(ENDPOINTS.API, 'users'); // define your models
+				this.rest.map(ENDPOINTS.OTHER_API, 'http://example.com/api');
+				
+				// define your models
+                rest.add<User>(ENDPOINTS.API, 'users'); 
+                rest.add<Book>(ENDPOINTS.API, 'books'); 
+                rest.add<Weather>(ENDPOINTS.OTHER_API, 'weather'); 
                 
                 }
               }
@@ -77,7 +88,7 @@ Available methods:
 - **update** ( put model by id )
 - **remove** ( delete model by id )
     
-    Additional methods ( in nearest future )
--    **jsonp** ( get jsonp data )
+Additional methods ( in nearest future )
+- **jsonp** ( get jsonp data )
     
 
