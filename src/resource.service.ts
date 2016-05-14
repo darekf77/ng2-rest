@@ -32,7 +32,7 @@ export class Resource<E> {
         }
         this.endpoints[e].models[model] =
             new Rest<T>(this.endpoints[e].url
-                + '/' + model + '/', this.http);
+                + '/' + model , this.http);
     }
 
     api(endpoint: E, model: string): Rest<any> {

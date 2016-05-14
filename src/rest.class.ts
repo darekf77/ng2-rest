@@ -20,7 +20,7 @@ export class Rest<T> {
     }
 
     public get = (id: any): Observable<any> => {
-        return this.http.get(this.endpoint + id).map(res => res.json());
+        return this.http.get(this.endpoint + '/' +  id).map(res => res.json());
     }
 
     public save = (item: T): Observable<any> => {
@@ -31,12 +31,13 @@ export class Rest<T> {
     }
 
     public update = (id: any, itemToUpdate: T): Observable<any> => {
-        return this.http.put(this.endpoint + id, JSON.stringify(itemToUpdate),
+        return this.http.put(this.endpoint + '/' +  id, JSON.stringify(itemToUpdate),
             { headers: this.headers }).map(res => res.json());
     }
 
     public remove = (id: any): Observable<any> => {
-        return this.http.delete(this.endpoint + id);
+        return this.http.delete(this.endpoint + '/' +  id);
     }
 
 }
+
