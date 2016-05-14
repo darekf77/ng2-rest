@@ -75,7 +75,7 @@ Use it:
 Available methods:
 - **query** ( fetch array of your models )
 - **get** ( get model by id )
- - **save** ( post your model )
+- **save** ( post your model )
 - **update** ( put model by id )
 - **remove** ( delete model by id )
     
