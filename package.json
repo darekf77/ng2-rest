@@ -1,11 +1,11 @@
 {
   "name": "ng2-rest",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "rest package for angular 2",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "release":"git add --all . && git commit -m\"fix\" && git push origin master && npm publish"
+    "release": "git add --all . && git commit -m\"fix\" && git push origin master && npm publish"
   },
   "repository": {
     "type": "git",
