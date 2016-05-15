@@ -15,28 +15,29 @@ export class Rest<T> {
         this.headers.append('Accept', 'application/json');
     }
 
-    public query = (): Observable<any> => {
+    public query = (): Observable<T[]> => {
         return this.http.get(this.endpoint).map(res => res.json());
     }
 
-    public get = (id: any): Observable<any> => {
+    public get = (id: any): Observable<T> => {
         return this.http.get(this.endpoint + '/' +  id).map(res => res.json());
     }
 
-    public save = (item: T): Observable<any> => {
+    public save = (item: T): Observable<T> => {
         let toAdd = JSON.stringify(item);
 
         return this.http.post(this.endpoint, toAdd,
             { headers: this.headers }).map(res => res.json());
     }
 
-    public update = (id: any, itemToUpdate: T): Observable<any> => {
+    public update = (id: any, itemToUpdate: T): Observable<T> => {
         return this.http.put(this.endpoint + '/' +  id, JSON.stringify(itemToUpdate),
             { headers: this.headers }).map(res => res.json());
     }
 
-    public remove = (id: any): Observable<any> => {
-        return this.http.delete(this.endpoint + '/' +  id);
+    public remove = (id: any): Observable<T> => {
+        return this.http.delete(this.endpoint + '/' +  id,
+        { headers: this.headers }).map(res => res.json());
     }
 
 }
