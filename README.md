@@ -65,7 +65,7 @@ Use it:
     
  		this.rest.api(ENDPOINTS.API, 'users')
 		 .query() // 
-		 .subscribe((users) => {
+		 .subscribe((users) => {  // Type of respone wil be User[] 
             console.log('users', users);
         })
         
