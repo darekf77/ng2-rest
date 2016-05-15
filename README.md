@@ -1,6 +1,6 @@
 ## ng2-rest ##
 
-Multi-endpoint REST api with **Angular 2.** Alternative to angularjs $resource ;
+Multi-endpoint REST api with **Angular 2.** Alternative to angularjs $resource.
 
 Take advantage of ENUM in typescript and generic class and
 define your **multiple endpoints url**. Playing with your REST
@@ -29,7 +29,7 @@ and class to your bootstrap:
 
 build your enum with endpoints ( you can also use strings, but enum's are better !) :
 	
-    enum ENDPOINTS { // enum instead of 
+    enum ENDPOINTS { // enum instead of strings
     	    API,
     	    OTHER_API
     	}
@@ -43,7 +43,7 @@ Map your urls and models
    
      @Injectable()
         export class SampleServiceORComponent {
-            constructor(private rest: Resource) {
+            constructor(private rest: Resource<ENDPOINTS>) {
             
 	            // map endpoints and urls
 	            this.rest.map(ENDPOINTS.API, 'http://localhost:/api');
