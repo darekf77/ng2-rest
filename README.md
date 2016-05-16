@@ -49,10 +49,10 @@ Map your urls and models
 	            this.rest.map(ENDPOINTS.API, 'http://localhost:/api');
 				this.rest.map(ENDPOINTS.OTHER_API, 'http://example.com/api');
 				
-				// define your models
-                rest.add<User>(ENDPOINTS.API, 'users'); 
-                rest.add<Book>(ENDPOINTS.API, 'books'); 
-                rest.add<Weather>(ENDPOINTS.OTHER_API, 'weather'); 
+				// define your models  <single_model, query_model>
+                rest.add<User,User[]>(ENDPOINTS.API, 'users'); 
+                rest.add<Book,Book[]>(ENDPOINTS.API, 'books'); 
+                rest.add<Weather,Weather[]>(ENDPOINTS.OTHER_API, 'weather'); 
                 
                 }
               }

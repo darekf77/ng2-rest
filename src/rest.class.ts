@@ -3,9 +3,8 @@ import { Http, Response, Headers } from '@angular/http';
 import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs/Observable';
 
-export class Rest<T> {
+export class Rest<T,TA> {
 
-    private model: T;
     private headers: Headers;
 
 
@@ -15,7 +14,7 @@ export class Rest<T> {
         this.headers.append('Accept', 'application/json');
     }
 
-    public query = (): Observable<T[]> => {
+    public query = (): Observable<TA> => {
         return this.http.get(this.endpoint).map(res => res.json());
     }
 

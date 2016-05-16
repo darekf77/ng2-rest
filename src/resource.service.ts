@@ -30,7 +30,7 @@ export class Resource<E> {
         return true;
     }
 
-    add<T>(endpoint: E, model: string): boolean {
+    add<T,TA>(endpoint: E, model: string): boolean {
         if (model.charAt(0) === '/') model = model.slice(1, model.length - 1);
         let e = <string>(endpoint).toString();
         if (this.endpoints[e] === undefined) {
@@ -42,12 +42,12 @@ export class Resource<E> {
             return false;
         }
         this.endpoints[e].models[model] =
-            new Rest<T>(this.endpoints[e].url
+            new Rest<T,TA>(this.endpoints[e].url
                 + '/' + model, this.http);
         return true;
     }
 
-    api(endpoint: E, model: string): Rest<any> {
+    api(endpoint: E, model: string): Rest<any,any> {
         if (model.charAt(0) === '/') model = model.slice(1, model.length - 1);
         let e = <string>(endpoint).toString();
         if (this.endpoints[e] === undefined) {

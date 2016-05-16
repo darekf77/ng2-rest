@@ -34,8 +34,8 @@ export class TestAdd {
                     let url = 'https://somewhere.com';
                     rest.map(APIS.FIRST, url);
                     
-                    expect(rest.add<User>(APIS.FIRST,'user')).toBeTruthy();
-                    expect(rest.add<User>(APIS.FIRST,'user')).toBeFalsy()  
+                    expect(rest.add<User,User[]>(APIS.FIRST,'user')).toBeTruthy();
+                    expect(rest.add<User,User[]>(APIS.FIRST,'user')).toBeFalsy()  
                     
                 }));
             
