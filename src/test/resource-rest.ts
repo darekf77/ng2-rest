@@ -24,7 +24,7 @@ export class TestRest {
     }
     
     constructor() {
-        describe('rest', () => {
+        describe('rest api', () => {
 
             let user: User;
             let users: User[];
