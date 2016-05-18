@@ -60,5 +60,19 @@ export class Resource<E> {
         }
         return this.endpoints[<string>(endpoint).toString()].models[model];
     }
+    
+    
+    /**
+     * (description)
+     * 
+     * @template T (single model type)
+     * @template TA ( query model type )
+     * @param {E} endpoint (description)
+     * @param {string} model (description)
+     * @returns {Rest<T,TA>} (description)
+     */
+    apie<T,TA>(endpoint: E, model: string): Rest<T,TA> {
+        return this.api(endpoint,model);
+    }
 
 }
