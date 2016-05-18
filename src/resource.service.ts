@@ -66,7 +66,17 @@ export class Resource<E> {
     }
     
     apie<T,TA>(endpoint: E, model: string): Rest<T,TA> {
-        return this.api(endpoint,model);
+        if (model.charAt(0) === '/') model = model.slice(1, model.length - 1);
+        let e = <string>(endpoint).toString();
+        if (Resource.endpoints[e] === undefined) {
+            console.error('Endpoint is not mapped !');
+            return;
+        }
+        if (Resource.endpoints[e].models[model] === undefined) {
+            console.error(`Model ${model} is undefined in this endpoint`);
+            return;
+        }
+        return Resource.endpoints[<string>(endpoint).toString()].models[model];
     }
 
 }
