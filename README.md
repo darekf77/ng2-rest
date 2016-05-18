@@ -55,6 +55,15 @@ Map your urls and models
                 
                 
               }
+                    // create your fluent API
+              model = {
+                getAll:  this.rest.api(ENDPOINTS.API, 'users').query(),
+                getAllSorted:  this.rest.api(ENDPOINTS.API, 'users').query({ sorted: true }),
+                getSuperUser: this.rest.api(ENDPOINTS.API, 'users').get(0),
+                saveCurrentUser : this.rest.api(ENDPOINTS.API, 'users').save(this.user)
+              };
+              user:User;
+              
              }
 
 Use it:

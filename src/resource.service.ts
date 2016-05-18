@@ -43,7 +43,7 @@ export class Resource<E, T, TA> {
             return false;
         }
         if (Resource.endpoints[e].models[model] !== undefined) {
-            console.warn(`Model ${model} is already defined in endpoint: `
+            console.warn(`Model '${model}' is already defined in endpoint: `
                 + Resource.endpoints[e].url);
             return false;
         }
@@ -61,7 +61,7 @@ export class Resource<E, T, TA> {
             return;
         }
         if (Resource.endpoints[e].models[model] === undefined) {
-            console.error(`Model ${model} is undefined in endpoint: ${Resource.endpoints[e].url} `);
+            console.error(`Model '${model}' is undefined in endpoint: ${Resource.endpoints[e].url} `);
             return;
         }
         return Resource.endpoints[<string>(endpoint).toString()].models[model];
