@@ -12,7 +12,7 @@ export class Resource<E> {
     }
 
     map(endpoint: E, url: string): boolean {
-        var regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+        let regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
         if (!regex.test(url)) {
             console.error('Url address is not correct');
             return false;
@@ -30,7 +30,7 @@ export class Resource<E> {
         return true;
     }
 
-    add<T,TA>(endpoint: E, model: string): boolean {
+    add<T, TA>(endpoint: E, model: string): boolean {
         if (model.charAt(0) === '/') model = model.slice(1, model.length - 1);
         let e = <string>(endpoint).toString();
         if (Resource.endpoints[e] === undefined) {
@@ -42,12 +42,12 @@ export class Resource<E> {
             return false;
         }
         Resource.endpoints[e].models[model] =
-            new Rest<T,TA>(Resource.endpoints[e].url
+            new Rest<T, TA>(Resource.endpoints[e].url
                 + '/' + model, this.http);
         return true;
     }
 
-    api(endpoint: E, model: string): Rest<any,any> {
+    api(endpoint: E, model: string): Rest<any, any> {
         if (model.charAt(0) === '/') model = model.slice(1, model.length - 1);
         let e = <string>(endpoint).toString();
         if (Resource.endpoints[e] === undefined) {
