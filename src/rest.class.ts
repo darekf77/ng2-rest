@@ -38,6 +38,5 @@ export class Rest<T,TA> {
         return this.http.delete(this.endpoint + '/' +  id,
         { headers: this.headers }).map(res => res.json());
     }
-
 }
 
