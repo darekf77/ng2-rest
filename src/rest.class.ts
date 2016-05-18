@@ -14,7 +14,7 @@ export class Rest<T, TA> {
         this.headers.append('Accept', 'application/json');
     }
 
-    public query = (params: any = undefined): Observable<TA> => {
+    public query = (params: any = undefined): Observable<any> => {
         if (params !== undefined) {
             if (typeof params === 'object') params = JSON.stringify(params);
             params = encodeURI(params);
@@ -23,7 +23,7 @@ export class Rest<T, TA> {
         return this.http.get(this.endpoint).map(res => res.json());
     }
 
-    public get = (id: any): Observable<T> => {
+    public get = (id: any): Observable<any> => {
         if (typeof id === 'object') {
             id = JSON.stringify(id);
             id = encodeURI(id);
@@ -31,19 +31,19 @@ export class Rest<T, TA> {
         return this.http.get(this.endpoint + '/' + id).map(res => res.json());
     }
 
-    public save = (item: T): Observable<T> => {
+    public save = (item: T): Observable<any> => {
         let toAdd = JSON.stringify(item);
 
         return this.http.post(this.endpoint, toAdd,
             { headers: this.headers }).map(res => res.json());
     }
 
-    public update = (id: any, itemToUpdate: T): Observable<T> => {
+    public update = (id: any, itemToUpdate: T): Observable<any> => {
         return this.http.put(this.endpoint + '/' + id, JSON.stringify(itemToUpdate),
             { headers: this.headers }).map(res => res.json());
     }
 
-    public remove = (id: any): Observable<T> => {
+    public remove = (id: any): Observable<any> => {
         return this.http.delete(this.endpoint + '/' + id,
             { headers: this.headers }).map(res => res.json());
     }
