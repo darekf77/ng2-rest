@@ -33,7 +33,6 @@ describe('ng2-rest', () => {
 
     new TestMap();
     new TestAdd();
-    new TestRest();
     new TestRestExp();
 
 

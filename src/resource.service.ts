@@ -4,9 +4,9 @@ import { Http, Response, Headers } from '@angular/http';
 import { Rest } from './rest.class';
 
 @Injectable()
-export class Resource<E> {
+export class Resource<E,T,TA> {
 
-    clearEndpoints() {
+    static reset() {
         Resource.endpoints = {};
     }
 
@@ -34,7 +34,7 @@ export class Resource<E> {
         return true;
     }
 
-    add<T,TA>(endpoint: E, model: string): boolean {
+    add(endpoint: E, model: string): boolean {
         if (model.charAt(0) === '/') model = model.slice(1, model.length - 1);
         let e = <string>(endpoint).toString();
         if (Resource.endpoints[e] === undefined) {
@@ -51,21 +51,7 @@ export class Resource<E> {
         return true;
     }
 
-    api(endpoint: E, model: string): Rest<any,any> {
-        if (model.charAt(0) === '/') model = model.slice(1, model.length - 1);
-        let e = <string>(endpoint).toString();
-        if (Resource.endpoints[e] === undefined) {
-            console.error('Endpoint is not mapped !');
-            return;
-        }
-        if (Resource.endpoints[e].models[model] === undefined) {
-            console.error(`Model ${model} is undefined in this endpoint`);
-            return;
-        }
-        return Resource.endpoints[<string>(endpoint).toString()].models[model];
-    }
-    
-    apie<T,TA>(endpoint: E, model: string): Rest<T,TA> {
+    api(endpoint: E, model: string): Rest<T,TA> {
         if (model.charAt(0) === '/') model = model.slice(1, model.length - 1);
         let e = <string>(endpoint).toString();
         if (Resource.endpoints[e] === undefined) {
