@@ -6,7 +6,11 @@ import { Rest } from './rest.class';
 @Injectable()
 export class Resource<E> {
 
-    endpoints = {};
+    clearEndpoints() {
+        Resource.endpoints = {};
+    }
+
+    private static endpoints = {};
     constructor( @Inject(Http) private http: Http) {
 
     }
@@ -19,11 +23,11 @@ export class Resource<E> {
         }
         if (url.charAt(url.length - 1) === '/') url = url.slice(0, url.length - 2);
         let e = <string>(endpoint).toString();
-        if (this.endpoints[e] !== undefined) {
+        if (Resource.endpoints[e] !== undefined) {
             console.warn('Cannot use map function at the same API endpoint again');
             return false;
         }
-        this.endpoints[e] = {
+        Resource.endpoints[e] = {
             url: url,
             models: {}
         };
@@ -33,16 +37,16 @@ export class Resource<E> {
     add<T,TA>(endpoint: E, model: string): boolean {
         if (model.charAt(0) === '/') model = model.slice(1, model.length - 1);
         let e = <string>(endpoint).toString();
-        if (this.endpoints[e] === undefined) {
+        if (Resource.endpoints[e] === undefined) {
             console.error('Endpoint is not mapped !');
             return false;
         }
-        if (this.endpoints[e].models[model] !== undefined) {
+        if (Resource.endpoints[e].models[model] !== undefined) {
             console.error(`Model ${model} is already defined in endpoint`);
             return false;
         }
-        this.endpoints[e].models[model] =
-            new Rest<T,TA>(this.endpoints[e].url
+        Resource.endpoints[e].models[model] =
+            new Rest<T,TA>(Resource.endpoints[e].url
                 + '/' + model, this.http);
         return true;
     }
@@ -50,27 +54,17 @@ export class Resource<E> {
     api(endpoint: E, model: string): Rest<any,any> {
         if (model.charAt(0) === '/') model = model.slice(1, model.length - 1);
         let e = <string>(endpoint).toString();
-        if (this.endpoints[e] === undefined) {
+        if (Resource.endpoints[e] === undefined) {
             console.error('Endpoint is not mapped !');
             return;
         }
-        if (this.endpoints[e].models[model] === undefined) {
+        if (Resource.endpoints[e].models[model] === undefined) {
             console.error(`Model ${model} is undefined in this endpoint`);
             return;
         }
-        return this.endpoints[<string>(endpoint).toString()].models[model];
+        return Resource.endpoints[<string>(endpoint).toString()].models[model];
     }
     
-    
-    /**
-     * (description)
-     * 
-     * @template T (single model type)
-     * @template TA ( query model type )
-     * @param {E} endpoint (description)
-     * @param {string} model (description)
-     * @returns {Rest<T,TA>} (description)
-     */
     apie<T,TA>(endpoint: E, model: string): Rest<T,TA> {
         return this.api(endpoint,model);
     }

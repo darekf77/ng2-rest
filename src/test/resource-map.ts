@@ -25,9 +25,11 @@ export class TestMap {
                 Resource
             ]);
             
+            
             it('should map model just one time', inject([Resource, Http],
                 (rest: Resource<APIS>, http: Http) => {
                     rest = new Resource<APIS>(http);
+                    rest.clearEndpoints();
                     let url = 'https://somewhere.com';
                     expect(rest.map(APIS.FIRST, url )).toBeTruthy();
                     expect(rest.map(APIS.FIRST, url )).toBeFalsy();
@@ -36,12 +38,14 @@ export class TestMap {
             it('should map correct url with / ', inject([Resource, Http],
                 (rest: Resource<APIS>, http: Http) => {
                     rest = new Resource<APIS>(http);
+                    rest.clearEndpoints();
                     expect(rest.map(APIS.FIRST, 'http://localhost:8080/')).toBeTruthy();
                 }));
                 
             it('should map correct url witout / ', inject([Resource, Http],
                 (rest: Resource<APIS>, http: Http) => {
                     rest = new Resource<APIS>(http);
+                    rest.clearEndpoints();
                     expect(rest.map(APIS.FIRST, 'http://localhost:8080')).toBeTruthy();
                 }));
 
@@ -49,6 +53,7 @@ export class TestMap {
             it('should reject incorrect url from random chars', inject([Resource, Http],
                 (rest: Resource<APIS>, http: Http) => {
                     rest = new Resource<APIS>(http);
+                    rest.clearEndpoints();
                     expect(rest.map(APIS.FIRST, 'asdas')).toBeFalsy();
                 }));
                 
@@ -56,6 +61,7 @@ export class TestMap {
             it('should reject incorrect url withour addres body', inject([Resource, Http],
                 (rest: Resource<APIS>, http: Http) => {
                     rest = new Resource<APIS>(http);
+                    rest.clearEndpoints();
                     expect(rest.map(APIS.FIRST, 'http://')).toBeFalsy();
                 }));
             
