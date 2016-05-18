@@ -30,22 +30,22 @@ export class TestMap {
                     rest = new Resource<APIS,User,User[]>(http);
                     Resource.reset();
                     let url = 'https://somewhere.com';
-                    expect(rest.map(APIS.FIRST, url )).toBeTruthy();
-                    expect(rest.map(APIS.FIRST, url )).toBeFalsy();
+                    expect(Resource.map(APIS.FIRST.toString(), url )).toBeTruthy();
+                    expect(Resource.map(APIS.FIRST.toString(), url )).toBeFalsy();
                 }));
 
             it('should map correct url with / ', inject([Resource, Http],
                 (rest: Resource<APIS,User,User[]>, http: Http) => {
                     rest = new Resource<APIS,User,User[]>(http);
                     Resource.reset();
-                    expect(rest.map(APIS.FIRST, 'http://localhost:8080/')).toBeTruthy();
+                    expect(Resource.map(APIS.FIRST.toString(), 'http://localhost:8080/')).toBeTruthy();
                 }));
                 
             it('should map correct url witout / ', inject([Resource, Http],
                 (rest: Resource<APIS,User,User[]>, http: Http) => {
                     rest = new Resource<APIS,User,User[]>(http);
                     Resource.reset();
-                    expect(rest.map(APIS.FIRST, 'http://localhost:8080')).toBeTruthy();
+                    expect(Resource.map(APIS.FIRST.toString(), 'http://localhost:8080')).toBeTruthy();
                 }));
 
 
@@ -53,7 +53,7 @@ export class TestMap {
                 (rest: Resource<APIS,User,User[]>, http: Http) => {
                     rest = new Resource<APIS,User,User[]>(http);
                     Resource.reset();
-                    expect(rest.map(APIS.FIRST, 'asdas')).toBeFalsy();
+                    expect(Resource.map(APIS.FIRST.toString(), 'asdas')).toBeFalsy();
                 }));
                 
                 
@@ -61,7 +61,7 @@ export class TestMap {
                 (rest: Resource<APIS,User,User[]>, http: Http) => {
                     rest = new Resource<APIS,User,User[]>(http);
                     Resource.reset();
-                    expect(rest.map(APIS.FIRST, 'http://')).toBeFalsy();
+                    expect(Resource.map(APIS.FIRST.toString(), 'http://')).toBeFalsy();
                 }));
             
         });

@@ -15,16 +15,14 @@ export class Resource<E,T,TA> {
 
     }
     
-    
-
-    map(endpoint: E, url: string): boolean {
+    public static map(endpoint: string, url: string): boolean {
         let regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
         if (!regex.test(url)) {
             console.error('Url address is not correct');
             return false;
         }
         if (url.charAt(url.length - 1) === '/') url = url.slice(0, url.length - 2);
-        let e = <string>(endpoint).toString();
+        let e = endpoint;
         if (Resource.endpoints[e] !== undefined) {
             console.warn('Cannot use map function at the same API endpoint again');
             return false;

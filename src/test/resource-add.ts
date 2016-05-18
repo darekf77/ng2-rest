@@ -32,7 +32,7 @@ export class TestAdd {
                 (rest: Resource<APIS,User,User[]>, http: Http) => {
                     rest = new Resource<APIS,User,User[]>(http);
                     let url = 'https://somewhere.com';
-                    rest.map(APIS.FIRST, url);
+                    Resource.map(APIS.FIRST.toString(), url);
                     
                     expect(rest.add(APIS.FIRST,'user')).toBeTruthy();
                     expect(rest.add(APIS.FIRST,'user')).toBeFalsy()  
@@ -43,7 +43,7 @@ export class TestAdd {
                 (rest: Resource<APIS,User,User[]>, http: Http) => {
                     rest = new Resource<APIS,User,User[]>(http);
                     let url = 'https://somewhere.com';
-                    rest.map(APIS.FIRST, url);
+                    Resource.map(APIS.FIRST.toString(), url);
                     
                     expect(rest.add(APIS.FIRST,'user')).toBeFalsy();
                     

@@ -66,7 +66,7 @@ export class TestRest {
 
                         rest = new Resource<APIS,User,User[]>(http);
                         let url = 'https://somewhere.com';
-                        rest.map(APIS.FIRST, url);
+                        Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
                         rest.api(APIS.FIRST, 'users').get(0).subscribe((res) => {
                             expect(res).toEqual(user);
@@ -95,7 +95,7 @@ export class TestRest {
 
                         rest = new Resource<APIS,User,User[]>(http);
                         let url = 'https://somewhere.com';
-                        rest.map(APIS.FIRST, url);
+                        Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
                         let r = rest.api(APIS.FIRST, 'users').query();
                         expect(r).toBeDefined();
@@ -126,7 +126,7 @@ export class TestRest {
 
                         rest = new Resource<APIS,User,User[]>(http);
                         let url = 'https://somewhere.com';
-                        rest.map(APIS.FIRST, url);
+                        Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
                         rest.api(APIS.FIRST, 'users').save(user).subscribe((res) => {
                             expect(res.id).toBeDefined();
@@ -154,7 +154,7 @@ export class TestRest {
 
                         rest = new Resource<APIS,User,User[]>(http);
                         let url = 'https://somewhere.com';
-                        rest.map(APIS.FIRST, url);
+                        Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
                         rest.api(APIS.FIRST, 'users').update(0,user).subscribe((res) => {
                             expect(res).toEqual(user);
@@ -182,7 +182,7 @@ export class TestRest {
 
                         rest = new Resource<APIS,User,User[]>(http);
                         let url = 'https://somewhere.com';
-                        rest.map(APIS.FIRST, url);
+                        Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
                         rest.api(APIS.FIRST, 'users').remove(0).subscribe((res) => {
                             expect(res).toEqual(user);

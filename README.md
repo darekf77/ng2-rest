@@ -47,8 +47,8 @@ Map your urls and models
             constructor(private rest: Resource<ENDPOINTS,User,User[]>) {
             
 	            // map endpoints and urls
-	            this.rest.map(ENDPOINTS.API, 'http://localhost:/api');
-				this.rest.map(ENDPOINTS.OTHER_API, 'http://example.com/api');
+                Resource.map(ENDPOINTS.API.toString(), 'http://localhost:/api');
+				Resource.map(ENDPOINTS.OTHER_API.toString(), 'http://example.com/api');
 				
 				// define your models  
                 rest.add(ENDPOINTS.API, 'users'); 
