@@ -6,7 +6,7 @@ import { Rest } from './rest.class';
 @Injectable()
 export class Resource<E> {
 
-    clearEndpoints() {
+    public static reset() {
         Resource.endpoints = {};
     }
 
@@ -65,8 +65,5 @@ export class Resource<E> {
         return Resource.endpoints[<string>(endpoint).toString()].models[model];
     }
     
-    apie<T,TA>(endpoint: E, model: string): Rest<T,TA> {
-        return this.api(endpoint,model);
-    }
 
 }

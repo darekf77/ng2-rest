@@ -16,8 +16,7 @@ import { Resource } from './resource.service';
 import { 
     TestMap, 
     TestAdd,
-    TestRest,
-    TestRestExp
+    TestRest
  } from './test';
 
 
@@ -34,7 +33,6 @@ describe('ng2-rest', () => {
     new TestMap();
     new TestAdd();
     new TestRest();
-    new TestRestExp();
 
 
 
