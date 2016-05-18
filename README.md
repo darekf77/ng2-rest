@@ -42,19 +42,18 @@ Define interfaces for response
 Map your urls and models
    
      @Injectable()
-        export class SampleServiceORComponent {
-            constructor(private rest: Resource<ENDPOINTS>) {
+        export class SampleServiceORComponent { 
+                        // < enum or 'string', single_model, query_model>
+            constructor(private rest: Resource<ENDPOINTS,User,User[]>) {
             
 	            // map endpoints and urls
 	            this.rest.map(ENDPOINTS.API, 'http://localhost:/api');
 				this.rest.map(ENDPOINTS.OTHER_API, 'http://example.com/api');
 				
-				// define your models  <single_model, query_model>
-                rest.add<User,User[]>(ENDPOINTS.API, 'users'); 
-                rest.add<Book,Book[]>(ENDPOINTS.API, 'books'); 
-                rest.add<Weather,Weather[]>(ENDPOINTS.OTHER_API, 'weather'); 
+				// define your models  
+                rest.add(ENDPOINTS.API, 'users'); 
                 
-                }
+                
               }
              }
 

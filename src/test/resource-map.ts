@@ -26,36 +26,41 @@ export class TestMap {
             ]);
             
             it('should map model just one time', inject([Resource, Http],
-                (rest: Resource<APIS>, http: Http) => {
-                    rest = new Resource<APIS>(http);
+                (rest: Resource<APIS,User,User[]>, http: Http) => {
+                    rest = new Resource<APIS,User,User[]>(http);
+                    Resource.reset();
                     let url = 'https://somewhere.com';
                     expect(rest.map(APIS.FIRST, url )).toBeTruthy();
                     expect(rest.map(APIS.FIRST, url )).toBeFalsy();
                 }));
 
             it('should map correct url with / ', inject([Resource, Http],
-                (rest: Resource<APIS>, http: Http) => {
-                    rest = new Resource<APIS>(http);
+                (rest: Resource<APIS,User,User[]>, http: Http) => {
+                    rest = new Resource<APIS,User,User[]>(http);
+                    Resource.reset();
                     expect(rest.map(APIS.FIRST, 'http://localhost:8080/')).toBeTruthy();
                 }));
                 
             it('should map correct url witout / ', inject([Resource, Http],
-                (rest: Resource<APIS>, http: Http) => {
-                    rest = new Resource<APIS>(http);
+                (rest: Resource<APIS,User,User[]>, http: Http) => {
+                    rest = new Resource<APIS,User,User[]>(http);
+                    Resource.reset();
                     expect(rest.map(APIS.FIRST, 'http://localhost:8080')).toBeTruthy();
                 }));
 
 
             it('should reject incorrect url from random chars', inject([Resource, Http],
-                (rest: Resource<APIS>, http: Http) => {
-                    rest = new Resource<APIS>(http);
+                (rest: Resource<APIS,User,User[]>, http: Http) => {
+                    rest = new Resource<APIS,User,User[]>(http);
+                    Resource.reset();
                     expect(rest.map(APIS.FIRST, 'asdas')).toBeFalsy();
                 }));
                 
                 
             it('should reject incorrect url withour addres body', inject([Resource, Http],
-                (rest: Resource<APIS>, http: Http) => {
-                    rest = new Resource<APIS>(http);
+                (rest: Resource<APIS,User,User[]>, http: Http) => {
+                    rest = new Resource<APIS,User,User[]>(http);
+                    Resource.reset();
                     expect(rest.map(APIS.FIRST, 'http://')).toBeFalsy();
                 }));
             

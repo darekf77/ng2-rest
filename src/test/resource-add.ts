@@ -29,19 +29,19 @@ export class TestAdd {
 
 
             it('should add model to endpoint just one time', inject([Resource, Http],
-                (rest: Resource<APIS>, http: Http) => {
-                    rest = new Resource<APIS>(http);
+                (rest: Resource<APIS,User,User[]>, http: Http) => {
+                    rest = new Resource<APIS,User,User[]>(http);
                     let url = 'https://somewhere.com';
                     rest.map(APIS.FIRST, url);
                     
-                    expect(rest.add<User,User[]>(APIS.FIRST,'user')).toBeTruthy();
-                    expect(rest.add<User,User[]>(APIS.FIRST,'user')).toBeFalsy()  
+                    expect(rest.add(APIS.FIRST,'user')).toBeTruthy();
+                    expect(rest.add(APIS.FIRST,'user')).toBeFalsy()  
                     
                 }));
             
             xit('should not add model', inject([Resource, Http],
-                (rest: Resource<APIS>, http: Http) => {
-                    rest = new Resource<APIS>(http);
+                (rest: Resource<APIS,User,User[]>, http: Http) => {
+                    rest = new Resource<APIS,User,User[]>(http);
                     let url = 'https://somewhere.com';
                     rest.map(APIS.FIRST, url);
                     

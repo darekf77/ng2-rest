@@ -5,11 +5,17 @@ import { Rest } from './rest.class';
 
 @Injectable()
 export class Resource<E,T,TA> {
+    
+    public static reset() {
+        Resource.endpoints = {};
+    }
 
     private static endpoints = {};
     constructor( @Inject(Http) private http: Http) {
 
     }
+    
+    
 
     map(endpoint: E, url: string): boolean {
         let regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
