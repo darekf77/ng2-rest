@@ -69,13 +69,6 @@ Use it:
             console.log('users', users);
         })
         
-        // or
-        
-        this.rest.apis<User,Users[]>(ENDPOINTS.API, 'users')
-		 .query() // 
-		 .subscribe((users) => {  // Type of respone wil be User 
-            console.log('users', users);
-        })
         
      }
 		
