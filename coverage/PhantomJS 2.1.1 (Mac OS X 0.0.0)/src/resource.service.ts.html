@@ -118,7 +118,6 @@
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">22×</span>
-<span class="cline-any cline-yes">22×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">12×</span>
@@ -130,33 +129,33 @@
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">10×</span>
 <span class="cline-any cline-yes">10×</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">7×</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">7×</span>
-<span class="cline-any cline-yes">7×</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7×</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">5×</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">5×</span>
@@ -170,6 +169,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -186,7 +186,6 @@ var rest_class_1 = require('./rest.class');
 var Resource = (function () {
     function Resource(http) {
         this.http = http;
-        this.endpoints = {};
     }
     Resource.prototype.map = function (endpoint, url) {
         var regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&amp;%!\-\/]))?/;
@@ -197,11 +196,11 @@ var Resource = (function () {
         if (url.charAt(url.length - 1) === '/')
             url = url.slice(0, url.length - 2);
         var e = (endpoint).toString();
-        if (this.endpoints[e] !== undefined) {
+        if (Resource.endpoints[e] !== undefined) {
             console.warn('Cannot use map function at the same API endpoint again');
             return false;
         }
-        this.endpoints[e] = {
+        Resource.endpoints[e] = {
             url: url,
             models: {}
         };
@@ -211,16 +210,16 @@ var Resource = (function () {
         <span class="missing-if-branch" title="if path not taken" >I</span>if (model.charAt(0) === '/')
 <span class="cstat-no" title="statement not covered" >            model = model.slice(1, model.length - 1);</span>
         var e = (endpoint).toString();
-        <span class="missing-if-branch" title="if path not taken" >I</span>if (this.endpoints[e] === undefined) {
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (Resource.endpoints[e] === undefined) {
 <span class="cstat-no" title="statement not covered" >            console.error('Endpoint is not mapped !');</span>
 <span class="cstat-no" title="statement not covered" >            return false;</span>
         }
-        if (this.endpoints[e].models[model] !== undefined) {
+        if (Resource.endpoints[e].models[model] !== undefined) {
             console.error("Model " + model + " is already defined in endpoint");
             return false;
         }
-        this.endpoints[e].models[model] =
-            new rest_class_1.Rest(this.endpoints[e].url
+        Resource.endpoints[e].models[model] =
+            new rest_class_1.Rest(Resource.endpoints[e].url
                 + '/' + model, this.http);
         return true;
     };
@@ -228,16 +227,17 @@ var Resource = (function () {
         <span class="missing-if-branch" title="if path not taken" >I</span>if (model.charAt(0) === '/')
 <span class="cstat-no" title="statement not covered" >            model = model.slice(1, model.length - 1);</span>
         var e = (endpoint).toString();
-        <span class="missing-if-branch" title="if path not taken" >I</span>if (this.endpoints[e] === undefined) {
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (Resource.endpoints[e] === undefined) {
 <span class="cstat-no" title="statement not covered" >            console.error('Endpoint is not mapped !');</span>
 <span class="cstat-no" title="statement not covered" >            return;</span>
         }
-        <span class="missing-if-branch" title="if path not taken" >I</span>if (this.endpoints[e].models[model] === undefined) {
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (Resource.endpoints[e].models[model] === undefined) {
 <span class="cstat-no" title="statement not covered" >            console.error("Model " + model + " is undefined in this endpoint");</span>
 <span class="cstat-no" title="statement not covered" >            return;</span>
         }
-        return this.endpoints[(endpoint).toString()].models[model];
+        return Resource.endpoints[(endpoint).toString()].models[model];
     };
+    Resource.endpoints = {};
     Resource = __decorate([
         core_1.Injectable(),
         __param(0, core_1.Inject(http_1.Http)), 
@@ -253,7 +253,7 @@ exports.Resource = Resource;
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Wed May 18 2016 11:51:29 GMT+0200 (CEST)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Wed May 18 2016 11:58:40 GMT+0200 (CEST)
 </div>
 </div>
 <script src="../prettify.js"></script>
