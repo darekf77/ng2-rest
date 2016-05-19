@@ -19,11 +19,13 @@ Simple use:
 
 
     import { Resource } from 'ng2-rest/ng2-rest';
+    import { JSONP_PROVIDERS } from '@angular/http';
     
 and class to your bootstrap:
 
     bootstrap(App, [
               SOME_APP_PROVIDERS, 
+              JSONP_PROVIDERS // required  
               Resource // our ng2-rest
            ]);
 
