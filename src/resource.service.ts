@@ -1,17 +1,18 @@
 import { Injectable, Inject } from '@angular/core';
-import { Http, Response, Headers } from '@angular/http';
+import { Http, Response, Headers, Jsonp } from '@angular/http';
 
 import { Rest } from './rest.class';
 
 @Injectable()
 export class Resource<E, T, TA> {
 
+    private static endpoints = {};
     public static reset() {
         Resource.endpoints = {};
     }
 
-    private static endpoints = {};
-    constructor( @Inject(Http) private http: Http) {
+    constructor( @Inject(Http) private http: Http,
+        @Inject(Jsonp) private jp: Jsonp) {
 
     }
 
@@ -24,8 +25,8 @@ export class Resource<E, T, TA> {
         }
         if (url.charAt(url.length - 1) === '/') url = url.slice(0, url.length - 2);
         if (Resource.endpoints[e] !== undefined) {
-            console.warn('Cannot use map function at the same API endpoint again (' 
-            + Resource.endpoints[e].url + ')');
+            console.warn('Cannot use map function at the same API endpoint again ('
+                + Resource.endpoints[e].url + ')');
             return false;
         }
         Resource.endpoints[e] = {
@@ -49,7 +50,7 @@ export class Resource<E, T, TA> {
         }
         Resource.endpoints[e].models[model] =
             new Rest<T, TA>(Resource.endpoints[e].url
-                + '/' + model, this.http);
+                + '/' + model, this.http, this.jp);
         return true;
     }
 

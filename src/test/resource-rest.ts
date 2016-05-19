@@ -8,7 +8,9 @@ import {
 // Load the implementations that should be tested
 
 import {provide} from '@angular/core';
-import {Http, HTTP_PROVIDERS, XHRBackend, RequestMethod,
+import {Http, HTTP_PROVIDERS, XHRBackend,
+    RequestMethod, Jsonp, ConnectionBackend,
+    JSONPBackend, JSONPConnection, JSONP_PROVIDERS,
     Response, ResponseOptions} from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
 
@@ -16,13 +18,13 @@ import { Resource } from '../resource.service';
 import { APIS, User } from './mock';
 
 export class TestRest {
-    
-    clone(u:User,id:string = ''):User {
-        let t:User = JSON.parse(JSON.stringify(u));
+
+    clone(u: User, id: string = ''): User {
+        let t: User = JSON.parse(JSON.stringify(u));
         t.name += id;
         return t;
     }
-    
+
     constructor() {
         describe('rest api', () => {
 
@@ -33,7 +35,10 @@ export class TestRest {
                 Http, HTTP_PROVIDERS,
                 provide(XHRBackend, { useClass: MockBackend }),
                 Resource,
-                MockBackend
+                Jsonp, ConnectionBackend,
+                MockBackend,
+                provide(JSONPBackend, { useExisting: MockBackend }),
+                JSONPBackend, JSONP_PROVIDERS,
             ]);
 
             beforeEach(() => {
@@ -43,15 +48,15 @@ export class TestRest {
                     id: undefined
                 };
                 users = [];
-                users.push(this.clone(user,'1'));
-                users.push(this.clone(user,'2'));
-                users.push(this.clone(user,'3'));
-                
+                users.push(this.clone(user, '1'));
+                users.push(this.clone(user, '2'));
+                users.push(this.clone(user, '3'));
+
             });
 
             it('should retrive model with get request',
-                inject([Resource, Http, MockBackend],
-                    (rest: Resource<APIS,User,User[]>, http: Http, backend: MockBackend) => {
+                inject([Resource, Http, MockBackend, Jsonp],
+                    (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
                         backend.connections.subscribe(
                             (c: MockConnection) => {
 
@@ -64,7 +69,7 @@ export class TestRest {
 
                             });
 
-                        rest = new Resource<APIS,User,User[]>(http);
+                        rest = new Resource<APIS, User, User[]>(http, jp);
                         let url = 'https://somewhere.com';
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
@@ -75,10 +80,10 @@ export class TestRest {
                         });
 
                     }));
-                    
+
             it('should retrive models array with get request',
-                inject([Resource, Http, MockBackend],
-                    (rest: Resource<APIS,User,User[]>, http: Http, backend: MockBackend) => {
+                inject([Resource, Http, MockBackend, Jsonp],
+                    (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
                         backend.connections.subscribe(
                             (c: MockConnection) => {
 
@@ -93,7 +98,7 @@ export class TestRest {
 
                             });
 
-                        rest = new Resource<APIS,User,User[]>(http);
+                        rest = new Resource<APIS, User, User[]>(http, jp);
                         let url = 'https://somewhere.com';
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
@@ -106,11 +111,11 @@ export class TestRest {
                         });
 
                     }));
-            
-            
+
+
             it('should save model',
-                inject([Resource, Http, MockBackend],
-                    (rest: Resource<APIS,User,User[]>, http: Http, backend: MockBackend) => {
+                inject([Resource, Http, MockBackend, Jsonp],
+                    (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
                         backend.connections.subscribe(
                             (c: MockConnection) => {
 
@@ -124,7 +129,7 @@ export class TestRest {
 
                             });
 
-                        rest = new Resource<APIS,User,User[]>(http);
+                        rest = new Resource<APIS, User, User[]>(http, jp);
                         let url = 'https://somewhere.com';
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
@@ -135,11 +140,11 @@ export class TestRest {
                         });
 
                     }));
-            
-            
+
+
             it('should update model',
-                inject([Resource, Http, MockBackend],
-                    (rest: Resource<APIS,User,User[]>, http: Http, backend: MockBackend) => {
+                inject([Resource, Http, MockBackend, Jsonp],
+                    (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
                         backend.connections.subscribe(
                             (c: MockConnection) => {
 
@@ -152,22 +157,22 @@ export class TestRest {
 
                             });
 
-                        rest = new Resource<APIS,User,User[]>(http);
+                        rest = new Resource<APIS, User, User[]>(http, jp);
                         let url = 'https://somewhere.com';
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
-                        rest.api(APIS.FIRST, 'users').update(0,user).subscribe((res) => {
+                        rest.api(APIS.FIRST, 'users').update(0, user).subscribe((res) => {
                             expect(res).toEqual(user);
                         }, (err) => {
                             fail;
                         });
 
                     }));
-                    
-                    
+
+
             it('should delete model',
-                inject([Resource, Http, MockBackend],
-                    (rest: Resource<APIS,User,User[]>, http: Http, backend: MockBackend) => {
+                inject([Resource, Http, MockBackend, Jsonp],
+                    (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
                         backend.connections.subscribe(
                             (c: MockConnection) => {
 
@@ -180,7 +185,7 @@ export class TestRest {
 
                             });
 
-                        rest = new Resource<APIS,User,User[]>(http);
+                        rest = new Resource<APIS, User, User[]>(http, jp);
                         let url = 'https://somewhere.com';
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
@@ -191,7 +196,42 @@ export class TestRest {
                         });
 
                     }));
-            
+
+            it('should get jsonp data',
+                inject([Resource, Http, MockBackend, Jsonp],
+                    (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp: Jsonp) => {
+                        
+                        backend.connections.subscribe({
+                            next: connection => {
+                                
+                                console.log('I AM HERE')
+                                
+                                let res = new Response(new ResponseOptions({
+                                    body: JSON.stringify(users)
+                                }));
+                                
+                                setTimeout(() => {
+                                    // Send a response to the request
+                                    connection.mockRespond(res);
+                                });
+                            }
+                        });
+                        
+                        
+                        console.log('HELLO')
+
+                        rest = new Resource<APIS, User, User[]>(http, jp);
+                        let url = 'https://somewhere.com';
+                        Resource.map(APIS.FIRST.toString(), url);
+                        rest.add(APIS.FIRST, 'users');
+                        rest.api(APIS.FIRST, 'users').jsonp().subscribe((res) => {
+                            expect(res).toEqual(user);
+                        }, (err) => {
+                            fail;
+                        });
+
+                    }));
+
 
 
         });

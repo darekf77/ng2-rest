@@ -1,4 +1,4 @@
-import { Http, Response, Headers } from '@angular/http';
+import { Http, Response, Headers, Jsonp } from '@angular/http';
 
 import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs/Observable';
@@ -8,7 +8,7 @@ export class Rest<T, TA> {
     private headers: Headers;
 
 
-    constructor(private endpoint: string, private http: Http) {
+    constructor(private endpoint: string, private http: Http, private jp: Jsonp) {
         this.headers = new Headers();
         this.headers.append('Content-Type', 'application/json');
         this.headers.append('Accept', 'application/json');
@@ -27,7 +27,7 @@ export class Rest<T, TA> {
         if (typeof id === 'object') {
             id = JSON.stringify(id);
             id = encodeURI(id);
-        } 
+        }
         return this.http.get(this.endpoint + '/' + id).map(res => res.json());
     }
 
@@ -46,6 +46,10 @@ export class Rest<T, TA> {
     public remove = (id: any): Observable<T> => {
         return this.http.delete(this.endpoint + '/' + id,
             { headers: this.headers }).map(res => res.json());
+    }
+
+    public jsonp = (): Observable<any> => {
+        return this.jp.request(this.endpoint).map(res => res.json());
     }
 }
 
