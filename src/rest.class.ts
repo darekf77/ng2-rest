@@ -54,12 +54,21 @@ export class Rest<T, TA> {
     }
 
 
-    mock = (data: string, timeout: number = 0) => {
+    mock = (data: any, timeout: number = 0) => {
 
         let subject;
         let r;
         setTimeout(() => {
-            subject.next(JSON.parse(data));
+            if( typeof data === 'object' ) {
+                subject.next(data);
+            }
+            else if( typeof data === 'string' ){
+                subject.next(JSON.parse(data));
+            }
+            else {
+                throw new Error(`Data for mock isn't string or object, endpoint:${this.endpoint}`);
+            }
+
         }, timeout);
 
         let t = {
