@@ -6,7 +6,9 @@ Take advantage of ENUM in typescript and generic class and
 define your **multiple endpoints url**. Playing with your REST
 API was never so easy...
 
-Also **mocking** data is super nice here.
+Also **mocking** data is super nice here. You can use mock contrller to randomize
+and customize your restponse data.  Also there new option for **production mode** -
+your app will be using normal request even if mock are defined.
 
 
 
@@ -69,11 +71,14 @@ Map your urls and models
 
               // NEW! mock your request
 		     users = [ { name:"name1":id:1 }, { name:"name2":id:2 }   ]
+			 mock_controller = (user) => { user.id = 100; return user; }
              mocked_models = {
                 getAllMocks:  this.rest.api(ENDPOINTS.API, 'users')
                   .mock(JSON.stringify(this.users)).query(),
                getFirstMock:  this.rest.api(ENDPOINTS.API, 'users')
                   .mock(require('user.json')), 1000).get(0), // timeout 1000ms = 1s
+                getDataFromController:  this.rest.api(ENDPOINTS.API, 'users')
+                  .mock(require('user.json')), 0, mock_controller).get(100),
              };
 
               user:User;

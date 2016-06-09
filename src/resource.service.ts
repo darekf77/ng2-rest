@@ -1,7 +1,9 @@
 import { Injectable, Inject } from '@angular/core';
 import { Http, Response, Headers, Jsonp } from '@angular/http';
 
-import { Rest } from './rest.class';
+import { 
+    
+    Rest } from './rest.class';
 
 @Injectable()
 export class Resource<E, T, TA> {
@@ -14,6 +16,16 @@ export class Resource<E, T, TA> {
     constructor( @Inject(Http) private http: Http,
         @Inject(Jsonp) private jp: Jsonp) {
 
+    }
+
+    private static isProductionModeSet = false;
+    public static setProductionMode() {
+        if(Resource.isProductionModeSet) {
+            console.warn('PRODUCTION MODE already set for entire application');
+            return;
+        }
+        Resource.isProductionModeSet = true;
+        Rest.isProductionVersion = true;
     }
 
     public static map(endpoint: string, url: string): boolean {

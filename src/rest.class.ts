@@ -3,11 +3,12 @@ import { Http, Response, Headers, Jsonp } from '@angular/http';
 import { Subject }    from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs/Observable';
+import { MockController } from './mock.controller';
 
 export class Rest<T, TA> {
 
     private headers: Headers;
-
+    public static isProductionVersion:Boolean = false;
 
     constructor(private endpoint: string, private http: Http, private jp: Jsonp) {
         this.headers = new Headers();
@@ -54,21 +55,26 @@ export class Rest<T, TA> {
     }
 
 
-    mock = (data: any, timeout: number = 0) => {
-
+    mock = (data: any, timeout: number = 0, controller: MockController = undefined) => {
+        if (Rest.isProductionVersion) return this;
         let subject;
         let r;
         setTimeout(() => {
-            if( typeof data === 'object' ) {
+            if (controller !== undefined) {
+                let d = controller(data);
                 subject.next(data);
             }
-            else if( typeof data === 'string' ){
-                subject.next(JSON.parse(data));
-            }
             else {
-                throw new Error(`Data for mock isn't string or object, endpoint:${this.endpoint}`);
+                if (typeof data === 'object') {
+                    subject.next(data);
+                }
+                else if (typeof data === 'string') {
+                    subject.next(JSON.parse(data));
+                }
+                else {
+                    throw new Error(`Data for mock isn't string or object, endpoint:${this.endpoint}`);
+                }
             }
-
         }, timeout);
 
         let t = {
