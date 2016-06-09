@@ -71,9 +71,9 @@ Map your urls and models
 		     users = [ { name:"name1":id:1 }, { name:"name2":id:2 }   ]
              mocked_models = {
                 getAllMocks:  this.rest.api(ENDPOINTS.API, 'users')
-                  .mock(this.users).query(),
+                  .mock(JSON.stringify(this.users)).query(),
                getFirstMock:  this.rest.api(ENDPOINTS.API, 'users')
-                  .mock(this.users[0], 1000).get(0), // timeout 1000ms = 1s
+                  .mock(require('user.json')), 1000).get(0), // timeout 1000ms = 1s
              };
 
               user:User;
