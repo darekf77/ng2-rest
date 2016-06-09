@@ -63,7 +63,7 @@ export class Rest<T, TA> {
         setTimeout(() => {
             if (controller !== undefined) {
                 let d = controller(data, tparams);
-                subject.next(data);
+                subject.next(d);
             }
             else {
                 if (typeof data === 'object') {
