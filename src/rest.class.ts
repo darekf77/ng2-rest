@@ -8,7 +8,7 @@ import { MockController } from './mock.controller';
 export class Rest<T, TA> {
 
     private headers: Headers;
-    public static isProductionVersion:Boolean = false;
+    public static isProductionVersion: Boolean = false;
 
     constructor(private endpoint: string, private http: Http, private jp: Jsonp) {
         this.headers = new Headers();
@@ -59,9 +59,10 @@ export class Rest<T, TA> {
         if (Rest.isProductionVersion) return this;
         let subject;
         let r;
+        let tparams = {};
         setTimeout(() => {
             if (controller !== undefined) {
-                let d = controller(data);
+                let d = controller(data, tparams);
                 subject.next(data);
             }
             else {
@@ -79,26 +80,31 @@ export class Rest<T, TA> {
 
         let t = {
             query: (params: any = undefined): Observable<TA> => {
+                tparams = params;
                 subject = new Subject<TA>();
                 return subject.asObservable();
             },
 
             get: (id: any): Observable<T> => {
+                tparams = { id };
                 subject = new Subject<T>();
                 return subject.asObservable();
             },
 
             save: (item: T): Observable<T> => {
+                tparams = { item };
                 subject = new Subject<T>();
                 return subject.asObservable();;
             },
 
             update: (id: any, itemToUpdate: T): Observable<T> => {
+                tparams = { id, itemToUpdate };
                 subject = new Subject<T>();
                 return subject.asObservable();
             },
 
             remove: (id: any): Observable<T> => {
+                tparams = { id };
                 subject = new Subject<T>();
                 return subject.asObservable();
             },
