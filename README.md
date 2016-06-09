@@ -6,6 +6,8 @@ Take advantage of ENUM in typescript and generic class and
 define your **multiple endpoints url**. Playing with your REST
 API was never so easy...
 
+Also **mocking** data is super nice here.
+
 
 
 To install package run:
@@ -64,6 +66,16 @@ Map your urls and models
                 getSuperUser: this.rest.api(ENDPOINTS.API, 'users').get(0),
                 saveCurrentUser : this.rest.api(ENDPOINTS.API, 'users').save(this.user)
               };
+
+              // NEW! mock your request
+		     users = [ { name:"name1":id:1 }, { name:"name2":id:2 }   ]
+             mocked_models = {
+                getAllMocks:  this.rest.api(ENDPOINTS.API, 'users')
+                  .mock(this.users).query(),
+               getFirstMock:  this.rest.api(ENDPOINTS.API, 'users')
+                  .mock(this.users[0], 1000).get(0), // timeout 1000ms = 1s
+             };
+
               user:User;
               
              }
@@ -88,8 +100,6 @@ Available methods:
 - **save** ( post your model )
 - **update** ( put model by id )
 - **remove** ( delete model by id )
-    
-Additional methods ( in nearest future )
 - **jsonp** ( get jsonp data )
     
 

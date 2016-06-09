@@ -16,7 +16,8 @@ import { Resource } from './resource.service';
 import { 
     TestMap, 
     TestAdd,
-    TestRest
+    TestRest,
+    TestRestMock
  } from './test';
 
 
@@ -33,7 +34,7 @@ describe('ng2-rest', () => {
     new TestMap();
     new TestAdd();
     new TestRest();
-    
+    new TestRestMock();
 
 
 
