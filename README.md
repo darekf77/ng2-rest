@@ -71,7 +71,10 @@ Map your urls and models
 
               // NEW! mock your request
 		     users = [ { name:"name1":id:1 }, { name:"name2":id:2 }   ]
-			 mock_controller = (user) => { user.id = 100; return user; }
+			 mock_controller = (user, params) => { 
+			     user.id = params.id;
+			     return user; 
+			 }
              mocked_models = {
                 getAllMocks:  this.rest.api(ENDPOINTS.API, 'users')
                   .mock(JSON.stringify(this.users)).query(),

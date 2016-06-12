@@ -62,12 +62,22 @@ export class Rest<T, TA> {
         let tparams = {};
         setTimeout(() => {
             if (controller !== undefined) {
-                let d = controller(data, tparams);
+                let tdata;
+                if (typeof data === 'object') {
+                   tdata = JSON.parse(JSON.stringify(data));
+                }
+                else if (typeof data === 'string') {
+                    tdata  = JSON.parse(data);
+                }
+                else {
+                    throw new Error(`Data for mock isn't string or object, endpoint:${this.endpoint}`);
+                }
+                let d = controller( tdata, tparams);
                 subject.next(d);
             }
             else {
                 if (typeof data === 'object') {
-                    subject.next(data);
+                    subject.next(JSON.parse(JSON.stringify(data)));
                 }
                 else if (typeof data === 'string') {
                     subject.next(JSON.parse(data));
