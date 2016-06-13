@@ -49,7 +49,7 @@ export class Resource<E, T, TA> {
     }
 
     add(endpoint: E, model: string): boolean {
-        if (model.charAt(0) === '/') model = model.slice(1, model.length - 1);
+        if (model.charAt(0) === '/') model = model.slice(1, model.length );
         let e = <string>(endpoint).toString();
         if (Resource.endpoints[e] === undefined) {
             console.error('Endpoint is not mapped ! Cannot add model ' + model);
@@ -67,7 +67,7 @@ export class Resource<E, T, TA> {
     }
 
     api(endpoint: E, model: string): Rest<T, TA> {
-        if (model.charAt(0) === '/') model = model.slice(1, model.length - 1);
+        if (model.charAt(0) === '/') model = model.slice(1, model.length);
         let e = <string>(endpoint).toString();
         if (Resource.endpoints[e] === undefined) {
             console.error('Endpoint is not mapped ! Cannot add model ' + model);
