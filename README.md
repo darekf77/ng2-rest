@@ -7,7 +7,10 @@ define your **multiple endpoints url**. Playing with your REST
 API was never so easy...
 
 Also **mocking** data is super nice here. You can use mock contrller to randomize
-and customize your restponse data.  Also there new option for **production mode** -
+and customize your response data successes and errors ( by returning undefined in
+mock controller). 
+
+Also there new option for **production mode** -
 your app will be using normal request even if mock are defined.
 
 
