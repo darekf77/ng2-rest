@@ -105,12 +105,32 @@ Use it:
      }
 		
 
-Available methods:
-- **query** ( fetch array of your models )
-- **get** ( get model by id )
-- **save** ( post your model )
-- **update** ( put model by id )
-- **remove** ( delete model by id )
-- **jsonp** ( get jsonp data )
-    
+
+API
+---------------
+Optionally object parameters in methods below are created by encodeURIComponent(JSON.stringif(params)) 
+so **in your backend** you need to use function **decodeURIComponent(params) **  to get ids, params 
+from passed url. You don't need to do that in mock controlelrs.
+
+Name | Parameters  | Description | Example | 
+--- | - | ---
+**query** | `nothing or object ` |  fetch array of your models (optionally with parameters) | `getModels()`, `getSortedModels({sort:true})`
+**get** | `id or object ` |   get model by id  (optionally by parameters ) | `getUser(1)`, `getSomeModel( {  color : 'blue' })`
+**save** | `object ` |   post object model | `saveUser({ name: 'Dario', age: 26 })` 
+**update** | `id or object ` |   put object model | `updateUser(1,object)`, `updateUsers( {  color : 'blue' },  {  banned: true  } )`
+**remove** | `id or object ` |   remove object by id by params | `removeUser(1)`, `removeModels( {  color : 'blue' })`
+**jsonp** | `nothing` |   (ALPHA) get jsonp data | `getDataFromOtherServer()`
+
+
+
+Mock controller
+-------
+
+It is one of the best features here. You don't need a backend for your front-end stuff ! 
+
+ - first argument is data from  passed to function**mock( here ..., .. )**
+ - second arguments are params from 
+ - to create error request return undefined or nothing
+ - use console.log | console.error | console.info to debug your backed
+ - do not use exceptions
 

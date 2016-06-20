@@ -5,10 +5,19 @@ import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs/Observable';
 import { MockController } from './mock.controller';
 
+
+function transform(o) {
+    if (typeof o === 'object') {
+        return encodeURIComponent(JSON.stringify(o));
+    }
+    return o;
+}
+
 export class Rest<T, TA> {
 
     private headers: Headers;
     public static isProductionVersion: Boolean = false;
+
 
     constructor(private endpoint: string, private http: Http, private jp: Jsonp) {
         this.headers = new Headers();
@@ -18,8 +27,7 @@ export class Rest<T, TA> {
 
     public query = (params: any = undefined): Observable<TA> => {
         if (params !== undefined) {
-            if (typeof params === 'object') params = JSON.stringify(params);
-            params = encodeURI(params);
+            params = transform(params);
             return this.http.get(this.endpoint + '/' + params).map(res => res.json());
         }
         return this.http.get(this.endpoint).map(res => res.json());
@@ -27,8 +35,7 @@ export class Rest<T, TA> {
 
     public get = (id: any): Observable<T> => {
         if (typeof id === 'object') {
-            id = JSON.stringify(id);
-            id = encodeURI(id);
+            id = transform(id);
         }
         return this.http.get(this.endpoint + '/' + id).map(res => res.json());
     }
@@ -41,11 +48,17 @@ export class Rest<T, TA> {
     }
 
     public update = (id: any, itemToUpdate: T): Observable<T> => {
+        if (typeof id === 'object') {
+            id = transform(id);
+        }
         return this.http.put(this.endpoint + '/' + id, JSON.stringify(itemToUpdate),
             { headers: this.headers }).map(res => res.json());
     }
 
     public remove = (id: any): Observable<T> => {
+        if (typeof id === 'object') {
+            id = transform(id);
+        }
         return this.http.delete(this.endpoint + '/' + id,
             { headers: this.headers }).map(res => res.json());
     }
@@ -97,7 +110,8 @@ export class Rest<T, TA> {
             },
 
             get: (id: any): Observable<T> => {
-                tparams = { id };
+                if (typeof id === 'object') tparams = id;
+                else tparams = { id };
                 subject = new Subject<T>();
                 return subject.asObservable();
             },
