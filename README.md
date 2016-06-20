@@ -126,7 +126,7 @@ Mock controller
 
 It is one of the best features here. You don't need a backend for your front-end stuff ! 
 
- - first argument is data from  passed to function**mock( here ..., .. )**
+ - first argument is data from passed to function **mock( here ..., .. )**
  - second arguments are params from 
  - to create error request return undefined or nothing
  - use console.log | console.error | console.info to debug your backed
