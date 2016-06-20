@@ -132,3 +132,8 @@ It is one of the best features here. You don't need a backend for your front-end
  - use console.log | console.error | console.info to debug your backed
  - do not use exceptions
 
+| Tables        | Are           | Cool  |
+| ------------- |:-------------:| -----:|
+| col 3 is      | right-aligned | $1600 |
+| col 2 is      | centered      |   $12 |
+| zebra stripes | are neat      |    $1 |
