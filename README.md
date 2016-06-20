@@ -108,9 +108,7 @@ Use it:
 
 API
 ---------------
-Optionally object parameters in methods below are created by encodeURIComponent(JSON.stringif(params)) 
-so **in your backend** you need to use function **decodeURIComponent(params) **  to get ids, params 
-from passed url. You don't need to do that in mock controlelrs.
+Optionally object parameters in methods below are created by encodeURIComponent(JSON.stringif(params)) so **in your backend** you need to use function **decodeURIComponent(params) **  to get ids, params from passed url. You don't need to do that in mock controlelrs.
 
 Name | Parameters  | Description | Example | 
 --- | - | ---
