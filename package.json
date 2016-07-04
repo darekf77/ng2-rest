@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "3.0.38",
+  "version": "3.0.39",
   "description": "rest package for angular 2",
   "main": "index.js",
   "scripts": {
@@ -24,16 +24,15 @@
     "url": "https://github.com/darekf77/ng2-rest/issues"
   },
   "homepage": "https://github.com/darekf77/ng2-rest#readme",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "@angular/common": "2.0.0-rc.3",
     "@angular/core": "2.0.0-rc.3",
     "@angular/http": "2.0.0-rc.3",
     "@angular/compiler": "2.0.0-rc.3",
     "@angular/platform-browser": "2.0.0-rc.3",
     "@angular/platform-browser-dynamic": "2.0.0-rc.3",
-    "rxjs": "^5.0.0-beta.6"
-  },
-  "devDependencies": {
+    "rxjs": "^5.0.0-beta.6",
     "awesome-typescript-loader": "~0.17.0",
     "core-js": "^2.2.2",
     "istanbul-instrumenter-loader": "^0.2.0",
