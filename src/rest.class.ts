@@ -67,6 +67,7 @@ export class Rest<T, TA> {
         return this.jp.request(this.endpoint).map(res => res.json());
     }
 
+    private backend: MockAutoBackend<T>;
 
     mock = (data: any, timeout: number = 0, controller: MockController<T> = undefined, nunOfMocks: number = 0) => {
         if (Rest.isProductionVersion) return this;
@@ -85,9 +86,12 @@ export class Rest<T, TA> {
                 else {
                     throw new Error(`Data for mock isn't string or object, endpoint:${this.endpoint}`);
                 }
+                if (this.backend === undefined && nunOfMocks > 0)
+                    this.backend = new MockAutoBackend<T>(data, nunOfMocks);
+
                 let d = nunOfMocks === 0 ? controller(tdata, tparams) :
-                    controller(tdata, tparams, new MockAutoBackend<T>(data, nunOfMocks));
-                if (d === undefined) subject.error(d)
+                    controller(tdata, tparams, this.backend);
+                if (d === undefined) subject.error(d);
                 else subject.next(d);
             }
             else {
