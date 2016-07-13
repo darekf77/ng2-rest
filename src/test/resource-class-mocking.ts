@@ -156,6 +156,11 @@ export class TestMockingClass {
                                 { id: 1, $title: ['asdas', '21323'] },
                                 { id: 2, $title: ['ddd', 'aaa'] }
                             ],
+                            $square: [
+                                [ '1','1' ],
+                                [ '2','2' ],
+                                [ '3','23' ]
+                            ],
                             networth: 100000
                         };
 
