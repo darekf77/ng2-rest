@@ -73,7 +73,7 @@ export class MockAutoBackend<T> {
         for (let i = 0; i < howManyGen; i++) {
             let model: T = <T>{};
             this.construct(template, model);
-            this.models.push(model)
+            this.models.push(model[0]);
             // console.log(model);
         }
     }
