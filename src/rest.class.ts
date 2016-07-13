@@ -4,7 +4,7 @@ import { Subject }    from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs/Observable';
 import { MockController } from './mock.controller';
-
+import { MockAutoBackend } from './mock-auto-backend.class';
 
 function transform(o) {
     if (typeof o === 'object') {
@@ -68,7 +68,7 @@ export class Rest<T, TA> {
     }
 
 
-    mock = (data: any, timeout: number = 0, controller: MockController = undefined) => {
+    mock = (data: any, timeout: number = 0, controller: MockController<T> = undefined, nunOfMocks: number = 0) => {
         if (Rest.isProductionVersion) return this;
         let subject;
         let r;
@@ -85,7 +85,8 @@ export class Rest<T, TA> {
                 else {
                     throw new Error(`Data for mock isn't string or object, endpoint:${this.endpoint}`);
                 }
-                let d = controller(tdata, tparams);
+                let d = nunOfMocks === 0 ? controller(tdata, tparams) :
+                    controller(tdata, tparams, new MockAutoBackend<T>(data, nunOfMocks));
                 if (d === undefined) subject.error(d)
                 else subject.next(d);
             }

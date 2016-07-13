@@ -13,8 +13,11 @@
   },
   "keywords": [
     "rest",
+    "angular2",
     "angular 2",
-    "$resource"
+    "$resource",
+    "resource",
+    "ng2"
   ],
   "author": {
     "name": "Dariusz Filipiak"

@@ -6,9 +6,25 @@ Take advantage of ENUM in typescript and generic class and
 define your **multiple endpoints url**. Playing with your REST
 API was never so easy...
 
-Also **mocking** data is super nice here. You can use mock contrller to randomize
+Also **mocking** data is super nice here. You can use mock controller to randomize
 and customize your response data successes and errors ( by returning undefined in
 mock controller). 
+
+If you wanna generate, filter, order, sort sample data try third options in controller - 
+**MockAutoBackend**. By building sample json data object with $ prefix property
+ now it is possible to generate very nice random data. Example:
+
+    {
+        $id : [1,2,3],
+        name: 'Dariusz'
+    }
+
+The outut will be: 
+
+    {
+        id: 2,            // or 1 or 2  - its random thing,
+        name: 'Dariusz'   // property without $ stays the same 
+    }
 
 Also there new option for **production mode** -
 your app will be using normal request even if mock are defined.
@@ -74,7 +90,7 @@ Map your urls and models
 
               // NEW! mock your request
 		     users = [ { name:"name1":id:1 }, { name:"name2":id:2 }   ]
-			 mock_controller = (user, params) => { 
+			 mock_controller = (user, params, backend ) => { // new option backend 
 			     user.id = params.id;
 			     return user; 
 			 }
@@ -108,7 +124,8 @@ Use it:
 
 API
 -------
-Optionally object parameters in methods below are created by encodeURIComponent(JSON.stringif(params)) so **in your backend** you need to use function **decodeURIComponent(params) **  to get ids, params from passed url. You don't need to do that in mock controlelrs.
+Optionally object parameters in methods below are created by encodeURIComponent(JSON.stringif(params)) so **in your backend** 
+you need to use function **decodeURIComponent(params) **  to get ids, params from passed url. You don't need to do that in mock controlelrs.
 
 | Name | Parameters  | Description | Example | 
 | :---: | --- | --- | ---: |
@@ -131,4 +148,5 @@ It is one of the best features here. You don't need a backend for your front-end
  - to create error request return undefined or nothing
  - use console.log | console.error | console.info to debug your backed
  - do not use exceptions
+
 
