@@ -16,6 +16,7 @@ import { MockBackend, MockConnection } from '@angular/http/testing';
 
 import { Resource } from '../resource.service';
 import { APIS, User } from './mock';
+import { MockAutoBackend } from '../mock-auto-backend.class';
 
 export class TestRestMock {
 
@@ -228,6 +229,57 @@ export class TestRestMock {
                         rest.add(APIS.FIRST, 'users');
                         rest.api(APIS.FIRST, 'users').mock({ something: 'something bad' }).get(0).subscribe((res) => {
                             expect(res).toEqual(user);
+                        }, (err) => {
+                            fail;
+                        });
+
+                    }));
+
+
+            it('should generate models throuh auto backend',
+                inject([Resource, Http, MockBackend, Jsonp],
+                    (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
+
+                        rest = new Resource<APIS, User, User[]>(http, jp);
+                        let url = 'https://somewhere.com';
+                        Resource.map(APIS.FIRST.toString(), url);
+                        rest.add(APIS.FIRST, 'users');
+
+                        let ctrl = (data: User, params: any, backend: MockAutoBackend<User>) => {
+                            expect(backend).toBeDefined();
+                            console.log('backend', backend);
+                            console.log('HELLO IAM HERE')
+                            data.id = 100;
+                            expect(params.id).toBe(0);
+                            return data;
+                        }
+
+                        rest.api(APIS.FIRST, 'users').mock(user, 0, ctrl, 1).get(0).subscribe((res) => {
+                            expect(res.id).toBe(100);
+                        }, (err) => {
+                            fail;
+                        });
+
+                    }));
+
+            it('should not generate models throuh auto backend',
+                inject([Resource, Http, MockBackend, Jsonp],
+                    (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
+
+                        rest = new Resource<APIS, User, User[]>(http, jp);
+                        let url = 'https://somewhere.com';
+                        Resource.map(APIS.FIRST.toString(), url);
+                        rest.add(APIS.FIRST, 'users');
+
+                        let ctrl = (data: User, params: any, backend: MockAutoBackend<User>) => {
+                            expect(backend).toBeUndefined();
+                            data.id = 100;
+                            expect(params.id).toBe(0);
+                            return data;
+                        }
+
+                        rest.api(APIS.FIRST, 'users').mock(user, 0, ctrl).get(0).subscribe((res) => {
+                            expect(res.id).toBe(100);
                         }, (err) => {
                             fail;
                         });

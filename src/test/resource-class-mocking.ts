@@ -120,7 +120,7 @@ export class TestMockingClass {
                         expect(deepEqual(d, d3)).toBeTruthy();
                     }));
 
-                it('should go inside objectc on third level',
+            it('should go inside objectc on third level',
                 inject([Resource, Http, MockBackend, Jsonp],
                     (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
 
@@ -138,28 +138,32 @@ export class TestMockingClass {
                                 }
                             }
                         };
-                        let res = MockAutoBackend.goInside(d, ['book', 'cat','mouse']);
+                        let res = MockAutoBackend.goInside(d, ['book', 'cat', 'mouse']);
                         // console.log(d);
                         // console.log(d4);
                         // console.log(res);
                         expect(deepEqual(d, d4)).toBeTruthy();
                     }));
 
-                it('should object to be transofrmed',
+            it('should object to be transofrmed',
                 inject([Resource, Http, MockBackend, Jsonp],
                     (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
 
                         let t = {
-                            name: ["Dariusz", "Adam"],
-                            age: [2, 4, 5, 66],
-                            book: [
-                                { id: 1, title: ['asdas', '21323'] },
-                                { id: 2, title: 'ii' }
+                            $name: ["Dariusz", "Adam", "Karol", "Maciej"],
+                            $age: [2, 4, 5, 66, 9],
+                            $book: [
+                                { id: 1, $title: ['asdas', '21323'] },
+                                { id: 2, $title: ['ddd', 'aaa'] }
                             ],
-                            networth : 100000
+                            networth: 100000
                         };
 
-                        let d = new MockAutoBackend(t, 4);
+                        let d = new MockAutoBackend(t, 7);
+                        d.models.forEach(m => {
+                            console.log(m);
+                        });
+
                         // let d2 = new MockPagination(t, 4);
                         // console.log('MODEL', d.models);
                         // console.log('MODEL', d2.models);

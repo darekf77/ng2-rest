@@ -25,9 +25,21 @@ function goInside(o: Object, pathes: string[]): Object {
     return tmp;
 }
 
+
 function cut$(p: string) {
     return p.substring(1, p.length);
 }
+
+function isSimpleType(value) {
+    return ((typeof value === 'number') ||
+        (typeof value === 'boolean') ||
+        (typeof value === 'string') ||
+        (typeof value === 'undefined'));
+}
+
+let pName = p => {
+    return p.charAt(0) !== '$' ? p : cut$(p)
+};
 
 export enum SortType {
     'ASC',
@@ -36,6 +48,21 @@ export enum SortType {
 export interface SortModel {
     field: string;
     type?: SortType;
+}
+
+function copyFromTo(fromObj: Object, toObj: Object) {
+    for (let p in fromObj) {
+        if (fromObj.hasOwnProperty(p)) {
+            
+            toObj[p] = fromObj[p];
+        }
+    }
+    for (let p in toObj) {
+        if (toObj.hasOwnProperty(p)) {
+            // console.log('p', p);
+            if (p.charAt(0) === '$')  delete toObj[p];
+        }
+    }
 }
 
 export class MockAutoBackend<T> {
@@ -47,7 +74,7 @@ export class MockAutoBackend<T> {
             let model: T = <T>{};
             this.construct(template, model);
             this.models.push(model)
-            console.log(model);
+            // console.log(model);
         }
     }
 
@@ -128,53 +155,61 @@ export class MockAutoBackend<T> {
 
     static goInside = goInside;
 
+
+
+
     construct(o: Object, cModel: T, path: string[] = []) {
+        // console.log('contruct with object', o);
         let tmpModel: T;
         for (let p in o) {
             if (o.hasOwnProperty(p)) {
 
                 let value = o[p];
                 // console.log('value', value);
-                if ((p.charAt(0) === '$')) {
-                    goInside(cModel, path)[cut$(p)] = value;
-                    tmpModel = JSON.parse(JSON.stringify(cModel));
-                    continue;
-                }
-                if ((typeof value === 'number') ||
-                    (typeof value === 'boolean') ||
-                    (typeof value === 'string') ||
-                    (typeof value === 'undefined')
-                ) {
-                    goInside(cModel, path)[p] = value;
-                    tmpModel = JSON.parse(JSON.stringify(cModel));
-                    continue;
-                }
 
+                if (isArray(value) && p.charAt(0) === '$') {
+                    let arr: any[] = value;
+                    // console.log('array value before', arr);
+                    arr.forEach(elem => {
+                        if (!isArray(elem) && !isSimpleType(elem)) {
+                            // console.log('is object but not array', elem);
+                            let t: T = <T>{};
+                            this.construct(elem, t);
+                            // console.log('returned model before', elem);
+                            // console.log('returned model', t);
+                            copyFromTo(t, elem);
+
+                        }
+                        // else console.log('is array', elem);
+                    });
+                    // console.log('array value after',arr);
+                    let g = genNumber(arr.length - 1);
+                    // console.log('index g', g);
+                    goInside(cModel, path)[pName(p)] = arr[g];
+                    // console.log('cModel after array', cModel);
+                    tmpModel = JSON.parse(JSON.stringify(cModel));
+                    continue;
+                }
 
                 if (isObject(value)) {
-                    let joinedPath = path.concat(p);
+                    // console.log('go recrusive with', value);
+                    let joinedPath = path.concat(pName(p));
                     this.construct(value, cModel, joinedPath);
                     continue;
                 }
-                if (isArray(value)) {
-                    let arr: any[] = value;
-                    arr.forEach(elem => {
-                        if (isObject(elem) && !isArray(elem)) {
-                            let t: T = <T>{};
-                            elem = this.construct(elem, t);
-                            elem = t;
-                        }
-                    });
-                    let g = genNumber(arr.length - 1);
-                    // console.log('index g', g);
-                    goInside(cModel, path)[p] = arr[g];
+
+                if (isSimpleType(value) || (p.charAt(0) !== '$')
+                ) {
+                    goInside(cModel, path)[pName(p)] = value;
                     tmpModel = JSON.parse(JSON.stringify(cModel));
                     continue;
                 }
+
+
+
                 throw new Error('bad type of object: ' + value);
             }
         }
-        return JSON.parse(JSON.stringify(tmpModel));
     }
 
 
