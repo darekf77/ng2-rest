@@ -17,7 +17,8 @@ import {
     TestMap, 
     TestAdd,
     TestRest,
-    TestRestMock
+    TestRestMock,
+    TestMockingClass
  } from './test';
 
 
@@ -31,10 +32,12 @@ describe('ng2-rest', () => {
         Resource
     ]);
 
+    new TestMockingClass();
     new TestMap();
     new TestAdd();
     new TestRest();
     new TestRestMock();
+
 
 
 
