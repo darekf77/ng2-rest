@@ -22,7 +22,7 @@ If you wanna generate, filter, order, sort sample data try third options in cont
 The outut will be: 
 
     {
-        id: 2,            // or 1 or 2  - its random thing,
+        id: 2,            // or 1 or 3  - it's random thing,
         name: 'Dariusz'   // property without $ stays the same 
     }
 
