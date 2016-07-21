@@ -41,15 +41,13 @@ To install package run:
 Simple use:
 
 
-    import { Resource } from 'ng2-rest/ng2-rest';
-    import { JSONP_PROVIDERS } from '@angular/http';
+    import { Resource, NG2REST_PROVIDERS } from 'ng2-rest/ng2-rest';
     
 and class to your bootstrap:
 
     bootstrap(App, [
               SOME_APP_PROVIDERS, 
-              JSONP_PROVIDERS // required  
-              Resource // our ng2-rest
+              NG2REST_PROVIDERSs // our ng2-rest
            ]);
 
 build your enum with endpoints ( you can also use strings, but enum's are better !) :

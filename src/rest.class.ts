@@ -1,6 +1,6 @@
 import { Http, Response, Headers, Jsonp } from '@angular/http';
 
-import { Subject }    from 'rxjs/Subject';
+import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs/Observable';
 import { MockController } from './mock.controller';

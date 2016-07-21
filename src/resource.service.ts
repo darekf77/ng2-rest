@@ -1,9 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 import { Http, Response, Headers, Jsonp } from '@angular/http';
 
-import { 
-    
-    Rest } from './rest.class';
+import {Rest} from './rest.class';
 
 @Injectable()
 export class Resource<E, T, TA> {
@@ -20,7 +18,7 @@ export class Resource<E, T, TA> {
 
     private static isProductionModeSet = false;
     public static setProductionMode() {
-        if(Resource.isProductionModeSet) {
+        if (Resource.isProductionModeSet) {
             console.warn('PRODUCTION MODE already set for entire application');
             return;
         }
@@ -49,7 +47,7 @@ export class Resource<E, T, TA> {
     }
 
     add(endpoint: E, model: string): boolean {
-        if (model.charAt(0) === '/') model = model.slice(1, model.length );
+        if (model.charAt(0) === '/') model = model.slice(1, model.length);
         let e = <string>(endpoint).toString();
         if (Resource.endpoints[e] === undefined) {
             console.error('Endpoint is not mapped ! Cannot add model ' + model);
