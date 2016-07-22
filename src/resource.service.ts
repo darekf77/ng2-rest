@@ -26,6 +26,25 @@ export class Resource<E, T, TA> {
         Rest.isProductionVersion = true;
     }
 
+    public static use<T extends string>(endpoint_url: T): boolean {
+        let regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+        let e:string = endpoint_url;
+        if (!regex.test(endpoint_url)) {
+            console.error('Url address is not correct: ' + endpoint_url);
+            return false;
+        }
+        if (Resource.endpoints[e] !== undefined) {
+            console.warn('Cannot use map function at the same API endpoint again ('
+                + Resource.endpoints[e].url + ')');
+            return false;
+        }
+        Resource.endpoints[e] = {
+            url: endpoint_url,
+            models: {}
+        };
+        return true;
+    }
+
     public static map(endpoint: string, url: string): boolean {
         let regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
         let e = endpoint;
