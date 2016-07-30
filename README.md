@@ -10,27 +10,6 @@ Also **mocking** data is super nice here. You can use mock controller to randomi
 and customize your response data successes and errors ( by returning undefined in
 mock controller). 
 
-If you wanna generate, filter, order, sort sample data try third options in controller - 
-**MockAutoBackend**. By building sample json data object with $ prefix property
- now it is possible to generate very nice random data. Example:
-
-    {
-        $id : [1,2,3],
-        name: 'Dariusz'
-    }
-
-The outut will be: 
-
-    {
-        id: 2,            // or 1 or 3  - it's random thing,
-        name: 'Dariusz'   // property without $ stays the same 
-    }
-
-Also there new option for **production mode** -
-your app will be using normal request even if mock are defined.
-
-
-
 To install package run:
 
     npm install ng2-rest --save
@@ -148,3 +127,22 @@ It is one of the best features here. You don't need a backend for your front-end
  - do not use exceptions
 
 
+
+If you wanna generate, filter, order, sort sample data try third options in controller - 
+**MockAutoBackend**. By building sample json data object with $ prefix property
+ now it is possible to generate very nice random data. Example:
+
+    {
+        $id : [1,2,3],
+        name: 'Dariusz'
+    }
+
+The output will be: 
+
+    {
+        id: 2,            // or 1 or 3  - it's random thing,
+        name: 'Dariusz'   // property without $ stays the same 
+    }
+
+Also there new option for **production mode** -
+your app will be using normal request even if mock are defined.
