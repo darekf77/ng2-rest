@@ -60,7 +60,12 @@ export class Rest<T, TA> {
             id = transform(id);
         }
         return this.http.delete(this.endpoint + '/' + id,
-            { headers: this.headers }).map(res => res.json());
+            { headers: this.headers }).map(res => {                
+                if( res.text() !== '' ) {
+                    return res.json()
+                }
+                return {};
+            });
     }
 
     public jsonp = (): Observable<any> => {
