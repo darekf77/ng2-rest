@@ -4,3 +4,8 @@
 npm-debug.log
 
 /coverage
+
+/src/**/*.js
+/src/**/*.js.map
+ng2-rest.js
+ng2-rest.js.map
