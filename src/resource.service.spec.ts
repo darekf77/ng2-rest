@@ -18,7 +18,8 @@ import {
     TestAdd,
     TestRest,
     TestRestMock,
-    TestMockingClass
+    TestMockingClass,
+    TestProduction
  } from './test';
 
 
@@ -37,8 +38,6 @@ describe('ng2-rest', () => {
     new TestAdd();
     new TestRest();
     new TestRestMock();
-
-
-
+    new TestProduction();
 
 });

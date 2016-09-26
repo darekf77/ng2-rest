@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { Http, Response, Headers, Jsonp } from '@angular/http';
+import { MockingMode } from './mocking-mode';
 
 import {Rest} from './rest.class';
 
@@ -9,6 +10,7 @@ export class Resource<E, T, TA> {
     private static endpoints = {};
     public static reset() {
         Resource.endpoints = {};
+        Resource.mockingModeIsSet = false;
     }
 
     constructor( @Inject(Http) private http: Http,
@@ -16,16 +18,36 @@ export class Resource<E, T, TA> {
 
     }
 
-    private static isProductionModeSet = false;
-    public static setProductionMode() {
-        if (Resource.isProductionModeSet) {
-            console.warn('PRODUCTION MODE already set for entire application');
+    private static mockingModeIsSet = false;
+    private static mockingMode: MockingMode = MockingMode.MIX;
+
+    /**
+     * Define source of your microsevices
+     * 
+     * @static
+     * @param {MockingMode} mode
+     * @returns
+     */
+    public static setMockingMode(mode: MockingMode) {
+        
+        if (Resource.mockingModeIsSet) {
+            console.warn('MOCKING MODE already set for entire application');
             return;
         }
-        Resource.isProductionModeSet = true;
-        Rest.isProductionVersion = true;
+        Resource.mockingModeIsSet = true;        
+        Resource.mockingMode = mode;
+        Rest.mockingMode = mode;
+        console.log('mode is set ', mode);
     }
-
+    
+    /**
+     * Use enpoint in your app
+     * 
+     * @static
+     * @template T
+     * @param {T} endpoint_url
+     * @returns {boolean}
+     */
     public static use<T extends string>(endpoint_url: T): boolean {
         let regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
         let e:string = endpoint_url;
@@ -65,6 +87,13 @@ export class Resource<E, T, TA> {
         return true;
     }
 
+    /**
+     * And enipoint to application
+     * 
+     * @param {E} endpoint
+     * @param {string} model
+     * @returns {boolean}
+     */
     add(endpoint: E, model: string): boolean {
         if (model.charAt(0) === '/') model = model.slice(1, model.length);
         let e = <string>(endpoint).toString();
@@ -83,6 +112,13 @@ export class Resource<E, T, TA> {
         return true;
     }
 
+    /**
+     * Access api throught endpoint
+     * 
+     * @param {E} endpoint
+     * @param {string} model
+     * @returns {Rest<T, TA>}
+     */
     api(endpoint: E, model: string): Rest<T, TA> {
         if (model.charAt(0) === '/') model = model.slice(1, model.length);
         let e = <string>(endpoint).toString();

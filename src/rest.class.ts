@@ -5,6 +5,7 @@ import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs/Observable';
 import { MockController } from './mock.controller';
 import { MockAutoBackend } from './mock-auto-backend.class';
+import { MockingMode } from './mocking-mode';
 
 function transform(o) {
     if (typeof o === 'object') {
@@ -16,7 +17,7 @@ function transform(o) {
 export class Rest<T, TA> {
 
     private headers: Headers;
-    public static isProductionVersion: Boolean = false;
+    public static mockingMode: MockingMode = MockingMode.MIX;
 
 
     constructor(private endpoint: string, private http: Http, private jp: Jsonp) {
@@ -25,7 +26,13 @@ export class Rest<T, TA> {
         this.headers.append('Accept', 'application/json');
     }
 
+    /**
+     * Request to get collection of objects
+     */
     public query = (params: any = undefined): Observable<TA> => {
+        if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
+            throw (`In MOCKING MODE you have to define mock of query for enipoint: ${this.endpoint}.`);
+        }
         if (params !== undefined) {
             params = transform(params);
             return this.http.get(this.endpoint + '/' + params).map(res => res.json());
@@ -33,21 +40,39 @@ export class Rest<T, TA> {
         return this.http.get(this.endpoint).map(res => res.json());
     }
 
+    /**
+     * Request to get object
+     */
     public get = (id: any): Observable<T> => {
+        if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
+            throw (`In MOCKING MODE you have to define mock of get for enipoint: ${this.endpoint}.`);
+        }
         if (typeof id === 'object') {
             id = transform(id);
         }
         return this.http.get(this.endpoint + '/' + id).map(res => res.json());
     }
 
+    /**
+     * Save object with request
+     */
     public save = (item: T): Observable<T> => {
+        if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
+            throw (`In MOCKING MODE you have to define mock of save for enipoint: ${this.endpoint}.`);
+        }
         let toAdd = JSON.stringify(item);
 
         return this.http.post(this.endpoint, toAdd,
             { headers: this.headers }).map(res => res.json());
     }
 
+    /**
+     * Update object with request
+     */
     public update = (id: any, itemToUpdate: T): Observable<T> => {
+        if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
+            throw (`In MOCKING MODE you have to define mock of update for enipoint: ${this.endpoint}.`);
+        }
         if (typeof id === 'object') {
             id = transform(id);
         }
@@ -55,27 +80,42 @@ export class Rest<T, TA> {
             { headers: this.headers }).map(res => res.json());
     }
 
+    /**
+     * Remove object with request 
+     */
     public remove = (id: any): Observable<T> => {
+        if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
+            throw (`In MOCKING MODE you have to define mock of remove for enipoint: ${this.endpoint}.`);
+        }
         if (typeof id === 'object') {
             id = transform(id);
         }
         return this.http.delete(this.endpoint + '/' + id,
-            { headers: this.headers }).map(res => {                
-                if( res.text() !== '' ) {
+            { headers: this.headers }).map(res => {
+                if (res.text() !== '') {
                     return res.json()
                 }
                 return {};
             });
     }
 
+    /**
+     *  Create JSONP request 
+     */
     public jsonp = (): Observable<any> => {
+        if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
+            throw (`In MOCKING MODE you have to define mock of jsonp for enipoint: ${this.endpoint}.`);
+        }
         return this.jp.request(this.endpoint).map(res => res.json());
     }
 
     private backend: MockAutoBackend<T>;
 
     mock = (data: any, timeout: number = 0, controller: MockController<T> = undefined, nunOfMocks: number = 0) => {
-        if (Rest.isProductionVersion) return this;
+        if (Rest.mockingMode === MockingMode.LIVE_BACKEND_ONLY) {
+            console.log('FROM MOCK TO LIVE')
+            return this;
+        }
         let subject;
         let r;
         let tparams = {};
