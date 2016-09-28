@@ -8,5 +8,6 @@ export interface DocModel extends DocExample {
     group: string;
     description: string;
     examples: DocExample[];
+    baseURL: string;
 }
 
