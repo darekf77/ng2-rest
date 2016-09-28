@@ -18,6 +18,15 @@ export class Resource<E, T, TA> {
 
     }
 
+    recreateServer() {
+        if (!Rest.docServerUrl) {
+            throw `Can't recreate sever without URL do docs server. Use function Resource.setUrlToDocsServer().`;
+        }
+        let url = Rest.docServerUrl.charAt(Rest.docServerUrl.length - 1) === '/' ?
+            Rest.docServerUrl.slice(0, Rest.docServerUrl.length - 1) : Rest.docServerUrl;
+        url = `${url}/api/start`;
+        return this.http.get(url);
+    }
 
     setUrlToDocsServer(url: string) {
         Rest.docServerUrl = url;
