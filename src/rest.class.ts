@@ -195,7 +195,7 @@ export class Rest<T, TA> {
     }
 
 
-    useCase(description: string) {
+    public useCase(description: string) {
         this.useCaseDescription = description;
         return this;
     }
