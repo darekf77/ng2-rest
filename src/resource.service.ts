@@ -108,7 +108,14 @@ export class Resource<E, T, TA> {
      * @param {string} model
      * @returns {boolean}
      */
-    add(endpoint: E, model: string, group: string = 'no_group', name: string, description: string = '<< no description >>'): boolean {
+    add(endpoint: E, model: string, group: string, name?: string, description?: string): boolean {
+        if (!name) {
+            let exName: string = model.replace(new RegExp('/', 'g'), ' ');
+            let slName = exName.split(' ');
+            let newName = [];
+            slName.map(fr => fr[0].toUpperCase() + fr.substr(1))
+            name = slName.join(' ');
+        }
         if (model.charAt(0) === '/') model = model.slice(1, model.length);
         let e = <string>(endpoint).toString();
         if (Resource.endpoints[e] === undefined) {
