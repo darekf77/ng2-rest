@@ -7,8 +7,9 @@ export interface DocModel {
     name: string;
     group: string;
     description: string;
-    body: string;
-    params: string;
+    bodySend: string;
+    bodyRecieve: string;
+    urlParams: string;
     usecase: string;
     method: HttpMethod;
     examples: DocExample[];

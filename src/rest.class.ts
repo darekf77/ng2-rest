@@ -40,39 +40,63 @@ export class Rest<T, TA> {
             model.name = this.name;
             model.group = this.group;
             model.usecase = this.useCaseDescription;
+            model.url = this.endpoint;
+
             let url = Rest.docServerUrl.charAt(Rest.docServerUrl.length - 1) === '/' ?
                 Rest.docServerUrl.slice(0, Rest.docServerUrl.length - 1) : Rest.docServerUrl;
             url = `${url}/api/save`;
 
-            this.http.post(Rest.docServerUrl, encodeURI(JSON.stringify(model)));
+            this.http.post(url, JSON.stringify(model), { headers: this.headers }).subscribe(() => {
+                console.log('request saved to docs server');
+            });
         }
     }
+
+    private prepare = {
+        url: {
+            query: (params?: any): string => {
+                if (params) params = transform(params);
+                return (params) ? this.endpoint + '/' + params : this.endpoint;
+            },
+            get: (id?: any) => {
+                if (typeof id === 'object') {
+                    id = transform(id);
+                }
+                return (id) ? this.endpoint + '/' + id : this.endpoint
+            },
+            save: () => this.endpoint,
+            update: (id?: any) => {
+                if (typeof id === 'object') {
+                    id = transform(id);
+                }
+                return (id) ? this.endpoint + '/' + id : this.endpoint
+            },
+            remove: (id?: any) => {
+                if (typeof id === 'object') {
+                    id = transform(id);
+                }
+                return (id) ? this.endpoint + '/' + id : this.endpoint
+            },
+            // remove: (params) => this.endpoint + '/' + params,
+            // jsonp: (params) => this.endpoint + '/' + params,
+
+        }
+    };
 
     /**
      * Request to get collection of objects
      */
     public query = (params: any = undefined): Observable<TA> => {
-
+        
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of query for enipoint: ${this.endpoint}.`);
         }
-        if (params !== undefined) {
-            params = transform(params);
-            return this.http.get(this.endpoint + '/' + params).map(res => {
-                let r = res.json()
-                this.log(<DocModel>{
-                    params: JSON.stringify(params),
-                    body: JSON.stringify(r),
-                    method: <HttpMethod>'GET'
-                });
-                return r;
-            });
-        }
-        return this.http.get(this.endpoint).map(res => {
+        let u = this.prepare.url.query(params);
+        return this.http.get(u).map(res => {
             let r = res.json()
             this.log(<DocModel>{
-                params: JSON.stringify(params),
-                body: JSON.stringify(r),
+                urlParams: JSON.stringify(params),
+                bodyRecieve: JSON.stringify(r),
                 method: <HttpMethod>'GET'
             });
             return r;
@@ -86,14 +110,12 @@ export class Rest<T, TA> {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of get for enipoint: ${this.endpoint}.`);
         }
-        if (typeof id === 'object') {
-            id = transform(id);
-        }
-        return this.http.get(this.endpoint + '/' + id).map(res => {
+        let u = this.prepare.url.get(id);
+        return this.http.get(u).map(res => {
             let r = res.json()
             this.log(<DocModel>{
-                params: JSON.stringify(id),
-                body: JSON.stringify(r),
+                urlParams: JSON.stringify({ id: id }),
+                bodyRecieve: JSON.stringify(r),
                 method: <HttpMethod>'GET'
             });
             return r;
@@ -107,14 +129,14 @@ export class Rest<T, TA> {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of save for enipoint: ${this.endpoint}.`);
         }
-        let toAdd = JSON.stringify(item);
-
-        return this.http.post(this.endpoint, toAdd,
+        let u = this.prepare.url.save();
+        let d = JSON.stringify(item);
+        return this.http.post(u, d,
             { headers: this.headers }).map(res => {
                 let r = res.json()
                 this.log(<DocModel>{
-                    params: JSON.stringify(item),
-                    body: JSON.stringify(r),
+                    bodySend: d,
+                    bodyRecieve: JSON.stringify(r),
                     method: <HttpMethod>'POST'
                 });
                 return r;
@@ -128,18 +150,15 @@ export class Rest<T, TA> {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of update for enipoint: ${this.endpoint}.`);
         }
-        if (typeof id === 'object') {
-            id = transform(id);
-        }
-        return this.http.put(this.endpoint + '/' + id, JSON.stringify(itemToUpdate),
+        let u = this.prepare.url.update(id); // this.endpoint + '/' + id;
+        let d = JSON.stringify(itemToUpdate);
+        return this.http.put(u, JSON.stringify(itemToUpdate),
             { headers: this.headers }).map(res => {
                 let r = res.json()
                 this.log(<DocModel>{
-                    params: JSON.stringify({
-                        id,
-                        itemToUpdate
-                    }),
-                    body: JSON.stringify(r),
+                    urlParams: JSON.stringify({ id: id }),
+                    bodySend: d,
+                    bodyRecieve: JSON.stringify(r),
                     method: <HttpMethod>'PUT'
                 });
                 return r;
@@ -153,17 +172,15 @@ export class Rest<T, TA> {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of remove for enipoint: ${this.endpoint}.`);
         }
-        if (typeof id === 'object') {
-            id = transform(id);
-        }
-        return this.http.delete(this.endpoint + '/' + id,
+        let u = this.prepare.url.remove(id); // this.endpoint + '/' + id;
+        return this.http.delete(u,
             { headers: this.headers }).map(res => {
 
                 if (res.text() !== '') {
                     let r = res.json()
                     this.log(<DocModel>{
-                        params: JSON.stringify({ id: id }),
-                        body: JSON.stringify(r),
+                        urlParams: JSON.stringify({ id: id }),
+                        bodyRecieve: JSON.stringify(r),
                         method: <HttpMethod>'DELETE'
                     });
                     return r;
@@ -188,8 +205,7 @@ export class Rest<T, TA> {
         return this.jp.request(this.endpoint).map(res => {
             let r = res.json()
             this.log(<DocModel>{
-                params: JSON.stringify({}),
-                body: JSON.stringify(r),
+                bodyRecieve: JSON.stringify(r),
                 method: <HttpMethod>'JSONP'
             });
             return r;
@@ -207,6 +223,9 @@ export class Rest<T, TA> {
         let r;
         let tparams = {};
         let currentMethod: HttpMethod;
+        let currentBodySend: string;
+        let currentUrlParams: string;
+
         setTimeout(() => {
 
             if (controller !== undefined) {
@@ -228,8 +247,9 @@ export class Rest<T, TA> {
                 if (d === undefined) subject.error(d);
                 else {
                     this.log(<DocModel>{
-                        params: JSON.stringify(tparams),
-                        body: JSON.stringify(d),
+                        urlParams: currentUrlParams,
+                        bodyRecieve: JSON.stringify(d),
+                        bodySend: currentBodySend,
                         method: currentMethod
                     });
                     subject.next(d);
@@ -239,8 +259,9 @@ export class Rest<T, TA> {
                 if (typeof data === 'object') {
                     let res = JSON.parse(JSON.stringify(data));
                     this.log(<DocModel>{
-                        params: JSON.stringify(tparams),
-                        body: JSON.stringify(res),
+                        urlParams: currentUrlParams,
+                        bodyRecieve: JSON.stringify(res),
+                        bodySend: currentBodySend,
                         method: currentMethod
                     });
                     subject.next(res);
@@ -248,8 +269,9 @@ export class Rest<T, TA> {
                 else if (typeof data === 'string') {
                     let res = JSON.parse(data);
                     this.log(<DocModel>{
-                        params: JSON.stringify(tparams),
-                        body: JSON.stringify(res),
+                        urlParams: currentUrlParams,
+                        bodyRecieve: JSON.stringify(res),
+                        bodySend: currentBodySend,
                         method: currentMethod
                     });
                     subject.next(res);
@@ -264,6 +286,7 @@ export class Rest<T, TA> {
             query: (params: any = undefined): Observable<TA> => {
                 currentMethod = 'GET';
                 tparams = params;
+                currentUrlParams = JSON.stringify(tparams);
                 subject = new Subject<TA>();
                 return subject.asObservable();
             },
@@ -272,6 +295,7 @@ export class Rest<T, TA> {
                 currentMethod = 'GET';
                 if (typeof id === 'object') tparams = id;
                 else tparams = { id };
+                currentUrlParams = JSON.stringify({ id: id });
                 subject = new Subject<T>();
                 return subject.asObservable();
             },
@@ -280,6 +304,7 @@ export class Rest<T, TA> {
                 currentMethod = 'POST';
                 tparams = { item };
                 subject = new Subject<T>();
+                currentBodySend = JSON.stringify(item);
                 return subject.asObservable();;
             },
 
@@ -287,12 +312,15 @@ export class Rest<T, TA> {
                 currentMethod = 'PUT';
                 tparams = { id, itemToUpdate };
                 subject = new Subject<T>();
+                currentUrlParams = JSON.stringify({ id:id });
+                currentBodySend = JSON.stringify(itemToUpdate);
                 return subject.asObservable();
             },
 
             remove: (id: any): Observable<T> => {
                 currentMethod = 'DELETE';
                 tparams = { id };
+                currentUrlParams = JSON.stringify({ id:id });
                 subject = new Subject<T>();
                 return subject.asObservable();
             },
