@@ -87,7 +87,7 @@ export class Rest<T, TA> {
      * Request to get collection of objects
      */
     public query = (params: any = undefined): Observable<TA> => {
-        
+
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of query for enipoint: ${this.endpoint}.`);
         }
@@ -97,7 +97,8 @@ export class Rest<T, TA> {
             this.log(<DocModel>{
                 urlParams: JSON.stringify(params),
                 bodyRecieve: JSON.stringify(r),
-                method: <HttpMethod>'GET'
+                method: <HttpMethod>'GET',
+                urlFull: u
             });
             return r;
         });
@@ -116,7 +117,8 @@ export class Rest<T, TA> {
             this.log(<DocModel>{
                 urlParams: JSON.stringify({ id: id }),
                 bodyRecieve: JSON.stringify(r),
-                method: <HttpMethod>'GET'
+                method: <HttpMethod>'GET',
+                urlFull: u
             });
             return r;
         });
@@ -137,7 +139,8 @@ export class Rest<T, TA> {
                 this.log(<DocModel>{
                     bodySend: d,
                     bodyRecieve: JSON.stringify(r),
-                    method: <HttpMethod>'POST'
+                    method: <HttpMethod>'POST',
+                    urlFull: u
                 });
                 return r;
             });
@@ -159,7 +162,8 @@ export class Rest<T, TA> {
                     urlParams: JSON.stringify({ id: id }),
                     bodySend: d,
                     bodyRecieve: JSON.stringify(r),
-                    method: <HttpMethod>'PUT'
+                    method: <HttpMethod>'PUT',
+                    urlFull: u
                 });
                 return r;
             });
@@ -181,7 +185,8 @@ export class Rest<T, TA> {
                     this.log(<DocModel>{
                         urlParams: JSON.stringify({ id: id }),
                         bodyRecieve: JSON.stringify(r),
-                        method: <HttpMethod>'DELETE'
+                        method: <HttpMethod>'DELETE',
+                        urlFull: u
                     });
                     return r;
                 }
@@ -202,11 +207,13 @@ export class Rest<T, TA> {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of jsonp for enipoint: ${this.endpoint}.`);
         }
-        return this.jp.request(this.endpoint).map(res => {
+        let u = this.endpoint;
+        return this.jp.request(u).map(res => {
             let r = res.json()
             this.log(<DocModel>{
                 bodyRecieve: JSON.stringify(r),
-                method: <HttpMethod>'JSONP'
+                method: <HttpMethod>'JSONP',
+                urlFull: u
             });
             return r;
         });
@@ -225,6 +232,7 @@ export class Rest<T, TA> {
         let currentMethod: HttpMethod;
         let currentBodySend: string;
         let currentUrlParams: string;
+        let currentFullUrl: string;
 
         setTimeout(() => {
 
@@ -250,7 +258,8 @@ export class Rest<T, TA> {
                         urlParams: currentUrlParams,
                         bodyRecieve: JSON.stringify(d),
                         bodySend: currentBodySend,
-                        method: currentMethod
+                        method: currentMethod,
+                        urlFull: currentFullUrl
                     });
                     subject.next(d);
                 }
@@ -262,7 +271,8 @@ export class Rest<T, TA> {
                         urlParams: currentUrlParams,
                         bodyRecieve: JSON.stringify(res),
                         bodySend: currentBodySend,
-                        method: currentMethod
+                        method: currentMethod,
+                        urlFull: currentFullUrl
                     });
                     subject.next(res);
                 }
@@ -272,7 +282,8 @@ export class Rest<T, TA> {
                         urlParams: currentUrlParams,
                         bodyRecieve: JSON.stringify(res),
                         bodySend: currentBodySend,
-                        method: currentMethod
+                        method: currentMethod,
+                        urlFull: currentFullUrl
                     });
                     subject.next(res);
                 }
@@ -287,6 +298,7 @@ export class Rest<T, TA> {
                 currentMethod = 'GET';
                 tparams = params;
                 currentUrlParams = JSON.stringify(tparams);
+                currentFullUrl = this.prepare.url.query(params);
                 subject = new Subject<TA>();
                 return subject.asObservable();
             },
@@ -295,6 +307,7 @@ export class Rest<T, TA> {
                 currentMethod = 'GET';
                 if (typeof id === 'object') tparams = id;
                 else tparams = { id };
+                currentFullUrl = this.prepare.url.get(id);
                 currentUrlParams = JSON.stringify({ id: id });
                 subject = new Subject<T>();
                 return subject.asObservable();
@@ -304,6 +317,7 @@ export class Rest<T, TA> {
                 currentMethod = 'POST';
                 tparams = { item };
                 subject = new Subject<T>();
+                currentFullUrl = this.prepare.url.save();
                 currentBodySend = JSON.stringify(item);
                 return subject.asObservable();;
             },
@@ -312,7 +326,8 @@ export class Rest<T, TA> {
                 currentMethod = 'PUT';
                 tparams = { id, itemToUpdate };
                 subject = new Subject<T>();
-                currentUrlParams = JSON.stringify({ id:id });
+                currentFullUrl = this.prepare.url.update(id);
+                currentUrlParams = JSON.stringify({ id: id });
                 currentBodySend = JSON.stringify(itemToUpdate);
                 return subject.asObservable();
             },
@@ -320,13 +335,15 @@ export class Rest<T, TA> {
             remove: (id: any): Observable<T> => {
                 currentMethod = 'DELETE';
                 tparams = { id };
-                currentUrlParams = JSON.stringify({ id:id });
+                currentFullUrl = this.prepare.url.remove(id);
+                currentUrlParams = JSON.stringify({ id: id });
                 subject = new Subject<T>();
                 return subject.asObservable();
             },
 
             jsonp: (): Observable<any> => {
                 currentMethod = 'JSONP';
+                currentFullUrl = this.endpoint;
                 subject = new Subject<any>();
                 return subject.asObservable();
             }

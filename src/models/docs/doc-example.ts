@@ -5,5 +5,6 @@ export interface DocExample {
     bodyRecieve: string;
     urlParams: string;
     usecase: string;
+    urlFull: string;
     method: HttpMethod;
 }
