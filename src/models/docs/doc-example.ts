@@ -1,7 +1,9 @@
 import { HttpMethod } from './http-method';
 
 export interface DocExample {
-    body: string;
+    bodySend: string;
+    bodyRecieve: string;
+    urlParams: string;
     usecase: string;
     method: HttpMethod;
 }
