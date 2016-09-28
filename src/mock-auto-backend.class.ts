@@ -45,6 +45,7 @@ export enum SortType {
     'ASC',
     'DESC'
 }
+
 export interface SortModel {
     field: string;
     type?: SortType;

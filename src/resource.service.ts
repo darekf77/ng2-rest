@@ -18,6 +18,11 @@ export class Resource<E, T, TA> {
 
     }
 
+
+    setUrlToDocsServer(url: string) {
+        Rest.docServerUrl = url;
+    }
+
     private static mockingModeIsSet = false;
     private static mockingMode: MockingMode = MockingMode.MIX;
 
@@ -29,17 +34,17 @@ export class Resource<E, T, TA> {
      * @returns
      */
     public static setMockingMode(mode: MockingMode) {
-        
+
         if (Resource.mockingModeIsSet) {
             console.warn('MOCKING MODE already set for entire application');
             return;
         }
-        Resource.mockingModeIsSet = true;        
+        Resource.mockingModeIsSet = true;
         Resource.mockingMode = mode;
         Rest.mockingMode = mode;
         console.log('mode is set ', mode);
     }
-    
+
     /**
      * Use enpoint in your app
      * 
@@ -50,7 +55,7 @@ export class Resource<E, T, TA> {
      */
     public static use<T extends string>(endpoint_url: T): boolean {
         let regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
-        let e:string = endpoint_url;
+        let e: string = endpoint_url;
         if (!regex.test(endpoint_url)) {
             console.error('Url address is not correct: ' + endpoint_url);
             return false;
@@ -94,7 +99,7 @@ export class Resource<E, T, TA> {
      * @param {string} model
      * @returns {boolean}
      */
-    add(endpoint: E, model: string): boolean {
+    add(endpoint: E, model: string, group: string = 'no_group', name: string, description: string = '<< no description >>'): boolean {
         if (model.charAt(0) === '/') model = model.slice(1, model.length);
         let e = <string>(endpoint).toString();
         if (Resource.endpoints[e] === undefined) {
@@ -108,7 +113,7 @@ export class Resource<E, T, TA> {
         }
         Resource.endpoints[e].models[model] =
             new Rest<T, TA>(Resource.endpoints[e].url
-                + '/' + model, this.http, this.jp);
+                + '/' + model, this.http, this.jp, description, name, group);
         return true;
     }
 

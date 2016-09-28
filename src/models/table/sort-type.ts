@@ -1,4 +1,4 @@
-export enum SortType {
+export enum SortTypeE {
     __NONE,
     ASC,
     DESC

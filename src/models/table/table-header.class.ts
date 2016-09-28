@@ -1,21 +1,21 @@
-import { SortType } from './sort-type';
+import { SortTypeE } from './sort-type';
 
 export class TableHeader {
-    sort: SortType = SortType.__NONE;
+    sort: SortTypeE = SortTypeE.__NONE;
     name: string;
     constructor(name: string) {
         this.name = name;
     }
     sortBy() {
         switch (this.sort) {
-            case SortType.__NONE:
-                this.sort = SortType.ASC;
+            case SortTypeE.__NONE:
+                this.sort = SortTypeE.ASC;
                 break;
-            case SortType.ASC:
-                this.sort = SortType.DESC;
+            case SortTypeE.ASC:
+                this.sort = SortTypeE.DESC;
                 break;
-            case SortType.DESC:
-                this.sort = SortType.__NONE;
+            case SortTypeE.DESC:
+                this.sort = SortTypeE.__NONE;
                 break;
             default:
                 console.error('BAD SORT SECIFICATION');
