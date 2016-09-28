@@ -17,7 +17,7 @@ function transform(o) {
 
 export class Rest<T, TA> {
 
-    public static docServerUrl;
+    public static docServerUrl: string;
     private headers: Headers;
     public static mockingMode: MockingMode = MockingMode.MIX;
     private useCaseDescription;
@@ -38,9 +38,13 @@ export class Rest<T, TA> {
         if (Rest.docServerUrl) {
             model.description = this.description;
             model.name = this.name;
-            model.group = this.group,
-                model.usecase = this.useCaseDescription,
-                this.http.post(Rest.docServerUrl, encodeURI(JSON.stringify(model)));
+            model.group = this.group;
+            model.usecase = this.useCaseDescription;
+            let url = Rest.docServerUrl.charAt(Rest.docServerUrl.length - 1) === '/' ?
+                Rest.docServerUrl.slice(0, Rest.docServerUrl.length - 1) : Rest.docServerUrl;
+            url = `${url}/api/save`;
+
+            this.http.post(Rest.docServerUrl, encodeURI(JSON.stringify(model)));
         }
     }
 
