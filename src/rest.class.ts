@@ -20,7 +20,7 @@ export class Rest<T, TA> {
     public static docServerUrl: string;
     private headers: Headers;
     public static mockingMode: MockingMode = MockingMode.MIX;
-    private useCaseDescription;
+    public static useCaseDescription;
 
     constructor(
         private endpoint: string,
@@ -39,7 +39,7 @@ export class Rest<T, TA> {
             model.description = this.description;
             model.name = this.name;
             model.group = this.group;
-            model.usecase = this.useCaseDescription;
+            model.usecase = Rest.useCaseDescription;
             model.url = this.endpoint;
 
             let url = Rest.docServerUrl.charAt(Rest.docServerUrl.length - 1) === '/' ?
@@ -194,11 +194,6 @@ export class Rest<T, TA> {
             });
     }
 
-
-    public useCase(description: string) {
-        this.useCaseDescription = description;
-        return this;
-    }
 
     /**
      *  Create JSONP request 
