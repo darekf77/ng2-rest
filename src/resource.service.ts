@@ -18,7 +18,7 @@ export class Resource<E, T, TA> {
 
     }
 
-    recreateServer() {
+    public static recreateServer() {
         if (!Rest.docServerUrl) {
             throw `Can't recreate sever without URL do docs server. Use function Resource.setUrlToDocsServer().`;
         }
@@ -28,7 +28,7 @@ export class Resource<E, T, TA> {
         return this.http.get(url);
     }
 
-    setUrlToDocsServer(url: string) {
+    public static setUrlToDocsServer(url: string) {
         Rest.docServerUrl = url;
     }
 
