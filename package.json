@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "4.1.21",
+  "version": "4.1.22",
   "description": "rest package for angular 2",
   "main": "index.js",
   "scripts": {
