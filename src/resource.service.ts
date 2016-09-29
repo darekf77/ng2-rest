@@ -19,12 +19,12 @@ export class Resource<E, T, TA> {
 
     }
 
-    public static setUrlToDocsServerAndRecreateIt(url: string, http: Http): Observable<Response> {
+    public static setUrlToDocsServer(url: string) {
         Rest.docServerUrl = url;
-        let tmpUrl = Rest.docServerUrl.charAt(Rest.docServerUrl.length - 1) === '/' ?
-            Rest.docServerUrl.slice(0, Rest.docServerUrl.length - 1) : Rest.docServerUrl;
-        tmpUrl = `${tmpUrl}/api/start`;
-        return http.get(tmpUrl);
+        // let tmpUrl = Rest.docServerUrl.charAt(Rest.docServerUrl.length - 1) === '/' ?
+        //     Rest.docServerUrl.slice(0, Rest.docServerUrl.length - 1) : Rest.docServerUrl;
+        // tmpUrl = `${tmpUrl}/api/start`;
+        // return http.get(tmpUrl);
     }
 
     private static mockingModeIsSet = false;
