@@ -36,7 +36,7 @@ export class Rest<T, TA> {
 
     private log(model: DocModel) {
         if (Rest.docServerUrl) {
-            // console.log('model.usecase = Rest.useCaseDescription;', this._useCaseDescription)
+            // console.log('model.usecase = Rest.useCaseDescdription;', this._useCaseDescription)
             model.description = this.description;
             model.name = this.name;
             model.group = this.group;
@@ -116,7 +116,7 @@ export class Rest<T, TA> {
         return this.http.get(u).map(res => {
             let r = res.json()
             this.log(<DocModel>{
-                urlParams: JSON.stringify({ id: id }),
+                urlParams: JSON.stringify(id),
                 bodyRecieve: JSON.stringify(r),
                 method: <HttpMethod>'GET',
                 urlFull: u
@@ -160,7 +160,7 @@ export class Rest<T, TA> {
             { headers: this.headers }).map(res => {
                 let r = res.json()
                 this.log(<DocModel>{
-                    urlParams: JSON.stringify({ id: id }),
+                    urlParams: JSON.stringify(id),
                     bodySend: d,
                     bodyRecieve: JSON.stringify(r),
                     method: <HttpMethod>'PUT',
@@ -184,7 +184,7 @@ export class Rest<T, TA> {
                 if (res.text() !== '') {
                     let r = res.json()
                     this.log(<DocModel>{
-                        urlParams: JSON.stringify({ id: id }),
+                        urlParams: JSON.stringify(id),
                         bodyRecieve: JSON.stringify(r),
                         method: <HttpMethod>'DELETE',
                         urlFull: u
@@ -323,7 +323,7 @@ export class Rest<T, TA> {
                 tparams = { id, itemToUpdate };
                 subject = new Subject<T>();
                 currentFullUrl = this.prepare.url.update(id);
-                currentUrlParams = JSON.stringify({ id: id });
+                currentUrlParams = JSON.stringify(id);
                 currentBodySend = JSON.stringify(itemToUpdate);
                 return subject.asObservable();
             },
@@ -332,7 +332,7 @@ export class Rest<T, TA> {
                 currentMethod = 'DELETE';
                 tparams = { id };
                 currentFullUrl = this.prepare.url.remove(id);
-                currentUrlParams = JSON.stringify({ id: id });
+                currentUrlParams = JSON.stringify(id);
                 subject = new Subject<T>();
                 return subject.asObservable();
             },
