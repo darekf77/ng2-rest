@@ -20,7 +20,7 @@ export class Rest<T, TA> {
     public static docServerUrl: string;
     private headers: Headers;
     public static mockingMode: MockingMode = MockingMode.MIX;
-    public static useCaseDescription;
+    public _useCaseDescription;
 
     constructor(
         private endpoint: string,
@@ -36,10 +36,11 @@ export class Rest<T, TA> {
 
     private log(model: DocModel) {
         if (Rest.docServerUrl) {
+            // console.log('model.usecase = Rest.useCaseDescription;', this._useCaseDescription)
             model.description = this.description;
             model.name = this.name;
             model.group = this.group;
-            model.usecase = Rest.useCaseDescription;
+            model.usecase = this._useCaseDescription;
             model.url = this.endpoint;
 
             let url = Rest.docServerUrl.charAt(Rest.docServerUrl.length - 1) === '/' ?

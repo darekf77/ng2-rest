@@ -151,8 +151,9 @@ export class Resource<E, T, TA> {
             console.error(`Model '${model}' is undefined in endpoint: ${Resource.endpoints[e].url} `);
             return;
         }
-        Rest.useCaseDescription = usecase;
-        return Resource.endpoints[<string>(endpoint).toString()].models[model]
+        let res: Rest<T, TA> = Resource.endpoints[<string>(endpoint).toString()].models[model];
+        res._useCaseDescription = usecase;
+        return res;
     }
 
 }
