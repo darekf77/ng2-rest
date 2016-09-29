@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 import { Http, Response, Headers, Jsonp } from '@angular/http';
 import { MockingMode } from './mocking-mode';
+import { Observable } from 'rxjs';
 
 import {Rest} from './rest.class';
 
@@ -18,18 +19,12 @@ export class Resource<E, T, TA> {
 
     }
 
-    public static recreateServer(http: Http) {
-        if (!Rest.docServerUrl) {
-            throw `Can't recreate sever without URL do docs server. Use function Resource.setUrlToDocsServer().`;
-        }
-        let url = Rest.docServerUrl.charAt(Rest.docServerUrl.length - 1) === '/' ?
-            Rest.docServerUrl.slice(0, Rest.docServerUrl.length - 1) : Rest.docServerUrl;
-        url = `${url}/api/start`;
-        return http.get(url);
-    }
-
-    public static setUrlToDocsServer(url: string) {
+    public static setUrlToDocsServerAndRecreateIt(url: string, http: Http): Observable<Response> {
         Rest.docServerUrl = url;
+        let tmpUrl = Rest.docServerUrl.charAt(Rest.docServerUrl.length - 1) === '/' ?
+            Rest.docServerUrl.slice(0, Rest.docServerUrl.length - 1) : Rest.docServerUrl;
+        tmpUrl = `${tmpUrl}/api/start`;
+        return http.get(tmpUrl);
     }
 
     private static mockingModeIsSet = false;
