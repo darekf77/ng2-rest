@@ -194,7 +194,7 @@ It is one of the best features here. You don't need a backend for your front-end
 		backend: MockAutoBackend<T> ) 
     { 
 	    console.log(backend.models); /// generated models
-		return backend(params.pageNumber, params.pageSave;
+		return backend.getPagination(params.pageNumber, params.pageSize;
     }
 	
 	// example.service.ts
@@ -207,6 +207,18 @@ It is one of the best features here. You don't need a backend for your front-end
 		mockController,
 		this.numberOfGeneratedPaginartionModels) 
 	...
+
+
+	// component.ts
+	...
+	currentDisplayedModels = []
+	pageSize = 10;
+	pageChanged = ( n ) => {
+		this.service.getPagination({ pageNumber:n, pageSize: this.pageSize  })
+			.subscribe(  partOfMockedPaginationModels => {
+				currentDisplayedModels = partOfMockedPaginationModels;
+			}) 
+	}
     
 ```
 
