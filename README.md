@@ -18,31 +18,33 @@ To install package run:
 
 
 Simple use:
-
-
+```ts
     import { Resource, NG2REST_PROVIDERS } from 'ng2-rest/ng2-rest';
-    
+```
 and class to your bootstrap:
 
+```ts
     bootstrap(App, [
               SOME_APP_PROVIDERS, 
               NG2REST_PROVIDERSs // our ng2-rest
            ]);
-
+```
 build your enum with endpoints ( you can also use strings, but enum's are better !) :
-	
+
+```ts
     enum ENDPOINTS { // enum instead of strings
     	    API,
     	    OTHER_API
     	}
-
+```
 
 Define interfaces for response
 
     import { User, Book, Weather } from './models' // interface
 
 Map your urls and models
-   
+ 
+ ```ts
      @Injectable()
         export class SampleServiceORComponent { 
                         // < enum or 'string', single_model, query_model>
@@ -83,10 +85,10 @@ Map your urls and models
               user:User;
               
              }
-
+```
 Use it:
 		
-
+```ts
     giveMeSampleUsers() {
     
  		this.rest.api(ENDPOINTS.API, 'users')
@@ -96,7 +98,7 @@ Use it:
         })
         
      }
-		
+```	
 
 
 API
@@ -131,18 +133,19 @@ It is one of the best features here. You don't need a backend for your front-end
 If you wanna generate, filter, order, sort sample data try third options in controller - 
 **MockAutoBackend**. By building sample json data object with $ prefix property
  now it is possible to generate very nice random data. Example:
-
+```js
     {
         $id : [1,2,3],
         name: 'Dariusz'
     }
+```
 
 The output will be: 
-
+```js
     {
         id: 2,            // or 1 or 3  - it's random thing,
         name: 'Dariusz'   // property without $ stays the same 
     }
-
+```
 Also there new option for **production mode** -
 your app will be using normal request even if mock are defined.
