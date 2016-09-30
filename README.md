@@ -1,6 +1,11 @@
 ## ng2-rest ##
 
-Multi-endpoint REST api with **Angular 2.** Alternative to angularjs $resource.
+Multi-endpoint REST api with **Angular 2.** 
+
+Alternative to angularjs $resource + extremely useful thing to build/mock frontend app in browser.
+
+NEW FEATURE:
+Generate documentation from ng2-rest request with [ng2-rest-docs-server](https://github.com/darekf77/ng2-rest-docs-server) tool.
 
 Take advantage of ENUM in typescript and generic class and
 define your **multiple endpoints url**. Playing with your REST
@@ -13,10 +18,8 @@ mock controller).
 To install package run:
 
     npm install ng2-rest --save
-
-
-
-
+   
+  
 Simple use:
 ```ts
     import { Resource, NG2REST_PROVIDERS } from 'ng2-rest/ng2-rest';
@@ -39,12 +42,12 @@ build your enum with endpoints ( you can also use strings, but enum's are better
 ```
 
 Define interfaces for response
-
+```ts
     import { User, Book, Weather } from './models' // interface
-
+```
 Map your urls and models
  
- ```ts
+```ts
      @Injectable()
         export class SampleServiceORComponent { 
                         // < enum or 'string', single_model, query_model>
@@ -98,7 +101,7 @@ Use it:
         })
         
      }
-```	
+```
 
 
 API
@@ -122,16 +125,99 @@ Mock controller
 
 It is one of the best features here. You don't need a backend for your front-end stuff ! 
 
- - first argument is data from passed to function **mock( here ..., .. )**
+ - first argument is data from passed to function **.mock( here, ..., .. )**
  - second arguments are params from 
  - to create error request return undefined or nothing
- - use console.log | console.error | console.info to debug your backed
+ - use console.log | console.error | console.info to debug your backend or [ng2-logger](https://github.com/darekf77/ng2-logger)
  - do not use exceptions
 
+ Simplest way to mocking data:
+```ts
+	// user.json
+	[{ id: 12, name: 'Dariusz' },
+	{ id: 15, name: 'Marcin' }]
 
 
-If you wanna generate, filter, order, sort sample data try third options in controller - 
-**MockAutoBackend**. By building sample json data object with $ prefix property
+	// service.ts
+	...
+	getUsers = () => this.rest.api( ENDPOINT.API, modelName )
+		.mock( require('./user.json') ).
+		query()
+
+
+	// component.ts
+	...
+	service.getUsers().subscribe( users => {
+		console.log( 'users:', users ); 
+		// users: [{ id: 12, name: 'Dariusz' }, { id: 15, name: 'Marcin' }]
+	}
+```
+ 
+ Sample MockController function to just return mocked data based on params:
+```ts
+	// mock-controller.ts
+    export function mockController(
+	    user: T, params: any, backend: MockAutoBackend<T> ) 
+    { 
+		user.id = params.id;
+		return user; 
+    }
+	
+	
+	// service.ts
+	import { mockController } from './mock-controller';
+	...
+	data = (id) => this.rest.api( ENDPOINT.API, modelName )
+		.mock( { id: 10, name: 'Dariusz'  }, mockController).
+		get({ id: id :))
+
+
+	// component.ts
+	...
+	service.data(23).subscribe( user => {
+		console.log( 'user:', user ); // user: { id: 23, name: 'Dariusz'  }
+	}
+```
+
+ Sample MockController generating pagination data with MockAutoBackend:
+```ts
+	// model.json
+	{
+        $id : [1,2,3],
+        name: 'Dariusz'
+    }
+	
+	// mock-controller.ts
+	export function mockController(
+		user: T, 
+		params: any, 
+		backend: MockAutoBackend<T> ) 
+    { 
+	    console.log(backend.models); /// generated models
+		return backend(params.pageNumber, params.pageSave;
+    }
+	
+	// example.service.ts
+	import { mockController } from './mock-controller';
+	
+	...	
+	numberOfGeneratedPaginartionModels = 400;	
+	getPaginartion =  (params) => this.rest.api( ENDPOINT.API, modelName)
+		.mock( requre('./model.json'), 
+		mockController,
+		this.numberOfGeneratedPaginartionModels) 
+	...
+    
+```
+
+
+MockAutoBackend
+-------
+
+If you wanna ***generate, filter, order, sort*** sample data try third options in controller - 
+MockAutoBackend.  It is perfect thing for mocking pagination in your MockController.
+
+By building sample json data object with $ prefix property
  now it is possible to generate very nice random data. Example:
 ```js
     {
@@ -147,5 +233,6 @@ The output will be:
         name: 'Dariusz'   // property without $ stays the same 
     }
 ```
-Also there new option for **production mode** -
-your app will be using normal request even if mock are defined.
+Of course it is possible to create json with nested $ fields.
+
+
