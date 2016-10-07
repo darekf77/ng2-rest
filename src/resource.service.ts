@@ -108,7 +108,7 @@ export class Resource<E, T, TA> {
             let exName: string = model.replace(new RegExp('/', 'g'), ' ');
             let slName = exName.split(' ');
             let newName = [];
-            let rName = slName.map(fr => fr[0].toUpperCase() + fr.substr(1))
+            let rName = slName.map(fr => (fr[0]) ? (fr[0].toUpperCase() + fr.substr(1)) : '');
             name = rName.join(' ');
         }
         if (model.charAt(0) === '/') model = model.slice(1, model.length);
