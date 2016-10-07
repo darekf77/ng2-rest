@@ -134,17 +134,17 @@ export class MockAutoBackend<T> {
         let models: T[] = JSON.parse(JSON.stringify(this.models));
         params.forEach(s => {
             models = models.sort((a, b) => {
-                if (s.type === SortType.DESC) {
-                    if (a[s.field] < b[s.field])
-                        return -1;
-                    if (a[s.field] > b[s.field])
-                        return 1;
-                } else if (s.type === SortType.DESC) {
-                    if (a[s.field] < b[s.field])
-                        return 1;
-                    if (a[s.field] > b[s.field])
-                        return -1;
-                }
+                // if (s.type === SortType.DESC) {
+                //     if (a[s.field] < b[s.field])
+                //         return -1;
+                //     if (a[s.field] > b[s.field])
+                //         return 1;
+                // } else if (s.type === SortType.DESC) {
+                //     if (a[s.field] < b[s.field])
+                //         return 1;
+                //     if (a[s.field] > b[s.field])
+                //         return -1;
+                // }
                 return 0;
             });
         });
