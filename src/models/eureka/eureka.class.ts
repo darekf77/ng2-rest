@@ -33,6 +33,7 @@ export class Eureka<T, TA> {
     }
 
     private eurekaInstancesResolver(list: EurekaInstance[]) {
+
         if (list.length === 1) {
             this._instance = JSON.parse(JSON.stringify(list[0]));
         } else {
@@ -48,13 +49,14 @@ export class Eureka<T, TA> {
         this.http.get(`${this.config.serviceUrl}/${this.config.decoderName}`,
             { headers: this.headers })
             .subscribe(r => {
-                let res: EurekaApp = r.json();
-                if (!res.list || !res.list.length || res.list.length === 0) {
+                let data = r.json();
+                let res: EurekaApp = data['application'];
+                if (!res.instance || !res.instance.length || res.instance.length === 0) {
                     this._state = EurekaState.SERVER_ERROR;
                     console.error(`Eureka instaces not found on address: ${this.config.serviceUrl}/${this.config.decoderName} `);
                     return;
                 }
-                this.eurekaInstancesResolver(res.list);
+                this.eurekaInstancesResolver(res.instance.filter(e => e.EurekaInstanceStatus === 'up'));
             }, () => {
                 this._state = EurekaState.SERVER_ERROR;
                 console.error(`Eureka server not available address: ${this.config.serviceUrl}/${this.config.decoderName} `);

@@ -10,8 +10,8 @@
     "noEmitHelpers": true,
     "strictNullChecks": false,
     "baseUrl": "./src",
-    "paths": {
-    },
+    "paths": [],
+
     "lib": [
       "dom",
       "es7"
@@ -20,10 +20,13 @@
       "hammerjs",
       "jasmine",
       "node",
+      "protractor",
       "selenium-webdriver",
       "source-map",
       "uglify-js",
-      "webpack"
+      "webpack",
+      "chai",
+      "chai-as-promised"
     ]
   },
   "exclude": [

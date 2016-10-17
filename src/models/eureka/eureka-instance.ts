@@ -1,4 +1,7 @@
+import { EurekaInstanceStatus } from './eureka-instance-status';
+
 export interface EurekaInstance {
-    name: string;
-    url: string;
+    EurekaInstanceStatus: EurekaInstanceStatus;
+    instanceId: string;
+    app: string;
 };

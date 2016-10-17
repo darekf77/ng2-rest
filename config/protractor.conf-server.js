@@ -2,14 +2,17 @@
  * @author: @AngularClass
  */
 
+const ENV = process.env.ENV;
+const baseUrl = ('production' == ENV)? 'http://localhost:3100':'http://localhost:3110';
+
 require('ts-node/register');
 var helpers = require('./helpers');
 
 exports.config = {
-    baseUrl: 'http://localhost:3000/',
+    baseUrl: baseUrl,
 
     params: {
-        baseUrl: 'http://localhost:3000/'
+        baseUrl: baseUrl
     },
 
     // use `npm run e2e`

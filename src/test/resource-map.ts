@@ -24,6 +24,7 @@ export class TestMap {
                     imports: [HttpModule, JsonpModule],
                     declarations: [],
                     providers: [
+                        MockBackend,
                         Resource,
                         ViewContainerRef,
                         { provide: XHRBackend, useClass: MockBackend },

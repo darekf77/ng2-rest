@@ -1,6 +1,6 @@
 import { EurekaInstance } from './eureka-instance';
 
 export interface EurekaApp {
-    list: EurekaInstance[];
+    instance: EurekaInstance[];
     name: string;
 }

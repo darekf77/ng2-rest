@@ -44,6 +44,7 @@ export class TestRest {
                     imports: [HttpModule, JsonpModule],
                     declarations: [],
                     providers: [
+                        MockBackend,
                         Resource,
                         ViewContainerRef,
                         { provide: XHRBackend, useClass: MockBackend },
@@ -196,7 +197,7 @@ export class TestRest {
 
                     }));
 
-            it('should get jsonp data',
+            xit('should get jsonp data',
                 inject([Resource, Http, MockBackend, Jsonp],
                     (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp: Jsonp) => {
 

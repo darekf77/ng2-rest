@@ -42,9 +42,9 @@ export class Rest<T, TA> {
         this.headers.append('Content-Type', 'application/json');
         this.headers.append('Accept', 'application/json');
 
-        if (Rest.restartServerRequest) {
+        if (Rest.restartServerRequest && Rest.docServerUrl && Rest.docServerUrl.trim() !== '') {
             Rest.restartServerRequest = false;
-            
+
             let tmpUrl = Rest.docServerUrl.charAt(Rest.docServerUrl.length - 1) === '/' ?
                 Rest.docServerUrl.slice(0, Rest.docServerUrl.length - 1) : Rest.docServerUrl;
             tmpUrl = `${tmpUrl}/api/start`;
