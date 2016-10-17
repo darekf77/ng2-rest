@@ -27,8 +27,7 @@ export class Rest<T, TA> {
 
     private _endpoint: string;
     public get endpoint() {
-        return (Rest.eureka && Rest.eureka.instance) ?
-            Rest.eureka.instance.instanceId : this._endpoint;
+        return (Rest.eureka && Rest.eureka.instance) ? Rest.eureka.instance.instanceId : this._endpoint;
     }
 
     constructor(
@@ -59,10 +58,7 @@ export class Rest<T, TA> {
                 console.error(`Problem with restart server on ${tmpUrl}`);
             });
         }
-
-        if (Rest.eureka && Rest.eureka.state === EurekaState.DISABLED) {
-            Rest.eureka.discovery(http);
-        }
+        
     }
 
     private log(model: DocModel) {
@@ -84,7 +80,7 @@ export class Rest<T, TA> {
         }
     }
 
-    private waitTimeMs: number = 1000;
+    public static waitTimeMs: number = 1000;
     appIsWaiting() {
         return ((Rest.eureka && Rest.eureka.isWaiting()) || Rest.waitingForDocsServer);
     }
@@ -133,7 +129,7 @@ export class Rest<T, TA> {
             let obs = sub.asObservable();
             setTimeout(() => {
                 this.query(params, sub).subscribe(e => sub.next(e));
-            }, this.waitTimeMs)
+            }, Rest.waitTimeMs)
             return sub;
         }
         let u = this.prepare.url.query(params);
@@ -161,7 +157,7 @@ export class Rest<T, TA> {
             let obs = sub.asObservable();
             setTimeout(() => {
                 this.get(id, sub).subscribe(e => sub.next(e));
-            }, this.waitTimeMs)
+            }, Rest.waitTimeMs)
             return sub;
         }
         let u = this.prepare.url.get(id);
@@ -189,7 +185,7 @@ export class Rest<T, TA> {
             let obs = sub.asObservable();
             setTimeout(() => {
                 this.save(item, sub).subscribe(e => sub.next(e));
-            }, this.waitTimeMs)
+            }, Rest.waitTimeMs)
             return sub;
         }
         let u = this.prepare.url.save();
@@ -219,7 +215,7 @@ export class Rest<T, TA> {
             let obs = sub.asObservable();
             setTimeout(() => {
                 this.update(id, itemToUpdate, _sub).subscribe(e => sub.next(e));
-            }, this.waitTimeMs)
+            }, Rest.waitTimeMs)
             return sub;
         }
         let u = this.prepare.url.update(id); // this.endpoint + '/' + id;
@@ -250,7 +246,7 @@ export class Rest<T, TA> {
             let obs = sub.asObservable();
             setTimeout(() => {
                 this.remove(id, _sub).subscribe(e => sub.next(e));
-            }, this.waitTimeMs)
+            }, Rest.waitTimeMs)
             return sub;
         }
         let u = this.prepare.url.remove(id); // this.endpoint + '/' + id;
@@ -284,7 +280,7 @@ export class Rest<T, TA> {
             let obs = sub.asObservable();
             setTimeout(() => {
                 this.jsonp(_sub).subscribe(e => sub.next(e));
-            }, this.waitTimeMs)
+            }, Rest.waitTimeMs)
             return sub;
         }
         let u = this.endpoint;
@@ -341,7 +337,7 @@ export class Rest<T, TA> {
                         method: currentMethod,
                         urlFull: currentFullUrl
                     });
-                    if (this.appIsWaiting()) setTimeout(() => subject.next(d), this.waitTimeMs);
+                    if (this.appIsWaiting()) setTimeout(() => subject.next(d), Rest.waitTimeMs);
                     else subject.next(d);
                 }
             }
@@ -355,7 +351,7 @@ export class Rest<T, TA> {
                         method: currentMethod,
                         urlFull: currentFullUrl
                     });
-                    if (this.appIsWaiting()) setTimeout(() => subject.next(res), this.waitTimeMs);
+                    if (this.appIsWaiting()) setTimeout(() => subject.next(res), Rest.waitTimeMs);
                     else subject.next(res);
                 }
                 else if (typeof data === 'string') {
@@ -367,7 +363,7 @@ export class Rest<T, TA> {
                         method: currentMethod,
                         urlFull: currentFullUrl
                     });
-                    if (this.appIsWaiting()) setTimeout(() => subject.next(res), this.waitTimeMs);
+                    if (this.appIsWaiting()) setTimeout(() => subject.next(res), Rest.waitTimeMs);
                     else subject.next(res);
                 }
                 else {
@@ -404,6 +400,7 @@ export class Rest<T, TA> {
                 currentBodySend = JSON.stringify(item);
                 return subject.asObservable();;
             },
+
 
             update: (id: any, itemToUpdate: T): Observable<T> => {
                 currentMethod = 'PUT';

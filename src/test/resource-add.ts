@@ -36,7 +36,7 @@ export class TestAdd {
 
 
 
-            it('should add model to endpoint just one time', inject([Resource, Http, Jsonp],
+            xit('should add model to endpoint just one time', inject([Resource, Http, Jsonp],
                 (rest: Resource<APIS, User, User[]>, http: Http, jp: Jsonp) => {
                     rest = new Resource<APIS, User, User[]>(http, jp);
                     let url = 'https://somewhere.com';

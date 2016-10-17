@@ -1,8 +1,8 @@
 import { Injectable, Inject } from '@angular/core';
 import { Http, Response, Headers, Jsonp } from '@angular/http';
 import { MockingMode } from './mocking-mode';
-import { Observable } from 'rxjs';
-import { Eureka, EurekaConfig } from './models';
+import { Observable, Subject } from 'rxjs';
+import { Eureka, EurekaConfig, EurekaState, EurekaInstance } from './models';
 
 import { Rest } from './rest.class';
 
@@ -73,16 +73,26 @@ export class Resource<E, T, TA> {
         };
         return true;
     }
+    private static subEurekaEndpointReady: Subject<EurekaInstance>
+    = new Subject<EurekaInstance>();
+    private static obs = Resource.subEurekaEndpointReady.asObservable();
 
-
-    private static eureka: Eureka<any, any>;
+    // private static eureka: Eureka<any, any>;
     public static mapEureka(config: EurekaConfig)
         : boolean {
         if (!config || !config.serviceUrl || !config.decoderName) {
             console.error(`Bad Eureka config: ${JSON.stringify(config)}`);
             return false;
         }
-        Resource.eureka = new Eureka(config);
+        Rest.eureka = new Eureka(config);
+        Rest.eureka.onInstance.subscribe(ins => {
+            Resource.endpoints[ins.app] = {
+                url: ins.instanceId,
+                models: {}
+            };
+            Resource.subEurekaEndpointReady.next(ins);
+        });
+        console.log('eureka mapped');
         return true;
     }
 
@@ -117,7 +127,21 @@ export class Resource<E, T, TA> {
      * @param {string} model
      * @returns {boolean}
      */
-    add(endpoint: E, model: string, group?: string, name?: string, description?: string): boolean {
+    add(endpoint: E, model: string, group?: string, name?: string, description?: string) {
+        console.log('Rest.eureka', Rest.eureka);
+        if (Rest.eureka && Rest.eureka.state === EurekaState.DISABLED) {
+            Rest.eureka.discovery(this.http);
+        }
+
+        if (Rest.eureka && Rest.eureka.state !== EurekaState.ENABLE // && Rest.eureka.state !== EurekaState.SERVER_ERROR
+        ) {
+            Resource.subEurekaEndpointReady.subscribe(ins => {
+                console.log('SHOUD Be insTANCE!!')
+                this.add(endpoint, model, group, name, description);
+            })
+            return;
+        }
+
         if (!name) {
             let exName: string = model.replace(new RegExp('/', 'g'), ' ');
             let slName = exName.split(' ');
@@ -126,20 +150,27 @@ export class Resource<E, T, TA> {
             name = rName.join(' ');
         }
         if (model.charAt(0) === '/') model = model.slice(1, model.length);
-        let e = <string>(endpoint).toString();
+
+        let e: string;
+        if (Rest.eureka && Rest.eureka.state === EurekaState.ENABLE && Rest.eureka.instance) {
+            e = Rest.eureka.instance.app;
+        } else {
+            e = <string>(endpoint).toString();
+        }
+
         if (Resource.endpoints[e] === undefined) {
             console.error('Endpoint is not mapped ! Cannot add model ' + model);
-            return false;
+            return;
         }
         if (Resource.endpoints[e].models[model] !== undefined) {
             console.warn(`Model '${model}' is already defined in endpoint: `
                 + Resource.endpoints[e].url);
-            return false;
+            return;
         }
         Resource.endpoints[e].models[model] =
             new Rest<T, TA>(Resource.endpoints[e].url
                 + '/' + model, this.http, this.jp, description, name, group);
-        return true;
+        return;
     }
 
     /**

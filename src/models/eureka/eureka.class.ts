@@ -10,6 +10,10 @@ const EurekaWaitTimeout = 500;
 
 export class Eureka<T, TA> {
 
+    protected subjectInstanceFounded: Subject<EurekaInstance>
+    = new Subject<EurekaInstance>();
+    onInstance = this.subjectInstanceFounded.asObservable();
+
     private _instance: EurekaInstance;
     public get instance(): EurekaInstance {
         return this._instance;
@@ -40,12 +44,20 @@ export class Eureka<T, TA> {
             let randomInstance = getRandomInt(0, list.length - 1)
             this._instance = JSON.parse(JSON.stringify(list[randomInstance]));
         }
-        this._state = EurekaState.ENABLE;
+        this.subjectInstanceFounded.next(this._instance);
+        setTimeout(() => {
+            this._state = EurekaState.ENABLE;
+        });       
+
     }
 
     public discovery(http: Http) {
+        this.onInstance.subscribe(() => {
+            console.info('instance resolved !');
+        });
         this.http = http;
         this._state = EurekaState.WAITING_FOR_INSTANCES;
+        console.log('start JOURNE!!!')
         this.http.get(`${this.config.serviceUrl}/${this.config.decoderName}`,
             { headers: this.headers })
             .subscribe(r => {
