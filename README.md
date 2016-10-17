@@ -1,11 +1,19 @@
 ## ng2-rest ##
 
+Compatible with
+
+ 1. [AngularClass/angular2-webpack-starter](https://github.com/AngularClass/angular2-webpack-starter)
+ 2. React  - coming soon...
+
 Multi-endpoint REST api with **Angular 2.** 
 
 Alternative to angularjs $resource + extremely useful thing to build/mock frontend app in browser.
 
 NEW FEATURE:
-Generate documentation from ng2-rest request with [ng2-rest-docs-server](https://github.com/darekf77/ng2-rest-docs-server) tool.
+Generate documentation from ng2-rest requests with [ng2-rest-docs-server](https://github.com/darekf77/ng2-rest-docs-server) tool. 
+Extremely useful with E2E and mocked all app in frontend with ng2-rest 
+- you don't need to make docs for backend... it will be automatically generated
+ from request based on E2E tests.
 
 Take advantage of ENUM in typescript and generic class and
 define your **multiple endpoints url**. Playing with your REST
@@ -22,15 +30,7 @@ To install package run:
   
 Simple use:
 ```ts
-    import { Resource, NG2REST_PROVIDERS } from 'ng2-rest/ng2-rest';
-```
-and class to your bootstrap:
-
-```ts
-    bootstrap(App, [
-              SOME_APP_PROVIDERS, 
-              NG2REST_PROVIDERSs // our ng2-rest
-           ]);
+    import { Resource } from 'ng2-rest/ng2-rest';
 ```
 build your enum with endpoints ( you can also use strings, but enum's are better !) :
 

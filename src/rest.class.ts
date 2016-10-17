@@ -6,7 +6,7 @@ import { Observable } from 'rxjs/Observable';
 import { MockController } from './mock.controller';
 import { MockAutoBackend } from './mock-auto-backend.class';
 import { MockingMode } from './mocking-mode';
-import { DocModel, HttpMethod } from './models';
+import { DocModel, HttpMethod, Eureka, EurekaState } from './models';
 
 function transform(o) {
     if (typeof o === 'object') {
@@ -21,17 +21,47 @@ export class Rest<T, TA> {
     private headers: Headers;
     public static mockingMode: MockingMode = MockingMode.MIX;
     public _useCaseDescription;
+    public static eureka: Eureka<any, any>;
+    public static waitingForDocsServer: boolean = false;
+    public static restartServerRequest: boolean = true;
+
+    private _endpoint: string;
+    public get endpoint() {
+        return (Rest.eureka && Rest.eureka.instance) ? Rest.eureka.instance.url : this._endpoint;
+    }
 
     constructor(
-        private endpoint: string,
+        endpoint: string,
         private http: Http,
         private jp: Jsonp,
         private description: string,
         private name: string,
         private group: string) {
+        this._endpoint = endpoint;
         this.headers = new Headers();
         this.headers.append('Content-Type', 'application/json');
         this.headers.append('Accept', 'application/json');
+
+        if (Rest.restartServerRequest) {
+            Rest.restartServerRequest = false;
+            
+            let tmpUrl = Rest.docServerUrl.charAt(Rest.docServerUrl.length - 1) === '/' ?
+                Rest.docServerUrl.slice(0, Rest.docServerUrl.length - 1) : Rest.docServerUrl;
+            tmpUrl = `${tmpUrl}/api/start`;
+
+            Rest.waitingForDocsServer = true;
+            http.get(tmpUrl).subscribe(() => {
+                Rest.waitingForDocsServer = false;
+                console.info('Docs server restarted');
+            }, (err) => {
+                Rest.waitingForDocsServer = false;
+                console.error(`Problem with restart server on ${tmpUrl}`);
+            });
+        }
+
+        if (Rest.eureka && Rest.eureka.state === EurekaState.DISABLED) {
+            Rest.eureka.discovery(http);
+        }
     }
 
     private log(model: DocModel) {
@@ -48,10 +78,16 @@ export class Rest<T, TA> {
             url = `${url}/api/save`;
 
             this.http.post(url, JSON.stringify(model), { headers: this.headers }).subscribe(() => {
-                console.log('request saved to docs server');
+                console.log('request saved in docs server');
             });
         }
     }
+
+    private waitTimeMs: number = 1000;
+    appIsWaiting() {
+        return ((Rest.eureka && Rest.eureka.isWaiting()) || Rest.waitingForDocsServer);
+    }
+
 
     private prepare = {
         url: {
@@ -87,10 +123,17 @@ export class Rest<T, TA> {
     /**
      * Request to get collection of objects
      */
-    public query = (params: any = undefined): Observable<TA> => {
-
+    public query = (params: any = undefined, _sub: Subject<TA> = undefined): Observable<TA> => {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of query for enipoint: ${this.endpoint}.`);
+        }
+        if (this.appIsWaiting()) {
+            let sub: Subject<TA> = _sub ? _sub : new Subject<TA>();
+            let obs = sub.asObservable();
+            setTimeout(() => {
+                this.query(params, sub).subscribe(e => sub.next(e));
+            }, this.waitTimeMs)
+            return sub;
         }
         let u = this.prepare.url.query(params);
         return this.http.get(u).map(res => {
@@ -108,9 +151,17 @@ export class Rest<T, TA> {
     /**
      * Request to get object
      */
-    public get = (id: any): Observable<T> => {
+    public get = (id: any, _sub: Subject<T> = undefined): Observable<T> => {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of get for enipoint: ${this.endpoint}.`);
+        }
+        if (this.appIsWaiting()) {
+            let sub: Subject<T> = _sub ? _sub : new Subject<T>();
+            let obs = sub.asObservable();
+            setTimeout(() => {
+                this.get(id, sub).subscribe(e => sub.next(e));
+            }, this.waitTimeMs)
+            return sub;
         }
         let u = this.prepare.url.get(id);
         return this.http.get(u).map(res => {
@@ -128,9 +179,17 @@ export class Rest<T, TA> {
     /**
      * Save object with request
      */
-    public save = (item: T): Observable<T> => {
+    public save = (item: T, _sub: Subject<T> = undefined): Observable<T> => {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of save for enipoint: ${this.endpoint}.`);
+        }
+        if (this.appIsWaiting()) {
+            let sub: Subject<T> = _sub ? _sub : new Subject<T>();
+            let obs = sub.asObservable();
+            setTimeout(() => {
+                this.save(item, sub).subscribe(e => sub.next(e));
+            }, this.waitTimeMs)
+            return sub;
         }
         let u = this.prepare.url.save();
         let d = JSON.stringify(item);
@@ -150,9 +209,17 @@ export class Rest<T, TA> {
     /**
      * Update object with request
      */
-    public update = (id: any, itemToUpdate: T): Observable<T> => {
+    public update = (id: any, itemToUpdate: T, _sub: Subject<T> = undefined): Observable<T> => {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of update for enipoint: ${this.endpoint}.`);
+        }
+        if (this.appIsWaiting()) {
+            let sub: Subject<T> = _sub ? _sub : new Subject<T>();
+            let obs = sub.asObservable();
+            setTimeout(() => {
+                this.update(id, itemToUpdate, _sub).subscribe(e => sub.next(e));
+            }, this.waitTimeMs)
+            return sub;
         }
         let u = this.prepare.url.update(id); // this.endpoint + '/' + id;
         let d = JSON.stringify(itemToUpdate);
@@ -173,9 +240,17 @@ export class Rest<T, TA> {
     /**
      * Remove object with request 
      */
-    public remove = (id: any): Observable<T> => {
+    public remove = (id: any, _sub: Subject<T> = undefined): Observable<T> => {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of remove for enipoint: ${this.endpoint}.`);
+        }
+        if (this.appIsWaiting()) {
+            let sub: Subject<T> = _sub ? _sub : new Subject<T>();
+            let obs = sub.asObservable();
+            setTimeout(() => {
+                this.remove(id, _sub).subscribe(e => sub.next(e));
+            }, this.waitTimeMs)
+            return sub;
         }
         let u = this.prepare.url.remove(id); // this.endpoint + '/' + id;
         return this.http.delete(u,
@@ -199,9 +274,17 @@ export class Rest<T, TA> {
     /**
      *  Create JSONP request 
      */
-    public jsonp = (): Observable<any> => {
+    public jsonp = (_sub: Subject<T> = undefined): Observable<any> => {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of jsonp for enipoint: ${this.endpoint}.`);
+        }
+        if (this.appIsWaiting()) {
+            let sub: Subject<T> = _sub ? _sub : new Subject<T>();
+            let obs = sub.asObservable();
+            setTimeout(() => {
+                this.jsonp(_sub).subscribe(e => sub.next(e));
+            }, this.waitTimeMs)
+            return sub;
         }
         let u = this.endpoint;
         return this.jp.request(u).map(res => {
@@ -257,7 +340,8 @@ export class Rest<T, TA> {
                         method: currentMethod,
                         urlFull: currentFullUrl
                     });
-                    subject.next(d);
+                    if (this.appIsWaiting()) setTimeout(() => subject.next(d), this.waitTimeMs);
+                    else subject.next(d);
                 }
             }
             else {
@@ -270,7 +354,8 @@ export class Rest<T, TA> {
                         method: currentMethod,
                         urlFull: currentFullUrl
                     });
-                    subject.next(res);
+                    if (this.appIsWaiting()) setTimeout(() => subject.next(res), this.waitTimeMs);
+                    else subject.next(res);
                 }
                 else if (typeof data === 'string') {
                     let res = JSON.parse(data);
@@ -281,7 +366,8 @@ export class Rest<T, TA> {
                         method: currentMethod,
                         urlFull: currentFullUrl
                     });
-                    subject.next(res);
+                    if (this.appIsWaiting()) setTimeout(() => subject.next(res), this.waitTimeMs);
+                    else subject.next(res);
                 }
                 else {
                     throw new Error(`Data for mock isn't string or object, endpoint:${this.endpoint}`);

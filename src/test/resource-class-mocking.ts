@@ -1,25 +1,23 @@
 import {
-    it,
-    inject,
-    injectAsync,
-    beforeEachProviders
+    TestBed,
+    inject
 } from '@angular/core/testing';
-
-// Load the implementations that should be tested
-
-import {provide} from '@angular/core';
-import {Http, HTTP_PROVIDERS, XHRBackend,
-    RequestMethod, Jsonp, ConnectionBackend,
-    JSONPBackend, JSONPConnection, JSONP_PROVIDERS,
-    Response, ResponseOptions} from '@angular/http';
+import { ApplicationRef, ViewContainerRef } from '@angular/core';
+import {
+    Http, HttpModule,
+    JsonpModule, XHRBackend, JSONPBackend,
+    Response, ResponseOptions,
+    Jsonp, ConnectionBackend,
+} from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
+
 
 import { Resource } from '../resource.service';
 import { APIS, User } from './mock';
 import { MockAutoBackend } from '../mock-auto-backend.class';
 
 let deepEqual = function (x, y) {
-    if ((typeof x == "object" && x != null) && (typeof y == "object" && y != null)) {
+    if ((typeof x == 'object' && x != null) && (typeof y == 'object' && y != null)) {
         if (Object.keys(x).length != Object.keys(y).length)
             return false;
 
@@ -54,18 +52,8 @@ export class TestMockingClass {
             let user: User;
             let users: User[];
 
-            beforeEachProviders(() => [
-                Http, HTTP_PROVIDERS,
-                provide(XHRBackend, { useClass: MockBackend }),
-                Resource,
-                Jsonp, ConnectionBackend,
-                MockBackend,
-                provide(JSONPBackend, { useExisting: MockBackend }),
-                JSONPBackend, JSONP_PROVIDERS,
-            ]);
-
-
             beforeEach(() => {
+
                 user = {
                     name: 'Dariusz',
                     age: 25,
@@ -76,7 +64,18 @@ export class TestMockingClass {
                 users.push(this.clone(user, '2'));
                 users.push(this.clone(user, '3'));
 
+                return TestBed.configureTestingModule({
+                    imports: [HttpModule, JsonpModule],
+                    declarations: [],
+                    providers: [
+                        Resource,
+                        ViewContainerRef,
+                        { provide: XHRBackend, useClass: MockBackend },
+                        { provide: JSONPBackend, useExisting: MockBackend },
+                    ]
+                })
             });
+
 
             it('should go inside objectc on first level',
                 inject([Resource, Http, MockBackend, Jsonp],
@@ -150,16 +149,16 @@ export class TestMockingClass {
                     (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
 
                         let t = {
-                            $name: ["Dariusz", "Adam", "Karol", "Maciej"],
+                            $name: ['Dariusz', 'Adam', 'Karol', 'Maciej'],
                             $age: [2, 4, 5, 66, 9],
                             $book: [
                                 { id: 1, $title: ['asdas', '21323'] },
                                 { id: 2, $title: ['ddd', 'aaa'] }
                             ],
                             $square: [
-                                [ '1','1' ],
-                                [ '2','2' ],
-                                [ '3','23' ]
+                                ['1', '1'],
+                                ['2', '2'],
+                                ['3', '23']
                             ],
                             networth: 100000
                         };

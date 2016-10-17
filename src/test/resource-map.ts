@@ -1,14 +1,14 @@
 import {
-    it,
-    inject,
-    injectAsync,
-    beforeEachProviders
+    TestBed,
+    inject
 } from '@angular/core/testing';
-
-// Load the implementations that should be tested
-
-import {provide} from '@angular/core';
-import {Http, HTTP_PROVIDERS, XHRBackend, Jsonp, ConnectionBackend} from '@angular/http';
+import { ApplicationRef, ViewContainerRef } from '@angular/core';
+import {
+    Http, HttpModule,
+    JsonpModule, XHRBackend, JSONPBackend,
+    Response, ResponseOptions,
+    Jsonp, ConnectionBackend,
+} from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
 
 import { Resource } from '../resource.service';
@@ -19,12 +19,18 @@ export class TestMap {
     constructor() {
         describe('mapping', () => {
 
-            beforeEachProviders(() => [
-                Http, HTTP_PROVIDERS,
-                provide(XHRBackend, { useClass: MockBackend }),
-                Resource,
-                Jsonp, ConnectionBackend,
-            ]);
+            beforeEach(() => {
+                return TestBed.configureTestingModule({
+                    imports: [HttpModule, JsonpModule],
+                    declarations: [],
+                    providers: [
+                        Resource,
+                        ViewContainerRef,
+                        { provide: XHRBackend, useClass: MockBackend },
+                        { provide: JSONPBackend, useExisting: MockBackend },
+                    ]
+                })
+            });
 
             it('should map model just one time', inject([Resource, Http, Jsonp],
                 (rest: Resource<APIS, User, User[]>, http: Http, jp) => {

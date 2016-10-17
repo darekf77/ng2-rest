@@ -1,17 +1,17 @@
 import {
-    it, xit,
-    inject,
-    injectAsync,
-    beforeEachProviders
+    TestBed,
+    inject
 } from '@angular/core/testing';
-
-// Load the implementations that should be tested
-
-import {provide} from '@angular/core';
-import {Http, HTTP_PROVIDERS, XHRBackend, Jsonp, ConnectionBackend, } from '@angular/http';
+import { ApplicationRef, ViewContainerRef } from '@angular/core';
+import { Http, HttpModule, 
+    JsonpModule, XHRBackend,JSONPBackend,
+    Response, ResponseOptions,
+     Jsonp, ConnectionBackend, } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
 
 import { Resource } from '../resource.service';
+
+
 import { APIS, User } from './mock';
 
 export class TestAdd {
@@ -21,12 +21,16 @@ export class TestAdd {
 
             let rest;
 
-            beforeEachProviders(() => [
-                Http, HTTP_PROVIDERS,
-                provide(XHRBackend, { useClass: MockBackend }),
-                Resource,
-                Jsonp, ConnectionBackend
-            ]);
+            // beforeEach(() =>  TestBed.configureTestingModule({
+            //         imports: [HttpModule, JsonpModule],
+            //         declarations: [],
+            //         providers: [
+            //             Resource,
+            //             ViewContainerRef,
+            //             { provide: XHRBackend, useClass: MockBackend },
+            //             { provide: JSONPBackend, useExisting: MockBackend },
+            //         ]                
+            // }));
 
 
             it('should add model to endpoint just one time', inject([Resource, Http, Jsonp],

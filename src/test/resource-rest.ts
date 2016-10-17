@@ -1,18 +1,16 @@
 import {
-    it,
-    inject,
-    injectAsync,
-    beforeEachProviders
+    TestBed,
+    inject
 } from '@angular/core/testing';
-
-// Load the implementations that should be tested
-
-import {provide} from '@angular/core';
-import {Http, HTTP_PROVIDERS, XHRBackend,
-    RequestMethod, Jsonp, ConnectionBackend,
-    JSONPBackend, JSONPConnection, JSONP_PROVIDERS,
-    Response, ResponseOptions} from '@angular/http';
+import { ApplicationRef, ViewContainerRef } from '@angular/core';
+import {
+    Http, HttpModule,
+    JsonpModule, XHRBackend, JSONPBackend,
+    Response, ResponseOptions, RequestMethod,
+    Jsonp, ConnectionBackend,
+} from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
+
 
 import { Resource } from '../resource.service';
 import { APIS, User } from './mock';
@@ -31,16 +29,6 @@ export class TestRest {
             let user: User;
             let users: User[];
 
-            beforeEachProviders(() => [
-                Http, HTTP_PROVIDERS,
-                provide(XHRBackend, { useClass: MockBackend }),
-                Resource,
-                Jsonp, ConnectionBackend,
-                MockBackend,
-                provide(JSONPBackend, { useExisting: MockBackend }),
-                JSONPBackend, JSONP_PROVIDERS,
-            ]);
-
             beforeEach(() => {
                 user = {
                     name: 'Dariusz',
@@ -52,7 +40,18 @@ export class TestRest {
                 users.push(this.clone(user, '2'));
                 users.push(this.clone(user, '3'));
 
+                return TestBed.configureTestingModule({
+                    imports: [HttpModule, JsonpModule],
+                    declarations: [],
+                    providers: [
+                        Resource,
+                        ViewContainerRef,
+                        { provide: XHRBackend, useClass: MockBackend },
+                        { provide: JSONPBackend, useExisting: MockBackend },
+                    ]
+                })
             });
+
 
             it('should retrive model with get request',
                 inject([Resource, Http, MockBackend, Jsonp],
@@ -200,24 +199,24 @@ export class TestRest {
             it('should get jsonp data',
                 inject([Resource, Http, MockBackend, Jsonp],
                     (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp: Jsonp) => {
-                        
+
                         backend.connections.subscribe({
                             next: connection => {
-                                
+
                                 console.log('I AM HERE')
-                                
+
                                 let res = new Response(new ResponseOptions({
                                     body: JSON.stringify(users)
                                 }));
-                                
+
                                 setTimeout(() => {
                                     // Send a response to the request
                                     connection.mockRespond(res);
                                 });
                             }
                         });
-                        
-                        
+
+
                         console.log('HELLO')
 
                         rest = new Resource<APIS, User, User[]>(http, jp);

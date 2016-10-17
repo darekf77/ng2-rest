@@ -1,17 +1,14 @@
 import {
-    it,
-    inject,
-    injectAsync,
-    beforeEachProviders
+    TestBed,
+    inject
 } from '@angular/core/testing';
-
-// Load the implementations that should be tested
-
-import {provide} from '@angular/core';
-import {Http, HTTP_PROVIDERS, XHRBackend,
-    RequestMethod, Jsonp, ConnectionBackend,
-    JSONPBackend, JSONPConnection, JSONP_PROVIDERS,
-    Response, ResponseOptions} from '@angular/http';
+import { ApplicationRef, ViewContainerRef } from '@angular/core';
+import {
+    Http, HttpModule,
+    JsonpModule, XHRBackend, JSONPBackend,
+    Response, ResponseOptions,
+    Jsonp, ConnectionBackend,
+} from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
 
 import { Resource } from '../resource.service';
@@ -32,17 +29,8 @@ export class TestProduction {
             let user: User;
             let users: User[];
 
-            beforeEachProviders(() => [
-                Http, HTTP_PROVIDERS,
-                provide(XHRBackend, { useClass: MockBackend }),
-                Resource,
-                Jsonp, ConnectionBackend,
-                MockBackend,
-                provide(JSONPBackend, { useExisting: MockBackend }),
-                JSONPBackend, JSONP_PROVIDERS,
-            ]);
-
             beforeEach(() => {
+
                 user = {
                     name: 'Dariusz',
                     age: 25,
@@ -53,7 +41,18 @@ export class TestProduction {
                 users.push(this.clone(user, '2'));
                 users.push(this.clone(user, '3'));
 
+                return TestBed.configureTestingModule({
+                    imports: [HttpModule, JsonpModule],
+                    declarations: [],
+                    providers: [
+                        Resource,
+                        ViewContainerRef,
+                        { provide: XHRBackend, useClass: MockBackend },
+                        { provide: JSONPBackend, useExisting: MockBackend },
+                    ]
+                })
             });
+
 
             it('It should throw erro when no mock in MOCK_ONLY mode',
 

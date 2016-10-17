@@ -1,17 +1,14 @@
 import {
-    it,
-    inject,
-    injectAsync,
-    beforeEachProviders
+    TestBed,
+    inject
 } from '@angular/core/testing';
-
-// Load the implementations that should be tested
-
-import {provide} from '@angular/core';
-import {Http, HTTP_PROVIDERS, XHRBackend,
-    RequestMethod, Jsonp, ConnectionBackend,
-    JSONPBackend, JSONPConnection, JSONP_PROVIDERS,
-    Response, ResponseOptions} from '@angular/http';
+import { ApplicationRef, ViewContainerRef } from '@angular/core';
+import {
+    Http, HttpModule,
+    JsonpModule, XHRBackend, JSONPBackend,
+    Response, ResponseOptions, RequestMethod,
+    Jsonp, ConnectionBackend,
+} from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
 
 import { Resource } from '../resource.service';
@@ -47,18 +44,8 @@ export class TestRestMock {
             let user: User;
             let users: User[];
 
-            beforeEachProviders(() => [
-                Http, HTTP_PROVIDERS,
-                provide(XHRBackend, { useClass: MockBackend }),
-                Resource,
-                Jsonp, ConnectionBackend,
-                MockBackend,
-                provide(JSONPBackend, { useExisting: MockBackend }),
-                JSONPBackend, JSONP_PROVIDERS,
-            ]);
-
-
             beforeEach(() => {
+
                 user = {
                     name: 'Dariusz',
                     age: 25,
@@ -69,7 +56,18 @@ export class TestRestMock {
                 users.push(this.clone(user, '2'));
                 users.push(this.clone(user, '3'));
 
+                return TestBed.configureTestingModule({
+                    imports: [HttpModule, JsonpModule],
+                    declarations: [],
+                    providers: [
+                        Resource,
+                        ViewContainerRef,
+                        { provide: XHRBackend, useClass: MockBackend },
+                        { provide: JSONPBackend, useExisting: MockBackend },
+                    ]
+                })
             });
+
 
             it('should retrive mocked model with get request',
                 inject([Resource, Http, MockBackend, Jsonp],
@@ -83,8 +81,8 @@ export class TestRestMock {
                         rest.api(APIS.FIRST, 'users').mock(JSON.stringify(user)).get(0).subscribe((res) => {
                             let o = JSON.parse(JSON.stringify(user))
                             expect(this.areEqual(o, res)).toBeTruthy();
-                            console.log("res ", res);
-                            console.log("o ", o);
+                            console.log('res ', res);
+                            console.log('o ', o);
                         }, (err) => {
                             fail;
                         });

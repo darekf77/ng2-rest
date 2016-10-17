@@ -2,8 +2,9 @@ import { Injectable, Inject } from '@angular/core';
 import { Http, Response, Headers, Jsonp } from '@angular/http';
 import { MockingMode } from './mocking-mode';
 import { Observable } from 'rxjs';
+import { Eureka, EurekaConfig } from './models';
 
-import {Rest} from './rest.class';
+import { Rest } from './rest.class';
 
 @Injectable()
 export class Resource<E, T, TA> {
@@ -19,12 +20,9 @@ export class Resource<E, T, TA> {
 
     }
 
-    public static setUrlToDocsServer(url: string) {
+    public static setUrlToDocsServerAndRecreateIt(url: string) {
         Rest.docServerUrl = url;
-        // let tmpUrl = Rest.docServerUrl.charAt(Rest.docServerUrl.length - 1) === '/' ?
-        //     Rest.docServerUrl.slice(0, Rest.docServerUrl.length - 1) : Rest.docServerUrl;
-        // tmpUrl = `${tmpUrl}/api/start`;
-        // return http.get(tmpUrl);
+        Rest.restartServerRequest = true;
     }
 
     private static mockingModeIsSet = false;
@@ -76,7 +74,23 @@ export class Resource<E, T, TA> {
         return true;
     }
 
+
+    private static eureka: Eureka<any, any>;
+    public static mapEureka(config: EurekaConfig)
+        : boolean {
+        if (!config || !config.serviceUrl || !config.decoderName) {
+            console.error(`Bad Eureka config: ${JSON.stringify(config)}`);
+            return false;
+        }
+        Resource.eureka = new Eureka(config);
+        return true;
+    }
+
     public static map(endpoint: string, url: string): boolean {
+        if (Rest.eureka) {
+            console.error(`Canno use 'map()' function after 'mapEureka()'`);
+            return false;
+        }
         let regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
         let e = endpoint;
         if (!regex.test(url)) {
@@ -103,7 +117,7 @@ export class Resource<E, T, TA> {
      * @param {string} model
      * @returns {boolean}
      */
-    add(endpoint: E, model: string, group: string, name?: string, description?: string): boolean {
+    add(endpoint: E, model: string, group?: string, name?: string, description?: string): boolean {
         if (!name) {
             let exName: string = model.replace(new RegExp('/', 'g'), ' ');
             let slName = exName.split(' ');
