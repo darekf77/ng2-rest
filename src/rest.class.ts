@@ -27,7 +27,8 @@ export class Rest<T, TA> {
 
     private _endpoint: string;
     public get endpoint() {
-        return (Rest.eureka && Rest.eureka.instance) ? Rest.eureka.instance.url : this._endpoint;
+        return (Rest.eureka && Rest.eureka.instance) ?
+            Rest.eureka.instance.instanceId : this._endpoint;
     }
 
     constructor(
