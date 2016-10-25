@@ -40,13 +40,13 @@ function goInside(o: Object, paths: string[]): Object {
 
 function isSimpleType(value) {
     return ((typeof value === 'number') ||
-        (typeof value === 'boolean') ||
-        (typeof value === 'string') ||
-        (typeof value === 'undefined'));
+    (typeof value === 'boolean') ||
+    (typeof value === 'string') ||
+    (typeof value === 'undefined'));
 }
 
 let pName = p => {
-    return (!p.startsWith('$') && !p.startsWith("#")) ? p : p.slice(1);
+    return p.startsWith('$') ? p.slice(1) : p;
 };
 
 function copyFromTo(fromObj: Object, toObj: Object) {
@@ -67,20 +67,21 @@ function copyFromTo(fromObj: Object, toObj: Object) {
 export class MockAutoBackend<T> {
 
     models: T[];
+
     constructor(template: Object, howManyGen: number) {
         this.models = [];
         for (let i = 0; i < howManyGen; i++) {
             let model: T = <T>{};
             this.construct(template, model);
-            this.models.push(model[0]);
+            this.models.push(model);
             // console.log(model);
         }
     }
 
     getPagination(page: number, pageSize: number): T[] {
         let indexStart = (page - 1) * pageSize;
-        let indexEnd = indexStart + pageSize;
-        let d = this.models.slice(indexStart, indexEnd);
+        let indexEnd   = indexStart + pageSize;
+        let d          = this.models.slice(indexStart, indexEnd);
         return d;
     }
 
@@ -104,8 +105,8 @@ export class MockAutoBackend<T> {
     }
 
     deleteModelBy(modelKeys: Object, model: T): T[] {
-        let models: T[] = this.filterBy(modelKeys);
-        let deletedModes = JSON.parse(JSON.stringify(models));
+        let models: T[]     = this.filterBy(modelKeys);
+        let deletedModes    = JSON.parse(JSON.stringify(models));
         let indexesToDelete = [];
         models.forEach(m => {
             indexesToDelete.push(this.models.indexOf(m, 0));
@@ -150,28 +151,27 @@ export class MockAutoBackend<T> {
     }
 
 
-
-
     static goInside = goInside;
 
 
     /**
      * generate values.
-     * if property name starts with '$' - pick one form value array
-     * if property name starts with '#' - assume it is faker.js mustache string and try to fill it
+     * if property name starts with '$' and if of type:
+     *  array - pick one form value array
+     *  string - assume it is faker.js mustache string and try to fill it
      *
      *
-     * @param o
-     * @param cModel
-     * @param path
+     * @param template json template object
+     * @param cModel model to modify
+     * @param path for recursive calls
      */
-    construct(o: Object, cModel: T, path: string[] = []) {
+    construct(template: Object, cModel: T, path: string[] = []) {
         let tmpModel: T;
-        for (let p in o) {
-            if (o.hasOwnProperty(p)) {
+        for (let p in template) {
+            if (template.hasOwnProperty(p)) {
 
-                let value = o[p];
-                if (isArray(value) && p.charAt(0) === '$') {
+                let value = template[p];
+                if (isArray(value) && p.startsWith('$')) {
                     let arr: any[] = value;
                     arr.forEach(elem => {
                         if (!isArray(elem) && !isSimpleType(elem)) {
@@ -181,34 +181,34 @@ export class MockAutoBackend<T> {
 
                         }
                     });
-                    let g = genNumber(arr.length - 1);
+                    let g                            = genNumber(arr.length - 1);
                     goInside(cModel, path)[pName(p)] = arr[g];
-                    tmpModel = JSON.parse(JSON.stringify(cModel));
+                    tmpModel                         = JSON.parse(JSON.stringify(cModel));
                     continue;
                 }
 
 
-                if(p.charAt(0) === '#') {
-                    let val:any = undefined;
-                    try{
+                if (p.startsWith('$') && 'string' === typeof value) {
+                    let val: any = undefined;
+                    try {
                         val = faker.fake(value);
                     } catch (e) {
                         console.error(e);
                     }
                     goInside(cModel, path)[pName(p)] = val;
+                    tmpModel                         = JSON.parse(JSON.stringify(cModel));
                     continue;
                 }
 
-                if (isObject(value)) {
+                if (isObject(value) || isArray(value)) {
                     let joinedPath = path.concat(pName(p));
                     this.construct(value, cModel, joinedPath);
                     continue;
                 }
 
-                if (isSimpleType(value) || (p.charAt(0) !== '$')
-                ) {
+                if (isSimpleType(value) || p.startsWith('$')) {
                     goInside(cModel, path)[pName(p)] = value;
-                    tmpModel = JSON.parse(JSON.stringify(cModel));
+                    tmpModel                         = JSON.parse(JSON.stringify(cModel));
                     continue;
                 }
 
@@ -216,8 +216,6 @@ export class MockAutoBackend<T> {
             }
         }
     }
-
-
 
 
 }
