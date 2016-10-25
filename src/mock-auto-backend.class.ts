@@ -156,7 +156,7 @@ export class MockAutoBackend<T> {
 
     /**
      * generate values.
-     * if property name starts with '$' and if of type:
+     * if property name starts with '$' and is of type:
      *  array - pick one form value array
      *  string - assume it is faker.js mustache string and try to fill it
      *
