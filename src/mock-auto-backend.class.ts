@@ -157,9 +157,8 @@ export class MockAutoBackend<T> {
     /**
      * generate values.
      * if property name starts with '$' and is of type:
-     *  array - pick one form value array
-     *  string - assume it is faker.js mustache string and try to fill it
-     *
+     *  array - pick one from value array
+     *  string - assume it is [faker.js mustache string]{@link https://github.com/marak/Faker.js/#fakerfake} and try to fill it
      *
      * @param template json template object
      * @param cModel model to modify
