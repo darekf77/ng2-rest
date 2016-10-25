@@ -1,3 +1,16 @@
+const faker = require('faker');
+
+
+export enum SortType {
+    'ASC',
+    'DESC'
+}
+
+export interface SortModel {
+    field: string;
+    type?: SortType;
+}
+
 function genNumber(limit: number): number {
     return Math.floor(Math.random() * (limit - 0 + 1)) + 0;
 }
@@ -11,23 +24,18 @@ function isObject(o: any) {
 }
 
 
-function goInside(o: Object, pathes: string[]): Object {
+function goInside(o: Object, paths: string[]): Object {
     // console.log(`pathes`, pathes);
     // console.log(`o`, o);
-    if (pathes.length === 0) return o;
+    if (paths.length === 0) return o;
     let tmp = o;
-    pathes.forEach(path => {
+    paths.forEach(path => {
         if (tmp[path] === undefined) tmp[path] = {};
         tmp = tmp[path];
         // console.log(`upper for path:${path}`, o);
     });
     // console.log(`tmp`, tmp);
     return tmp;
-}
-
-
-function cut$(p: string) {
-    return p.substring(1, p.length);
 }
 
 function isSimpleType(value) {
@@ -38,23 +46,13 @@ function isSimpleType(value) {
 }
 
 let pName = p => {
-    return p.charAt(0) !== '$' ? p : cut$(p)
+    return (!p.startsWith('$') && !p.startsWith("#")) ? p : p.slice(1);
 };
-
-export enum SortType {
-    'ASC',
-    'DESC'
-}
-
-export interface SortModel {
-    field: string;
-    type?: SortType;
-}
 
 function copyFromTo(fromObj: Object, toObj: Object) {
     for (let p in fromObj) {
         if (fromObj.hasOwnProperty(p)) {
-            
+
             toObj[p] = fromObj[p];
         }
     }
@@ -157,43 +155,51 @@ export class MockAutoBackend<T> {
     static goInside = goInside;
 
 
-
-
+    /**
+     * generate values.
+     * if property name starts with '$' - pick one form value array
+     * if property name starts with '#' - assume it is faker.js mustache string and try to fill it
+     *
+     *
+     * @param o
+     * @param cModel
+     * @param path
+     */
     construct(o: Object, cModel: T, path: string[] = []) {
-        // console.log('contruct with object', o);
         let tmpModel: T;
         for (let p in o) {
             if (o.hasOwnProperty(p)) {
 
                 let value = o[p];
-                // console.log('value', value);
-
                 if (isArray(value) && p.charAt(0) === '$') {
                     let arr: any[] = value;
-                    // console.log('array value before', arr);
                     arr.forEach(elem => {
                         if (!isArray(elem) && !isSimpleType(elem)) {
-                            // console.log('is object but not array', elem);
                             let t: T = <T>{};
                             this.construct(elem, t);
-                            // console.log('returned model before', elem);
-                            // console.log('returned model', t);
                             copyFromTo(t, elem);
 
                         }
-                        // else console.log('is array', elem);
                     });
-                    // console.log('array value after',arr);
                     let g = genNumber(arr.length - 1);
-                    // console.log('index g', g);
                     goInside(cModel, path)[pName(p)] = arr[g];
-                    // console.log('cModel after array', cModel);
                     tmpModel = JSON.parse(JSON.stringify(cModel));
                     continue;
                 }
 
+
+                if(p.charAt(0) === '#') {
+                    let val:any = undefined;
+                    try{
+                        val = faker.fake(value);
+                    } catch (e) {
+                        console.error(e);
+                    }
+                    goInside(cModel, path)[pName(p)] = val;
+                    continue;
+                }
+
                 if (isObject(value)) {
-                    // console.log('go recrusive with', value);
                     let joinedPath = path.concat(pName(p));
                     this.construct(value, cModel, joinedPath);
                     continue;
@@ -205,8 +211,6 @@ export class MockAutoBackend<T> {
                     tmpModel = JSON.parse(JSON.stringify(cModel));
                     continue;
                 }
-
-
 
                 throw new Error('bad type of object: ' + value);
             }

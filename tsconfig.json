@@ -17,6 +17,7 @@
       "es7"
     ],
     "types": [
+      "faker",
       "hammerjs",
       "jasmine",
       "node",
