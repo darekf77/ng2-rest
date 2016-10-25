@@ -50,6 +50,7 @@
     "@types/source-map": "^0.1.27",
     "@types/uglify-js": "^2.0.27",
     "@types/webpack": "^1.12.34",
+    "Faker": "^0.7.2",
     "angular2-google-maps": "^0.15.0",
     "angular2-moment": "^1.0.0-beta.4",
     "angular2-template-loader": "^0.5.0",
@@ -116,6 +117,6 @@
   "_shasum": "21857955e9ba3baa97075bdb6ca4d5ee216e2dd2",
   "_from": "ng2-rest@latest",
   "dependencies": {
-    "Faker": "^0.7.2"
+
   }
 }
