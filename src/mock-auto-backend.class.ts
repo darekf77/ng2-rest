@@ -1,4 +1,5 @@
-const faker = require('faker/locale/pl');
+let faker = require('faker');
+faker.locale = 'pl';
 
 
 export enum SortType {
