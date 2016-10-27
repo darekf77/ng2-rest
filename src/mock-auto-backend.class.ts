@@ -1,4 +1,4 @@
-const faker = require('faker');
+const faker = require('faker/locale/pl');
 
 
 export enum SortType {
