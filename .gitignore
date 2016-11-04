@@ -1,3 +1,6 @@
+# IDE-s #
+.idea
+
 # Node Files #
 /node_modules
 /bower_components

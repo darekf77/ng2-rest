@@ -226,25 +226,49 @@ It is one of the best features here. You don't need a backend for your front-end
 MockAutoBackend
 -------
 
+#### generators [$]
+
 If you wanna ***generate, filter, order, sort*** sample data try third options in controller - 
 MockAutoBackend.  It is perfect thing for mocking pagination in your MockController.
 
 By building sample json data object with $ prefix property
- now it is possible to generate very nice random data. Example:
+ now it is possible to generate very nice random data.
+ 
+###### Array
+
+If value of property is an array, the generator will pick one at random:
+ 
 ```js
     {
-        $id : [1,2,3],
-        name: 'Dariusz'
+        "$id" : [1,2,3],
+        "name": "Dariusz"
     }
 ```
 
 The output will be: 
 ```js
     {
-        id: 2,            // or 1 or 3  - it's random thing,
-        name: 'Dariusz'   // property without $ stays the same 
+        "id": 2,            // or 1 or 3  - it's random thing,
+        "name": "Dariusz"   // property without $ stays the same 
     }
 ```
 Of course it is possible to create json with nested $ fields.
 
+###### String
 
+You also can generate values using [Faker mustache string](https://github.com/marak/Faker.js/#fakerfake) as value.
+
+
+```js
+{
+    "$fullTitle" : "{{name.lastName}}, {{name.firstName}} {{name.suffix}}"
+}
+```
+
+Outputs:
+
+```json
+{
+    "fullTitle": "Marks, Dean Sr."
+}
+```
