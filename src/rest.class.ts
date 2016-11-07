@@ -18,7 +18,7 @@ function transform(o) {
 
 export class Rest<T, TA> {
 
-    @LocalStorage() public static docServerUrl: string;
+    @SessionStorage() public static docServerUrl: string;
     private headers: Headers;
     public static mockingMode: MockingMode = MockingMode.MIX;
     public _useCaseDescription;
