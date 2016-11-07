@@ -7,6 +7,7 @@ import { MockController } from './mock.controller';
 import { MockAutoBackend } from './mock-auto-backend.class';
 import { MockingMode } from './mocking-mode';
 import { DocModel, HttpMethod, Eureka, EurekaState } from './models';
+import {LocalStorage, SessionStorage} from "angular2-localstorage/WebStorage";
 
 function transform(o) {
     if (typeof o === 'object') {
@@ -17,7 +18,7 @@ function transform(o) {
 
 export class Rest<T, TA> {
 
-    public static docServerUrl: string;
+    @LocalStorage() public static docServerUrl: string;
     private headers: Headers;
     public static mockingMode: MockingMode = MockingMode.MIX;
     public _useCaseDescription;

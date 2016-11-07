@@ -21,8 +21,13 @@ export class Resource<E, T, TA> {
     }
 
     public static setUrlToDocsServerAndRecreateIt(url: string) {
-        Rest.docServerUrl = url;
-        Rest.restartServerRequest = true;
+
+        if (!(Rest.docServerUrl && Rest.docServerUrl.trim() !== '')) {
+            Rest.docServerUrl = url;
+            Rest.restartServerRequest = true;
+            console.info('Recreate docs server request');
+        }
+
     }
 
     private static mockingModeIsSet = false;

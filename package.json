@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "4.1.37",
+  "version": "4.1.38",
   "description": "rest package for angular 2",
   "main": "index.js",
   "scripts": {
@@ -116,5 +116,7 @@
   "_id": "ng2-rest@1.0.2",
   "_shasum": "21857955e9ba3baa97075bdb6ca4d5ee216e2dd2",
   "_from": "ng2-rest@latest",
-  "dependencies": {}
+  "dependencies": {
+    "angular2-localstorage": "^0.4.0"
+  }
 }
