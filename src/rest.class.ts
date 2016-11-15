@@ -7,7 +7,6 @@ import { MockController } from './mock.controller';
 import { MockAutoBackend } from './mock-auto-backend.class';
 import { MockingMode } from './mocking-mode';
 import { DocModel, HttpMethod, Eureka, EurekaState } from './models';
-import {LocalStorage, SessionStorage} from "angular2-localstorage/WebStorage";
 
 function transform(o) {
     if (typeof o === 'object') {
@@ -18,13 +17,13 @@ function transform(o) {
 
 export class Rest<T, TA> {
 
-    @SessionStorage() public static docServerUrl: string;
+    public static docServerUrl: string;
     private headers: Headers;
     public static mockingMode: MockingMode = MockingMode.MIX;
     public _useCaseDescription;
     public static eureka: Eureka<any, any>;
     public static waitingForDocsServer: boolean = false;
-    public static restartServerRequest: boolean = true;
+    public static restartServerRequest: boolean = false;
 
     private _endpoint: string;
     public get endpoint() {
@@ -43,6 +42,10 @@ export class Rest<T, TA> {
         this.headers.append('Content-Type', 'application/json');
         this.headers.append('Accept', 'application/json');
 
+        // console.log('Rest.restartServerRequest', Rest.restartServerRequest)
+        // console.log('Rest.docServerUrl', Rest.docServerUrl)
+        // console.log('Rest.docServerUrl.trim()', Rest.docServerUrl.trim())
+
         if (Rest.restartServerRequest && Rest.docServerUrl && Rest.docServerUrl.trim() !== '') {
             Rest.restartServerRequest = false;
 
@@ -59,7 +62,7 @@ export class Rest<T, TA> {
                 console.error(`Problem with restart server on ${tmpUrl}`);
             });
         }
-        
+
     }
 
     private log(model: DocModel) {

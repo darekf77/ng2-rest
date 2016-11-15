@@ -21,9 +21,13 @@ export class Resource<E, T, TA> {
     }
 
     public static setUrlToDocsServerAndRecreateIt(url: string) {
+        // console.info('setUrlToDocsServerAndRecreateIt');        
+        Rest.docServerUrl = sessionStorage.getItem('url');
+        // console.info('Rest.docServerUrl', Rest.docServerUrl);
 
-        if (!(Rest.docServerUrl && Rest.docServerUrl.trim() !== '')) {
+        if (Rest.docServerUrl === undefined || Rest.docServerUrl === null || Rest.docServerUrl.trim() === '') {
             Rest.docServerUrl = url;
+            sessionStorage.setItem('url', url);
             Rest.restartServerRequest = true;
             console.info('Recreate docs server request');
         }
@@ -133,7 +137,7 @@ export class Resource<E, T, TA> {
      * @returns {boolean}
      */
     add(endpoint: E, model: string, group?: string, name?: string, description?: string) {
-        console.log('Rest.eureka', Rest.eureka);
+        // console.log('Rest.eureka', Rest.eureka);
         if (Rest.eureka && Rest.eureka.state === EurekaState.DISABLED) {
             Rest.eureka.discovery(this.http);
         }
