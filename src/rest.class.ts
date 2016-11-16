@@ -18,6 +18,7 @@ function transform(o) {
 export class Rest<T, TA> {
 
     public static docServerUrl: string;
+    public static docsTitle: string;
     private headers: Headers;
     public static mockingMode: MockingMode = MockingMode.MIX;
     public _useCaseDescription;
@@ -51,7 +52,7 @@ export class Rest<T, TA> {
 
             let tmpUrl = Rest.docServerUrl.charAt(Rest.docServerUrl.length - 1) === '/' ?
                 Rest.docServerUrl.slice(0, Rest.docServerUrl.length - 1) : Rest.docServerUrl;
-            tmpUrl = `${tmpUrl}/api/start`;
+            tmpUrl = Rest.docsTitle ? `${tmpUrl}/api/start/${encodeURIComponent(Rest.docsTitle)}` : `${tmpUrl}/api/start`;
 
             Rest.waitingForDocsServer = true;
             http.get(tmpUrl).subscribe(() => {

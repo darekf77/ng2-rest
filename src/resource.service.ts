@@ -20,8 +20,9 @@ export class Resource<E, T, TA> {
 
     }
 
-    public static setUrlToDocsServerAndRecreateIt(url: string) {
+    public static setUrlToDocsServerAndRecreateIt(url: string, docsTitle: string = undefined) {
         // console.info('setUrlToDocsServerAndRecreateIt');        
+        if (docsTitle) Rest.docsTitle = docsTitle;
         Rest.docServerUrl = sessionStorage.getItem('url');
         // console.info('Rest.docServerUrl', Rest.docServerUrl);
 
