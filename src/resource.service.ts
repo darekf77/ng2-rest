@@ -20,13 +20,33 @@ export class Resource<E, T, TA> {
 
     }
 
-    public static setUrlToDocsServerAndRecreateIt(url: string, docsTitle: string = undefined) {
+    /**
+     * This funcion only works one time per tab in browse. 
+     * It means that if e2e tests needs only one browse tab
+     * which is refreshed constantly and it doesn't make sens to
+     * recreate server every time. In conclusion curent function
+     * state is remembered in sesssion storage. 
+     *  
+     * @static
+     * @param {string} url to ng2-rest  https://github.com/darekf77/ng2-rest
+     * @param {string} Optional: Title for docs
+     * @param {string} Optional: Force recreate docs every time when you are 
+     * using this function 
+     * 
+     * @memberOf Resource
+     */
+    public static setUrlToDocsServerAndRecreateIt(url: string, docsTitle: string = undefined,
+        forceRecreate: boolean = false) {
         // console.info('setUrlToDocsServerAndRecreateIt');        
         if (docsTitle) Rest.docsTitle = docsTitle;
         Rest.docServerUrl = sessionStorage.getItem('url');
         // console.info('Rest.docServerUrl', Rest.docServerUrl);
 
-        if (Rest.docServerUrl === undefined || Rest.docServerUrl === null || Rest.docServerUrl.trim() === '') {
+        if ( forceRecreate ||
+            Rest.docServerUrl === undefined ||
+            Rest.docServerUrl === null ||
+            Rest.docServerUrl.trim() === '') {
+
             Rest.docServerUrl = url;
             sessionStorage.setItem('url', url);
             Rest.restartServerRequest = true;
