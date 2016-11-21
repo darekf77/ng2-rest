@@ -1,12 +1,17 @@
 import { Http, Response, Headers, Jsonp } from '@angular/http';
+import { FormControl, FormGroup } from '@angular/forms';
 
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs/Observable';
+
 import { MockController } from './mock.controller';
 import { MockAutoBackend } from './mock-auto-backend.class';
 import { MockingMode } from './mocking-mode';
-import { DocModel, HttpMethod, Eureka, EurekaState } from './models';
+import {
+    DocModel, HttpMethod, Eureka, EurekaState,
+    FormGroupArrays, prepareForm, prepareFormArrays, FormInputBind
+} from './models';
 
 function transform(o) {
     if (typeof o === 'object') {
@@ -20,6 +25,7 @@ export class Rest<T, TA> {
     public static docServerUrl: string;
     public static docsTitle: string;
     private headers: Headers;
+    private form: FormInputBind[];
     public static mockingMode: MockingMode = MockingMode.MIX;
     public _useCaseDescription;
     public static eureka: Eureka<any, any>;
@@ -74,6 +80,7 @@ export class Rest<T, TA> {
             model.group = this.group;
             model.usecase = this._useCaseDescription;
             model.url = this.endpoint;
+            model.form = this.form;
 
             let url = Rest.docServerUrl.charAt(Rest.docServerUrl.length - 1) === '/' ?
                 Rest.docServerUrl.slice(0, Rest.docServerUrl.length - 1) : Rest.docServerUrl;
@@ -121,6 +128,15 @@ export class Rest<T, TA> {
 
         }
     };
+
+    private contractsFrom = {};
+    contract(form: FormGroup, arrays?: FormGroupArrays) {
+        if(arrays) this.form = prepareForm(form).concat(prepareFormArrays(arrays));
+        else this.form = prepareForm(form);
+        return this;
+    }
+
+
 
     /**
      * Request to get collection of objects

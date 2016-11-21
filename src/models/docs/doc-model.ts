@@ -1,5 +1,6 @@
 import { HttpMethod } from './http-method';
 import { DocExample } from './doc-example';
+import { FormInputBind } from '../contracts';
 
 export interface DocModel extends DocExample {
     url: string;
@@ -9,5 +10,6 @@ export interface DocModel extends DocExample {
     description: string;
     examples: DocExample[];
     baseURL: string;
+    form: FormInputBind[];
 }
 
