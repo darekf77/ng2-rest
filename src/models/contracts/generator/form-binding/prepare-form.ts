@@ -27,7 +27,7 @@ export function prepareFormArrays(arrays: FormGroupArrays): FormInputBind[] {
     let arr: FormInputBind[] = []
     for (let p in arrays) {
         let form = arrays[p];
-        let c = prepareForm(form, [], '..');
+        let c = prepareForm(form, [], p + '[0].'); // for every
         arr = arr.concat(c);
     }
     return arr;
