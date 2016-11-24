@@ -129,9 +129,8 @@ export class Rest<T, TA> {
         }
     };
 
-    private contractsFrom = {};
     contract(form: FormGroup, arrays?: FormGroupArrays) {
-        if(arrays) this.form = prepareForm(form).concat(prepareFormArrays(arrays));
+        if(arrays) this.form = prepareForm(form).concat(prepareFormArrays( arrays));
         else this.form = prepareForm(form);
         return this;
     }

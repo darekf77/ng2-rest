@@ -10,10 +10,10 @@ export function prepareForm(form: FormGroup, arr: FormInputBind[] = [], path: st
     for (let p in form.controls) {
         let c = form.controls[p];
         if (c instanceof FormGroup) {
-            prepareForm(c, arr, p);
+            prepareForm(c, arr, p + '.');
         } else {
             arr.push({
-                length: parseInt(c[ PREFIX + MAX_LENGTH_FIELD_NAME]),
+                length: parseInt(c[PREFIX + MAX_LENGTH_FIELD_NAME]),
                 name: p
             });
         }
@@ -23,15 +23,12 @@ export function prepareForm(form: FormGroup, arr: FormInputBind[] = [], path: st
 }
 
 
-export function prepareFormArrays(arrays: FormGroupArrays, arr: FormInputBind[] = []): FormInputBind[] {
+export function prepareFormArrays(arrays: FormGroupArrays): FormInputBind[] {
+    let arr: FormInputBind[] = []
     for (let p in arrays) {
         let form = arrays[p];
-        let c = prepareForm(form);
-        arr.push({
-            length: c.length,
-            name: p,
-            array: prepareForm(form)
-        })
+        let c = prepareForm(form, [], '..');
+        arr = arr.concat(c);
     }
     return arr;
 }
