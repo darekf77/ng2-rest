@@ -326,7 +326,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
 
     private backend: MockAutoBackend<T>;
 
-    mock = (data: any, timeout: number = 0, controller: MockController<T> = undefined, nunOfMocks: number = 0): any => {
+    mock = (data: any, timeout: number = 0, controller: MockController<T> = undefined, nunOfMocks: number = 0): FnMethodsHttp<T, TA> => {
         if (Rest.mockingMode === MockingMode.LIVE_BACKEND_ONLY) {
             console.log('FROM MOCK TO LIVE')
             return this;
