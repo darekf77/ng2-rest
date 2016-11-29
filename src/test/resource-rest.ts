@@ -10,7 +10,7 @@ import {
     Jsonp, ConnectionBackend,
 } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
-
+import { getParamsUrl } from '../models';
 
 import { Resource } from '../resource.service';
 import { APIS, User } from './mock';
@@ -231,6 +231,20 @@ export class TestRest {
                         });
 
                     }));
+
+
+
+            
+            it('Shoud transform url params', () => {
+                let res = getParamsUrl([
+                    { 'super': 122 },
+                    { 'reg': 'ttt', regex: new RegExp('t{3}', 'g') }
+                ])
+                expect(res).toEqual('?super=122&reg=ttt');
+
+            });
+
+
 
 
 

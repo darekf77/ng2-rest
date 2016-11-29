@@ -7,4 +7,5 @@ export interface DocExample {
     usecase: string;
     urlFull: string;
     method: HttpMethod;
+    headers: Object;
 }

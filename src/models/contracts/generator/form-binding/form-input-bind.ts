@@ -1,4 +1,5 @@
 export interface FormInputBind {
     length: number;
-    name: string;
+    path: string;
+    temp?: any;
 };

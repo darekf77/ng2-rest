@@ -14,7 +14,7 @@ export function prepareForm(form: FormGroup, arr: FormInputBind[] = [], path: st
         } else {
             arr.push({
                 length: parseInt(c[PREFIX + MAX_LENGTH_FIELD_NAME]),
-                name: p
+                path: p,
             });
         }
     }
