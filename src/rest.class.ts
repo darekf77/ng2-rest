@@ -236,7 +236,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
             let sub: Subject<T> = _sub ? _sub : new Subject<T>();
             let obs = sub.asObservable();
             setTimeout(() => {
-                this.update(params, itemToUpdate, _sub).subscribe(e => sub.next(e));
+                this.update(params, itemToUpdate, sub).subscribe(e => sub.next(e));
             }, Rest.waitTimeMs)
             return sub;
         }
@@ -272,7 +272,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
             let sub: Subject<T> = _sub ? _sub : new Subject<T>();
             let obs = sub.asObservable();
             setTimeout(() => {
-                this.remove(params, _sub).subscribe(e => sub.next(e));
+                this.remove(params, sub).subscribe(e => sub.next(e));
             }, Rest.waitTimeMs)
             return sub;
         }
@@ -405,55 +405,64 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
 
         t.query = (params: any = undefined): Observable<TA> => {
             currentMethod = 'GET';
-            tparams = params;
-            currentUrlParams = JSON.stringify(tparams);
-            currentFullUrl = this.creatUrl(params);
             subject = new Subject<TA>();
+            tparams = params;
+            currentFullUrl = this.creatUrl(params);
+            currentUrlParams = JSON.stringify(tparams);
+
             return subject.asObservable();
         };
 
         t.get = (params: Object): Observable<T> => {
             currentMethod = 'GET';
+            subject = new Subject<T>();
             if (typeof params === 'object') tparams = params;
             else tparams = { params };
             currentFullUrl = this.creatUrl(params);
             currentUrlParams = JSON.stringify(params);
-            subject = new Subject<T>();
+
             return subject.asObservable();
         };
 
         t.save = (item: T, params?: Object | UrlParams[]): Observable<T> => {
             currentMethod = 'POST';
-            tparams = { item, params };
             subject = new Subject<T>();
+            tparams = { item, params };
             currentFullUrl = this.creatUrl(params);
+            currentUrlParams = params ? JSON.stringify(params) : undefined;
+
             currentBodySend = JSON.stringify(item);
-            return subject.asObservable();;
+
+            return subject.asObservable();
         };
 
         t.update = (params: Object, itemToUpdate: T): Observable<T> => {
             currentMethod = 'PUT';
-            tparams = { params, itemToUpdate };
             subject = new Subject<T>();
+            tparams = { params, itemToUpdate };
             currentFullUrl = this.creatUrl(params);
             currentUrlParams = JSON.stringify(params);
+
             currentBodySend = JSON.stringify(itemToUpdate);
+
             return subject.asObservable();
         };
 
         t.remove = (params: Object): Observable<T> => {
             currentMethod = 'DELETE';
+            subject = new Subject<T>();
             tparams = { params };
             currentFullUrl = this.creatUrl(params);
             currentUrlParams = JSON.stringify(params);
-            subject = new Subject<T>();
+            
             return subject.asObservable();
         };
 
         t.jsonp = (): Observable<any> => {
             currentMethod = 'JSONP';
-            currentFullUrl = this.endpoint;
             subject = new Subject<any>();
+            currentFullUrl = this.endpoint;
+
             return subject.asObservable();
         };
 
