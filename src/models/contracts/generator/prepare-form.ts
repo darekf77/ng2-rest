@@ -1,15 +1,15 @@
-import { FormGroup, FormControl } from '@angular/forms'
+import { FormGroup, FormControl, FormArray, Form } from '@angular/forms'
 
 import { FormInputBind } from './form-input-bind';
 import { FormGroupArrays } from './form-array';
 
-import { MAX_LENGTH_FIELD_NAME, PREFIX } from '../../consts';
+import { MAX_LENGTH_FIELD_NAME, PREFIX } from '../consts';
 
-export function prepareForm(form: FormGroup, arr: FormInputBind[] = [], path: string = '', ): FormInputBind[] {
+export function prepareForm(form: FormGroup | FormArray, arr: FormInputBind[] = [], path: string = '', ): FormInputBind[] {
 
     for (let p in form.controls) {
         let c = form.controls[p];
-        if (c instanceof FormGroup) {
+        if (c instanceof FormGroup || c instanceof FormArray) {
             prepareForm(c, arr, p + '.');
         } else {
             arr.push({

@@ -9,7 +9,7 @@ import {
     DocModel, HttpMethod, Eureka, EurekaState, MockAutoBackend,
     FormGroupArrays, prepareForm, prepareFormArrays, FormInputBind,
     MockingMode, MockController, UrlParams, getParamsUrl, prepareUrlOldWay,
-    FnMethodsHttp
+    FnMethodsHttp, decodeUrl, MockResponse
 } from './models';
 
 export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
@@ -113,17 +113,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         return this;
     }
 
-
-
-    /**
-     * Get items collection from database
-     * 
-     * @param {(any | UrlParams[])} [params=undefined]
-     * @returns {Observable<TA>}
-     * 
-     * @memberOf Rest
-     */
-    query(params: Object | UrlParams[] = undefined, _sub: Subject<TA> = undefined): Observable<TA> {
+    query(params: UrlParams[] = undefined, _sub: Subject<TA> = undefined): Observable<TA> {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of query for enipoint: ${this.endpoint}.`);
         }
@@ -141,23 +131,14 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
             this.log(<DocModel>{
                 urlParams: JSON.stringify(params),
                 bodyRecieve: JSON.stringify(r),
-                method: <HttpMethod>'GET',
+                method: 'GET',
                 urlFull: u
             });
             return r;
         });
     }
 
-
-    /**
-     * Get item from database
-     * 
-     * @param {(any | UrlParams[])} id of object or params to get it
-     * @returns {Observable<T>}
-     * 
-     * @memberOf Rest
-     */
-    get(params: Object | UrlParams[], _sub: Subject<T> = undefined): Observable<T> {
+    get(params: UrlParams[], _sub: Subject<T> = undefined): Observable<T> {
 
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of get for enipoint: ${this.endpoint}.`);
@@ -176,23 +157,14 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
             this.log(<DocModel>{
                 urlParams: JSON.stringify(params),
                 bodyRecieve: JSON.stringify(r),
-                method: <HttpMethod>'GET',
+                method: 'GET',
                 urlFull: u
             });
             return r;
         });
     }
 
-    /**
-     * Save item in database
-     * 
-     * @param {T} item
-     * @param {UrlParams[]} [params]
-     * @returns {Observable<T>}
-     * 
-     * @memberOf Rest
-     */
-    save(item: T, params?: Object | UrlParams[], _sub: Subject<T> = undefined): Observable<T> {
+    save(item: T, params?: UrlParams[], _sub: Subject<T> = undefined): Observable<T> {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of save for enipoint: ${this.endpoint}.`);
         }
@@ -212,23 +184,15 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
                 this.log(<DocModel>{
                     bodySend: d,
                     bodyRecieve: JSON.stringify(r),
-                    method: <HttpMethod>'POST',
+                    method: 'POST',
                     urlFull: u
                 });
                 return r;
             });
     }
 
-    /**
-     * Update data in your database
-     * 
-     * @param {(any | UrlParams[])} id of updated element
-     * @param {T} itemToUpdate
-     * @returns {Observable<T>}
-     * 
-     * @memberOf Rest
-     */
-    update(params: Object | UrlParams[], itemToUpdate: T, _sub: Subject<T> = undefined): Observable<T> {
+
+    update(params: UrlParams[], itemToUpdate: T, _sub: Subject<T> = undefined): Observable<T> {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of update for enipoint: ${this.endpoint}.`);
         }
@@ -249,22 +213,15 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
                     urlParams: JSON.stringify(params),
                     bodySend: d,
                     bodyRecieve: JSON.stringify(r),
-                    method: <HttpMethod>'PUT',
+                    method: 'PUT',
                     urlFull: u
                 });
                 return r;
             });
     }
 
-    /**
-     * Delete data from your endpoint
-     * 
-     * @param {(any | UrlParams[])} id of deleted object
-     * @returns {Observable<T>}
-     * 
-     * @memberOf Rest
-     */
-    remove(params: Object | UrlParams[], _sub: Subject<T> = undefined): Observable<T> {
+
+    remove(params: UrlParams[], _sub: Subject<T> = undefined): Observable<T> {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of remove for enipoint: ${this.endpoint}.`);
         }
@@ -285,7 +242,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
                     this.log(<DocModel>{
                         urlParams: JSON.stringify(params),
                         bodyRecieve: JSON.stringify(r),
-                        method: <HttpMethod>'DELETE',
+                        method: 'DELETE',
                         urlFull: u
                     });
                     return r;
@@ -295,12 +252,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
     }
 
 
-    /**
-     * Request for jsonp
-     * 
-     * @memberOf Rest
-     */
-    jsonp(_sub: Subject<T> = undefined): Observable<any> {
+    jsonp(params?: UrlParams[], _sub: Subject<T> = undefined): Observable<T> {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of jsonp for enipoint: ${this.endpoint}.`);
         }
@@ -308,7 +260,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
             let sub: Subject<T> = _sub ? _sub : new Subject<T>();
             let obs = sub.asObservable();
             setTimeout(() => {
-                this.jsonp(_sub).subscribe(e => sub.next(e));
+                this.jsonp(params, _sub).subscribe(e => sub.next(e));
             }, Rest.waitTimeMs)
             return sub;
         }
@@ -317,7 +269,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
             let r = res.json()
             this.log(<DocModel>{
                 bodyRecieve: JSON.stringify(r),
-                method: <HttpMethod>'JSONP',
+                method: 'JSONP',
                 urlFull: u
             });
             return r;
@@ -326,14 +278,16 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
 
     private backend: MockAutoBackend<T>;
 
-    mock = (data: any, timeout: number = 0, controller: MockController<T> = undefined, nunOfMocks: number = 0): FnMethodsHttp<T, TA> => {
+
+
+    mock(data: any, timeout: number = 0, controller?: MockController<T>,
+        nunOfMocks: number = 0): FnMethodsHttp<T, TA> {
+
         if (Rest.mockingMode === MockingMode.LIVE_BACKEND_ONLY) {
             console.log('FROM MOCK TO LIVE')
             return this;
         }
         let subject: Subject<any>;
-        let r;
-        let tparams = {};
         let currentMethod: HttpMethod;
         let currentBodySend: string;
         let currentUrlParams: string;
@@ -355,45 +309,62 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
                 if (this.backend === undefined && nunOfMocks > 0)
                     this.backend = new MockAutoBackend<T>(data, nunOfMocks);
 
-                let d = nunOfMocks === 0 ? controller(tdata, tparams) :
-                    controller(tdata, tparams, this.backend);
-                if (d === undefined) subject.error(d);
+                let bodyPOSTandPUT = (currentBodySend && typeof currentBodySend === 'string') ? JSON.parse(currentBodySend) : undefined;
+
+                let d = nunOfMocks === 0 ? controller({
+                    data: tdata,
+                    params: decodeUrl(currentFullUrl),
+                    body: bodyPOSTandPUT
+                }) :
+                    controller({
+                        data: tdata,
+                        params: decodeUrl(currentFullUrl),
+                        body: bodyPOSTandPUT,
+                        backend: this.backend
+                    });
+                if (d === undefined) {
+                    throw new Error(`Mock controlelr can't return undefined (endpoint:${this.endpoint})`);
+                }
+                if (d.code === undefined) d.code = 200;
+                if (d.data === undefined) {
+                    this.log(<DocModel>{
+                        urlParams: currentUrlParams,
+                        bodySend: currentBodySend,
+                        method: currentMethod,
+                        urlFull: currentFullUrl,
+                        status: d.code
+                    });
+                    subject.error(d);
+                }
                 else {
                     this.log(<DocModel>{
                         urlParams: currentUrlParams,
-                        bodyRecieve: JSON.stringify(d),
+                        bodyRecieve: JSON.stringify(d.data),
                         bodySend: currentBodySend,
                         method: currentMethod,
-                        urlFull: currentFullUrl
+                        urlFull: currentFullUrl,
+                        status: d.code
                     });
-                    if (this.appIsWaiting()) setTimeout(() => subject.next(d), Rest.waitTimeMs);
-                    else subject.next(d);
+                    if (this.appIsWaiting()) setTimeout(() => subject.next(d.data), Rest.waitTimeMs);
+                    else subject.next(d.data);
                 }
             }
             else {
-                if (typeof data === 'object') {
-                    let res = JSON.parse(JSON.stringify(data));
+                if (typeof data === 'object' || typeof data === 'string') {
+                    let res: MockResponse = {
+                        data: (typeof data === 'string') ? JSON.parse(data) : JSON.parse(JSON.stringify(data)),
+                        code: 200
+                    };
                     this.log(<DocModel>{
                         urlParams: currentUrlParams,
-                        bodyRecieve: JSON.stringify(res),
+                        bodyRecieve: JSON.stringify(res.data),
                         bodySend: currentBodySend,
                         method: currentMethod,
-                        urlFull: currentFullUrl
+                        urlFull: currentFullUrl,
+                        status: res.code
                     });
-                    if (this.appIsWaiting()) setTimeout(() => subject.next(res), Rest.waitTimeMs);
-                    else subject.next(res);
-                }
-                else if (typeof data === 'string') {
-                    let res = JSON.parse(data);
-                    this.log(<DocModel>{
-                        urlParams: currentUrlParams,
-                        bodyRecieve: JSON.stringify(res),
-                        bodySend: currentBodySend,
-                        method: currentMethod,
-                        urlFull: currentFullUrl
-                    });
-                    if (this.appIsWaiting()) setTimeout(() => subject.next(res), Rest.waitTimeMs);
-                    else subject.next(res);
+                    if (this.appIsWaiting()) setTimeout(() => subject.next(res.data), Rest.waitTimeMs);
+                    else subject.next(res.data);
                 }
                 else {
                     throw new Error(`Data for mock isn't string or object, endpoint:${this.endpoint}`);
@@ -403,31 +374,27 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
 
         let t: FnMethodsHttp<T, TA> = <FnMethodsHttp<T, TA>>{};
 
-        t.query = (params: any = undefined): Observable<TA> => {
+        t.query = (params?: UrlParams[]): Observable<TA> => {
             currentMethod = 'GET';
             subject = new Subject<TA>();
-            tparams = params;
-            currentFullUrl = this.creatUrl(params);
-            currentUrlParams = JSON.stringify(tparams);
-
-            return subject.asObservable();
-        };
-
-        t.get = (params: Object): Observable<T> => {
-            currentMethod = 'GET';
-            subject = new Subject<T>();
-            if (typeof params === 'object') tparams = params;
-            else tparams = { params };
             currentFullUrl = this.creatUrl(params);
             currentUrlParams = JSON.stringify(params);
 
             return subject.asObservable();
         };
 
-        t.save = (item: T, params?: Object | UrlParams[]): Observable<T> => {
+        t.get = (params: UrlParams[]): Observable<T> => {
+            currentMethod = 'GET';
+            subject = new Subject<T>();
+            currentFullUrl = this.creatUrl(params);
+            currentUrlParams = JSON.stringify(params);
+
+            return subject.asObservable();
+        };
+
+        t.save = (item: T, params?: UrlParams[]): Observable<T> => {
             currentMethod = 'POST';
             subject = new Subject<T>();
-            tparams = { item, params };
             currentFullUrl = this.creatUrl(params);
             currentUrlParams = params ? JSON.stringify(params) : undefined;
 
@@ -436,29 +403,28 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
             return subject.asObservable();
         };
 
-        t.update = (params: Object, itemToUpdate: T): Observable<T> => {
+        t.update = (params: UrlParams[], itemToUpdate: T): Observable<T> => {
             currentMethod = 'PUT';
             subject = new Subject<T>();
-            tparams = { params, itemToUpdate };
             currentFullUrl = this.creatUrl(params);
             currentUrlParams = JSON.stringify(params);
+            currentBodySend = JSON.stringify(itemToUpdate);
 
             currentBodySend = JSON.stringify(itemToUpdate);
 
             return subject.asObservable();
         };
 
-        t.remove = (params: Object): Observable<T> => {
+        t.remove = (params: UrlParams[]): Observable<T> => {
             currentMethod = 'DELETE';
             subject = new Subject<T>();
-            tparams = { params };
             currentFullUrl = this.creatUrl(params);
             currentUrlParams = JSON.stringify(params);
-            
+
             return subject.asObservable();
         };
 
-        t.jsonp = (): Observable<any> => {
+        t.jsonp = (params?: UrlParams[]): Observable<T> => {
             currentMethod = 'JSONP';
             subject = new Subject<any>();
             currentFullUrl = this.endpoint;

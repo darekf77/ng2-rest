@@ -73,7 +73,7 @@ export class TestRest {
                         let url = 'https://somewhere.com';
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
-                        rest.api(APIS.FIRST, 'users').get(0).subscribe((res) => {
+                        rest.api(APIS.FIRST, 'users').get([{ id: 0 }]).subscribe((res) => {
                             expect(res).toEqual(user);
                         }, (err) => {
                             fail;
@@ -161,7 +161,7 @@ export class TestRest {
                         let url = 'https://somewhere.com';
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
-                        rest.api(APIS.FIRST, 'users').update(0, user).subscribe((res) => {
+                        rest.api(APIS.FIRST, 'users').update([{ id: 0 }], user).subscribe((res) => {
                             expect(res).toEqual(user);
                         }, (err) => {
                             fail;
@@ -189,7 +189,7 @@ export class TestRest {
                         let url = 'https://somewhere.com';
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
-                        rest.api(APIS.FIRST, 'users').remove(0).subscribe((res) => {
+                        rest.api(APIS.FIRST, 'users').remove([{ id: 0 }]).subscribe((res) => {
                             expect(res).toEqual(user);
                         }, (err) => {
                             fail;
@@ -234,7 +234,7 @@ export class TestRest {
 
 
 
-            
+
             it('Shoud transform url params', () => {
                 let res = getParamsUrl([
                     { 'super': 122 },

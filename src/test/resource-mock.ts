@@ -13,7 +13,7 @@ import { MockBackend, MockConnection } from '@angular/http/testing';
 
 import { Resource } from '../resource.service';
 import { APIS, User } from './mock';
-import { MockingMode, MockAutoBackend } from '../models';
+import { MockingMode, MockAutoBackend, MockRequest } from '../models';
 
 export class TestRestMock {
 
@@ -78,7 +78,7 @@ export class TestRestMock {
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
 
-                        rest.api(APIS.FIRST, 'users').mock(JSON.stringify(user)).get(0).subscribe((res) => {
+                        rest.api(APIS.FIRST, 'users').mock(JSON.stringify(user)).get([{ id: 0 }]).subscribe((res) => {
                             let o = JSON.parse(JSON.stringify(user))
                             expect(this.areEqual(o, res)).toBeTruthy();
                             console.log('res ', res);
@@ -98,7 +98,7 @@ export class TestRestMock {
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
 
-                        rest.api(APIS.FIRST, 'users').mock(JSON.stringify(user)).remove(0).subscribe((res) => {
+                        rest.api(APIS.FIRST, 'users').mock(JSON.stringify(user)).remove([{ id: 0 }]).subscribe((res) => {
                             let o = JSON.parse(JSON.stringify(user))
                             expect(this.areEqual(o, res)).toBeTruthy();
                         }, (err) => {
@@ -135,7 +135,7 @@ export class TestRestMock {
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
 
-                        rest.api(APIS.FIRST, 'users').mock(JSON.stringify(user)).update(0, user).subscribe((res) => {
+                        rest.api(APIS.FIRST, 'users').mock(JSON.stringify(user)).update([{ id: 0 }], user).subscribe((res) => {
                             let o = JSON.parse(JSON.stringify(user))
                             expect(this.areEqual(o, res)).toBeTruthy();
                         }, (err) => {
@@ -191,13 +191,15 @@ export class TestRestMock {
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
 
-                        let ctrl = (data: User, params: any) => {
-                            data.id = 100;
-                            expect(params.id).toBe(0);
-                            return data;
+                        let ctrl = (req: MockRequest<User>) => {
+                            console.log(req.data)
+                            console.log(req.params)
+                            req.data.id = 100;
+                            expect(req.params['id']).toBe('0');
+                            return { data: req.data };
                         }
 
-                        rest.api(APIS.FIRST, 'users').mock(user, 0, ctrl).get(0).subscribe((res) => {
+                        rest.api(APIS.FIRST, 'users').mock(user, 0, ctrl).get([{ id: 0 }]).subscribe((res) => {
                             expect(res.id).toBe(100);
                         }, (err) => {
                             fail;
@@ -226,7 +228,7 @@ export class TestRestMock {
                         Resource.setMockingMode(MockingMode.LIVE_BACKEND_ONLY);
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
-                        rest.api(APIS.FIRST, 'users').mock({ something: 'something bad' }).get(0).subscribe((res) => {
+                        rest.api(APIS.FIRST, 'users').mock({ something: 'something bad' }).get([{ id: 0 }]).subscribe((res) => {
                             expect(res).toEqual(user);
                         }, (err) => {
                             fail;
@@ -244,16 +246,16 @@ export class TestRestMock {
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
 
-                        let ctrl = (data: User, params: any, backend: MockAutoBackend<User>) => {
+                        let ctrl = (request: MockRequest<User>) => {
                             expect(backend).toBeDefined();
                             console.log('backend', backend);
                             console.log('HELLO IAM HERE')
-                            data.id = 100;
-                            expect(params.id).toBe(0);
-                            return data;
+                            request.data.id = 100;
+                            expect(request.params['id']).toBe('0');
+                            return undefined;
                         }
 
-                        rest.api(APIS.FIRST, 'users').mock(user, 0, ctrl, 1).get(0).subscribe((res) => {
+                        rest.api(APIS.FIRST, 'users').mock(user, 0, ctrl, 1).get([{ id: 0 }]).subscribe((res) => {
                             expect(res.id).toBe(100);
                         }, (err) => {
                             fail;
@@ -270,14 +272,14 @@ export class TestRestMock {
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
 
-                        let ctrl = (data: User, params: any, backend: MockAutoBackend<User>) => {
+                        let ctrl = (request: MockRequest<User>) => {
                             expect(backend).toBeUndefined();
-                            data.id = 100;
-                            expect(params.id).toBe(0);
-                            return data;
+                            request.data.id = 100;
+                            expect(request.params['id']).toBe('0');
+                            return request.data;
                         }
 
-                        rest.api(APIS.FIRST, 'users').mock(user, 0, ctrl).get(0).subscribe((res) => {
+                        rest.api(APIS.FIRST, 'users').mock(user, 0, ctrl).get([{ id: 0 }]).subscribe((res) => {
                             expect(res.id).toBe(100);
                         }, (err) => {
                             fail;

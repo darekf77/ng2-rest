@@ -1,4 +1,5 @@
 export * from './mocking-mode';
 export * from './url-params';
 export * from './get-params';
-export * from './models';
+export * from './fn-methods-http';
+export * from './decode-url';

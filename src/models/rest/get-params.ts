@@ -28,7 +28,7 @@ export function getParamsUrl(params: UrlParams[]): string {
                 }
                 urlparam[p] = encodeURIComponent(urlparam[p].toString());
                 if (urlparam.regex !== undefined && urlparam.regex instanceof RegExp) {
-                    if (urlparam.regex.test(urlparam[p].toString())) {
+                    if (!urlparam.regex.test(urlparam[p].toString())) {
                         console.warn(`Data: ${urlparam[p].toString()} incostistent with regex ${urlparam.regex.source}`);
                     }
                 }

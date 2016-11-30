@@ -40,6 +40,8 @@
     "@angularclass/conventions-loader": "^1.0.2",
     "@angularclass/hmr": "~1.2.0",
     "@angularclass/hmr-loader": "~3.0.2",
+    "@types/chai": "^3.4.34",
+    "@types/chai-as-promised": "0.0.29",
     "@types/core-js": "^0.9.34",
     "@types/faker": "^3.1.32",
     "@types/hammerjs": "^2.0.33",
@@ -115,5 +117,6 @@
   "gitHead": "03201bb70d036d4d999c12f93b423bcbcac8d96a",
   "_id": "ng2-rest@1.0.2",
   "_shasum": "21857955e9ba3baa97075bdb6ca4d5ee216e2dd2",
-  "_from": "ng2-rest@latest"
+  "_from": "ng2-rest@latest",
+  "dependencies": {}
 }

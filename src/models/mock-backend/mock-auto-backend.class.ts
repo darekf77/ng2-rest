@@ -1,69 +1,14 @@
 let faker = require('faker');
 faker.locale = 'pl';
 
+import {
+    goInside, isArray, isObject, isSimpleType, pName,
+    copyFromTo, genNumber
+} from './helpers-mock-backend';
 
-export enum SortType {
-    'ASC',
-    'DESC'
-}
-
-export interface SortModel {
-    field: string;
-    type?: SortType;
-}
-
-function genNumber(limit: number): number {
-    return Math.floor(Math.random() * (limit - 0 + 1)) + 0;
-}
-
-function isArray(o: any) {
-    return (o instanceof Array);
-}
-
-function isObject(o: any) {
-    return typeof o === 'object' && !isArray(o)
-}
+import { SortModel } from './sort-model';
 
 
-function goInside(o: Object, paths: string[]): Object {
-    // console.log(`pathes`, pathes);
-    // console.log(`o`, o);
-    if (paths.length === 0) return o;
-    let tmp = o;
-    paths.forEach(path => {
-        if (tmp[path] === undefined) tmp[path] = {};
-        tmp = tmp[path];
-        // console.log(`upper for path:${path}`, o);
-    });
-    // console.log(`tmp`, tmp);
-    return tmp;
-}
-
-function isSimpleType(value) {
-    return ((typeof value === 'number') ||
-    (typeof value === 'boolean') ||
-    (typeof value === 'string') ||
-    (typeof value === 'undefined'));
-}
-
-let pName = p => {
-    return p.startsWith('$') ? p.slice(1) : p;
-};
-
-function copyFromTo(fromObj: Object, toObj: Object) {
-    for (let p in fromObj) {
-        if (fromObj.hasOwnProperty(p)) {
-
-            toObj[p] = fromObj[p];
-        }
-    }
-    for (let p in toObj) {
-        if (toObj.hasOwnProperty(p)) {
-            // console.log('p', p);
-            if (p.charAt(0) === '$')  delete toObj[p];
-        }
-    }
-}
 
 export class MockAutoBackend<T> {
 
@@ -79,10 +24,19 @@ export class MockAutoBackend<T> {
         }
     }
 
+    /**
+     * Create data for pagination from models<T>
+     * 
+     * @param {number} page
+     * @param {number} pageSize
+     * @returns {T[]}
+     * 
+     * @memberOf MockAutoBackend
+     */
     getPagination(page: number, pageSize: number): T[] {
         let indexStart = (page - 1) * pageSize;
-        let indexEnd   = indexStart + pageSize;
-        let d          = this.models.slice(indexStart, indexEnd);
+        let indexEnd = indexStart + pageSize;
+        let d = this.models.slice(indexStart, indexEnd);
         return d;
     }
 
@@ -106,8 +60,8 @@ export class MockAutoBackend<T> {
     }
 
     deleteModelBy(modelKeys: Object, model: T): T[] {
-        let models: T[]     = this.filterBy(modelKeys);
-        let deletedModes    = JSON.parse(JSON.stringify(models));
+        let models: T[] = this.filterBy(modelKeys);
+        let deletedModes = JSON.parse(JSON.stringify(models));
         let indexesToDelete = [];
         models.forEach(m => {
             indexesToDelete.push(this.models.indexOf(m, 0));
@@ -134,17 +88,17 @@ export class MockAutoBackend<T> {
         let models: T[] = JSON.parse(JSON.stringify(this.models));
         params.forEach(s => {
             models = models.sort((a, b) => {
-                // if (s.type === SortType.DESC) {
-                //     if (a[s.field] < b[s.field])
-                //         return -1;
-                //     if (a[s.field] > b[s.field])
-                //         return 1;
-                // } else if (s.type === SortType.DESC) {
-                //     if (a[s.field] < b[s.field])
-                //         return 1;
-                //     if (a[s.field] > b[s.field])
-                //         return -1;
-                // }
+                if (s.type === 'DESC') {
+                    if (a[s.field] < b[s.field])
+                        return -1;
+                    if (a[s.field] > b[s.field])
+                        return 1;
+                } else if (s.type === 'ASC') {
+                    if (a[s.field] < b[s.field])
+                        return 1;
+                    if (a[s.field] > b[s.field])
+                        return -1;
+                }
                 return 0;
             });
         });
@@ -181,9 +135,9 @@ export class MockAutoBackend<T> {
 
                         }
                     });
-                    let g                            = genNumber(arr.length - 1);
+                    let g = genNumber(arr.length - 1);
                     goInside(cModel, path)[pName(p)] = arr[g];
-                    tmpModel                         = JSON.parse(JSON.stringify(cModel));
+                    tmpModel = JSON.parse(JSON.stringify(cModel));
                     continue;
                 }
 
@@ -196,7 +150,7 @@ export class MockAutoBackend<T> {
                         console.error(e);
                     }
                     goInside(cModel, path)[pName(p)] = val;
-                    tmpModel                         = JSON.parse(JSON.stringify(cModel));
+                    tmpModel = JSON.parse(JSON.stringify(cModel));
                     continue;
                 }
 
@@ -208,7 +162,7 @@ export class MockAutoBackend<T> {
 
                 if (isSimpleType(value) || p.startsWith('$')) {
                     goInside(cModel, path)[pName(p)] = value;
-                    tmpModel                         = JSON.parse(JSON.stringify(cModel));
+                    tmpModel = JSON.parse(JSON.stringify(cModel));
                     continue;
                 }
 
