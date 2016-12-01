@@ -36,7 +36,13 @@ Simple use:
     import { Resource } from 'ng2-rest/ng2-rest';
 ```
 Put `Resource` in your ngModule:
-
+```ts
+@NgModule({
+    // ...
+    providers: [Resource]
+    // ...
+})
+```
 
 build your enum with endpoints or types
 
