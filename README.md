@@ -10,7 +10,10 @@ Multi-endpoint REST api with **Angular 2.**
 Alternative to angularjs $resource + extremely useful thing to build/mock frontend app in browser.
 
 NEW FEATURE:
-Generate documentation from ng2-rest requests with [ng2-rest-docs-server](https://github.com/darekf77/ng2-rest-docs-server) tool. 
+Generate documentation from ng2-rest requests with [ng2-rest-docs-server](https://github.com/darekf77/ng2-rest-docs-server) . 
+Also you can generate [Spring Cloud Contracts](https://cloud.spring.io/spring-cloud-contract/spring-cloud-contract.html)  with this tool.
+
+
 Extremely useful with E2E and mocked all app in frontend with ng2-rest 
 - you don't need to make docs for backend... it will be automatically generated
  from request based on E2E tests.
@@ -109,14 +112,26 @@ API
 Optionally object parameters in methods below are created by encodeURIComponent(JSON.stringif(params)) so **in your backend** 
 you need to use function **decodeURIComponent(params) **  to get ids, params from passed url. You don't need to do that in mock controlelrs.
 
+```ts
+interface UrlParams {
+    [urlModelName: string]: string | number | boolean | RegExp;
+    regex?: RegExp; // internal validation for query params
+};
+
+//  [ {  name: 'Dariusz' , regex: /.{255}/g }, { surname: 'Filipiak' }  ]
+// it wil generate:
+// ?name=Dariusz&regex=.\{255\}&surname=Filipiak
+
+```
+
 | Name | Parameters  | Description | Example | 
 | :---: | --- | --- | ---: |
-| **query** | `nothing or object ` |  fetch array of your models, optionally with parameters | `getModels()`, `getSortedModels({sort:true})` |
-| **get** | `id or object ` |   get model by id, optionally by parameters  | `getUser(1)`, `getSomeModel( {  color : 'blue' })` |
-| **save** | `object ` |   post object model | `saveUser({ name: 'Dario', age: 26 })`  |
-| **update** | `id or object ` |   put object model | `updateUser(1,object)`, `updateUsers( {  color : 'blue' },  {  banned: true  } )` |
-| **remove** | `id or object ` |   remove object by id by params | `removeUser(1)`, `removeModels( {  color : 'blue' })` |
-| **jsonp** | `nothing` |   get jsonp data | `getDataFromOtherServer()` |
+| **query** | `(optional) UrlParams[] ` |  fetch array of your models, optionally with parameters | `getModels()`, `getSortedModels([{sort:true}])` |
+| **get** | `UrlParams[] ` |   get model by parameters  | `getUser([{ id: 1 }])`, `getSomeModel([{  color : 'blue' }])` |
+| **save** | `model, UrlParams[] ` |   post object model | `saveUser({ name: 'Dario', age: 26 })`  |
+| **update** | `model, UrlParams[]` |   put object model | `updateUser( [{ id: 1 }] ,object)`, `updateUsers( {  color : 'blue' },  {  banned: true  } )` |
+| **remove** | `UrlParams[]` |   remove object by params | `removeUser([{ id: 1 }])`, `removeModels( [{  color : 'blue'  }])` |
+| **jsonp (alpha ver.)** | `(optional) UrlParams[]` |   get jsonp data, optionally with parameters | `getDataFromOtherServer()` |
 
 
 
@@ -157,9 +172,15 @@ It is one of the best features here. You don't need a backend for your front-end
 ```ts
 	// mock-controller.ts
     export function mockController(
-	    user: T, params: any, backend: MockAutoBackend<T> ) 
+	    response: MockResponse ) 
     { 
-		user.id = params.id;
+		// response.data ->   { id: 10, name: 'Dariusz'  }
+		// response.params -> {  id: 23 }
+		// response.body -> undefined -> only with .save(), update() 
+		// response.backend - MockAutoBackend<User>
+		
+		let user = response.data;
+		user.id = response.params.id;
 		return user; 
     }
 	
@@ -169,7 +190,7 @@ It is one of the best features here. You don't need a backend for your front-end
 	...
 	data = (id) => this.rest.api( ENDPOINT.API, modelName )
 		.mock( { id: 10, name: 'Dariusz'  }, mockController).
-		get({ id: id :))
+		get([{ id: id }] )) 
 
 
 	// component.ts
@@ -188,13 +209,10 @@ It is one of the best features here. You don't need a backend for your front-end
     }
 	
 	// mock-controller.ts
-	export function mockController(
-		user: T, 
-		params: any, 
-		backend: MockAutoBackend<T> ) 
+	export function mockController( response: MockResponse ) 
     { 
-	    console.log(backend.models); /// generated models
-		return backend.getPagination(params.pageNumber, params.pageSize;
+	    console.log(response.backend.models); /// generated models
+		return response.backend.getPagination(params.pageNumber, params.pageSize;
     }
 	
 	// example.service.ts
@@ -205,7 +223,7 @@ It is one of the best features here. You don't need a backend for your front-end
 	getPaginartion =  (params) => this.rest.api( ENDPOINT.API, modelName)
 		.mock( requre('./model.json'), 
 		mockController,
-		this.numberOfGeneratedPaginartionModels) 
+		this.numberOfGeneratedPaginartionModels).query()
 	...
 
 
@@ -272,3 +290,4 @@ Outputs:
     "fullTitle": "Marks, Dean Sr."
 }
 ```
+
