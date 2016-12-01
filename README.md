@@ -89,7 +89,7 @@ Map your urls and models
 			 mock_controller = (request ) => { // new option backend 
 				 let user = request.data;
 			     user.id = request.params.id;
-			     return user; 
+			     return { data:user }; 
 			 }
              mocked_models = {
                 getAllMocks:  this.rest.api(ENDPOINTS.API, 'users')
@@ -193,7 +193,7 @@ It is one of the best features here. You don't need a backend for your front-end
 		
 		let user = request.data;
 		user.id = request.params.id;
-		return user; 
+		return { data:user }; 
     }
 	
 	
@@ -305,3 +305,5 @@ Outputs:
     "fullTitle": "Marks, Dean Sr."
 }
 ```
+
+
