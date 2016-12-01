@@ -141,7 +141,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         });
     }
 
-    get(params: UrlParams[], _sub: Subject<T> = undefined): Observable<T> {
+    get(params?: UrlParams[], _sub: Subject<T> = undefined): Observable<T> {
 
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of get for enipoint: ${this.endpoint}.`);
@@ -195,7 +195,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
     }
 
 
-    update(params: UrlParams[], itemToUpdate: T, _sub: Subject<T> = undefined): Observable<T> {
+    update(item: T, params?: UrlParams[], _sub: Subject<T> = undefined): Observable<T> {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of update for enipoint: ${this.endpoint}.`);
         }
@@ -203,13 +203,13 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
             let sub: Subject<T> = _sub ? _sub : new Subject<T>();
             let obs = sub.asObservable();
             setTimeout(() => {
-                this.update(params, itemToUpdate, sub).subscribe(e => sub.next(e));
+                this.update(item, params, sub).subscribe(e => sub.next(e));
             }, Rest.waitTimeMs)
             return sub;
         }
         let u = this.creatUrl(params);
-        let d = JSON.stringify(itemToUpdate);
-        return this.http.put(u, JSON.stringify(itemToUpdate),
+        let d = JSON.stringify(item);
+        return this.http.put(u, JSON.stringify(item),
             { headers: this.headers }).map(res => {
                 let r = res.json()
                 this.log(<DocModel>{
@@ -224,7 +224,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
     }
 
 
-    remove(params: UrlParams[], _sub: Subject<T> = undefined): Observable<T> {
+    remove(params?: UrlParams[], _sub: Subject<T> = undefined): Observable<T> {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of remove for enipoint: ${this.endpoint}.`);
         }
@@ -331,6 +331,10 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
                 if (d === undefined) {
                     throw new Error(`Mock controlelr can't return undefined (endpoint:${this.endpoint})`);
                 }
+                if (d.error !== undefined) {
+                    console.error(`Mock server respond with code ${d.code} - ${d.error}`);
+                    // TODO each code real message
+                }
 
                 // console.log('currentUrlPrams', currentUrlParams);
 
@@ -392,7 +396,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
             return subject.asObservable();
         };
 
-        t.get = (params: UrlParams[]): Observable<T> => {
+        t.get = (params?: UrlParams[]): Observable<T> => {
             currentMethod = 'GET';
             subject = new Subject<T>();
             currentUrlParams = JSON.stringify(params);
@@ -412,18 +416,18 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
             return subject.asObservable();
         };
 
-        t.update = (params: UrlParams[], itemToUpdate: T): Observable<T> => {
+        t.update = (item: T, params?: UrlParams[]): Observable<T> => {
             currentMethod = 'PUT';
             subject = new Subject<T>();
             currentUrlParams = JSON.stringify(params);
             currentFullUrl = this.creatUrl(params);
 
-            currentBodySend = JSON.stringify(itemToUpdate);
+            currentBodySend = JSON.stringify(item);
 
             return subject.asObservable();
         };
 
-        t.remove = (params: UrlParams[]): Observable<T> => {
+        t.remove = (params?: UrlParams[]): Observable<T> => {
             currentMethod = 'DELETE';
             subject = new Subject<T>();
             currentUrlParams = JSON.stringify(params);

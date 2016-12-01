@@ -135,7 +135,7 @@ export class TestRestMock {
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
 
-                        rest.api(APIS.FIRST, 'users').mock(JSON.stringify(user)).update([{ id: 0 }], user).subscribe((res) => {
+                        rest.api(APIS.FIRST, 'users').mock(JSON.stringify(user)).update(user, [{ id: 0 }]).subscribe((res) => {
                             let o = JSON.parse(JSON.stringify(user))
                             expect(this.areEqual(o, res)).toBeTruthy();
                         }, (err) => {
