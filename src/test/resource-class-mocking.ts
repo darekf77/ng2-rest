@@ -166,7 +166,7 @@ export class TestMockingClass {
 
                         let d = new MockAutoBackend(t, 7);
                         d.models.forEach(m => {
-                            console.log(m);
+                            // console.log(m);
                         });
 
                         // let d2 = new MockPagination(t, 4);

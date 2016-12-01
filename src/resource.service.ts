@@ -74,7 +74,7 @@ export class Resource<E, T, TA> {
         Resource.mockingModeIsSet = true;
         Resource.mockingMode = mode;
         Rest.mockingMode = mode;
-        console.log('mode is set ', mode);
+        console.info('Mode is set ', mode);
     }
 
     /**

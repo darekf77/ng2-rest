@@ -101,10 +101,13 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
     private prepareUrlOldWay = prepareUrlOldWay;
     private getParams = getParamsUrl;
     private creatUrl(params: any) {
-        if (params instanceof Array && params.length > 0) {
-            return `${this.endpoint}${getParamsUrl(params)}`
-        }
-        return this.prepareUrlOldWay(params);
+        // console.log('params to url ', params);
+        // console.log('params to url string ', JSON.stringify(params));
+        return `${this.endpoint}${getParamsUrl(params)}`;
+        // if (params instanceof Array && params.length > 0) {
+        //     return `${this.endpoint}${getParamsUrl(params)}`
+        // }
+        // return this.prepareUrlOldWay(params);
     }
 
     contract(form: FormGroup, arrays?: FormGroupArrays) {
@@ -284,7 +287,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         nunOfMocks: number = 0): FnMethodsHttp<T, TA> {
 
         if (Rest.mockingMode === MockingMode.LIVE_BACKEND_ONLY) {
-            console.log('FROM MOCK TO LIVE')
+            // console.log('FROM MOCK TO LIVE')
             return this;
         }
         let subject: Subject<any>;
@@ -310,21 +313,27 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
                     this.backend = new MockAutoBackend<T>(data, nunOfMocks);
 
                 let bodyPOSTandPUT = (currentBodySend && typeof currentBodySend === 'string') ? JSON.parse(currentBodySend) : undefined;
+                // console.log('currentFullUrl', currentFullUrl);
+                let decodedParams = decodeUrl(currentFullUrl);
+                // console.log('decodedParams', decodedParams);
 
                 let d = nunOfMocks === 0 ? controller({
                     data: tdata,
-                    params: decodeUrl(currentFullUrl),
+                    params: decodedParams,
                     body: bodyPOSTandPUT
                 }) :
                     controller({
                         data: tdata,
-                        params: decodeUrl(currentFullUrl),
+                        params: decodedParams,
                         body: bodyPOSTandPUT,
                         backend: this.backend
                     });
                 if (d === undefined) {
                     throw new Error(`Mock controlelr can't return undefined (endpoint:${this.endpoint})`);
                 }
+
+                // console.log('currentUrlPrams', currentUrlParams);
+
                 if (d.code === undefined) d.code = 200;
                 if (d.data === undefined) {
                     this.log(<DocModel>{
@@ -377,8 +386,8 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         t.query = (params?: UrlParams[]): Observable<TA> => {
             currentMethod = 'GET';
             subject = new Subject<TA>();
-            currentFullUrl = this.creatUrl(params);
             currentUrlParams = JSON.stringify(params);
+            currentFullUrl = this.creatUrl(params);
 
             return subject.asObservable();
         };
@@ -386,8 +395,8 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         t.get = (params: UrlParams[]): Observable<T> => {
             currentMethod = 'GET';
             subject = new Subject<T>();
-            currentFullUrl = this.creatUrl(params);
             currentUrlParams = JSON.stringify(params);
+            currentFullUrl = this.creatUrl(params);
 
             return subject.asObservable();
         };
@@ -395,8 +404,8 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         t.save = (item: T, params?: UrlParams[]): Observable<T> => {
             currentMethod = 'POST';
             subject = new Subject<T>();
+            currentUrlParams = params ? JSON.stringify(params) : '{}';
             currentFullUrl = this.creatUrl(params);
-            currentUrlParams = params ? JSON.stringify(params) : undefined;
 
             currentBodySend = JSON.stringify(item);
 
@@ -406,9 +415,8 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         t.update = (params: UrlParams[], itemToUpdate: T): Observable<T> => {
             currentMethod = 'PUT';
             subject = new Subject<T>();
-            currentFullUrl = this.creatUrl(params);
             currentUrlParams = JSON.stringify(params);
-            currentBodySend = JSON.stringify(itemToUpdate);
+            currentFullUrl = this.creatUrl(params);
 
             currentBodySend = JSON.stringify(itemToUpdate);
 
@@ -418,8 +426,8 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         t.remove = (params: UrlParams[]): Observable<T> => {
             currentMethod = 'DELETE';
             subject = new Subject<T>();
-            currentFullUrl = this.creatUrl(params);
             currentUrlParams = JSON.stringify(params);
+            currentFullUrl = this.creatUrl(params);
 
             return subject.asObservable();
         };

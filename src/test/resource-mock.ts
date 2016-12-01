@@ -195,7 +195,7 @@ export class TestRestMock {
                             console.log(req.data)
                             console.log(req.params)
                             req.data.id = 100;
-                            expect(req.params['id']).toBe('0');
+                            expect(req.params['id']).toBe(0);
                             return { data: req.data };
                         }
 
@@ -251,7 +251,7 @@ export class TestRestMock {
                             console.log('backend', backend);
                             console.log('HELLO IAM HERE')
                             request.data.id = 100;
-                            expect(request.params['id']).toBe('0');
+                            expect(request.params['id']).toBe(0);
                             return undefined;
                         }
 
@@ -275,7 +275,7 @@ export class TestRestMock {
                         let ctrl = (request: MockRequest<User>) => {
                             expect(backend).toBeUndefined();
                             request.data.id = 100;
-                            expect(request.params['id']).toBe('0');
+                            expect(request.params['id']).toBe(0);
                             return request.data;
                         }
 
