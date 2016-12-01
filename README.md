@@ -86,9 +86,10 @@ Map your urls and models
 
               // NEW! mock your request
 		     users = [ { name:"name1":id:1 }, { name:"name2":id:2 }   ]
-			 mock_controller = (request ) => { // new option backend 
+			 mock_controller = (request: MockRequest<any> ):MockResponse
+			  => { 
 				 let user = request.data;
-			     user.id = request.params.id;
+			     user.id = request.params['id'];
 			     return { data:user }; 
 			 }
              mocked_models = {
@@ -141,7 +142,7 @@ interface UrlParams {
 | **query** | `(optional) UrlParams[] ` |  fetch array of your models, optionally with parameters | `getModels()`, `getSortedModels([{sort:true}])` |
 | **get** | `UrlParams[] ` |   get model by parameters  | `getUser([{ id: 1 }])`, `getSomeModel([{  color : 'blue' }])` |
 | **save** | `model, UrlParams[] ` |   post object model | `saveUser({ name: 'Dario', age: 26 })`  |
-| **update** | `model, UrlParams[]` |   put object model | `updateUser( [{ id: 1 }] ,object)`, `updateUsers( {  color : 'blue' },  {  banned: true  } )` |
+| **update** | `model, UrlParams[]` |   put object model | `updateUser(object, [{ id: 1 }])`, `updateUsers([ ... ]. [{  color : 'blue' },  {  banned: true  }] )` |
 | **remove** | `UrlParams[]` |   remove object by params | `removeUser([{ id: 1 }])`, `removeModels( [{  color : 'blue'  }])` |
 | **jsonp (alpha ver.)** | `(optional) UrlParams[]` |   get jsonp data, optionally with parameters | `getDataFromOtherServer()` |
 
@@ -184,7 +185,7 @@ It is one of the best features here. You don't need a backend for your front-end
 ```ts
 	// mock-controller.ts
     export function mockController(
-	    request: MockRequest<User> ) 
+	    request: MockRequest<User> ): MockResponse 
     { 
 		// request.data ->   { id: 10, name: 'Dariusz'  }
 		// request.params -> {  id: 23 }
@@ -221,7 +222,7 @@ It is one of the best features here. You don't need a backend for your front-end
     }
 	
 	// mock-controller.ts
-	export function mockController( request: MockRequest<T> ) 
+	export function mockController( request: MockRequest<T> ):MockResponse 
     { 
 	    console.log(request.backend.models); /// generated models
 	    let pageNumber = request.params.pageNumber;
