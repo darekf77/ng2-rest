@@ -35,13 +35,18 @@ Simple use:
 ```ts
     import { Resource } from 'ng2-rest/ng2-rest';
 ```
-build your enum with endpoints ( you can also use strings, but enum's are better !) :
+Put `Resource` in your ngModule:
+
+
+build your enum with endpoints or types
 
 ```ts
     enum ENDPOINTS { // enum instead of strings
     	    API,
     	    OTHER_API
     	}
+    // or
+    type ENDPOINTS = 'http://github.com' | 'http://npmjs.com'
 ```
 
 Define interfaces for response
@@ -68,24 +73,25 @@ Map your urls and models
                     // create your fluent API
               model = {
                 getAll:  this.rest.api(ENDPOINTS.API, 'users').query(),
-                getAllSorted:  this.rest.api(ENDPOINTS.API, '/users/inside').query({ sorted: true }),
-                getSuperUser: this.rest.api(ENDPOINTS.API, 'users/super').get(0),
+                getAllSorted:  this.rest.api(ENDPOINTS.API, '/users/inside').query([{ sorted: true }]),
+                getSuperUser: this.rest.api(ENDPOINTS.API, 'users/super').get([{id:0}]),
                 saveCurrentUser : this.rest.api(ENDPOINTS.API, 'users').save(this.user)
               };
 
               // NEW! mock your request
 		     users = [ { name:"name1":id:1 }, { name:"name2":id:2 }   ]
-			 mock_controller = (user, params, backend ) => { // new option backend 
-			     user.id = params.id;
+			 mock_controller = (request ) => { // new option backend 
+				 let user = request.data;
+			     user.id = request.params.id;
 			     return user; 
 			 }
              mocked_models = {
                 getAllMocks:  this.rest.api(ENDPOINTS.API, 'users')
                   .mock(JSON.stringify(this.users)).query(),
                getFirstMock:  this.rest.api(ENDPOINTS.API, 'users')
-                  .mock(require('user.json')), 1000).get(0), // timeout 1000ms = 1s
+                  .mock(require('user.json')), 1000).get([{ id:0 }]), // timeout 1000ms = 1s
                 getDataFromController:  this.rest.api(ENDPOINTS.API, 'users')
-                  .mock(require('user.json')), 0, mock_controller).get(100),
+                  .mock(require('user.json')), 0, mock_controller).get([{id:100}]),
              };
 
               user:User;
@@ -172,15 +178,15 @@ It is one of the best features here. You don't need a backend for your front-end
 ```ts
 	// mock-controller.ts
     export function mockController(
-	    response: MockResponse ) 
+	    request: MockRequest<User> ) 
     { 
-		// response.data ->   { id: 10, name: 'Dariusz'  }
-		// response.params -> {  id: 23 }
-		// response.body -> undefined -> only with .save(), update() 
-		// response.backend - MockAutoBackend<User>
+		// request.data ->   { id: 10, name: 'Dariusz'  }
+		// request.params -> {  id: 23 }
+		// request.body -> undefined -> only with .save(), update() 
+		// request.backend - MockAutoBackend<User>
 		
-		let user = response.data;
-		user.id = response.params.id;
+		let user = request.data;
+		user.id = request.params.id;
 		return user; 
     }
 	
@@ -209,10 +215,13 @@ It is one of the best features here. You don't need a backend for your front-end
     }
 	
 	// mock-controller.ts
-	export function mockController( response: MockResponse ) 
+	export function mockController( request: MockRequest<T> ) 
     { 
-	    console.log(response.backend.models); /// generated models
-		return response.backend.getPagination(params.pageNumber, params.pageSize;
+	    console.log(request.backend.models); /// generated models
+	    let pageNumber = request.params.pageNumber;
+	    let pageSize = request.params.pageSize;
+	    let data = request.backend.getPagination( pageNumber, pageSize );
+		return { data: data, code: 200 }; // code is optional, 200  is default
     }
 	
 	// example.service.ts
@@ -290,4 +299,3 @@ Outputs:
     "fullTitle": "Marks, Dean Sr."
 }
 ```
-
