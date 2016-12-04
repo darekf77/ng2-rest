@@ -29,6 +29,6 @@ export interface DocsServerSide {
 
 export interface DocModel extends RequestData, RequestMetaData, DocsServerSide {    
     form: FormInputBind[];
-    contracts: string[];
+    contract: string;
 }
 

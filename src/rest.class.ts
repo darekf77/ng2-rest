@@ -12,6 +12,15 @@ import {
     FnMethodsHttp, decodeUrl, MockResponse
 } from './models';
 
+function prepare(params: UrlParams[]) {
+    if (params && params instanceof Array) {
+        params.forEach((p: any) => {
+            if (p.regex !== undefined && p.regex instanceof RegExp) p['regex'] = p.regex.source;
+        });
+    }
+}
+
+
 export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
 
     public static docServerUrl: string;
@@ -390,6 +399,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         t.query = (params?: UrlParams[]): Observable<TA> => {
             currentMethod = 'GET';
             subject = new Subject<TA>();
+            prepare(params);
             currentUrlParams = JSON.stringify(params);
             currentFullUrl = this.creatUrl(params);
 
@@ -399,6 +409,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         t.get = (params?: UrlParams[]): Observable<T> => {
             currentMethod = 'GET';
             subject = new Subject<T>();
+            prepare(params);
             currentUrlParams = JSON.stringify(params);
             currentFullUrl = this.creatUrl(params);
 
@@ -408,6 +419,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         t.save = (item: T, params?: UrlParams[]): Observable<T> => {
             currentMethod = 'POST';
             subject = new Subject<T>();
+            prepare(params);
             currentUrlParams = params ? JSON.stringify(params) : '{}';
             currentFullUrl = this.creatUrl(params);
 
@@ -419,6 +431,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         t.update = (item: T, params?: UrlParams[]): Observable<T> => {
             currentMethod = 'PUT';
             subject = new Subject<T>();
+            prepare(params);
             currentUrlParams = JSON.stringify(params);
             currentFullUrl = this.creatUrl(params);
 
@@ -430,6 +443,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         t.remove = (params?: UrlParams[]): Observable<T> => {
             currentMethod = 'DELETE';
             subject = new Subject<T>();
+            prepare(params);
             currentUrlParams = JSON.stringify(params);
             currentFullUrl = this.creatUrl(params);
 
@@ -439,6 +453,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         t.jsonp = (params?: UrlParams[]): Observable<T> => {
             currentMethod = 'JSONP';
             subject = new Subject<any>();
+            prepare(params);
             currentFullUrl = this.endpoint;
 
             return subject.asObservable();
