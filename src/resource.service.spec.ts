@@ -21,7 +21,8 @@ import {
     TestMockingClass,
     TestProduction,
     TestContracts,
-    TestQueryParams
+    TestQueryParams,
+    TestNestedParams
 } from './test';
 
 
@@ -52,4 +53,5 @@ describe('ng2-rest', () => {
     new TestProduction();
     new TestContracts();
     TestQueryParams();
+    TestNestedParams();
 });

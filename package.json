@@ -4,7 +4,7 @@
   "description": "rest package for angular 2",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test" : "karma start --auto-watch --no-single-run",
     "release": "git add --all . && git commit -m\"fix\" && git push origin master && npm publish"
   },
   "repository": {

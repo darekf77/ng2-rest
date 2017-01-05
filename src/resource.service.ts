@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { Http, Response, Headers, Jsonp } from '@angular/http';
 import { MockingMode } from './models';
 import { Observable, Subject } from 'rxjs';
-import { Eureka, EurekaConfig, EurekaState, EurekaInstance } from './models';
+import { Eureka, EurekaConfig, EurekaState, EurekaInstance, UrlNestedParams } from './models';
 
 import { Rest } from './rest.class';
 
@@ -42,7 +42,7 @@ export class Resource<E, T, TA> {
         Rest.docServerUrl = sessionStorage.getItem('url');
         // console.info('Rest.docServerUrl', Rest.docServerUrl);
 
-        if ( forceRecreate ||
+        if (forceRecreate ||
             Rest.docServerUrl === undefined ||
             Rest.docServerUrl === null ||
             Rest.docServerUrl.trim() === '') {
@@ -217,13 +217,36 @@ export class Resource<E, T, TA> {
             console.error('Endpoint is not mapped ! Cannot add model ' + model);
             return;
         }
+        let allModels: Object = Resource.endpoints[e].models;
+        model = this.checkNestedModels(model, allModels);
+
         if (Resource.endpoints[e].models[model] === undefined) {
             console.error(`Model '${model}' is undefined in endpoint: ${Resource.endpoints[e].url} `);
             return;
         }
+
         let res: Rest<T, TA> = Resource.endpoints[<string>(endpoint).toString()].models[model];
         res._useCaseDescription = usecase;
         return res;
+    }
+
+
+    private checkNestedModels(model: string, allModels: Object ) {
+        if (model.indexOf('/') !== -1) {            
+            for (let p in allModels) {
+                if (allModels.hasOwnProperty(p)) {
+                    let m = allModels[p];
+                    if (UrlNestedParams.isValid(p)) {
+                        let urlModels = UrlNestedParams.getModels(p);
+                        if (UrlNestedParams.containsModels(model, urlModels)) {
+                            model = p;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return model;
     }
 
 }

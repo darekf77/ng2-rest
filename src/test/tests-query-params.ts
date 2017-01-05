@@ -113,10 +113,6 @@ export function TestQueryParams() {
             expect(getParamsUrl(o)).toEqual(p);
         });
 
-
-
-
-
         it('Should transofrm url without problems', () => {
             let u = 'http://10.48.0.173:16185/search?phrase=&pagination=\
 %7B%22number%22%3A1%2C%22numberOfElements%22%3A10%7D&isFromLiveSearch=true'
