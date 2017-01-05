@@ -1,10 +1,10 @@
 {
   "name": "ng2-rest",
-  "version": "5.0.9",
+  "version": "5.0.10",
   "description": "rest package for angular 2",
   "main": "index.js",
   "scripts": {
-    "test" : "karma start --auto-watch --no-single-run",
+    "test": "karma start --auto-watch --no-single-run",
     "release": "git add --all . && git commit -m\"fix\" && git push origin master && npm publish"
   },
   "repository": {
