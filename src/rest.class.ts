@@ -82,7 +82,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
     private getHeadersJSON() {
         return Rest.headers.toJSON();
     }
-    
+
 
     private log(model: DocModel) {
         if (Rest.docServerUrl) {
@@ -148,7 +148,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
             return sub;
         }
         let u = this.creatUrl(params);
-        return this.http.get(u).map(res => {
+        return this.http.get(u, { headers: Rest.headers }).map(res => {
             let r = res.json()
             this.log(<DocModel>{
                 urlParams: JSON.stringify(params),
@@ -174,7 +174,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
             return sub;
         }
         let u = this.creatUrl(params);
-        return this.http.get(u).map(res => {
+        return this.http.get(u, { headers: Rest.headers }).map(res => {
             let r = res.json()
             this.log(<DocModel>{
                 urlParams: JSON.stringify(params),
