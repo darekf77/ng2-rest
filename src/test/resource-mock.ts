@@ -288,6 +288,36 @@ export class TestRestMock {
                     }));
 
 
+            it('should not generate models throuh auto backend',
+                inject([Resource, Http, MockBackend, Jsonp],
+                    (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
+
+                        rest = new Resource<APIS, User, User[]>(http, jp);
+                        let url = 'https://somewhere.com';
+                        Resource.map(APIS.FIRST.toString(), url);
+                        rest.add(APIS.FIRST, 'users');
+
+                        let ctrl = (request: MockRequest<User>) => {
+                            expect(backend).toBeUndefined();
+                            request.data.id = 100;
+                            expect(request.params['id']).toBe(0);
+                            return request.data;
+                        }
+
+                        console.log(Resource.Headers.toJSON());
+
+
+                        rest.api(APIS.FIRST, 'users')
+                            .mock(user, 0, ctrl)
+                            .get([{ id: 0 }]).subscribe((res) => {
+                                expect(res.id).toBe(100);
+                            }, (err) => {
+                                fail;
+                            });
+
+                    }));
+
+
 
         });
     }

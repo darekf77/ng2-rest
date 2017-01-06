@@ -9,7 +9,7 @@ import {
     DocModel, HttpMethod, Eureka, EurekaState, MockAutoBackend,
     FormGroupArrays, prepareForm, prepareFormArrays, FormInputBind,
     MockingMode, MockController, UrlParams, getParamsUrl, prepareUrlOldWay,
-    FnMethodsHttp, decodeUrl, MockResponse
+    FnMethodsHttp, decodeUrl, MockResponse, HttpHeaders, Header
 } from './models';
 
 function prepare(params: UrlParams[]) {
@@ -25,7 +25,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
 
     public static docServerUrl: string;
     public static docsTitle: string;
-    private headers: Headers;
+    public static headers: Headers = new Headers();
     private form: FormInputBind[];
     public static mockingMode: MockingMode = MockingMode.MIX;
     public _useCaseDescription;
@@ -37,7 +37,9 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
     public get endpoint() {
         return (Rest.eureka && Rest.eureka.instance) ? Rest.eureka.instance.instanceId : this._endpoint;
     }
-    private _headers = {
+
+    private static _headersAreSet: boolean = false;
+    private static _headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
     };
@@ -50,9 +52,12 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         private name: string,
         private group: string) {
         this._endpoint = endpoint;
-        this.headers = new Headers();
-        for (let h in this._headers) {
-            this.headers.append(h, this._headers[h]);
+
+        if (!Rest._headersAreSet) {
+            Rest._headersAreSet = true;
+            for (let h in Rest._headers) {
+                Rest.headers.append(h, Rest._headers[h]);
+            }
         }
 
         if (Rest.restartServerRequest && Rest.docServerUrl && Rest.docServerUrl.trim() !== '') {
@@ -74,6 +79,11 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
 
     }
 
+    private getHeadersJSON() {
+        return Rest.headers.toJSON();
+    }
+    
+
     private log(model: DocModel) {
         if (Rest.docServerUrl) {
 
@@ -83,13 +93,13 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
             model.usecase = this._useCaseDescription;
             model.url = this.endpoint;
             model.form = this.form;
-            model.headers = this._headers;
+            model.headers = this.getHeadersJSON();
 
             let url = Rest.docServerUrl.charAt(Rest.docServerUrl.length - 1) === '/' ?
                 Rest.docServerUrl.slice(0, Rest.docServerUrl.length - 1) : Rest.docServerUrl;
             url = `${url}/api/save`;
 
-            this.http.post(url, JSON.stringify(model), { headers: this.headers }).subscribe(() => {
+            this.http.post(url, JSON.stringify(model), { headers: Rest.headers }).subscribe(() => {
                 console.log('request saved in docs server');
             });
         }
@@ -191,7 +201,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         let u = this.creatUrl(params);
         let d = JSON.stringify(item);
         return this.http.post(u, d,
-            { headers: this.headers }).map(res => {
+            { headers: Rest.headers }).map(res => {
                 let r = res.json()
                 this.log(<DocModel>{
                     bodySend: d,
@@ -219,7 +229,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         let u = this.creatUrl(params);
         let d = JSON.stringify(item);
         return this.http.put(u, JSON.stringify(item),
-            { headers: this.headers }).map(res => {
+            { headers: Rest.headers }).map(res => {
                 let r = res.json()
                 this.log(<DocModel>{
                     urlParams: JSON.stringify(params),
@@ -247,7 +257,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         }
         let u = this.creatUrl(params);
         return this.http.delete(u,
-            { headers: this.headers }).map(res => {
+            { headers: Rest.headers }).map(res => {
 
                 if (res.text() !== '') {
                     let r = res.json()

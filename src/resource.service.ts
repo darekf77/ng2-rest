@@ -2,7 +2,8 @@ import { Injectable, Inject } from '@angular/core';
 import { Http, Response, Headers, Jsonp } from '@angular/http';
 import { MockingMode } from './models';
 import { Observable, Subject } from 'rxjs';
-import { Eureka, EurekaConfig, EurekaState, EurekaInstance, UrlNestedParams } from './models';
+import { Eureka, EurekaConfig, EurekaState, 
+    EurekaInstance, UrlNestedParams, HttpHeaders } from './models';
 
 import { Rest } from './rest.class';
 
@@ -19,6 +20,10 @@ export class Resource<E, T, TA> {
         @Inject(Jsonp) private jp: Jsonp) {
 
     }
+
+    public static get Headers () {
+        return Rest.headers;
+    } 
 
     /**
      * This funcion only works one time per tab in browse. 
