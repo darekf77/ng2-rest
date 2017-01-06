@@ -8,7 +8,6 @@ export class UrlNestedParams {
 
     /** check if string is a valid pattern */
     static isValid(pattern: string) {
-        console.log('papttern', pattern)
         return (new RegExp('\/:[a-zA-Z]*', 'g')).test(pattern.replace('://', ''));
     }
 
@@ -34,7 +33,6 @@ export class UrlNestedParams {
         if (url.charAt(0) !== '/') url = '/' + url;
         // url = url.replace(new RegExp('\/', 'g'), '');
         let res = models.filter(m => {
-            console.log(`url: ${url}  m `, m)
             let word = '/' + m;
             // console.log('word', word)
             let iii = url.indexOf(word);

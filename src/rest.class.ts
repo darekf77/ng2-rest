@@ -9,7 +9,7 @@ import {
     DocModel, HttpMethod, Eureka, EurekaState, MockAutoBackend,
     FormGroupArrays, prepareForm, prepareFormArrays, FormInputBind,
     MockingMode, MockController, UrlParams, getParamsUrl, prepareUrlOldWay,
-    FnMethodsHttp, decodeUrl, MockResponse, HttpHeaders, Header
+    FnMethodsHttp, decodeUrl, MockResponse
 } from './models';
 
 function prepare(params: UrlParams[]) {

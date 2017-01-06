@@ -3,7 +3,7 @@ import { Http, Response, Headers, Jsonp } from '@angular/http';
 import { MockingMode } from './models';
 import { Observable, Subject } from 'rxjs';
 import { Eureka, EurekaConfig, EurekaState, 
-    EurekaInstance, UrlNestedParams, HttpHeaders } from './models';
+    EurekaInstance, UrlNestedParams } from './models';
 
 import { Rest } from './rest.class';
 
