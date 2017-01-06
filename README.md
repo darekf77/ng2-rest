@@ -72,7 +72,9 @@ Map your urls and models
 				Resource.map(ENDPOINTS.OTHER_API.toString(), 'http://example.com/api');
 				
 				// define your models  
-                rest.add(ENDPOINTS.API, 'users'); 
+				 rest.add(ENDPOINTS.API, 'users'); 
+                rest.add(ENDPOINTS.API, 'users/:some_param'); 
+                rest.add(ENDPOINTS.API, 'users/:some_param/books/:bookid'); 
                 
                 
               }
