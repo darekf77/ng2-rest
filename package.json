@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "5.0.22",
+  "version": "5.0.23",
   "description": "rest package for angular 2",
   "main": "index.js",
   "scripts": {
@@ -44,6 +44,7 @@
     "@types/chai": "^3.4.34",
     "@types/chai-as-promised": "0.0.29",
     "@types/core-js": "^0.9.34",
+    "@types/faker": "^3.1.32",
     "@types/hammerjs": "^2.0.33",
     "@types/jasmine": "^2.2.34",
     "@types/lodash": "^4.14.37",
