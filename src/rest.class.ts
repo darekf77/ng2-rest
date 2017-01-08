@@ -5,10 +5,11 @@ import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs/Observable';
 
+import { MockingMode } from './mocking-mode';
 import {
     DocModel, HttpMethod, Eureka, EurekaState, MockAutoBackend,
     FormGroupArrays, prepareForm, prepareFormArrays, FormInputBind,
-    MockingMode, MockController, UrlParams, getParamsUrl, prepareUrlOldWay,
+     MockController, UrlParams, getParamsUrl, prepareUrlOldWay,
     FnMethodsHttp, decodeUrl, MockResponse
 } from './models';
 

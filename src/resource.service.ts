@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { Http, Response, Headers, Jsonp } from '@angular/http';
-import { MockingMode } from './models';
+import { MockingMode } from './mocking-mode';
 import { Observable, Subject } from 'rxjs';
 import { Eureka, EurekaConfig, EurekaState, 
     EurekaInstance, UrlNestedParams } from './models';

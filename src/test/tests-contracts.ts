@@ -14,7 +14,7 @@ import { MockBackend, MockConnection } from '@angular/http/testing';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 
 import { Resource } from '../resource.service';
-import { MockingMode } from '../models';
+import { MockingMode } from '../mocking-mode';
 
 import { APIS, User } from './mock';
 
