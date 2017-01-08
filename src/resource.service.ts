@@ -19,6 +19,8 @@ export class Resource<E, T, TA> {
     constructor( @Inject(Http) private http: Http,
         @Inject(Jsonp) private jp: Jsonp) {
 
+        // Quick fix
+        if (Resource.mockingMode === undefined) Resource.mockingMode = MockingMode.MIX;
     }
 
     public static get Headers () {
@@ -61,7 +63,7 @@ export class Resource<E, T, TA> {
     }
 
     private static mockingModeIsSet = false;
-    private static mockingMode: MockingMode = MockingMode.MIX;
+    private static mockingMode: MockingMode;
 
     /**
      * Define source of your microsevices

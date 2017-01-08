@@ -27,7 +27,7 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
     public static docsTitle: string;
     public static headers: Headers = new Headers();
     private form: FormInputBind[];
-    public static mockingMode: MockingMode = MockingMode.MIX;
+    public static mockingMode: MockingMode;
     public _useCaseDescription;
     public static eureka: Eureka<any, any>;
     public static waitingForDocsServer: boolean = false;
@@ -52,6 +52,9 @@ export class Rest<T, TA> implements FnMethodsHttp<T, TA> {
         private name: string,
         private group: string) {
         this._endpoint = endpoint;
+
+        // Quick fix
+        if (Rest.mockingMode === undefined) Rest.mockingMode = MockingMode.MIX;
 
         if (!Rest._headersAreSet) {
             Rest._headersAreSet = true;
