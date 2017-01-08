@@ -10,7 +10,7 @@ import {
     Jsonp, ConnectionBackend,
 } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
-import { getParamsUrl, decodeUrl } from '../models';
+import { Rest } from '../rest';
 
 import { Resource } from '../resource.service';
 import { APIS, User } from './mock';

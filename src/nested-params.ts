@@ -1,17 +1,21 @@
-import { checkValidUrl } from './check-url';
 
-interface NestedParams {
-    [params: string]: string;
-}
+export namespace UrlNestedParams {
 
-export class UrlNestedParams {
+    interface NestedParams {
+        [params: string]: string;
+    }
+
+    export function checkValidUrl(url: string): boolean {
+        let regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+            return regex.test(url);
+        }
 
     /** check if string is a valid pattern */
-    static isValid(pattern: string) {
+    export function  isValid(pattern: string) {
         return (new RegExp('\/:[a-zA-Z]*', 'g')).test(pattern.replace('://', ''));
     }
 
-    static check(url: string, pattern: string): boolean {
+    export function  check(url: string, pattern: string): boolean {
         if (!checkValidUrl(url)) {
             console.error(`Incorrect url: ${url}`);
             return false;
@@ -24,12 +28,12 @@ export class UrlNestedParams {
         return reg.test(url);
     }
 
-    static getModels(pattern: string): string[] {
+    export function  getModels(pattern: string): string[] {
         let m = pattern.match(new RegExp('[a-zA-Z]*\/:', 'g'));
         return m.map(p => p.replace('/:', ''));
     }
 
-    static containsModels(url: string, models: string[]): boolean {
+    export function  containsModels(url: string, models: string[]): boolean {
         if (url.charAt(0) !== '/') url = '/' + url;
         // url = url.replace(new RegExp('\/', 'g'), '');
         let res = models.filter(m => {

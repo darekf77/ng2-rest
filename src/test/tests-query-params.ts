@@ -10,7 +10,7 @@ import {
     Jsonp, ConnectionBackend,
 } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
-import { getParamsUrl, decodeUrl } from '../models';
+import { Rest } from '../rest';
 
 import { Resource } from '../resource.service';
 import { APIS, User } from './mock';
@@ -57,7 +57,7 @@ export function TestQueryParams() {
 
 
         it('Shoud transform url params from array', () => {
-            let res = getParamsUrl([
+            let res = Rest.getParamsUrl([
                 { 'super': 122 },
                 { 'reg': 'ttt', regex: new RegExp('t{3}', 'g') }
             ])
@@ -67,7 +67,7 @@ export function TestQueryParams() {
 
 
         it('Shoud transform url params from one object', () => {
-            let res = getParamsUrl([
+            let res = Rest.getParamsUrl([
                 { 'super': 122, 'reg': 'ttt', dd: 12 }
             ])
             expect(res).toEqual('?super=122&reg=ttt&dd=12');
@@ -75,7 +75,7 @@ export function TestQueryParams() {
         });
 
         it('Shoud not put undefined in query param', () => {
-            let res = getParamsUrl([
+            let res = Rest.getParamsUrl([
                 { 'super': 122, 'reg': undefined }
             ])
             expect(res).toEqual('?super=122');
@@ -84,33 +84,33 @@ export function TestQueryParams() {
 
         it('Shoud decode params for string', () => {
             let p = '?super=122&reg=ttt&dd=12'
-            expect(decodeUrl(p)).toEqual({ 'super': 122, 'reg': 'ttt', dd: 12 });
+            expect(Rest.decodeUrl(p)).toEqual({ 'super': 122, 'reg': 'ttt', dd: 12 });
         });
 
         it('Shoud decode params for string', () => {
             let p = '?super=%7B%22name%22%3A%22Dariusz%22%7D'
-            expect(decodeUrl(p)).toEqual({ 'super': { name: 'Dariusz' } });
+            expect(Rest.decodeUrl(p)).toEqual({ 'super': { name: 'Dariusz' } });
         });
 
 
         it('Shoud transform url param into query string with object', () => {
             let p = '?super=%7B%22name%22%3A%22Dariusz%22%7D';
             let o = [{ 'super': { name: 'Dariusz' } }];
-            expect(getParamsUrl(o)).toEqual(p);
+            expect(Rest.getParamsUrl(o)).toEqual(p);
         });
 
 
         it('Shoud transform url param into query string with object and other parasm', () => {
             let p = '?super=%7B%22name%22%3A%22Dariusz%22%7D&da=10&hi=5';
             let o = [{ 'super': { name: 'Dariusz' }, haha: undefined, da: 10, hi: 5 }];
-            expect(getParamsUrl(o)).toEqual(p);
+            expect(Rest.getParamsUrl(o)).toEqual(p);
         });
 
 
         it('Shoud transform url param with empty shits', () => {
             let p = '?super=&da=10&hi=5&aa=';
             let o = [{ 'super': '' }, {}, {}, { haha: undefined, da: 10, hi: 5 }, {}, {}, { aa: '' }];
-            expect(getParamsUrl(o)).toEqual(p);
+            expect(Rest.getParamsUrl(o)).toEqual(p);
         });
 
         it('Should transofrm url without problems', () => {
@@ -124,7 +124,7 @@ export function TestQueryParams() {
                 },
                 isFromLiveSearch: true
             };
-            expect(decodeUrl(u)).toEqual(e);
+            expect(Rest.decodeUrl(u)).toEqual(e);
 
         })
 

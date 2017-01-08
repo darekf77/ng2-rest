@@ -13,7 +13,7 @@ import { MockBackend, MockConnection } from '@angular/http/testing';
 
 import { Resource } from '../resource.service';
 import { APIS, User } from './mock';
-import { MockAutoBackend, MockRequest } from '../models';
+import { MockBackend as MockBackendModule } from '../mock-backend';
 import { MockingMode } from '../mocking-mode';
 
 export class TestRestMock {
@@ -192,7 +192,7 @@ export class TestRestMock {
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
 
-                        let ctrl = (req: MockRequest<User>) => {
+                        let ctrl = (req: MockBackendModule.MockRequest<User>) => {
                             console.log(req.data)
                             console.log(req.params)
                             req.data.id = 100;
@@ -247,7 +247,7 @@ export class TestRestMock {
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
 
-                        let ctrl = (request: MockRequest<User>) => {
+                        let ctrl = (request: MockBackendModule.MockRequest<User>) => {
                             expect(backend).toBeDefined();
                             console.log('backend', backend);
                             console.log('HELLO IAM HERE')
@@ -273,7 +273,7 @@ export class TestRestMock {
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
 
-                        let ctrl = (request: MockRequest<User>) => {
+                        let ctrl = (request: MockBackendModule.MockRequest<User>) => {
                             expect(backend).toBeUndefined();
                             request.data.id = 100;
                             expect(request.params['id']).toBe(0);
@@ -298,7 +298,7 @@ export class TestRestMock {
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
 
-                        let ctrl = (request: MockRequest<User>) => {
+                        let ctrl = (request: MockBackendModule.MockRequest<User>) => {
                             expect(backend).toBeUndefined();
                             request.data.id = 100;
                             expect(request.params['id']).toBe(0);

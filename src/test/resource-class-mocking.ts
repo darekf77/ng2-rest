@@ -14,7 +14,7 @@ import { MockBackend, MockConnection } from '@angular/http/testing';
 
 import { Resource } from '../resource.service';
 import { APIS, User } from './mock';
-import { MockAutoBackend } from '../models';
+import { MockBackend as MockBackendModule } from '../mock-backend';
 
 let deepEqual = function (x, y) {
     if ((typeof x == 'object' && x != null) && (typeof y == 'object' && y != null)) {
@@ -90,7 +90,7 @@ export class TestMockingClass {
                             'name': 'aa',
                             book: {}
                         };
-                        let res = (MockAutoBackend.goInside(d, ['book']));
+                        let res = (MockBackendModule.MockAutoBackend.goInside(d, ['book']));
                         // console.log(d);
                         // console.log(d2);
                         // console.log(res);
@@ -113,7 +113,7 @@ export class TestMockingClass {
                                 }
                             }
                         };
-                        let res = MockAutoBackend.goInside(d, ['book', 'cat']);
+                        let res = MockBackendModule.MockAutoBackend.goInside(d, ['book', 'cat']);
                         // console.log(d);
                         // console.log(d3);
                         // console.log(res);
@@ -138,7 +138,7 @@ export class TestMockingClass {
                                 }
                             }
                         };
-                        let res = MockAutoBackend.goInside(d, ['book', 'cat', 'mouse']);
+                        let res = MockBackendModule.MockAutoBackend.goInside(d, ['book', 'cat', 'mouse']);
                         // console.log(d);
                         // console.log(d4);
                         // console.log(res);
@@ -164,7 +164,7 @@ export class TestMockingClass {
                             networth: 100000
                         };
 
-                        let d = new MockAutoBackend(t, 7);
+                        let d = new MockBackendModule.MockAutoBackend(t, 7);
                         d.models.forEach(m => {
                             // console.log(m);
                         });

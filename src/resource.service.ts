@@ -1,10 +1,11 @@
 import { Injectable, Inject } from '@angular/core';
 import { Http, Response, Headers, Jsonp } from '@angular/http';
-import { MockingMode } from './mocking-mode';
-import { Observable, Subject } from 'rxjs';
-import { Eureka, EurekaConfig, EurekaState, 
-    EurekaInstance, UrlNestedParams } from './models';
 
+import { Observable, Subject } from 'rxjs';
+
+import { Eureka } from './eureka';
+import { MockingMode } from './mocking-mode';
+import { UrlNestedParams } from './nested-params';
 import { Rest } from './rest.class';
 
 @Injectable()
@@ -110,18 +111,18 @@ export class Resource<E, T, TA> {
         };
         return true;
     }
-    private static subEurekaEndpointReady: Subject<EurekaInstance>
-    = new Subject<EurekaInstance>();
+    private static subEurekaEndpointReady: Subject<Eureka.EurekaInstance>
+    = new Subject<Eureka.EurekaInstance>();
     private static obs = Resource.subEurekaEndpointReady.asObservable();
 
     // private static eureka: Eureka<any, any>;
-    public static mapEureka(config: EurekaConfig)
+    public static mapEureka(config: Eureka.EurekaConfig)
         : boolean {
         if (!config || !config.serviceUrl || !config.decoderName) {
             console.error(`Bad Eureka config: ${JSON.stringify(config)}`);
             return false;
         }
-        Rest.eureka = new Eureka(config);
+        Rest.eureka = new Eureka.Eureka(config);
         Rest.eureka.onInstance.subscribe(ins => {
             Resource.endpoints[ins.app] = {
                 url: ins.instanceId,
@@ -166,11 +167,11 @@ export class Resource<E, T, TA> {
      */
     add(endpoint: E, model: string, group?: string, name?: string, description?: string) {
         // console.log('Rest.eureka', Rest.eureka);
-        if (Rest.eureka && Rest.eureka.state === EurekaState.DISABLED) {
+        if (Rest.eureka && Rest.eureka.state === Eureka.EurekaState.DISABLED) {
             Rest.eureka.discovery(this.http);
         }
 
-        if (Rest.eureka && Rest.eureka.state !== EurekaState.ENABLE // && Rest.eureka.state !== EurekaState.SERVER_ERROR
+        if (Rest.eureka && Rest.eureka.state !== Eureka.EurekaState.ENABLE // && Rest.eureka.state !== EurekaState.SERVER_ERROR
         ) {
             Resource.subEurekaEndpointReady.subscribe(ins => {
                 console.log('SHOUD Be insTANCE!!')
@@ -189,7 +190,7 @@ export class Resource<E, T, TA> {
         if (model.charAt(0) === '/') model = model.slice(1, model.length);
 
         let e: string;
-        if (Rest.eureka && Rest.eureka.state === EurekaState.ENABLE && Rest.eureka.instance) {
+        if (Rest.eureka && Rest.eureka.state === Eureka.EurekaState.ENABLE && Rest.eureka.instance) {
             e = Rest.eureka.instance.app;
         } else {
             e = <string>(endpoint).toString();

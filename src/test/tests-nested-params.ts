@@ -4,7 +4,7 @@ import {
 } from '@angular/core/testing';
 import { ViewContainerRef } from '@angular/core';
 
-import { UrlNestedParams } from '../models';
+import { UrlNestedParams } from '../nested-params';
 import { Resource } from '../resource.service';
 import { APIS, User } from './mock';
 import {
