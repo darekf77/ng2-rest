@@ -1,6 +1,8 @@
 import { Observable, Subject } from 'rxjs';
 import { Response, Http, Headers } from '@angular/http';
 
+import { Helpers } from './helpers';
+
 export namespace Eureka {
 
     const EurekaWaitTimeout = 500;
@@ -38,7 +40,7 @@ export namespace Eureka {
             if (list.length === 1) {
                 this._instance = JSON.parse(JSON.stringify(list[0]));
             } else {
-                let randomInstance = getRandomInt(0, list.length - 1)
+                let randomInstance = Helpers.getRandomInt(list.length - 1)
                 this._instance = JSON.parse(JSON.stringify(list[randomInstance]));
             }
             this.subjectInstanceFounded.next(this._instance);
@@ -76,15 +78,6 @@ export namespace Eureka {
     }
 
 
-
-
-    /**
-     * Returns a random integer between min (inclusive) and max (inclusive)
-     * Using Math.round() will give you a non-uniform distribution!
-     */
-    export function getRandomInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
 
     export interface EurekaApp {
         instance: EurekaInstance[];

@@ -10,7 +10,7 @@ import { Rest as RestModule } from './rest';
 import { Eureka } from './eureka';
 import { Docs } from './docs';
 import { Contracts } from './contracts';
-import { MockBackend } from './mock-backend';
+import { MockBackend, MockResponse } from './mock-backend';
 import { Http as HttpModule } from './http';
 
 export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
@@ -378,7 +378,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
             }
             else {
                 if (typeof data === 'object' || typeof data === 'string') {
-                    let res: MockBackend.MockResponse = {
+                    let res: MockResponse = {
                         data: (typeof data === 'string') ? JSON.parse(data) : JSON.parse(JSON.stringify(data)),
                         code: 200
                     };

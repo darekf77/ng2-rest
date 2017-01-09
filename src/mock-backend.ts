@@ -1,21 +1,72 @@
 const faker = require('faker');
 import { Http } from './http';
 
+import { Helpers } from './helpers';
+
+export interface MockRequest<T> {
+    /**
+     * .mock(..) function second argument
+     * This data is usualy Object or Array
+     * 
+     * @type {*}
+     * @memberOf MockRequest
+     */
+    data: any;
+    /**
+     * Query params passed by user. This is object
+     * with poperties from them, but they usualy 
+     * look like this in <url>?example=value&emaple2=value2
+     * 
+     * @type {Object}
+     * @memberOf MockRequest
+     */
+    params: Object;
+    /**
+     * POST, PUT http request have also body
+     * in request to carry large amount of data
+     * 
+     * @type {Object}
+     * @memberOf MockRequest
+     */
+    body: Object;
+    /**
+     * With MockAutobacken you can do:
+     * pagination, fitlering, sorting
+     * for your models lists
+     * 
+     * @type {MockAutoBackend<T>}
+     * @memberOf MockRequest
+     */
+    backend?: MockBackend.MockAutoBackend<T>
+}
+
+export interface MockResponse {
+    /**
+     * This data will be returned to user in callback
+     * as result of request
+     * 
+     * @type {*}
+     * @memberOf MockResponse
+     */
+    data: any;
+    /**
+     * Default http code is 200, but to simulate othe
+     * codes and responses use this poperty
+     * 
+     * @type {HttpCode}
+     * @memberOf MockResponse
+     */
+    code?: Http.HttpCode;
+    /**
+     * Response errors
+     * 
+     * @type {string}
+     * @memberOf MockResponse
+     */
+    error?: string;
+}
+
 export namespace MockBackend {
-
-
-
-    export function genNumber(limit: number): number {
-        return Math.floor(Math.random() * (limit - 0 + 1)) + 0;
-    }
-
-    export function isArray(o: any) {
-        return (o instanceof Array);
-    }
-
-    export function isObject(o: any) {
-        return typeof o === 'object' && !isArray(o)
-    }
 
 
     export function goInside(o: Object, paths: string[]): Object {
@@ -193,17 +244,17 @@ export namespace MockBackend {
                 if (template.hasOwnProperty(p)) {
 
                     let value = template[p];
-                    if (isArray(value) && p.startsWith('$')) {
+                    if (Helpers.isArray(value) && p.startsWith('$')) {
                         let arr: any[] = value;
                         arr.forEach(elem => {
-                            if (!isArray(elem) && !isSimpleType(elem)) {
+                            if (!Helpers.isArray(elem) && !isSimpleType(elem)) {
                                 let t: T = <T>{};
                                 this.construct(elem, t);
                                 copyFromTo(t, elem);
 
                             }
                         });
-                        let g = genNumber(arr.length - 1);
+                        let g = Helpers.getRandomInt(arr.length - 1);
                         goInside(cModel, path)[pName(p)] = arr[g];
                         tmpModel = JSON.parse(JSON.stringify(cModel));
                         continue;
@@ -222,7 +273,7 @@ export namespace MockBackend {
                         continue;
                     }
 
-                    if (isObject(value) || isArray(value)) {
+                    if (Helpers.isObjectButNotArray(value) || Helpers.isArray(value)) {
                         let joinedPath = path.concat(pName(p));
                         this.construct(value, cModel, joinedPath);
                         continue;
@@ -240,70 +291,6 @@ export namespace MockBackend {
         }
 
 
-    }
-
-
-    export interface MockRequest<T> {
-        /**
-         * .mock(..) function second argument
-         * This data is usualy Object or Array
-         * 
-         * @type {*}
-         * @memberOf MockRequest
-         */
-        data: any;
-        /**
-         * Query params passed by user. This is object
-         * with poperties from them, but they usualy 
-         * look like this in <url>?example=value&emaple2=value2
-         * 
-         * @type {Object}
-         * @memberOf MockRequest
-         */
-        params: Object;
-        /**
-         * POST, PUT http request have also body
-         * in request to carry large amount of data
-         * 
-         * @type {Object}
-         * @memberOf MockRequest
-         */
-        body: Object;
-        /**
-         * With MockAutobacken you can do:
-         * pagination, fitlering, sorting
-         * for your models lists
-         * 
-         * @type {MockAutoBackend<T>}
-         * @memberOf MockRequest
-         */
-        backend?: MockAutoBackend<T>
-    }
-
-    export interface MockResponse {
-        /**
-         * This data will be returned to user in callback
-         * as result of request
-         * 
-         * @type {*}
-         * @memberOf MockResponse
-         */
-        data: any;
-        /**
-         * Default http code is 200, but to simulate othe
-         * codes and responses use this poperty
-         * 
-         * @type {HttpCode}
-         * @memberOf MockResponse
-         */
-        code?: Http.HttpCode;
-        /**
-         * Response errors
-         * 
-         * @type {string}
-         * @memberOf MockResponse
-         */
-        error?: string;
     }
 
 
