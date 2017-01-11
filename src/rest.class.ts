@@ -7,6 +7,7 @@ import { Observable } from 'rxjs/Observable';
 
 import { MockingMode } from './mocking-mode';
 import { Rest as RestModule } from './rest';
+import { UrlNestedParams } from './nested-params';
 import { Eureka } from './eureka';
 import { Docs } from './docs';
 import { Contracts } from './contracts';
@@ -28,6 +29,18 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
     private _endpoint: string;
     public get endpoint() {
         return (Rest.eureka && Rest.eureka.instance) ? Rest.eureka.instance.instanceId : this._endpoint;
+    }
+    private restQueryParams: Object;
+    public set restEndpoint(endpoint) {
+        if (endpoint === undefined) {
+            this.restQueryParams = undefined;
+        } else {
+            // console.log('this._endpoint', this._endpoint)
+            // console.log('endpoint', endpoint)
+            this.restQueryParams = UrlNestedParams.getRestParams(endpoint, this._endpoint);
+            // console.log('this.restQueryParams ', this.restQueryParams)
+        }
+
     }
 
     private static _headersAreSet: boolean = false;
@@ -89,6 +102,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
             model.url = this.endpoint;
             model.form = this.form;
             model.headers = this.getHeadersJSON();
+            model.restQueryParams = JSON.stringify(this.restQueryParams);
 
             let url = Rest.docServerUrl.charAt(Rest.docServerUrl.length - 1) === '/' ?
                 Rest.docServerUrl.slice(0, Rest.docServerUrl.length - 1) : Rest.docServerUrl;
@@ -334,13 +348,15 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
                 let d = nunOfMocks === 0 ? controller({
                     data: tdata,
                     params: decodedParams,
-                    body: bodyPOSTandPUT
+                    body: bodyPOSTandPUT,
+                    restParams: this.restQueryParams
                 }) :
                     controller({
                         data: tdata,
                         params: decodedParams,
                         body: bodyPOSTandPUT,
-                        backend: this.backend
+                        backend: this.backend,
+                        restParams: this.restQueryParams
                     });
                 if (d === undefined) {
                     throw new Error(`Mock controlelr can't return undefined (endpoint:${this.endpoint})`);
@@ -359,7 +375,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
                         bodySend: currentBodySend,
                         method: currentMethod,
                         urlFull: currentFullUrl,
-                        status: d.code
+                        status: d.code,
                     });
                     subject.error(d);
                 }

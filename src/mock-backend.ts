@@ -1,4 +1,4 @@
-const faker = require('faker');
+let faker = require('faker');
 import { Http } from './http';
 
 import { Helpers } from './helpers';
@@ -21,6 +21,10 @@ export interface MockRequest<T> {
      * @memberOf MockRequest
      */
     params: Object;
+    /**
+     * Params from rest api 'bookid' in /books/:bookId
+     */
+    restParams?: Object;
     /**
      * POST, PUT http request have also body
      * in request to carry large amount of data

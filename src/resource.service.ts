@@ -24,9 +24,9 @@ export class Resource<E, T, TA> {
         if (Resource.mockingMode === undefined) Resource.mockingMode = MockingMode.MIX;
     }
 
-    public static get Headers () {
+    public static get Headers() {
         return Rest.headers;
-    } 
+    }
 
     /**
      * This funcion only works one time per tab in browse. 
@@ -226,6 +226,7 @@ export class Resource<E, T, TA> {
             return;
         }
         let allModels: Object = Resource.endpoints[e].models;
+        let orgModel = model;
         model = this.checkNestedModels(model, allModels);
 
         if (Resource.endpoints[e].models[model] === undefined) {
@@ -235,12 +236,21 @@ export class Resource<E, T, TA> {
 
         let res: Rest<T, TA> = Resource.endpoints[<string>(endpoint).toString()].models[model];
         res._useCaseDescription = usecase;
+
+        if (orgModel !== model) {
+            let baseUrl = Resource.endpoints[<string>(endpoint).toString()].url;
+            // console.log('base', Resource.endpoints[<string>(endpoint).toString()])
+            // console.log('baseUrl', baseUrl)
+            // console.log('orgModel', orgModel)
+            res.restEndpoint = `${baseUrl}/${orgModel}`;
+        } else res.restEndpoint = undefined;
+
         return res;
     }
 
 
-    private checkNestedModels(model: string, allModels: Object ) {
-        if (model.indexOf('/') !== -1) {            
+    private checkNestedModels(model: string, allModels: Object) {
+        if (model.indexOf('/') !== -1) {
             for (let p in allModels) {
                 if (allModels.hasOwnProperty(p)) {
                     let m = allModels[p];

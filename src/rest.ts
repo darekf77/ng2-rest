@@ -2,7 +2,10 @@ import { Observable } from 'rxjs';
 import { Subject } from 'rxjs/Subject';
 
 export namespace Rest {
-
+    
+    /**
+     * Get query params from url, like 'ex' in /api/books?ex=value
+    */
     export function decodeUrl(url: string): Object {
         let regex = /[?&]([^=#]+)=([^&#]*)/g,
             params = {},

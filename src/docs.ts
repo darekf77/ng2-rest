@@ -15,6 +15,7 @@ export namespace Docs {
         bodySend: string;
         bodyRecieve: string;
         urlParams: string;
+        restQueryParams: string;
         url: string;
         status: Http.HttpCode;
         method: Http.HttpMethod;

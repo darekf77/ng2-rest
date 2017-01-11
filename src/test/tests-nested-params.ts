@@ -1,11 +1,12 @@
 import {
     TestBed,
-    inject
+    inject, async
 } from '@angular/core/testing';
 import { ViewContainerRef } from '@angular/core';
 
 import { UrlNestedParams } from '../nested-params';
 import { Resource } from '../resource.service';
+import { MockRequest } from '../mock-backend';
 import { APIS, User } from './mock';
 import {
     Http, HttpModule,
@@ -28,6 +29,8 @@ export function TestNestedParams() {
                 id: 0
             };
 
+            Resource.reset();
+
             return TestBed.configureTestingModule({
                 imports: [HttpModule, JsonpModule],
                 declarations: [],
@@ -40,6 +43,10 @@ export function TestNestedParams() {
                 ]
             });
         });
+
+        it('shoudl generate stars', () => {
+            expect(UrlNestedParams.stars(5)).toBe("*****");
+        })
 
         it('shoudl be good pattern', () => {
             let pattern = 'http://something.com/book/:boookId/author/:author';
@@ -92,6 +99,45 @@ export function TestNestedParams() {
             expect(UrlNestedParams.containsModels(url, ['book', 'author'])).toBeTruthy();
         })
 
+        it('should retrive proper names of rest query params', () => {
+            let pattern = 'http://something.com/book/:bookId/author/:author';
+            expect(UrlNestedParams.getRestPramsNames(pattern)).toEqual(['bookId', 'author'])
+        })
+
+
+        it('should retrive pairs value/key for rest query params', () => {
+            let pattern = 'http://something.com/book/:bookId/author/:author';
+            let url = 'http://something.com/book/12/author/Wilson';
+            expect(UrlNestedParams.getRestParams(url, pattern)).toEqual({
+                bookId: 12,
+                author: 'Wilson'
+            })
+        })
+
+        it('should retrive pairs value/key for rest query params 3 level', () => {
+            let pattern = 'http://something.com/book/:bookId/author/:author/withCover/:withCoverVal';
+            let url = 'http://something.com/book/12/author/Wilson/withCover/true';
+            expect(UrlNestedParams.getRestParams(url, pattern)).toEqual({
+                bookId: 12,
+                author: 'Wilson',
+                withCoverVal: true
+            })
+        })
+
+        it('should retrive pairs value/key for rest query params 3 level other case', () => {
+            let title = 'aaasdasd'
+            let pattern = 'http://something.com/books/:bookid/title/:titleId/mission/:missionId';
+            let url = `http://something.com/books/34/title/${title}/mission/true`;
+            expect(UrlNestedParams.getRestParams(url, pattern)).toEqual({
+                bookid: 34,
+                titleId: title,
+                missionId: true
+            })
+        })
+
+
+        
+
         it('shoudl check if url not contains models ', () => {
             let url = 'http://something.com/booka/12/author';
             expect(UrlNestedParams.containsModels(url, ['book', 'author'])).toBeFalsy();
@@ -125,6 +171,79 @@ export function TestNestedParams() {
                         });
 
                 }));
+
+
+
+
+        it('should have proper rest query params', async(() => {
+            let d = inject([Resource, Http, Jsonp],
+                (rest: Resource<APIS, User, User[]>, http: Http, jp: Jsonp) => {
+
+                    let title = 'some title';
+
+                    rest = new Resource<APIS, User, User[]>(http, jp);
+                    let url = 'https://somewhere.com';
+                    Resource.map(APIS.FIRST.toString(), url);
+                    rest.add(APIS.FIRST, 'books/:bookid/title/:titleId');
+
+                    let ctrl = (request: MockRequest<User>) => {
+                        console.log('request.restParams', request.restParams)
+                        expect(request.restParams).toBeDefined();
+                        expect(request.restParams['bookid']).toBe(34);
+                        expect(request.restParams['titleId']).toBe(title)
+                        return request.data;
+                    }
+
+                    rest.api(APIS.FIRST, `books/34/title/${title}`)
+                        .mock(user, 0, ctrl)
+                        .get([{ id: 0 }]).subscribe((res) => {
+                            expect(res.id).toBe(100);
+                        }, (err) => {
+                            fail;
+                        });
+
+                })
+
+            d();
+        }));
+
+
+        it('should have proper rest query params 3 level aa', async(() => {
+            let d = inject([Resource, Http, Jsonp],
+                (rest: Resource<APIS, User, User[]>, http: Http, jp: Jsonp) => {
+
+                    let title = 'sometitle';
+
+                    rest = new Resource<APIS, User, User[]>(http, jp);
+                    let url = 'https://somewhere.com';
+                    Resource.map(APIS.FIRST.toString(), url);
+                    rest.add(APIS.FIRST, 'books/:bookid/title/:titleId/mission/:missionId');
+
+                    let ctrl = (request: MockRequest<User>) => {
+                        console.log('request.restParams AAA', request.restParams)
+                        expect(request.restParams).toBeDefined();
+                        expect(request.restParams['bookid']).toBe(34);
+                        expect(request.restParams['titleId']).toBe(title)
+                        expect(request.restParams['missionId']).toBeTruthy();
+                        return request.data;
+                    }
+
+                    rest.api(APIS.FIRST, `books/34/title/${title}/mission/true`)
+                        .mock(user, 0, ctrl)
+                        .get([{ id: 0 }]).subscribe((res) => {
+                            expect(res.id).toBe(100);
+                        }, (err) => {
+                            fail;
+                        });
+
+                })
+
+            d();
+        }));
+
+
+
+
 
 
 
