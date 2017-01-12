@@ -52,7 +52,7 @@ export interface MockResponse {
      * @type {*}
      * @memberOf MockResponse
      */
-    data: any;
+    data?: any;
     /**
      * Default http code is 200, but to simulate othe
      * codes and responses use this poperty
