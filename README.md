@@ -5,7 +5,7 @@ Compatible with
  1. [AngularClass/angular2-webpack-starter](https://github.com/AngularClass/angular2-webpack-starter)
  2. React  - coming soon...
 
-Multi-endpoint REST api with **Angular 2.** 
+Multi-endpoint REST api with **Angular 2.**
 
 Alternative to angularjs $resource + extremely useful thing to build/mock frontend app in browser.
 
@@ -18,7 +18,7 @@ NEW FEATURE:
 
 
 
-Extremely useful with E2E and mocked all app in frontend with ng2-rest 
+Extremely useful with E2E and mocked all app in frontend with ng2-rest
 - you don't need to make docs for backend... it will be automatically generated
  from request based on E2E tests.
 
@@ -28,13 +28,13 @@ API was never so easy...
 
 Also **mocking** data is super nice here. You can use mock controller to randomize
 and customize your response data successes and errors ( by returning undefined in
-mock controller). 
+mock controller).
 
 To install package run:
 
     npm install ng2-rest --save
-   
-  
+
+
 Simple use:
 ```ts
     import { Resource } from 'ng2-rest/ng2-rest';
