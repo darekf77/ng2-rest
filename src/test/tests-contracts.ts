@@ -61,6 +61,8 @@ export class TestContracts {
                 users.push(this.clone(user, '2'));
                 users.push(this.clone(user, '3'));
 
+                Resource.reset();
+
                 return TestBed.configureTestingModule({
                     imports: [HttpModule, JsonpModule],
                     declarations: [],

@@ -13,6 +13,7 @@ import { MockBackend, MockConnection } from '@angular/http/testing';
 import { Rest } from '../rest';
 
 import { Resource } from '../resource.service';
+import { SimpleResource } from '../simple-resource';
 import { APIS, User } from './mock';
 
 export class TestRest {
@@ -197,6 +198,7 @@ export class TestRest {
 
                     }));
 
+           
             xit('should get jsonp data',
                 inject([Resource, Http, MockBackend, Jsonp],
                     (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp: Jsonp) => {

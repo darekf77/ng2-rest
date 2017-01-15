@@ -76,7 +76,7 @@ export namespace UrlNestedParams {
         models.forEach(m => {
             pattern = pattern.replace(`:${m}`, stars(m.length));
         })
-        
+
         let currentModel: string = undefined;
         diffChars(pattern, url).forEach(d => {
             // console.log('d', d);
@@ -94,6 +94,21 @@ export namespace UrlNestedParams {
             }
         });
         return res;
+    }
+
+    export function interpolateParamsToUrl(params: Object, url: string): string {
+        let itHasSlash = false;
+        if (url.charAt(url.length - 1) !== '/') {
+            url = `${url}/`;
+            itHasSlash = true;
+        }
+        for (let p in params) {
+            if (params.hasOwnProperty(p)) {
+                let v = params[p];
+                url = url.replace(new RegExp(`:${p}/`, 'g'), `${v}/`)
+            }
+        }
+        return itHasSlash ? url.slice(0, url.length - 1) : url;
     }
 
 }

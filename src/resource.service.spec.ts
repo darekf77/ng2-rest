@@ -22,7 +22,8 @@ import {
     TestProduction,
     TestContracts,
     TestQueryParams,
-    TestNestedParams
+    TestNestedParams,
+    TestSimpleRest
 } from './test';
 
 
@@ -43,7 +44,7 @@ describe('ng2-rest', () => {
         });
     });
 
-    it( 'shoud be done ', (done) => done() );
+    // it( 'shoud be done ', (done) => done() );
 
     new TestMockingClass();
     new TestMap();
@@ -54,4 +55,5 @@ describe('ng2-rest', () => {
     new TestContracts();
     TestQueryParams();
     TestNestedParams();
+    new TestSimpleRest()
 });

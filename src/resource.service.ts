@@ -1,5 +1,9 @@
-import { Injectable, Inject } from '@angular/core';
-import { Http, Response, Headers, Jsonp } from '@angular/http';
+import { Injectable, Inject, ReflectiveInjector } from '@angular/core';
+import {
+    Http, Response, Headers, Jsonp, HttpModule, JsonpModule, XHRConnection,
+    BrowserXhr, ResponseOptions, XHRBackend, BaseResponseOptions, BaseRequestOptions,
+    ConnectionBackend, RequestOptions, XSRFStrategy, CookieXSRFStrategy
+} from '@angular/http';
 
 import { Observable, Subject } from 'rxjs';
 
@@ -7,6 +11,37 @@ import { Eureka } from './eureka';
 import { MockingMode } from './mocking-mode';
 import { UrlNestedParams } from './nested-params';
 import { Rest } from './rest.class';
+
+const HTTP_PROVIDERS = [
+    // Jsonp, JsonpModule,
+    {
+        provide: Http, useFactory:
+        (xhrBackend: XHRBackend, requestOptions: RequestOptions): Http =>
+            new Http(xhrBackend, requestOptions),
+        deps: [XHRBackend, RequestOptions]
+    },
+    BrowserXhr,
+    { provide: RequestOptions, useClass: BaseRequestOptions },
+    { provide: ResponseOptions, useClass: BaseResponseOptions },
+    XHRBackend,
+    { provide: XSRFStrategy, useFactory: () => new CookieXSRFStrategy() },
+];
+
+const JSONP_PROVIDERS = [
+    {
+        provide: Jsonp, useFactory:
+        (xhrBackend: XHRBackend, requestOptions: RequestOptions): Jsonp =>
+            new Jsonp(xhrBackend, requestOptions),
+        deps: [XHRBackend, RequestOptions]
+    },
+    BrowserXhr,
+    { provide: RequestOptions, useClass: BaseRequestOptions },
+    { provide: ResponseOptions, useClass: BaseResponseOptions },
+    XHRBackend,
+    { provide: XSRFStrategy, useFactory: () => new CookieXSRFStrategy() },
+];
+
+
 
 @Injectable()
 export class Resource<E, T, TA> {
@@ -17,11 +52,14 @@ export class Resource<E, T, TA> {
         Resource.mockingModeIsSet = false;
     }
 
-    constructor( @Inject(Http) private http: Http,
-        @Inject(Jsonp) private jp: Jsonp) {
-
+    private http: Http;
+    private jp: Jsonp;
+    constructor(http?: Http, jp?: Jsonp) {
         // Quick fix
         if (Resource.mockingMode === undefined) Resource.mockingMode = MockingMode.MIX;
+        this.http = ReflectiveInjector.resolveAndCreate(HTTP_PROVIDERS).get(Http);
+        this.jp = ReflectiveInjector.resolveAndCreate(JSONP_PROVIDERS).get(Jsonp);
+        // this.jp = injector.get(Jsonp);
     }
 
     public static get Headers() {

@@ -10,8 +10,12 @@ Multi-endpoint REST api with **Angular 2.**
 Alternative to angularjs $resource + extremely useful thing to build/mock frontend app in browser.
 
 NEW FEATURE:
-Generate documentation from ng2-rest requests with [ng2-rest-docs-server](https://github.com/darekf77/ng2-rest-docs-server) . 
-Also you can generate [Spring Cloud Contracts](https://cloud.spring.io/spring-cloud-contract/spring-cloud-contract.html)  with this tool.
+
+ - Easy **SimpleResource** for creating endpoint  as fast as possible ( get,query,save,update,remove)
+ - Generate documentation from ng2-rest requests with [ng2-rest-docs-server](https://github.com/darekf77/ng2-rest-docs-server)  ( also  [Spring Cloud Contracts](https://cloud.spring.io/spring-cloud-contract/spring-cloud-contract.html)  )
+
+
+
 
 
 Extremely useful with E2E and mocked all app in frontend with ng2-rest 
@@ -59,7 +63,47 @@ Define interfaces for response
 ```ts
     import { User, Book, Weather } from './models' // interface
 ```
-Map your urls and models
+
+SIMPLE WAY: Map your urls and models
+
+
+
+service:
+```ts
+    @Injectable()
+    export class ExampleService {
+	    // WHOLE REST API INTERFACE CREATED !
+        users = new SimpleResource< ENDPOINTS,
+							        User, User[], 
+						            { id: string }, { sort: boolean }
+						         >(ENDPOINT.API, 'users/:id')
+         constructor() {
+	          Resource.map(ENDPOINTS.API.toString(), 'http://localhost:/api');
+          }
+      }
+
+```
+component:
+
+```ts
+    @Component({
+        moduleId: module.id,
+        selector: 'selector',
+        templateUrl: 'simple.component.html'
+    })
+    export class SimpleComponent implements OnInit {
+        constructor(private service: ExampleService) { }
+    
+        ngOnInit() {
+            this.service.users.model({ id: '23' }).get({ sort: false })
+                .then( user => console.log(user) );
+            
+            // this.service.users.mock <- use it if you wanna mock data
+        }
+    }
+```
+
+HARDER WAY: Map your urls and models
  
 ```ts
      @Injectable()

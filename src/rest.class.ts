@@ -349,14 +349,16 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
                     data: tdata,
                     params: decodedParams,
                     body: bodyPOSTandPUT,
-                    restParams: this.restQueryParams
+                    restParams: this.restQueryParams,
+                    method: currentMethod
                 }) :
                     controller({
                         data: tdata,
                         params: decodedParams,
                         body: bodyPOSTandPUT,
                         backend: this.backend,
-                        restParams: this.restQueryParams
+                        restParams: this.restQueryParams,
+                        method: currentMethod
                     });
                 if (d === undefined) {
                     throw new Error(`Mock controlelr can't return undefined (endpoint:${this.endpoint})`);

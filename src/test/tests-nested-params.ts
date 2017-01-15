@@ -16,6 +16,8 @@ import {
 } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
 
+import { MockingMode } from '../mocking-mode';
+
 export function TestNestedParams() {
 
     describe('Nested params', () => {
@@ -135,8 +137,19 @@ export function TestNestedParams() {
             })
         })
 
+        it('should interpolate params', () => {
+            let title = 'aaasdasd'
+            let obj = {
+                bookid: 34,
+                titleId: title,
+                missionId: true
+            }
+            let pattern = 'http://something.com/books/:bookid/title/:titleId/mission/:missionId';
+            let url = `http://something.com/books/34/title/${title}/mission/true`;
+            expect(UrlNestedParams.interpolateParamsToUrl(obj, pattern)).toEqual(url)
 
-        
+        })
+
 
         it('shoudl check if url not contains models ', () => {
             let url = 'http://something.com/booka/12/author';
@@ -162,6 +175,7 @@ export function TestNestedParams() {
                     rest = new Resource<APIS, User, User[]>(http, jp);
                     let url = 'https://somewhere.com/users/:userid';
                     Resource.map(APIS.FIRST.toString(), url);
+                    Resource.setMockingMode(MockingMode.LIVE_BACKEND_ONLY);
                     rest.add(APIS.FIRST, 'users/:userid');
                     rest.api(APIS.FIRST, `users/12`, )
                         .save(user).subscribe((res) => {
@@ -184,6 +198,7 @@ export function TestNestedParams() {
                     rest = new Resource<APIS, User, User[]>(http, jp);
                     let url = 'https://somewhere.com';
                     Resource.map(APIS.FIRST.toString(), url);
+                    Resource.setMockingMode(MockingMode.MOCKS_ONLY);
                     rest.add(APIS.FIRST, 'books/:bookid/title/:titleId');
 
                     let ctrl = (request: MockRequest<User>) => {
@@ -217,6 +232,7 @@ export function TestNestedParams() {
                     rest = new Resource<APIS, User, User[]>(http, jp);
                     let url = 'https://somewhere.com';
                     Resource.map(APIS.FIRST.toString(), url);
+                     Resource.setMockingMode(MockingMode.MOCKS_ONLY);
                     rest.add(APIS.FIRST, 'books/:bookid/title/:titleId/mission/:missionId');
 
                     let ctrl = (request: MockRequest<User>) => {

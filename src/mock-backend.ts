@@ -1,7 +1,8 @@
-let faker = require('faker');
+import * as faker from 'faker';
 import { Http } from './http';
 
 import { Helpers } from './helpers';
+
 
 export interface MockRequest<T> {
     /**
@@ -42,6 +43,8 @@ export interface MockRequest<T> {
      * @memberOf MockRequest
      */
     backend?: MockBackend.MockAutoBackend<T>
+
+    method: Http.HttpMethod;
 }
 
 export interface MockResponse {

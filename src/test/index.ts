@@ -8,3 +8,4 @@ export * from './resource-production';
 export * from './tests-contracts';
 export * from './tests-query-params';
 export * from './tests-nested-params';
+export * from './resource-simple-rest';
