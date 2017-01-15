@@ -1,4 +1,4 @@
-import * as faker from 'faker';
+import * as faker from 'faker/locale/pl';
 import { Http } from './http';
 
 import { Helpers } from './helpers';
@@ -131,10 +131,6 @@ export namespace MockBackend {
     export interface MockController<T> {
         (request: MockRequest<T>): MockResponse
     };
-
-    faker.locale = 'pl';
-
-
 
     export class MockAutoBackend<T> {
 

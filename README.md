@@ -74,9 +74,9 @@ service:
     export class ExampleService {
 	    // WHOLE REST API INTERFACE CREATED !
         users = new SimpleResource< ENDPOINTS,
-							        User, User[], 
+							        User, User[],
 						            { id: string }, { sort: boolean }
-						         >(ENDPOINT.API, 'users/:id')
+						         >(ENDPOINT.API, `users/:id`)
          constructor() {
 	          Resource.map(ENDPOINTS.API.toString(), 'http://localhost:/api');
           }
