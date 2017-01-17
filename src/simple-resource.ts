@@ -10,7 +10,7 @@ import { MockBackend, MockRequest, MockResponse } from './mock-backend';
 
 
 
-interface Mock<A> {
+export interface Mock<A> {
     controller: (req: MockRequest<A>, timeout?: number, howManyModels?: number) => MockResponse;
     timeout: number;
     howManyMock: number;
@@ -26,7 +26,7 @@ interface RestPromises<A, TA, QP extends Rest.UrlParams> {
     remove: (queryParams?: QP) => Promise<A>;
 }
 
-interface Model<A, TA, RP extends Object, QP extends Rest.UrlParams> {
+export interface Model<A, TA, RP extends Object, QP extends Rest.UrlParams> {
     (restParams?: RP): RestPromises<A, TA, QP>;
 }
 
