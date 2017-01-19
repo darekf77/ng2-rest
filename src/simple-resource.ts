@@ -21,8 +21,8 @@ export interface Mock<A> {
 interface RestPromises<A, TA, QP extends Rest.UrlParams> {
     get: (queryParams?: QP) => Promise<A>;
     query: (queryParams?: QP) => Promise<TA>;
-    save: (item: A, queryParams?: QP) => Promise<A>;
-    update: (item: A, queryParams?: QP) => Promise<A>;
+    save: (item?: A, queryParams?: QP) => Promise<A>;
+    update: (item?: A, queryParams?: QP) => Promise<A>;
     remove: (queryParams?: QP) => Promise<A>;
 }
 
