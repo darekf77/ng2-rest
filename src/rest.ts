@@ -55,8 +55,8 @@ export namespace Rest {
 
     type FnMethodQuery<T> = (params?: UrlParams[], _sub?: Subject<T>) => Observable<T>;
     type FnMethodGet<T> = (params?: UrlParams[], _sub?: Subject<T>) => Observable<T>
-    type FnMethodSave<T> = (item: T, params?: UrlParams[], _sub?: Subject<T>) => Observable<T>
-    type FnMethodUpdate<T> = (item: T, params?: UrlParams[], _sub?: Subject<T>) => Observable<T>
+    type FnMethodSave<T> = (item?: T, params?: UrlParams[], _sub?: Subject<T>) => Observable<T>
+    type FnMethodUpdate<T> = (item?: T, params?: UrlParams[], _sub?: Subject<T>) => Observable<T>
     type FnMethodRemove<T> = (params?: UrlParams[], _sub?: Subject<T>) => Observable<T>;
     type FnMethodJsonp<T> = (params?: UrlParams[], _sub?: Subject<T>) => Observable<T>;
 
