@@ -44,7 +44,7 @@ export interface Model<A, TA, RP extends Object, QP extends Rest.UrlParams> {
  */
 class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> extends Resource<E, A, TA> {
 
-    private handlers: Subscription[] = [];
+    public static handlers: Subscription[] = [];
     mock: Mock<A> = <Mock<A>>{ timeout: 100, howManyMock: 100, data: {} };
 
     /**
@@ -58,7 +58,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
                 return new Promise<A>((resolve, reject) => {
                     if (this.mock.controller !== undefined || this.mock.data !== undefined) {
                         console.log('FAKE DATA OPTOIN')
-                        this.handlers.push(this.api(this.endpoint,
+                        ExtendedResource.handlers.push(this.api(this.endpoint,
                             UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
                             .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                             .get([queryPrams]).subscribe(
@@ -66,7 +66,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
                             err => reject(err)))
                     } else {
                         console.log('REAL DATA OPTOIN')
-                        this.handlers.push(this.api(this.endpoint,
+                        ExtendedResource.handlers.push(this.api(this.endpoint,
                             UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
                             .get([queryPrams]).subscribe(
                             data => resolve(data),
@@ -79,7 +79,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
                 return new Promise<TA>((resolve, reject) => {
                     if (this.mock.controller !== undefined || this.mock.data !== undefined) {
                         console.log('FAKE DATA OPTOIN')
-                        this.handlers.push(this.api(this.endpoint,
+                        ExtendedResource.handlers.push(this.api(this.endpoint,
                             UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
                             .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                             .query([queryPrams]).subscribe(
@@ -87,7 +87,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
                             err => reject(err)))
                     } else {
                         console.log('REAL DATA OPTOIN')
-                        this.handlers.push(this.api(this.endpoint,
+                        ExtendedResource.handlers.push(this.api(this.endpoint,
                             UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
                             .query([queryPrams]).subscribe(
                             data => resolve(data),
@@ -101,7 +101,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
                 return new Promise<A>((resolve, reject) => {
                     if (this.mock.controller !== undefined || this.mock.data !== undefined) {
                         console.log('FAKE DATA OPTOIN')
-                        this.handlers.push(this.api(this.endpoint,
+                        ExtendedResource.handlers.push(this.api(this.endpoint,
                             UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
                             .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                             .save(item, [queryParams]).subscribe(
@@ -109,7 +109,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
                             err => reject(err)))
                     } else {
                         console.log('REAL DATA OPTOIN')
-                        this.handlers.push(this.api(this.endpoint,
+                        ExtendedResource.handlers.push(this.api(this.endpoint,
                             UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
                             .save(item, [queryParams]).subscribe(
                             data => resolve(data),
@@ -123,7 +123,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
                 return new Promise<A>((resolve, reject) => {
                     if (this.mock.controller !== undefined || this.mock.data !== undefined) {
                         console.log('FAKE DATA OPTOIN')
-                        this.handlers.push(this.api(this.endpoint,
+                        ExtendedResource.handlers.push(this.api(this.endpoint,
                             UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
                             .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                             .update(item, [queryParams]).subscribe(
@@ -131,7 +131,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
                             err => reject(err)))
                     } else {
                         console.log('REAL DATA OPTOIN')
-                        this.handlers.push(this.api(this.endpoint,
+                        ExtendedResource.handlers.push(this.api(this.endpoint,
                             UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
                             .update(item, [queryParams]).subscribe(
                             data => resolve(data),
@@ -145,7 +145,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
                 return new Promise<A>((resolve, reject) => {
                     if (this.mock.controller !== undefined || this.mock.data !== undefined) {
                         console.log('FAKE DATA OPTOIN')
-                        this.handlers.push(this.api(this.endpoint,
+                        ExtendedResource.handlers.push(this.api(this.endpoint,
                             UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
                             .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                             .remove([queryPrams]).subscribe(
@@ -153,7 +153,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
                             err => reject(err)))
                     } else {
                         console.log('REAL DATA OPTOIN')
-                        this.handlers.push(this.api(this.endpoint,
+                        ExtendedResource.handlers.push(this.api(this.endpoint,
                             UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
                             .remove([queryPrams]).subscribe(
                             data => resolve(data),
@@ -165,9 +165,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
 
         }
     }
-    __destroy() {
-        this.handlers.forEach(h => h.unsubscribe());
-    }
+
 
     // add(endpoint: E, model: string, group?: string, name?: string, description?: string) { }
 
@@ -195,13 +193,15 @@ export class SimpleResource<E, A, TA, RP extends Object, QP extends Rest.UrlPara
     /**
      * Should be called in ngDestroy()
      */
-    unsubscribeEvents: () => void;
+    public static UnsubscribeEvents: () => void;
 
     constructor(endpoint: E, model: string) {
         let rest = new ExtendedResource<E, A, TA, RP, QP>(endpoint, model);
         this.model = rest.model;
         this.mock = rest.mock;
-        this.unsubscribeEvents = rest.__destroy;
+        SimpleResource.UnsubscribeEvents = () => {
+            ExtendedResource.handlers.forEach(h => h.unsubscribe());
+        }
     }
 
 }
