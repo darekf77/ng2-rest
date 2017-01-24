@@ -91,15 +91,19 @@ component:
         selector: 'selector',
         templateUrl: 'simple.component.html'
     })
-    export class SimpleComponent implements OnInit {
+    export class SimpleComponent implements OnInit, OnDestroy {
         constructor(private service: ExampleService) { }
     
         ngOnInit() {
             this.service.users.model({ id: '23' }).get({ sort: false })
-                .then( user => console.log(user) );
+                .then( user => console.log(user) )
+                .catch( error => console.log(err) );
             
             // this.service.users.mock <- use it if you wanna mock data
         }
+        OnDestroy() { // destroy unused events
+			ExampleService.unsubscribe();
+		}
     }
 ```
 

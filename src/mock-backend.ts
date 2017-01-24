@@ -1,4 +1,4 @@
-import * as faker from 'faker/locale/pl';
+import * as faker from 'faker';
 import { Http } from './http';
 
 import { Helpers } from './helpers';
