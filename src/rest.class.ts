@@ -25,13 +25,18 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
     public static eureka: Eureka.Eureka<any, any>;
     public static waitingForDocsServer: boolean = false;
     public static restartServerRequest: boolean = false;
-
+    
     private _endpoint: string;
+    private _endpointRest: string;
     public get endpoint() {
-        return (Rest.eureka && Rest.eureka.instance) ? Rest.eureka.instance.instanceId : this._endpoint;
+        let e = (Rest.eureka && Rest.eureka.instance) ? Rest.eureka.instance.instanceId : this._endpoint;
+        if (this.restQueryParams !== undefined && this._endpointRest !== undefined
+            && typeof this._endpointRest === 'string' && this._endpointRest.trim() !== '') e = this._endpointRest;
+        return e;
     }
     private restQueryParams: Object;
     public set restEndpoint(endpoint) {
+        this._endpointRest = endpoint;
         if (endpoint === undefined) {
             this.restQueryParams = undefined;
         } else {
