@@ -25,7 +25,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
     public static eureka: Eureka.Eureka<any, any>;
     public static waitingForDocsServer: boolean = false;
     public static restartServerRequest: boolean = false;
-    
+
     private _endpoint: string;
     private _endpointRest: string;
     public get endpoint() {
@@ -163,7 +163,12 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         }
         let u = this.creatUrl(params);
         return this.http.get(u, { headers: Rest.headers }).map(res => {
-            let r = res.json()
+            let r = undefined;
+            try {
+                r = res.json()
+            } catch (error) {
+                console.warn(error);
+            }
             this.log(<Docs.DocModel>{
                 urlParams: JSON.stringify(params),
                 bodyRecieve: JSON.stringify(r),
@@ -189,7 +194,12 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         }
         let u = this.creatUrl(params);
         return this.http.get(u, { headers: Rest.headers }).map(res => {
-            let r = res.json()
+            let r = undefined;
+            try {
+                r = res.json()
+            } catch (error) {
+                console.warn(error);
+            }
             this.log(<Docs.DocModel>{
                 urlParams: JSON.stringify(params),
                 bodyRecieve: JSON.stringify(r),
@@ -216,7 +226,12 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         let d = JSON.stringify(item);
         return this.http.post(u, d,
             { headers: Rest.headers }).map(res => {
-                let r = res.json()
+                let r = undefined;
+                try {
+                    r = res.json()
+                } catch (error) {
+                    console.warn(error);
+                }
                 this.log(<Docs.DocModel>{
                     bodySend: d,
                     bodyRecieve: JSON.stringify(r),
@@ -244,7 +259,12 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         let d = JSON.stringify(item);
         return this.http.put(u, JSON.stringify(item),
             { headers: Rest.headers }).map(res => {
-                let r = res.json()
+                let r = undefined;
+                try {
+                    r = res.json()
+                } catch (error) {
+                    console.warn(error);
+                }
                 this.log(<Docs.DocModel>{
                     urlParams: JSON.stringify(params),
                     bodySend: d,
@@ -274,7 +294,12 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
             { headers: Rest.headers }).map(res => {
 
                 if (res.text() !== '') {
-                    let r = res.json()
+                    let r = undefined;
+                    try {
+                        r = res.json()
+                    } catch (error) {
+                        console.warn(error);
+                    }
                     this.log(<Docs.DocModel>{
                         urlParams: JSON.stringify(params),
                         bodyRecieve: JSON.stringify(r),
@@ -302,7 +327,12 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         }
         let u = this.endpoint;
         return this.jp.request(u).map(res => {
-            let r = res.json()
+            let r = undefined;
+            try {
+                r = res.json()
+            } catch (error) {
+                console.warn(error);
+            }
             this.log(<Docs.DocModel>{
                 bodyRecieve: JSON.stringify(r),
                 method: 'JSONP',
