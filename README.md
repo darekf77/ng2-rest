@@ -78,7 +78,7 @@ service:
 						            { id: string }, { sort: boolean }
 						         >(ENDPOINT.API, `users/:id`)
          constructor() {
-	          Resource.map(ENDPOINTS.API.toString(), 'http://localhost:/api');
+	          SimpleResource.map(ENDPOINTS.API.toString(), 'http://localhost:/api');
           }
       }
 

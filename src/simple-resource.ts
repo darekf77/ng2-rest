@@ -171,6 +171,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
 
     public constructor(private endpoint: E, private path_model: string) {
         super();
+        this.add(endpoint, path_model);
     }
 
 }
@@ -194,6 +195,10 @@ export class SimpleResource<E, A, TA, RP extends Object, QP extends Rest.UrlPara
      * Should be called in ngDestroy()
      */
     public static UnsubscribeEvents: () => void;
+
+    public static map(endpoint: string, model: string) {
+        Resource.map(endpoint, model);
+    }
 
     constructor(endpoint: E, model: string) {
         let rest = new ExtendedResource<E, A, TA, RP, QP>(endpoint, model);
