@@ -2,7 +2,7 @@ import { Observable } from 'rxjs';
 import { Subject } from 'rxjs/Subject';
 
 export namespace Rest {
-    
+
     /**
      * Get query params from url, like 'ex' in /api/books?ex=value
     */
@@ -197,7 +197,7 @@ export namespace Rest {
     export function prepare(params: UrlParams[]) {
         if (params && params instanceof Array) {
             params.forEach((p: any) => {
-                if (p.regex !== undefined && p.regex instanceof RegExp) p['regex'] = p.regex.source;
+                if (p !== undefined && p.regex !== undefined && p.regex instanceof RegExp) p['regex'] = p.regex.source;
             });
         }
     }
