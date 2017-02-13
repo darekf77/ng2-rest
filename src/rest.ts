@@ -54,7 +54,7 @@ export namespace Rest {
 
 
     type FnMethodQuery<T> = (params?: UrlParams[], _sub?: Subject<T>) => Observable<T>;
-    type FnMethodGet<T> = (params?: UrlParams[], _sub?: Subject<T>) => Observable<T>
+    type FnMethodGet<T> = (params?: UrlParams[], doNotSerializeParams?: boolean, _sub?: Subject<T>) => Observable<T>
     type FnMethodSave<T> = (item?: T, params?: UrlParams[], _sub?: Subject<T>) => Observable<T>
     type FnMethodUpdate<T> = (item?: T, params?: UrlParams[], _sub?: Subject<T>) => Observable<T>
     type FnMethodRemove<T> = (params?: UrlParams[], _sub?: Subject<T>) => Observable<T>;
@@ -114,7 +114,7 @@ export namespace Rest {
      * @param {UrlParams[]} params
      * @returns {string}
      */
-    export function getParamsUrl(params: UrlParams[]): string {
+    export function getParamsUrl(params: UrlParams[], doNotSerialize: boolean = false): string {
         let urlparts: string[] = [];
         if (!params) return '';
         if (!(params instanceof Array)) return '';
@@ -147,7 +147,7 @@ export namespace Rest {
                         if (v instanceof Object) {
                             urlparam[p] = JSON.stringify(urlparam[p]);
                         }
-                        urlparam[p] = encodeURIComponent(<string>urlparam[p]);
+                        urlparam[p] = doNotSerialize ? <string>urlparam[p] : encodeURIComponent(<string>urlparam[p]);
                         if (urlparam.regex !== undefined && urlparam.regex instanceof RegExp) {
 
                             if (!urlparam.regex.test(<string>urlparam[p])) {

@@ -7,6 +7,7 @@
 npm-debug.log
 copy_crm.sh
 
+/copy
 /coverage
 
 /src/**/*.js
@@ -14,7 +15,6 @@ copy_crm.sh
 ng2-rest.js
 ng2-rest.js.map
 
-/copy
 /typings
 /js
  

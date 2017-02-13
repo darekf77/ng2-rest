@@ -133,10 +133,10 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
 
     private prepareUrlOldWay = RestModule.prepareUrlOldWay;
     private getParams = RestModule.getParamsUrl;
-    private creatUrl(params: any) {
+    private creatUrl(params: any, doNotSerializeParams: boolean = false) {
         // console.log('params to url ', params);
         // console.log('params to url string ', JSON.stringify(params));
-        return `${this.endpoint}${RestModule.getParamsUrl(params)}`;
+        return `${this.endpoint}${RestModule.getParamsUrl(params, doNotSerializeParams)}`;
         // if (params instanceof Array && params.length > 0) {
         //     return `${this.endpoint}${getParamsUrl(params)}`
         // }
@@ -179,7 +179,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         });
     }
 
-    get(params?: RestModule.UrlParams[], _sub: Subject<T> = undefined): Observable<T> {
+    get(params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: Subject<T> = undefined): Observable<T> {
 
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of get for enipoint: ${this.endpoint}.`);
@@ -188,11 +188,11 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
             let sub: Subject<T> = _sub ? _sub : new Subject<T>();
             let obs = sub.asObservable();
             setTimeout(() => {
-                this.get(params, sub).subscribe(e => sub.next(e));
+                this.get(params, doNotSerializeParams, sub).subscribe(e => sub.next(e));
             }, Rest.waitTimeMs)
             return sub;
         }
-        let u = this.creatUrl(params);
+        let u = this.creatUrl(params, doNotSerializeParams);
         return this.http.get(u, { headers: Rest.headers }).map(res => {
             let r = undefined;
             try {
@@ -464,12 +464,12 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
             return subject.asObservable();
         };
 
-        t.get = (params?: RestModule.UrlParams[]): Observable<T> => {
+        t.get = (params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: any = undefined): Observable<T> => {
             currentMethod = 'GET';
             subject = new Subject<T>();
             RestModule.prepare(params);
             currentUrlParams = JSON.stringify(params);
-            currentFullUrl = this.creatUrl(params);
+            currentFullUrl = this.creatUrl(params, doNotSerializeParams);
 
             return subject.asObservable();
         };

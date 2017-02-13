@@ -12,7 +12,7 @@ import { MockingMode } from './mocking-mode';
 import { UrlNestedParams } from './nested-params';
 import { Rest } from './rest.class';
 
-const HTTP_PROVIDERS = [
+export const HTTP_PROVIDERS = [
     // Jsonp, JsonpModule,
     {
         provide: Http, useFactory:
