@@ -27,7 +27,7 @@ export const HTTP_PROVIDERS = [
     { provide: XSRFStrategy, useFactory: () => new CookieXSRFStrategy() },
 ];
 
-const JSONP_PROVIDERS = [
+export const JSONP_PROVIDERS = [
     {
         provide: Jsonp, useFactory:
         (xhrBackend: XHRBackend, requestOptions: RequestOptions): Jsonp =>
@@ -65,6 +65,8 @@ export class Resource<E, T, TA> {
     public static get Headers() {
         return Rest.headers;
     }
+
+    public static enableWarnings: boolean = true;
 
     /**
      * This funcion only works one time per tab in browse. 
@@ -114,7 +116,7 @@ export class Resource<E, T, TA> {
     public static setMockingMode(mode: MockingMode) {
 
         if (Resource.mockingModeIsSet) {
-            console.warn('MOCKING MODE already set for entire application');
+            if(Resource.enableWarnings) console.warn('MOCKING MODE already set for entire application');
             return;
         }
         Resource.mockingModeIsSet = true;
@@ -139,7 +141,7 @@ export class Resource<E, T, TA> {
             return false;
         }
         if (Resource.endpoints[e] !== undefined) {
-            console.warn('Cannot use map function at the same API endpoint again ('
+            if(Resource.enableWarnings) console.warn('Cannot use map function at the same API endpoint again ('
                 + Resource.endpoints[e].url + ')');
             return false;
         }
@@ -185,7 +187,7 @@ export class Resource<E, T, TA> {
         }
         if (url.charAt(url.length - 1) === '/') url = url.slice(0, url.length - 2);
         if (Resource.endpoints[e] !== undefined) {
-            console.warn('Cannot use map function at the same API endpoint again ('
+            if(Resource.enableWarnings) console.warn('Cannot use map function at the same API endpoint again ('
                 + Resource.endpoints[e].url + ')');
             return false;
         }
@@ -239,7 +241,7 @@ export class Resource<E, T, TA> {
             return;
         }
         if (Resource.endpoints[e].models[model] !== undefined) {
-            console.warn(`Model '${model}' is already defined in endpoint: `
+            if(Resource.enableWarnings) console.warn(`Model '${model}' is already defined in endpoint: `
                 + Resource.endpoints[e].url);
             return;
         }
