@@ -31,7 +31,7 @@ export namespace UrlNestedParams {
     }
 
     export function getModels(pattern: string): string[] {
-        let m = pattern.match(new RegExp('[a-zA-Z]*\/:', 'g'));
+        let m = pattern.match(new RegExp('[a-z-A-Z]*\/:', 'g'));
         return m.map(p => p.replace('/:', ''));
     }
 
