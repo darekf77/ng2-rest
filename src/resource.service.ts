@@ -62,10 +62,13 @@ export class Resource<E, T, TA> {
         // this.jp = injector.get(Jsonp);
     }
 
-    public static Headers = {
-        request: Rest.headers,
-        response: Rest.headersResponse
-    };
+    public static get Headers() {
+        let res = {
+            request: Rest.headers,
+            response: Rest.headersResponse
+        }
+        return res;
+    }
 
     public static enableWarnings: boolean = true;
 
