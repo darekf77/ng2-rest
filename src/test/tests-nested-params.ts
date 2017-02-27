@@ -258,9 +258,15 @@ export function TestNestedParams() {
         }));
 
 
+        it('shoudl check if url contains models with dash ', () => {
+            let url = 'http://something.com/book-ddd/12/author';
+            expect(UrlNestedParams.containsModels(url, ['book-ddd', 'author'])).toBeTruthy();
+        })
 
-
-
+        it('shoudl retrive models ', () => {
+            let pattern = 'http://something.com/book-shitty/:boookId/author/:authorId';
+            expect(UrlNestedParams.getModels(pattern)).toEqual(['book-shitty', 'author']);
+        })
 
 
     });

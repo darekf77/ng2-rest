@@ -1,6 +1,8 @@
 # IDE-s #
 .idea
 
+.DS_Store
+
 # Node Files #
 /node_modules
 /bower_components
