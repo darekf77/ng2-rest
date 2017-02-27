@@ -19,6 +19,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
     public static docServerUrl: string;
     public static docsTitle: string;
     public static headers: Headers = new Headers();
+    public static headersResponse: Headers = new Headers();
     private form: Contracts.FormInputBind[];
     public static mockingMode: MockingMode;
     public _useCaseDescription;
@@ -163,6 +164,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         }
         let u = this.creatUrl(params);
         return this.http.get(u, { headers: Rest.headers }).map(res => {
+            Rest.headersResponse = res.headers;
             let r = undefined;
             try {
                 r = res.json()
@@ -194,6 +196,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         }
         let u = this.creatUrl(params, doNotSerializeParams);
         return this.http.get(u, { headers: Rest.headers }).map(res => {
+            Rest.headersResponse = res.headers;
             let r = undefined;
             try {
                 r = res.json()
@@ -226,6 +229,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         let d = JSON.stringify(item);
         return this.http.post(u, d,
             { headers: Rest.headers }).map(res => {
+                Rest.headersResponse = res.headers;
                 let r = undefined;
                 try {
                     r = res.json()
@@ -259,6 +263,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         let d = JSON.stringify(item);
         return this.http.put(u, JSON.stringify(item),
             { headers: Rest.headers }).map(res => {
+                Rest.headersResponse = res.headers;
                 let r = undefined;
                 try {
                     r = res.json()
@@ -292,7 +297,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         let u = this.creatUrl(params);
         return this.http.delete(u,
             { headers: Rest.headers }).map(res => {
-
+                Rest.headersResponse = res.headers;
                 if (res.text() !== '') {
                     let r = undefined;
                     try {
@@ -327,6 +332,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         }
         let u = this.endpoint;
         return this.jp.request(u).map(res => {
+            Rest.headersResponse = res.headers;
             let r = undefined;
             try {
                 r = res.json()
