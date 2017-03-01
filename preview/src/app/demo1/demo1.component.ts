@@ -13,7 +13,7 @@ import { SimpleResource } from '../../../../src';
 })
 export class Demo1Component implements OnInit, OnDestroy {
 
-  public usersService = new SimpleResource<any, any>('http://demo9781896.mockable.io', 'users');
+  public usersService = new SimpleResource<any, any>('https://demo9781896.mockable.io', 'users');
 
   constructor(private snackBar: MdSnackBar) {
     SimpleResource.mockingMode.setMocksOnly();
