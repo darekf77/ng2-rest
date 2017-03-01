@@ -2,7 +2,7 @@ if [ -d "docs" ]; then
     rm -rf "docs" 
     mkdir "docs"
 fi
-export GITHUB_DEPLOY="darekf77"
+export GITHUB_DEPLOY="ng2-rest"
 export LIVE_BACKEND=true
 export ENV="production"
 cd preview
