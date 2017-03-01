@@ -163,6 +163,10 @@ export class SimpleResource<A, TA> {
         return Resource.Headers;
     }
 
+    public static __destroy() {
+        ExtendedResource.handlers.forEach(h => h.unsubscribe());
+    }
+
     constructor(endpoint: string, model: string) {
         let rest = new ExtendedResource<string, A, TA, Object, Rest.UrlParams>(endpoint, model);
         this.model = rest.model;
