@@ -41,9 +41,10 @@ import { DatabaseService } from './database.service';
 })
 export class DemoComponent implements OnInit, OnDestroy {
   
-  // normaly you use use SimpleResource by extending 
-  // or having this object users inside service class
-  
+  // normaly you should use SimpleResource:
+  // - by extending service class (inheritance)
+  // - or having instance inside service class (composition)
+   
   public usersService = new SimpleResource<any, any> // <single,array> type
 	  ('http://demo9781896.mockable.io', 'users/:id');
 	  
