@@ -7,5 +7,6 @@ export LIVE_BACKEND=true
 export ENV="production"
 cd preview
 npm run build:prod
+cp -R dist ../docs
 cd ..
 echo "done !"
