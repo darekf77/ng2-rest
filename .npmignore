@@ -11,6 +11,7 @@ copy_crm.sh
 /coverage
 
 /src/**/*.ts
+!/src/**/*.d.ts
 
 /docs
 /preview
