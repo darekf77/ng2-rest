@@ -14,33 +14,42 @@ import { MockingMode } from './mocking-mode';
 import { UrlNestedParams } from './nested-params';
 import { Rest } from './rest.class';
 
+export function httpFactory(xhrBackend: XHRBackend, requestOptions: RequestOptions) {
+    return new Http(xhrBackend, requestOptions);
+}
+
+
+export function jsonpFactory(xhrBackend: XHRBackend, requestOptions: RequestOptions) {
+    return new Jsonp(xhrBackend, requestOptions)
+}
+
+export function XSRFStrategyFactory() {
+    return new CookieXSRFStrategy();
+}
+
 export const HTTP_PROVIDERS = [
     // Jsonp, JsonpModule,
     {
-        provide: Http, useFactory:
-        (xhrBackend: XHRBackend, requestOptions: RequestOptions): Http =>
-            new Http(xhrBackend, requestOptions),
+        provide: Http, useFactory: httpFactory,
         deps: [XHRBackend, RequestOptions]
     },
     BrowserXhr,
     { provide: RequestOptions, useClass: BaseRequestOptions },
     { provide: ResponseOptions, useClass: BaseResponseOptions },
     XHRBackend,
-    { provide: XSRFStrategy, useFactory: () => new CookieXSRFStrategy() },
+    { provide: XSRFStrategy, useFactory: XSRFStrategyFactory },
 ];
 
 export const JSONP_PROVIDERS = [
     {
-        provide: Jsonp, useFactory:
-        (xhrBackend: XHRBackend, requestOptions: RequestOptions): Jsonp =>
-            new Jsonp(xhrBackend, requestOptions),
+        provide: Jsonp, useFactory: jsonpFactory,
         deps: [XHRBackend, RequestOptions]
     },
     BrowserXhr,
     { provide: RequestOptions, useClass: BaseRequestOptions },
     { provide: ResponseOptions, useClass: BaseResponseOptions },
     XHRBackend,
-    { provide: XSRFStrategy, useFactory: () => new CookieXSRFStrategy() },
+    { provide: XSRFStrategy, useFactory: XSRFStrategyFactory },
 ];
 
 
