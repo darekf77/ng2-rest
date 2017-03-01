@@ -160,7 +160,9 @@ export class SimpleResource<A, TA> {
         return Resource.mockingMode;
     }
 
-
+    public get headers() {
+        return Resource.Headers;
+    }
 
     constructor(endpoint: string, model: string) {
         let rest = new ExtendedResource<string, A, TA, Object, Rest.UrlParams>(endpoint, model);

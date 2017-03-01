@@ -144,7 +144,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         // return this.prepareUrlOldWay(params);
     }
 
-    private contract(form: FormGroup, arrays?: Contracts.FormGroupArrays) {
+    public contract(form: FormGroup, arrays?: Contracts.FormGroupArrays) {
         if (arrays) this.form = Contracts.prepareForm(form).concat(Contracts.prepareFormArrays(arrays));
         else this.form = Contracts.prepareForm(form);
         return this;

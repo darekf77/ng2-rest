@@ -71,11 +71,16 @@ export class TestSimpleRest {
                         // });
 
                         let url = 'https://somewhere.com';
-                        let rest = new SimpleResource<APIS, User, User[], any, any>(APIS.FIRST, 'users/:id');
-
-                        Resource.map(APIS.FIRST.toString(), url);
+                        let rest = new SimpleResource<User, User[]>(url, 'users/:id');
 
                         console.log('what the fuck')
+                        rest.mock.data = user;
+                        rest.mock.controller = r => {
+                            let data: User = r.data;
+                            data.id = undefined;
+                            return { data }
+                        }
+
 
                         rest.model({ id: 0 }).get().then(res => {
                             expect(res).toEqual(user);

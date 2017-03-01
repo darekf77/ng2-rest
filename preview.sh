@@ -1,3 +1,3 @@
-cd preview-angular2
+cd docs
 npm run server:dev:hmr
 echo "Done"

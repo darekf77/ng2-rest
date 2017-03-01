@@ -6,8 +6,6 @@ import { MdSnackBar } from '@angular/material';
 import { Preview } from '../base-preview';
 import { SimpleResource } from '../../../../src';
 
-import { DatabaseService } from './database.service';
-
 
 @Component({
   selector: 'demo1',
@@ -15,7 +13,9 @@ import { DatabaseService } from './database.service';
 })
 export class Demo1Component implements OnInit, OnDestroy {
 
-  constructor(public db: DatabaseService, private snackBar: MdSnackBar) {
+  public usersService = new SimpleResource<any, any>('http://demo9781896.mockable.io', 'users');
+
+  constructor(private snackBar: MdSnackBar) {
     SimpleResource.mockingMode.setMocksOnly();
   }
 
@@ -23,8 +23,8 @@ export class Demo1Component implements OnInit, OnDestroy {
 
   public ngOnInit() {
 
-    this.db.users.mock.data = require('!raw-loader!./data.json');
-    this.db.users.mock.controller = (r) => {
+    this.usersService.mock.data = require('!raw-loader!./data.json');
+    this.usersService.mock.controller = (r) => {
       return { data: r.data }
     }
   }
@@ -44,7 +44,7 @@ export class Demo1Component implements OnInit, OnDestroy {
 
   async getData() {
     try {
-      let users = await this.db.users.model().query();
+      let users = await this.usersService.model().query();
       if (users) {
         this.users = users;
       }
@@ -57,14 +57,13 @@ export class Demo1Component implements OnInit, OnDestroy {
   }
 
   public ngOnDestroy() {
-    this.db.users.destroy();
+    this.usersService.destroy();
   }
 
 
 
 
   previews: Preview[] = [
-    { content: require('!raw-loader!./database.service.ts'), name: 'database.service..ts', lang: 'typescript' },
     { content: require('!raw-loader!./data.json'), name: 'data.json', lang: 'json' },
     { content: require('!raw-loader!./demo1.component.ts'), name: 'demo1.component..ts', lang: 'typescript' },
     { content: require('!raw-loader!./demo1.component.html'), name: 'demo1.component.html', lang: 'html' },

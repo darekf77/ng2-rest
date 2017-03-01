@@ -25,6 +25,7 @@
     },
     "exclude": [
         "node_modules",
+        "docs",
         "dist",
         "src/**/*.spec.ts",
         "src/**/*.e2e.ts"

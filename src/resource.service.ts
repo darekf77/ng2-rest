@@ -7,7 +7,7 @@ import {
 
 import { Observable, Subject } from 'rxjs';
 import { Log, Level } from 'ng2-logger/ng2-logger';
-const log = Log.create('resouce-service')
+const log = Log.create('resouce-service', Level.__NOTHING)
 
 import { Eureka } from './eureka';
 import { MockingMode } from './mocking-mode';

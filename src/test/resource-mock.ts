@@ -304,7 +304,7 @@ export class TestRestMock {
                             return request.data;
                         }
 
-                        console.log(Resource.Headers.toJSON());
+                        // console.log(Resource.HeaderstoJSON());
 
 
                         rest.api(APIS.FIRST, 'users')
