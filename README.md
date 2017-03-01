@@ -3,7 +3,7 @@
 Compatible with
 
  1. [AngularClass/angular2-webpack-starter](https://github.com/AngularClass/angular2-webpack-starter)
- 2. [Angular CLI](https://github.com/angular/angular-cli)
+ 2. [Angular CLI (AOT support) ](https://github.com/angular/angular-cli)
 
 Simple, efficient REST api with **Angular 2**. 
 Best way connect Angular2 application with restfull backend.

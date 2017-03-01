@@ -13,6 +13,7 @@ copy_crm.sh
 
 /src/**/*.js
 /src/**/*.js.map
+/src/**/*.d.ts
 ng2-rest.js
 ng2-rest.js.map
 
