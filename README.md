@@ -32,7 +32,8 @@ export class AppModule { }
 SimpleResource
 ==============
 
-Quicket way to use your REST API.
+Quickest way to use your REST API.
+SimpleResource is the wrapper of old Resource.
 
 ```ts
 import { DatabaseService } from './database.service';
@@ -73,7 +74,7 @@ export class DemoComponent implements OnInit, OnDestroy {
     
       let users = await this.usersService.model().query();
 	  
-	  // soring in query params
+	  // sorting in query params
 	  // let users = await this.usersService.model().query({ sort:'asc' });
       if (users) {
         this.users = users;
@@ -115,9 +116,8 @@ Specification
 Resource
 ========
 
-Fit you existing API (not only REST) into new fluent objects...
-**Resource** it is more advance version of **SimpleResource** and
-also SimpleResource is the wrap of Resource.
+Fit you existing API (not only REST) into new fluent objects with
+**Resource** service, which it is more advance version of **SimpleResource**;
 
 Examples:
 
@@ -258,7 +258,7 @@ It is one of the best features here. You don't need a backend for your front-end
 Mock Controller
 ===============
 
- Sample MockController function to just return mocked data based on params:
+ Sample MockController function to return mocked data based on params:
 ```ts
 	// mock-controller.ts
     export function mockController(
