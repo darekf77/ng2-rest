@@ -102,6 +102,8 @@ export class DemoComponent implements OnInit, OnDestroy {
 ```
 
 Specification
+-------------
+
 | Name | Parameters  | Description |
 | :---: | --- | ---: |
 | **query** | `(optional) UrlParams[] ` |  fetch array of your models, optionally with parameters |
