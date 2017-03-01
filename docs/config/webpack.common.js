@@ -5,6 +5,9 @@
 const webpack = require('webpack');
 const helpers = require('./helpers');
 
+let GITHUB_DEPLOY = process.env['GITHUB_DEPLOY'] &&
+    process.env.GITHUB_DEPLOY != "" ? process.env.GITHUB_DEPLOY + '/' : ''
+
 /*
  * Webpack Plugins
  */
@@ -27,8 +30,8 @@ const ngcWebpack = require('ngc-webpack');
 const HMR = helpers.hasProcessFlag('hot');
 const AOT = helpers.hasNpmFlag('aot');
 const METADATA = {
-  title: 'Angular2 Webpack Starter by @gdi2290 from @AngularClass',
-  baseUrl: '/',
+  title: 'ng2-rest demo',
+  baseUrl: '/' + GITHUB_DEPLOY ,
   isDevServer: helpers.isWebpackDevServer()
 };
 
