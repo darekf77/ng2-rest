@@ -206,8 +206,6 @@ export class TestRest {
                         backend.connections.subscribe({
                             next: connection => {
 
-                                // console.log('I AM HERE')
-
                                 let res = new Response(new ResponseOptions({
                                     body: JSON.stringify(users)
                                 }));
@@ -219,8 +217,6 @@ export class TestRest {
                             }
                         });
 
-
-                        console.log('HELLO')
 
                         rest = new Resource<APIS, User, User[]>(http, jp);
                         let url = 'https://somewhere.com';

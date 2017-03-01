@@ -4,6 +4,8 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs/Observable';
+import { Log, Level } from 'ng2-logger/ng2-logger';
+const log = Log.create('rest.class', Level.__NOTHING)
 
 import { MockingMode } from './mocking-mode';
 import { Rest as RestModule } from './rest';
@@ -41,10 +43,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         if (endpoint === undefined) {
             this.restQueryParams = undefined;
         } else {
-            // console.log('this._endpoint', this._endpoint)
-            // console.log('endpoint', endpoint)
             this.restQueryParams = UrlNestedParams.getRestParams(endpoint, this._endpoint);
-            // console.log('this.restQueryParams ', this.restQueryParams)
         }
 
     }
@@ -115,7 +114,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
             url = `${url}/api/save`;
 
             this.http.post(url, JSON.stringify(model), { headers: Rest.headers }).subscribe(() => {
-                console.log('request saved in docs server');
+                log.i('request saved in docs server');
             });
         }
     }
@@ -135,13 +134,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
     private prepareUrlOldWay = RestModule.prepareUrlOldWay;
     private getParams = RestModule.getParamsUrl;
     private creatUrl(params: any, doNotSerializeParams: boolean = false) {
-        // console.log('params to url ', params);
-        // console.log('params to url string ', JSON.stringify(params));
         return `${this.endpoint}${RestModule.getParamsUrl(params, doNotSerializeParams)}`;
-        // if (params instanceof Array && params.length > 0) {
-        //     return `${this.endpoint}${getParamsUrl(params)}`
-        // }
-        // return this.prepareUrlOldWay(params);
     }
 
     public contract(form: FormGroup, arrays?: Contracts.FormGroupArrays) {
@@ -356,7 +349,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         nunOfMocks: number = 0): RestModule.FnMethodsHttp<T, TA> {
 
         if (Rest.mockingMode === MockingMode.LIVE_BACKEND_ONLY) {
-            // console.log('FROM MOCK TO LIVE')
+            log.i('FROM MOCK TO LIVE')
             return this;
         }
         let subject: Subject<any>;
@@ -382,9 +375,9 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
                     this.backend = new MockBackend.MockAutoBackend<T>(data, nunOfMocks);
 
                 let bodyPOSTandPUT = (currentBodySend && typeof currentBodySend === 'string') ? JSON.parse(currentBodySend) : undefined;
-                // console.log('currentFullUrl', currentFullUrl);
+                log.i('currentFullUrl', currentFullUrl);
                 let decodedParams = RestModule.decodeUrl(currentFullUrl);
-                // console.log('decodedParams', decodedParams);
+                log.i('decodedParams', decodedParams);
 
                 let d = nunOfMocks === 0 ? controller({
                     data: tdata,
@@ -408,8 +401,6 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
                     console.error(`Mock server respond with code ${d.code} - ${d.error}`);
                     // TODO each code real message
                 }
-
-                // console.log('currentUrlPrams', currentUrlParams);
 
                 if (d.code === undefined) d.code = 200;
                 if (d.data === undefined) {

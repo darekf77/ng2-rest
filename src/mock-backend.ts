@@ -3,6 +3,9 @@ import { Http } from './http';
 
 import { Helpers } from './helpers';
 
+import { Log, Level } from 'ng2-logger/ng2-logger';
+const log = Log.create('eureka', Level.__NOTHING)
+
 
 export interface MockRequest<T> {
     /**
@@ -77,16 +80,16 @@ export namespace MockBackend {
 
 
     export function goInside(o: Object, paths: string[]): Object {
-        // console.log(`pathes`, pathes);
-        // console.log(`o`, o);
+        log.d(`paths`, paths);
+        log.d(`o`, o);
         if (paths.length === 0) return o;
         let tmp = o;
         paths.forEach(path => {
             if (tmp[path] === undefined) tmp[path] = {};
             tmp = tmp[path];
-            // console.log(`upper for path:${path}`, o);
+            log.d(`upper for path:${path}`, o);
         });
-        // console.log(`tmp`, tmp);
+        log.i(`tmp`, tmp);
         return tmp;
     }
 
@@ -110,7 +113,7 @@ export namespace MockBackend {
         }
         for (let p in toObj) {
             if (toObj.hasOwnProperty(p)) {
-                // console.log('p', p);
+                log.d('p', p);
                 if (p.charAt(0) === '$') delete toObj[p];
             }
         }
@@ -142,7 +145,7 @@ export namespace MockBackend {
                 let model: T = <T>{};
                 this.construct(template, model);
                 this.models.push(model);
-                // console.log(model);
+                log.d('model', model);
             }
         }
 

@@ -92,9 +92,9 @@ export class TestContracts {
 
                         let aa = rest.api(APIS.FIRST, 'user').contract(form.group({}))
                             .mock(JSON.stringify(user)).get([{ id: 1 }]).subscribe(dd => {
-                                console.log('SUPER')
+
                             }, err => {
-                                console.log('ERORRO :(', err)
+
                             });
 
                     })

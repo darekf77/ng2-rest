@@ -1,5 +1,7 @@
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs/Subject';
+import { Log, Level } from 'ng2-logger/ng2-logger';
+const log = Log.create('rest namespace', Level.__NOTHING)
 
 export namespace Rest {
 
@@ -121,7 +123,6 @@ export namespace Rest {
         if (params.length === 0) return '';
 
         params.forEach(urlparam => {
-            // console.log(`Object.keys(urlparam) ${JSON.stringify(urlparam)}`, Object.keys(urlparam).length);
             if (JSON.stringify(urlparam) !== '{}') {
 
                 let parameters: string[] = [];

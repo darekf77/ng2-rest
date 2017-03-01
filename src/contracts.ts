@@ -1,6 +1,8 @@
 import { Directive, forwardRef, Input, OnInit } from '@angular/core';
 
 import { NG_VALIDATORS, FormControl, FormGroup, FormArray } from '@angular/forms';
+import { Log, Level } from 'ng2-logger/ng2-logger';
+const log = Log.create('contracts')
 
 
 export namespace Contracts {
@@ -34,15 +36,15 @@ export namespace Contracts {
         }
 
         validate(c: FormControl) {
-            console.log('VALIDATE this. name', this.name);
-            console.log('VALIDATE this. input', this.maxLenght);
+            log.d('VALIDATE this. name', this.name);
+            log.d('VALIDATE this. input', this.maxLenght);
             c[PREFIX + MAX_LENGTH_FIELD_NAME] = this.maxLenght;
             return this.validator(c);
         }
 
         ngOnInit() {
-            console.log('ngOnInit this. name', this.name);
-            console.log('ngOnInit this. input', this.maxLenght);
+            log.d('ngOnInit this. name', this.name);
+            log.d('ngOnInit this. input', this.maxLenght);
         }
 
 

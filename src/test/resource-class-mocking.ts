@@ -91,9 +91,7 @@ export class TestMockingClass {
                             book: {}
                         };
                         let res = (MockBackendModule.MockAutoBackend.goInside(d, ['book']));
-                        // console.log(d);
-                        // console.log(d2);
-                        // console.log(res);
+                        
                         expect(deepEqual(d, d2)).toBeTruthy();
                     }));
 
@@ -114,9 +112,7 @@ export class TestMockingClass {
                             }
                         };
                         let res = MockBackendModule.MockAutoBackend.goInside(d, ['book', 'cat']);
-                        // console.log(d);
-                        // console.log(d3);
-                        // console.log(res);
+                        
                         expect(deepEqual(d, d3)).toBeTruthy();
                     }));
 
@@ -139,9 +135,7 @@ export class TestMockingClass {
                             }
                         };
                         let res = MockBackendModule.MockAutoBackend.goInside(d, ['book', 'cat', 'mouse']);
-                        // console.log(d);
-                        // console.log(d4);
-                        // console.log(res);
+                        
                         expect(deepEqual(d, d4)).toBeTruthy();
                     }));
 
@@ -165,13 +159,7 @@ export class TestMockingClass {
                         };
 
                         let d = new MockBackendModule.MockAutoBackend(t, 7);
-                        d.models.forEach(m => {
-                            // console.log(m);
-                        });
-
-                        // let d2 = new MockPagination(t, 4);
-                        // console.log('MODEL', d.models);
-                        // console.log('MODEL', d2.models);
+                        
                         // expect(deepEqual(d.model,d2.model)).toBeFalsy();
 
                     }));

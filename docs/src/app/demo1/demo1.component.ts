@@ -50,6 +50,7 @@ export class Demo1Component implements OnInit, OnDestroy {
       }
       if (this.snackBar._openedSnackBarRef) this.snackBar._openedSnackBarRef.dismiss()
     } catch (e) {
+      console.error(e)
       this.snackBar.open(e, 'Error', {
         duration: 3500,
       })

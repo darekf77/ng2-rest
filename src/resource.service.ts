@@ -91,10 +91,9 @@ export class Resource<E, T, TA> {
      */
     public static setUrlToDocsServerAndRecreateIt(url: string, docsTitle: string = undefined,
         forceRecreate: boolean = false) {
-        // console.info('setUrlToDocsServerAndRecreateIt');        
         if (docsTitle) Rest.docsTitle = docsTitle;
         Rest.docServerUrl = sessionStorage.getItem('url');
-        // console.info('Rest.docServerUrl', Rest.docServerUrl);
+        log.d('Rest.docServerUrl from session storage', Rest.docServerUrl);
 
         if (forceRecreate ||
             Rest.docServerUrl === undefined ||
@@ -104,7 +103,7 @@ export class Resource<E, T, TA> {
             Rest.docServerUrl = url;
             sessionStorage.setItem('url', url);
             Rest.restartServerRequest = true;
-            console.info('Recreate docs server request');
+            log.i('Recreate docs server request');
         }
 
     }
@@ -127,7 +126,7 @@ export class Resource<E, T, TA> {
         }
         Resource.mockingModeIsSet = setOnce;
         Resource.__mockingMode = mode;
-        console.info('Mode is set ', mode);
+        log.i('Mode is set ', mode);
     }
 
     public static mockingMode = {
@@ -154,12 +153,11 @@ export class Resource<E, T, TA> {
         let regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
         let e: string = endpoint_url;
         if (!regex.test(endpoint_url)) {
-            console.error('Url address is not correct: ' + endpoint_url);
-            return false;
+            throw 'Url address is not correct: ' + endpoint_url;
         }
         if (Resource.endpoints[e] !== undefined) {
-            if (Resource.enableWarnings) console.warn('Cannot use map function at the same API endpoint again ('
-                + Resource.endpoints[e].url + ')');
+            if (Resource.enableWarnings)
+                console.warn(`Cannot use map function at the same API endpoint again (${Resource.endpoints[e].url})`);
             return false;
         }
         Resource.endpoints[e] = {
@@ -176,8 +174,7 @@ export class Resource<E, T, TA> {
     public static mapEureka(config: Eureka.EurekaConfig)
         : boolean {
         if (!config || !config.serviceUrl || !config.decoderName) {
-            console.error(`Bad Eureka config: ${JSON.stringify(config)}`);
-            return false;
+            throw `Bad Eureka config: ${JSON.stringify(config)}`;
         }
         Rest.eureka = new Eureka.Eureka(config);
         Rest.eureka.onInstance.subscribe(ins => {
@@ -187,7 +184,7 @@ export class Resource<E, T, TA> {
             };
             Resource.subEurekaEndpointReady.next(ins);
         });
-        console.log('eureka mapped');
+        log.i('eureka mapped');
         return true;
     }
 
@@ -196,14 +193,12 @@ export class Resource<E, T, TA> {
         log.i('url', url)
 
         if (Rest.eureka) {
-            console.error(`Canno use 'map()' function after 'mapEureka()'`);
-            return false;
+            throw `Canno use 'map()' function after 'mapEureka()'`;
         }
         let regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
         let e = endpoint;
         if (!regex.test(url)) {
-            console.error('Url address is not correct: ' + url);
-            return false;
+            throw `Url address is not correct: ${url}`;
         }
         if (url.charAt(url.length - 1) === '/') url = url.slice(0, url.length - 1);
         log.i('url after', url)
@@ -228,7 +223,7 @@ export class Resource<E, T, TA> {
      * @returns {boolean}
      */
     add(endpoint: E, model: string, group?: string, name?: string, description?: string) {
-        console.log(`I am maping ${model}  on ${<any>endpoint}`);
+        log.i(`I am maping ${model} on ${<any>endpoint}`);
         if (Rest.eureka && Rest.eureka.state === Eureka.EurekaState.DISABLED) {
             Rest.eureka.discovery(this.http);
         }
@@ -236,7 +231,7 @@ export class Resource<E, T, TA> {
         if (Rest.eureka && Rest.eureka.state !== Eureka.EurekaState.ENABLE // && Rest.eureka.state !== EurekaState.SERVER_ERROR
         ) {
             Resource.subEurekaEndpointReady.subscribe(ins => {
-                console.log('SHOUD Be insTANCE!!')
+                log.i('instance should exist ', ins)
                 this.add(endpoint, model, group, name, description);
             })
             return;
@@ -282,22 +277,19 @@ export class Resource<E, T, TA> {
      * @returns {Rest<T, TA>}
      */
     api(endpoint: E, model: string, usecase?: string): Rest<T, TA> {
-        console.log('helo!!')
 
         if (model.charAt(0) === '/') model = model.slice(1, model.length);
         let e = <string>(endpoint).toString();
         if (Resource.endpoints[e] === undefined) {
-            console.error('Endpoint is not mapped ! Cannot add model ' + model);
-            return;
+            throw `Endpoint: ${<any>endpoint} is not mapped ! Cannot add model: ${model}`;
         }
         let allModels: Object = Resource.endpoints[e].models;
         let orgModel = model;
         model = this.checkNestedModels(model, allModels);
 
         if (Resource.endpoints[e].models[model] === undefined) {
-            console.log('Resource.endpoints', Resource.endpoints)
-            console.error(`Model '${model}' is undefined in endpoint: ${Resource.endpoints[e].url} `);
-            return;
+            log.d('Resource.endpoints', Resource.endpoints);
+            throw `Model '${model}' is undefined in endpoint: ${Resource.endpoints[e].url} `;
         }
 
         let res: Rest<T, TA> = Resource.endpoints[<string>(endpoint).toString()].models[model];
@@ -305,9 +297,9 @@ export class Resource<E, T, TA> {
 
         if (orgModel !== model) {
             let baseUrl = Resource.endpoints[<string>(endpoint).toString()].url;
-            // console.log('base', Resource.endpoints[<string>(endpoint).toString()])
-            // console.log('baseUrl', baseUrl)
-            // console.log('orgModel', orgModel)
+            log.d('base', Resource.endpoints[<string>(endpoint).toString()])
+            log.d('baseUrl', baseUrl)
+            log.d('orgModel', orgModel)
             res.__rest_endpoint = `${baseUrl}/${orgModel}`;
         } else res.__rest_endpoint = undefined;
 

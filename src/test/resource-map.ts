@@ -61,7 +61,9 @@ export class TestMap {
                 (rest: Resource<APIS, User, User[]>, http: Http, jp) => {
                     rest = new Resource<APIS, User, User[]>(http, jp);
                     Resource.reset();
-                    expect(Resource.map(APIS.FIRST.toString(), 'asdas')).toBeFalsy();
+                    expect(()=> {
+                        Resource.map(APIS.FIRST.toString(), 'asdas');
+                    }).toThrow();
                 }));
 
 
@@ -69,7 +71,11 @@ export class TestMap {
                 (rest: Resource<APIS, User, User[]>, http: Http, jp) => {
                     rest = new Resource<APIS, User, User[]>(http, jp);
                     Resource.reset();
-                    expect(Resource.map(APIS.FIRST.toString(), 'http://')).toBeFalsy();
+
+                    expect(()=> {
+                        Resource.map(APIS.FIRST.toString(), 'http://')
+                    }).toThrow();
+                    
                 }));
 
         });

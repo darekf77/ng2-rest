@@ -1,6 +1,9 @@
 import { Observable, Subject } from 'rxjs';
 import { Response, Http, Headers } from '@angular/http';
 
+import { Log, Level } from 'ng2-logger/ng2-logger';
+const log = Log.create('eureka', Level.__NOTHING)
+
 import { Helpers } from './helpers';
 
 export namespace Eureka {
@@ -56,7 +59,7 @@ export namespace Eureka {
             });
             this.http = http;
             this._state = EurekaState.WAITING_FOR_INSTANCES;
-            console.log('start JOURNE!!!')
+            log.i('start JOURNE!!!')
             this.http.get(`${this.config.serviceUrl}/${this.config.decoderName}`,
                 { headers: this.headers })
                 .subscribe(r => {

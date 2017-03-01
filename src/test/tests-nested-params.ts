@@ -202,7 +202,7 @@ export function TestNestedParams() {
                     rest.add(APIS.FIRST, 'books/:bookid/title/:titleId');
 
                     let ctrl = (request: MockRequest<User>) => {
-                        console.log('request.restParams', request.restParams)
+                        
                         expect(request.restParams).toBeDefined();
                         expect(request.restParams['bookid']).toBe(34);
                         expect(request.restParams['titleId']).toBe(title)
@@ -236,7 +236,7 @@ export function TestNestedParams() {
                     rest.add(APIS.FIRST, 'books/:bookid/title/:titleId/mission/:missionId');
 
                     let ctrl = (request: MockRequest<User>) => {
-                        console.log('request.restParams AAA', request.restParams)
+                        
                         expect(request.restParams).toBeDefined();
                         expect(request.restParams['bookid']).toBe(34);
                         expect(request.restParams['titleId']).toBe(title)

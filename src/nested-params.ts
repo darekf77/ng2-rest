@@ -1,5 +1,7 @@
 import { diffChars } from 'diff';
 
+import { Log, Level } from 'ng2-logger/ng2-logger';
+const log = Log.create('nested params', Level.__NOTHING)
 
 export namespace UrlNestedParams {
 
@@ -47,9 +49,9 @@ export namespace UrlNestedParams {
         // url = url.replace(new RegExp('\/', 'g'), '');
         let res = models.filter(m => {
             let word = '/' + m;
-            // console.log('word', word)
+            log.d('word', word)
             let iii = url.indexOf(word);
-            // console.log('iii', iii)
+            log.d('iii', iii)
             if (iii + word.length < url.length && url.charAt(iii + word.length) !== '/') {
                 return false;
             }
@@ -59,7 +61,7 @@ export namespace UrlNestedParams {
             }
             return false;
         }).length;
-        // console.log('containsModels', res);
+        log.d('containsModels', res);
         return res === models.length;
     }
 
@@ -72,14 +74,14 @@ export namespace UrlNestedParams {
     export function getRestParams(url: string, pattern: string): Object {
         let res = {};
         let models = getRestPramsNames(pattern);
-        // console.log('models', models);
+        log.d('models', models);
         models.forEach(m => {
             pattern = pattern.replace(`:${m}`, stars(m.length));
         })
 
         let currentModel: string = undefined;
         diffChars(pattern, url).forEach(d => {
-            // console.log('d', d);
+            log.d('d', d);
             if (d.added) {
                 if (!isNaN(Number(d.value))) res[currentModel] = Number(d.value);
                 else if (d.value.trim() === 'true') res[currentModel] = true;
@@ -88,7 +90,7 @@ export namespace UrlNestedParams {
                 currentModel = undefined;
             }
             let m = d.value.replace(':', "");
-            // console.log('model m', m)
+            log.d('model m', m)
             if (d.removed) {
                 currentModel = models.shift();
             }

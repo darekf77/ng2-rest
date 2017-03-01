@@ -73,7 +73,6 @@ export class TestSimpleRest {
                         let url = 'https://somewhere.com';
                         let rest = new SimpleResource<User, User[]>(url, 'users/:id');
 
-                        console.log('what the fuck')
                         rest.mock.data = user;
                         rest.mock.controller = r => {
                             let data: User = r.data;

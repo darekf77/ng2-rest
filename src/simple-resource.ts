@@ -51,7 +51,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
      * Get model by rest params
     */
     model: Model<A, TA, RP, QP> = (restParams?: RP) => {
-        console.log('AM HERE model')
+
         return {
 
             get: (queryPrams?: QP) => {

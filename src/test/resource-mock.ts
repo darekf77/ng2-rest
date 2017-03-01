@@ -82,8 +82,7 @@ export class TestRestMock {
                         rest.api(APIS.FIRST, 'users').mock(JSON.stringify(user)).get([{ id: 0 }]).subscribe((res) => {
                             let o = JSON.parse(JSON.stringify(user))
                             expect(this.areEqual(o, res)).toBeTruthy();
-                            console.log('res ', res);
-                            console.log('o ', o);
+                            
                         }, (err) => {
                             fail;
                         });
@@ -193,8 +192,7 @@ export class TestRestMock {
                         rest.add(APIS.FIRST, 'users');
 
                         let ctrl = (req: MockRequest<User>) => {
-                            console.log(req.data)
-                            console.log(req.params)
+                            
                             req.data.id = 100;
                             expect(req.params['id']).toBe(0);
                             return { data: req.data };
@@ -248,8 +246,7 @@ export class TestRestMock {
 
                         let ctrl = (request: MockRequest<User>) => {
                             expect(backend).toBeDefined();
-                            console.log('backend', backend);
-                            console.log('HELLO IAM HERE')
+                            
                             request.data.id = 100;
                             expect(request.params['id']).toBe(0);
                             return undefined;
@@ -303,9 +300,6 @@ export class TestRestMock {
                             expect(request.params['id']).toBe(0);
                             return request.data;
                         }
-
-                        // console.log(Resource.HeaderstoJSON());
-
 
                         rest.api(APIS.FIRST, 'users')
                             .mock(user, 0, ctrl)

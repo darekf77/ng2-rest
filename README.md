@@ -31,7 +31,8 @@ Import module
 SimpleResource
 ==============
 
-Quicket way to use your REST API
+Quicket way to use your REST API. \
+
 ```ts
 import { DatabaseService } from './database.service';
 
@@ -117,7 +118,9 @@ Resource
 ========
 
 Fit you existing API (not only REST) into new fluent objects...
-**Resource** it is more advance version of **SimpleResource**
+**Resource** it is more advance version of **SimpleResource** and
+also SimpleResource is the wrap of Resource.
+
 Examples:
 
 **service.ts**

@@ -62,7 +62,6 @@ export class TestProduction {
 
                         backend.connections.subscribe({
                             next: connection => {
-                                // console.log('I AM HERE')
                                 let res = new Response(new ResponseOptions({
                                     body: JSON.stringify(users)
                                 }));
