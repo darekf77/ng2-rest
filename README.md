@@ -7,7 +7,7 @@ Compatible with
 
 REST api with **Angular 2.**,  much more powerfull alternative to angularjs $resource;
 
-[Demo github](https://darekf77.github.io/ng2-rest/docs/dist)
+[Demo github](https://darekf77.github.io/ng2-rest)
 
 To install package run:
 
