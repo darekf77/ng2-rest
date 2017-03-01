@@ -15,6 +15,7 @@ copy_crm.sh
 ng2-rest.js
 ng2-rest.js.map
 
+/docs
 /typings
 /js
  
