@@ -5,7 +5,8 @@ Compatible with
  1. [AngularClass/angular2-webpack-starter](https://github.com/AngularClass/angular2-webpack-starter)
  2. [Angular CLI](https://github.com/angular/angular-cli)
 
-REST api with **Angular 2.**,  much more powerfull alternative to angularjs $resource;
+Simple, efficient REST api with **Angular 2**. 
+Best way connect Angular2 application with restfull backend.
 
 [Demo github](https://darekf77.github.io/ng2-rest)
 
@@ -65,16 +66,9 @@ export class DemoComponent implements OnInit, OnDestroy {
 
   users = [];
 
-  public ngOnInit() {
+  public ngOnInit() { }
 
-    this.users.mock.data = require('!raw-loader!./data.json');
-    this.users.mock.controller = (r) => {
-      return { data: r.data }
-    }
-    
-  }
-
- async getData() {
+ async getData() { // you can also use normal promises insted of async/await
     try {
     
       let users = await this.usersService.model().query();
