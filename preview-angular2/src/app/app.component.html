@@ -1,0 +1,16 @@
+<div class="container">
+    <br>
+    <nav>
+        <a md-button 
+        [routerLink]=" ['./demo1'] " routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+        > SimpleResource</a>
+        <a md-button 
+        [routerLink]=" ['./demo2'] " routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+        > Resource </a>
+    </nav>
+    <br>
+
+    <main>
+        <router-outlet></router-outlet>
+    </main>
+</div>

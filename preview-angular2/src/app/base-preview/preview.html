@@ -1,0 +1,5 @@
+<md-tab-group *ngIf="previews && previews.length > 0" >
+  <md-tab *ngFor="let preview of previews" label="{{preview.name}}">
+    <pre><code highlight class="{{preview.lang}}">{{preview.content}}</code></pre>
+  </md-tab>
+</md-tab-group>

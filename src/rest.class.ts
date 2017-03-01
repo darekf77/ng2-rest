@@ -22,21 +22,21 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
     public static headersResponse: Headers = new Headers();
     private form: Contracts.FormInputBind[];
     public static mockingMode: MockingMode;
-    public _useCaseDescription;
+    public __usecase_desc;
     public static eureka: Eureka.Eureka<any, any>;
     public static waitingForDocsServer: boolean = false;
     public static restartServerRequest: boolean = false;
 
     private _endpoint: string;
     private _endpointRest: string;
-    public get endpoint() {
+    private get endpoint() {
         let e = (Rest.eureka && Rest.eureka.instance) ? Rest.eureka.instance.instanceId : this._endpoint;
         if (this.restQueryParams !== undefined && this._endpointRest !== undefined
             && typeof this._endpointRest === 'string' && this._endpointRest.trim() !== '') e = this._endpointRest;
         return e;
     }
     private restQueryParams: Object;
-    public set restEndpoint(endpoint) {
+    public set __rest_endpoint(endpoint) {
         this._endpointRest = endpoint;
         if (endpoint === undefined) {
             this.restQueryParams = undefined;
@@ -65,7 +65,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         this._endpoint = endpoint;
 
         // Quick fix
-        if (Rest.mockingMode === undefined) Rest.mockingMode = MockingMode.MIX;
+        if (Rest.mockingMode === undefined) Rest.mockingMode = MockingMode.LIVE_BACKEND_ONLY;
 
         if (!Rest._headersAreSet) {
             Rest._headersAreSet = true;
@@ -104,7 +104,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
             model.description = this.description;
             model.name = this.name;
             model.group = this.group;
-            model.usecase = this._useCaseDescription;
+            model.usecase = this.__usecase_desc;
             model.url = this.endpoint;
             model.form = this.form;
             model.headers = this.getHeadersJSON();
@@ -128,7 +128,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
      * 
      * @memberOf Rest
      */
-    appIsWaiting() {
+    private appIsWaiting() {
         return ((Rest.eureka && Rest.eureka.isWaiting()) || Rest.waitingForDocsServer);
     }
 
@@ -144,7 +144,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         // return this.prepareUrlOldWay(params);
     }
 
-    contract(form: FormGroup, arrays?: Contracts.FormGroupArrays) {
+    private contract(form: FormGroup, arrays?: Contracts.FormGroupArrays) {
         if (arrays) this.form = Contracts.prepareForm(form).concat(Contracts.prepareFormArrays(arrays));
         else this.form = Contracts.prepareForm(form);
         return this;

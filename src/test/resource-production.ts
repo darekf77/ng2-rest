@@ -77,7 +77,7 @@ export class TestProduction {
                         let url = 'https://somewhere.com';
                         Resource.reset();
                         Resource.map(APIS.FIRST.toString(), url);
-                        Resource.setMockingMode(MockingMode.MOCKS_ONLY);
+                        Resource.mockingMode.setMocksOnly();
 
                         rest.add(APIS.FIRST, 'users');
 
@@ -115,7 +115,7 @@ export class TestProduction {
                         let url = 'https://somewhere.com';
                         Resource.reset();
                         Resource.map(APIS.FIRST.toString(), url);
-                        Resource.setMockingMode(MockingMode.LIVE_BACKEND_ONLY);
+                        Resource.mockingMode.setBackendOnly();
 
                         rest.add(APIS.FIRST, 'users');
                         rest.api(APIS.FIRST, 'users')

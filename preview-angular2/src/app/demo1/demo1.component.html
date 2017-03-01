@@ -1,0 +1,23 @@
+<md-card>
+    <!--<md-card-title>Simple Resource Demo</md-card-title>-->
+    <md-card-content>
+        <p>
+            Demo show how to in very simple way create rest api and use
+            it with mock or 
+        </p>
+
+        <button md-raised-button (click)="getData()" >Get data</button>
+        <br>
+        <br>
+        <md-checkbox [checked]="checked"  (change)="toogleMock()" >Use mock</md-checkbox>
+        <br>
+        <br> Data: {{ users | json }}
+    </md-card-content>
+</md-card>
+<br>
+<br>
+<md-tab-group *ngIf="previews && previews.length > 0">
+    <md-tab *ngFor="let preview of previews" label="{{preview.name}}">
+        <pre><code highlight class="{{preview.lang}}">{{preview.content}}</code></pre>
+    </md-tab>
+</md-tab-group>

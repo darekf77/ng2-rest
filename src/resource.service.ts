@@ -6,6 +6,8 @@ import {
 } from '@angular/http';
 
 import { Observable, Subject } from 'rxjs';
+import { Log, Level } from 'ng2-logger/ng2-logger';
+const log = Log.create('resouce-service')
 
 import { Eureka } from './eureka';
 import { MockingMode } from './mocking-mode';
@@ -56,7 +58,7 @@ export class Resource<E, T, TA> {
     private jp: Jsonp;
     constructor(http?: Http, jp?: Jsonp) {
         // Quick fix
-        if (Resource.mockingMode === undefined) Resource.mockingMode = MockingMode.MIX;
+        if (Resource.__mockingMode === undefined) Resource.__mockingMode = MockingMode.LIVE_BACKEND_ONLY;
         this.http = ReflectiveInjector.resolveAndCreate(HTTP_PROVIDERS).get(Http);
         this.jp = ReflectiveInjector.resolveAndCreate(JSONP_PROVIDERS).get(Jsonp);
         // this.jp = injector.get(Jsonp);
@@ -108,26 +110,37 @@ export class Resource<E, T, TA> {
     }
 
     private static mockingModeIsSet = false;
-    private static mockingMode: MockingMode;
+    private static get __mockingMode(): MockingMode {
+        return Rest.mockingMode;
+    }
 
-    /**
-     * Define source of your microsevices
-     * 
-     * @static
-     * @param {MockingMode} mode
-     * @returns
-     */
-    public static setMockingMode(mode: MockingMode) {
+    private static set __mockingMode(mode) {
+        Rest.mockingMode = mode;
+    }
+    public static setMockingModeOnce = (mode: MockingMode) => Resource.setMockingMode(mode, true)
+
+    private static setMockingMode(mode: MockingMode, setOnce = false) {
 
         if (Resource.mockingModeIsSet) {
             if (Resource.enableWarnings) console.warn('MOCKING MODE already set for entire application');
             return;
         }
-        Resource.mockingModeIsSet = true;
-        Resource.mockingMode = mode;
-        Rest.mockingMode = mode;
+        Resource.mockingModeIsSet = setOnce;
+        Resource.__mockingMode = mode;
         console.info('Mode is set ', mode);
     }
+
+    public static mockingMode = {
+        setMocksOnly: () => {
+            Resource.setMockingMode(MockingMode.MOCKS_ONLY);
+        },
+        setBackendOnly: () => {
+            Resource.setMockingMode(MockingMode.LIVE_BACKEND_ONLY);
+        },
+        isMockOnlyMode: () => Resource.__mockingMode === MockingMode.MOCKS_ONLY,
+        isBackendOnlyMode: () => Resource.__mockingMode === MockingMode.LIVE_BACKEND_ONLY
+    }
+
 
     /**
      * Use enpoint in your app
@@ -179,6 +192,9 @@ export class Resource<E, T, TA> {
     }
 
     public static map(endpoint: string, url: string): boolean {
+
+        log.i('url', url)
+
         if (Rest.eureka) {
             console.error(`Canno use 'map()' function after 'mapEureka()'`);
             return false;
@@ -189,7 +205,8 @@ export class Resource<E, T, TA> {
             console.error('Url address is not correct: ' + url);
             return false;
         }
-        if (url.charAt(url.length - 1) === '/') url = url.slice(0, url.length - 2);
+        if (url.charAt(url.length - 1) === '/') url = url.slice(0, url.length - 1);
+        log.i('url after', url)
         if (Resource.endpoints[e] !== undefined) {
             if (Resource.enableWarnings) console.warn('Cannot use map function at the same API endpoint again ('
                 + Resource.endpoints[e].url + ')');
@@ -199,6 +216,7 @@ export class Resource<E, T, TA> {
             url: url,
             models: {}
         };
+        log.i('enpoints', Resource.endpoints)
         return true;
     }
 
@@ -210,7 +228,7 @@ export class Resource<E, T, TA> {
      * @returns {boolean}
      */
     add(endpoint: E, model: string, group?: string, name?: string, description?: string) {
-        // console.log('Rest.eureka', Rest.eureka);
+        console.log(`I am maping ${model}  on ${<any>endpoint}`);
         if (Rest.eureka && Rest.eureka.state === Eureka.EurekaState.DISABLED) {
             Rest.eureka.discovery(this.http);
         }
@@ -231,6 +249,7 @@ export class Resource<E, T, TA> {
             let rName = slName.map(fr => (fr[0]) ? (fr[0].toUpperCase() + fr.substr(1)) : '');
             name = rName.join(' ');
         }
+        if (model.charAt(model.length - 1) === '/') model = model.slice(0, model.length - 1);
         if (model.charAt(0) === '/') model = model.slice(1, model.length);
 
         let e: string;
@@ -263,6 +282,8 @@ export class Resource<E, T, TA> {
      * @returns {Rest<T, TA>}
      */
     api(endpoint: E, model: string, usecase?: string): Rest<T, TA> {
+        console.log('helo!!')
+
         if (model.charAt(0) === '/') model = model.slice(1, model.length);
         let e = <string>(endpoint).toString();
         if (Resource.endpoints[e] === undefined) {
@@ -274,20 +295,21 @@ export class Resource<E, T, TA> {
         model = this.checkNestedModels(model, allModels);
 
         if (Resource.endpoints[e].models[model] === undefined) {
+            console.log('Resource.endpoints', Resource.endpoints)
             console.error(`Model '${model}' is undefined in endpoint: ${Resource.endpoints[e].url} `);
             return;
         }
 
         let res: Rest<T, TA> = Resource.endpoints[<string>(endpoint).toString()].models[model];
-        res._useCaseDescription = usecase;
+        res.__usecase_desc = usecase;
 
         if (orgModel !== model) {
             let baseUrl = Resource.endpoints[<string>(endpoint).toString()].url;
             // console.log('base', Resource.endpoints[<string>(endpoint).toString()])
             // console.log('baseUrl', baseUrl)
             // console.log('orgModel', orgModel)
-            res.restEndpoint = `${baseUrl}/${orgModel}`;
-        } else res.restEndpoint = undefined;
+            res.__rest_endpoint = `${baseUrl}/${orgModel}`;
+        } else res.__rest_endpoint = undefined;
 
         return res;
     }

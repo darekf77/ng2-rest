@@ -225,8 +225,7 @@ export class TestRestMock {
 
                         rest = new Resource<APIS, User, User[]>(http, jp);
                         let url = 'https://somewhere.com';
-                        Resource.setMockingMode(MockingMode.LIVE_BACKEND_ONLY);
-                        Resource.setMockingMode(MockingMode.LIVE_BACKEND_ONLY);
+                        Resource.mockingMode.setBackendOnly();
                         Resource.map(APIS.FIRST.toString(), url);
                         rest.add(APIS.FIRST, 'users');
                         rest.api(APIS.FIRST, 'users').mock({ something: 'something bad' }).get([{ id: 0 }]).subscribe((res) => {

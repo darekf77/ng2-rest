@@ -1,5 +1,5 @@
 export enum MockingMode {
-    MOCKS_ONLY,
-    MIX,
-    LIVE_BACKEND_ONLY
+    MOCKS_ONLY = 0,
+    // MIX = 1,
+    LIVE_BACKEND_ONLY = 2
 };

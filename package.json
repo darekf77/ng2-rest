@@ -28,10 +28,11 @@
   },
   "homepage": "https://github.com/darekf77/ng2-rest#readme",
   "dependencies": {
-    "faker": "^3.1.0",
-    "diff": "^3.2.0",
+    "@types/diff": "0.0.31",
     "@types/faker": "^3.1.32",
-    "@types/diff": "0.0.31"
+    "diff": "^3.2.0",
+    "faker": "^3.1.0",
+    "ng2-logger": "^0.1.21"
   },
   "devDependencies": {
     "@angular/common": "~2.4.1",

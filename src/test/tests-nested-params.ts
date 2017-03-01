@@ -175,7 +175,7 @@ export function TestNestedParams() {
                     rest = new Resource<APIS, User, User[]>(http, jp);
                     let url = 'https://somewhere.com/users/:userid';
                     Resource.map(APIS.FIRST.toString(), url);
-                    Resource.setMockingMode(MockingMode.LIVE_BACKEND_ONLY);
+                    Resource.mockingMode.setBackendOnly();
                     rest.add(APIS.FIRST, 'users/:userid');
                     rest.api(APIS.FIRST, `users/12`, )
                         .save(user).subscribe((res) => {
@@ -198,7 +198,7 @@ export function TestNestedParams() {
                     rest = new Resource<APIS, User, User[]>(http, jp);
                     let url = 'https://somewhere.com';
                     Resource.map(APIS.FIRST.toString(), url);
-                    Resource.setMockingMode(MockingMode.MOCKS_ONLY);
+                    Resource.mockingMode.setMocksOnly();
                     rest.add(APIS.FIRST, 'books/:bookid/title/:titleId');
 
                     let ctrl = (request: MockRequest<User>) => {
@@ -232,7 +232,7 @@ export function TestNestedParams() {
                     rest = new Resource<APIS, User, User[]>(http, jp);
                     let url = 'https://somewhere.com';
                     Resource.map(APIS.FIRST.toString(), url);
-                     Resource.setMockingMode(MockingMode.MOCKS_ONLY);
+                    Resource.mockingMode.setMocksOnly();
                     rest.add(APIS.FIRST, 'books/:bookid/title/:titleId/mission/:missionId');
 
                     let ctrl = (request: MockRequest<User>) => {

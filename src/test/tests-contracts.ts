@@ -85,7 +85,7 @@ export class TestContracts {
                         rest = new Resource<APIS, User, User[]>(http, jp);
                         let url = 'https://somewhere.com';
                         Resource.map(APIS.FIRST.toString(), url);
-                        Resource.setMockingMode(MockingMode.MOCKS_ONLY);
+                        Resource.mockingMode.setMocksOnly();
                         rest.add(APIS.FIRST, 'user');
 
                         let form = new FormBuilder();
