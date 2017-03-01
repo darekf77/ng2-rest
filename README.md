@@ -18,14 +18,14 @@ Import module
 
 
 ```ts
-	import {Ng2RestModule} from 'ng2-rest';
+import {Ng2RestModule} from 'ng2-rest';
 
-	@NgModule({
-	  bootstrap: [AppComponent],
-	  imports: [ 
-	    Ng2RestModule
-	  ])
-  export class AppModule { }
+@NgModule({
+	bootstrap: [AppComponent],
+	imports: [ 
+		Ng2RestModule
+	])
+export class AppModule { }
 ```
 
 SimpleResource
