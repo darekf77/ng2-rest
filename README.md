@@ -32,7 +32,7 @@ export class AppModule { }
 SimpleResource
 ==============
 
-Quicket way to use your REST API. \
+Quicket way to use your REST API.
 
 ```ts
 import { DatabaseService } from './database.service';
