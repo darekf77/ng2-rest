@@ -159,7 +159,7 @@ export class SimpleResource<A, TA> {
         return Resource.mockingMode;
     }
 
-    public get headers() {
+    public static get headers() {
         return Resource.Headers;
     }
 
