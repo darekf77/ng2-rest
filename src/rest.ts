@@ -55,12 +55,12 @@ export namespace Rest {
 
 
 
-    type FnMethodQuery<T> = (params?: UrlParams[], _sub?: Subject<T>) => Observable<T>;
-    type FnMethodGet<T> = (params?: UrlParams[], doNotSerializeParams?: boolean, _sub?: Subject<T>) => Observable<T>
-    type FnMethodSave<T> = (item?: T, params?: UrlParams[], _sub?: Subject<T>) => Observable<T>
-    type FnMethodUpdate<T> = (item?: T, params?: UrlParams[], _sub?: Subject<T>) => Observable<T>
-    type FnMethodRemove<T> = (params?: UrlParams[], _sub?: Subject<T>) => Observable<T>;
-    type FnMethodJsonp<T> = (params?: UrlParams[], _sub?: Subject<T>) => Observable<T>;
+    export type FnMethodQuery<T> = (params?: UrlParams[], _sub?: Subject<T>) => Observable<T>;
+    export type FnMethodGet<T> = (params?: UrlParams[], doNotSerializeParams?: boolean, _sub?: Subject<T>) => Observable<T>
+    export type FnMethodSave<T> = (item?: T, params?: UrlParams[], _sub?: Subject<T>) => Observable<T>
+    export type FnMethodUpdate<T> = (item?: T, params?: UrlParams[], _sub?: Subject<T>) => Observable<T>
+    export type FnMethodRemove<T> = (params?: UrlParams[], _sub?: Subject<T>) => Observable<T>;
+    export type FnMethodJsonp<T> = (params?: UrlParams[], _sub?: Subject<T>) => Observable<T>;
 
     export interface FnMethodsHttp<T, TA> {
 

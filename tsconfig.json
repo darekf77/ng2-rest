@@ -9,6 +9,7 @@
     "sourceMap": true,
     "noEmitHelpers": true,
     "strictNullChecks": false,
+    "declaration": true,
     "baseUrl": "./src",
     "outDir": "js",
     "lib": [

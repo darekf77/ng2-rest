@@ -1,5 +1,5 @@
 import { Inject } from '@angular/core';
-import { Http, Jsonp } from '@angular/http';
+import { Http, Jsonp, Headers } from '@angular/http';
 
 import { Subscription } from 'rxjs';
 
@@ -17,8 +17,7 @@ export interface Mock<A> {
     data: any;
 }
 
-
-interface RestPromises<A, TA, QP extends Rest.UrlParams> {
+export interface RestPromises<A, TA, QP extends Rest.UrlParams> {
     get: (queryParams?: QP) => Promise<A>;
     query: (queryParams?: QP) => Promise<TA>;
     save: (item?: A, queryParams?: QP) => Promise<A>;
