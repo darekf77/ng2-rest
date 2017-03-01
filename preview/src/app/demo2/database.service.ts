@@ -22,7 +22,7 @@ export class DatabaseService2 {
     constructor(
         public rest: Resource<ENDPOINTS, User, User[]>
     ) {
-        Resource.map(ENDPOINTS.API_ONE.toString(), 'http://demo9781896.mockable.io/')
+        Resource.map(ENDPOINTS.API_ONE.toString(), 'https://demo9781896.mockable.io/')
         rest.add(ENDPOINTS.API_ONE, 'users');
     }
 

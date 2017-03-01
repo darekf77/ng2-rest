@@ -11,7 +11,7 @@ export interface User {
 @Injectable()
 export class DatabaseService {
 
-    public users = new SimpleResource<any, any>('http://demo9781896.mockable.io', 'users');
+    public users = new SimpleResource<any, any>('https://demo9781896.mockable.io', 'users');
 
     constructor() {
 
