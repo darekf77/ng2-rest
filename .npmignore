@@ -10,8 +10,13 @@ copy_crm.sh
 /copy
 /coverage
 
-/src/**/*.ts
-!/src/**/*.d.ts
+# can use belowe becouse issiue
+# https://github.com/angular/angular-cli/issues/3426
+# /src/**/*.ts
+# !/src/**/*.d.ts
+/src/**/*.js
+/src/**/*.js.map
+/src/**/*.d.ts
 
 /docs
 /preview
