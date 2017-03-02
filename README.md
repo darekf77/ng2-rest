@@ -36,7 +36,7 @@ Quickest way to use your REST API.
 SimpleResource is the wrapper of old Resource.
 
 ```ts
-import { DatabaseService } from './database.service';
+import { SimpleResource } from './ng2-rest';
 
 @Component({
 ...
@@ -55,11 +55,11 @@ export class DemoComponent implements OnInit, OnDestroy {
 		
 		// OR if you wanna mock your data
 		// SimpleResource.mockingMode.setMocksOnly();
-		// this.db.users.mock.data = [
+		// this.usersService.mock.data = [
 		// 	{"name":"Bob mock","id":1},
 		// 	{"name":"Alice mock","id":2}
 		// ];
-	    // this.db.users.mock.controller = (r) => {
+	    // this.usersService.mock.controller = (r) => {
 	    //   return { data: r.data }
 	    // }
 	    
@@ -124,6 +124,8 @@ Examples:
 **service.ts**
 
 ```ts
+import { Resource } from './ng2-rest';
+
      @Injectable()
         export class DatabaseService { 
                         // < enum or 'string', single_model, query_model>
