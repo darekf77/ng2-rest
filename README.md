@@ -124,7 +124,12 @@ Examples:
 **service.ts**
 
 ```ts
-import { Resource } from './ng2-rest';
+import { Resource } from 'ng2-rest';
+
+	enum ENDPOINTS {
+		API,
+		OTHER_API
+	};
 
      @Injectable()
         export class DatabaseService { 
