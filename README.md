@@ -36,7 +36,7 @@ Quickest way to use your REST API.
 SimpleResource is the wrapper of old Resource.
 
 ```ts
-import { SimpleResource } from './ng2-rest';
+import { SimpleResource } from 'ng2-rest';
 
 @Component({
 ...
