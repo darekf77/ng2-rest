@@ -42,7 +42,7 @@ export interface Model<A, TA, RP extends Object, QP extends Rest.UrlParams> {
  * @template QP query parameter type
  */
 class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> extends Resource<E, A, TA> {
-
+    public static doNotSerializeQueryParams = false;
     public static handlers: Subscription[] = [];
     mock: Mock<A> = <Mock<A>>{ timeout: 100, howManyMock: 100, data: undefined };
 
@@ -59,7 +59,8 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
                     ExtendedResource.handlers.push(this.api(<any>this.endpoint,
                         UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
                         .mock(this.mock.data, this.mock.timeout, this.mock.controller)
-                        .get([queryPrams]).subscribe(
+                        .get([queryPrams], ExtendedResource.doNotSerializeQueryParams)
+                        .subscribe(
                         data => resolve(data),
                         err => reject(err)))
                 })
@@ -71,7 +72,8 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
                     ExtendedResource.handlers.push(this.api(<any>this.endpoint,
                         UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
                         .mock(this.mock.data, this.mock.timeout, this.mock.controller)
-                        .query([queryPrams]).subscribe(
+                        .query([queryPrams], ExtendedResource.doNotSerializeQueryParams)
+                        .subscribe(
                         data => resolve(data),
                         err => reject(err)))
 
@@ -85,7 +87,8 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
                     ExtendedResource.handlers.push(this.api(<any>this.endpoint,
                         UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
                         .mock(this.mock.data, this.mock.timeout, this.mock.controller)
-                        .save(item, [queryParams]).subscribe(
+                        .save(item, [queryParams], ExtendedResource.doNotSerializeQueryParams)
+                        .subscribe(
                         data => resolve(data),
                         err => reject(err)))
 
@@ -99,7 +102,8 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
                     ExtendedResource.handlers.push(this.api(<any>this.endpoint,
                         UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
                         .mock(this.mock.data, this.mock.timeout, this.mock.controller)
-                        .update(item, [queryParams]).subscribe(
+                        .update(item, [queryParams], ExtendedResource.doNotSerializeQueryParams)
+                        .subscribe(
                         data => resolve(data),
                         err => reject(err)))
 
@@ -113,7 +117,8 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
                     ExtendedResource.handlers.push(this.api(<any>this.endpoint,
                         UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
                         .mock(this.mock.data, this.mock.timeout, this.mock.controller)
-                        .remove([queryPrams]).subscribe(
+                        .remove([queryPrams], ExtendedResource.doNotSerializeQueryParams)
+                        .subscribe(
                         data => resolve(data),
                         err => reject(err)))
 
@@ -149,6 +154,18 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
 export class SimpleResource<A, TA> {
     model: Model<A, TA, Object, Rest.UrlParams>;
     mock: Mock<A>;
+
+    private static _isSetQueryParamsSerialization = false;
+    public static set doNotSerializeQueryParams(value) {
+        if (!SimpleResource._isSetQueryParamsSerialization) {
+            SimpleResource._isSetQueryParamsSerialization = true;
+            ExtendedResource.doNotSerializeQueryParams = value
+            return;
+        }
+        console.warn(`Query params serialization already set as 
+        ${ExtendedResource.doNotSerializeQueryParams},`);
+    }
+
 
     /**
      * Should be called in ngDestroy()
