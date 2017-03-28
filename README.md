@@ -43,13 +43,11 @@ import { SimpleResource } from 'ng2-rest';
 })
 export class DemoComponent implements OnInit, OnDestroy {
   
-  // normaly you should use SimpleResource:
-  // - by extending service class (inheritance)
-  // - or having instance inside service class (composition)
-   
-  public usersService = new SimpleResource<any, any> // <single,array> type
-	  ('http://demo9781896.mockable.io', 'users/:id');
-	  
+
+ // SIMPLEST ACCESS TO YOUT REST API  (in express.js style) 
+  public usersService = new SimpleResource<any, any>('http://demo9781896.mockable.io', 'users/:id');
+  private users = [];
+
   constructor() {
 		SimpleResource.mockingMode.setBackendOnly();
 		
@@ -64,8 +62,6 @@ export class DemoComponent implements OnInit, OnDestroy {
 	    // }
 	    
   }
-
-  users = [];
 
   public ngOnInit() { }
 
