@@ -11,13 +11,18 @@ copy_crm.sh
 
 /coverage
 
+/copy
+
 /src/**/*.js
 /src/**/*.js.map
 /src/**/*.d.ts
-ng2-rest.js
+index.js
+index.js.map
+index.js.d.ts
+
 ng2-rest.js.map
 
-/copy
+/copyž
 /typings
 /js
  

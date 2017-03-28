@@ -9,16 +9,26 @@ copy_crm.sh
 
 /copy
 /coverage
+/dist
+/.vscode
+/config
+/scripts
 
 # can use belowe becouse issiue
 # https://github.com/angular/angular-cli/issues/3426
-# /src/**/*.ts
-# !/src/**/*.d.ts
-/src/**/*.js
-/src/**/*.js.map
-/src/**/*.d.ts
+
+/src/**/*.ts
+index.ts
+!/src/**/*.d.ts
+ng2-rest.js.map
 
 /docs
 /preview
 /typings
 
+karma.conf.js
+webpack.config.js
+protractor.conf.js
+tsconfig.json
+tslint.json
+tsconfig.webpack.json
