@@ -1,10 +1,10 @@
 import { Observable, Subject } from 'rxjs';
-import { Response, Http, Headers } from '@angular/http';
 
 import { Log, Level } from 'ng2-logger/ng2-logger';
 const log = Log.create('eureka', Level.__NOTHING)
 
 import { Helpers } from './helpers';
+import { RestRequest, RestHeaders } from "./rest-request";
 
 export namespace Eureka {
 
@@ -20,7 +20,7 @@ export namespace Eureka {
         public get instance(): EurekaInstance {
             return this._instance;
         }
-        private headers: Headers;
+        private headers: RestHeaders;
         private _state: EurekaState = EurekaState.DISABLED;
         public isWaiting() {
             return (this.state === EurekaState.CHECKING_INSTANCE)
@@ -30,10 +30,10 @@ export namespace Eureka {
             return this._state;
         }
         private app: EurekaApp;
-        private http: Http;
+        private request: RestRequest;
 
         constructor(private config: EurekaConfig) {
-            this.headers = new Headers();
+            this.headers = new RestHeaders();
             this.headers.append('Content-Type', 'application/json');
             this.headers.append('Accept', 'application/json');
         }
@@ -53,15 +53,15 @@ export namespace Eureka {
 
         }
 
-        public discovery(http: Http) {
+        public discovery(request: RestRequest) {
             this.onInstance.subscribe(() => {
                 console.info('instance resolved !');
             });
-            this.http = http;
+            this.request = request;
             this._state = EurekaState.WAITING_FOR_INSTANCES;
             log.i('start JOURNE!!!')
-            this.http.get(`${this.config.serviceUrl}/${this.config.decoderName}`,
-                { headers: this.headers })
+            this.request.get(`${this.config.serviceUrl}/${this.config.decoderName}`,
+                this.headers)
                 .subscribe(r => {
                     let data = r.json();
                     let res: EurekaApp = data['application'];

@@ -36,26 +36,27 @@ export class TestAdd {
 
 
 
-            xit('should add model to endpoint just one time', inject([Resource, Http, Jsonp],
-                (rest: Resource<APIS, User, User[]>, http: Http, jp: Jsonp) => {
-                    rest = new Resource<APIS, User, User[]>(http, jp);
-                    let url = 'https://somewhere.com';
-                    Resource.map(APIS.FIRST.toString(), url);
+            // xit('should add model to endpoint just one time', inject([Resource, Http, Jsonp],
+            //     (rest: Resource<APIS, User, User[]>, http: Http, jp: Jsonp) => {
+            //         let url = 'https://somewhere.com';
+            //         let rest = Resource.create(url, 'user')
 
-                    expect(rest.add(APIS.FIRST, 'user')).toBeTruthy();
-                    expect(rest.add(APIS.FIRST, 'user')).toBeFalsy()
+            //         Resource.map(APIS.FIRST.toString(), url);
 
-                }));
+            //         expect(rest.add(APIS.FIRST, 'user')).toBeTruthy();
+            //         expect(rest.add(APIS.FIRST, 'user')).toBeFalsy()
 
-            xit('should not add model', inject([Resource, Http, Jsonp],
-                (rest: Resource<APIS, User, User[]>, http: Http, jp: Jsonp) => {
-                    rest = new Resource<APIS, User, User[]>(http, jp);
-                    let url = 'https://somewhere.com';
-                    Resource.map(APIS.FIRST.toString(), url);
+            //     }));
 
-                    expect(rest.add(APIS.FIRST, 'user')).toBeFalsy();
+            // xit('should not add model', inject([Resource, Http, Jsonp],
+            //     (rest: Resource<APIS, User, User[]>, http: Http, jp: Jsonp) => {
+            //         rest = new Resource<APIS, User, User[]>(http, jp);
+            //         let url = 'https://somewhere.com';
+            //         Resource.map(APIS.FIRST.toString(), url);
 
-                }));
+            //         expect(rest.add(APIS.FIRST, 'user')).toBeFalsy();
+
+            //     }));
 
         });
     }

@@ -36,8 +36,8 @@ export namespace Docs {
     }
 
     export interface DocModel extends RequestData, RequestMetaData, DocsServerSide {
-        form: Contracts.FormInputBind[];
-        contract: string;
+        // form: Contracts.FormInputBind[];
+        // contract: string;
     }
 
 

@@ -55,79 +55,79 @@ export class TestProduction {
             });
 
 
-            it('It should throw erro when no mock in MOCK_ONLY mode',
+            // it('It should throw erro when no mock in MOCK_ONLY mode',
 
-                inject([Resource, Http, MockBackend, Jsonp],
-                    (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp: Jsonp) => {
+            //     inject([Resource, Http, MockBackend, Jsonp],
+            //         (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp: Jsonp) => {
 
-                        backend.connections.subscribe({
-                            next: connection => {
-                                let res = new Response(new ResponseOptions({
-                                    body: JSON.stringify(users)
-                                }));
-                                setTimeout(() => {
-                                    // Send a response to the request
-                                    connection.mockRespond(res);
-                                });
-                            }
-                        });
+            //             backend.connections.subscribe({
+            //                 next: connection => {
+            //                     let res = new Response(new ResponseOptions({
+            //                         body: JSON.stringify(users)
+            //                     }));
+            //                     setTimeout(() => {
+            //                         // Send a response to the request
+            //                         connection.mockRespond(res);
+            //                     });
+            //                 }
+            //             });
 
-                        rest = new Resource<APIS, User, User[]>(http, jp);
-                        let url = 'https://somewhere.com';
-                        Resource.reset();
-                        Resource.map(APIS.FIRST.toString(), url);
-                        Resource.mockingMode.setMocksOnly();
+            //             rest = new Resource<APIS, User, User[]>(http, jp);
+            //             let url = 'https://somewhere.com';
+            //             Resource.reset();
+            //             Resource.map(APIS.FIRST.toString(), url);
+            //             Resource.mockingMode.setMocksOnly();
 
-                        rest.add(APIS.FIRST, 'users');
+            //             rest.add(APIS.FIRST, 'users');
 
-                        expect(() => {
-                            rest.api(APIS.FIRST, 'users').query().subscribe((res) => {
-                                expect(res).toEqual(user);
-                            }, (err) => {
-                                fail();
-                            });
-                        }).toThrow('In MOCKING MODE you have to define mock of query for enipoint: https://somewhere.com/users.');
+            //             expect(() => {
+            //                 rest.api(APIS.FIRST, 'users').query().subscribe((res) => {
+            //                     expect(res).toEqual(user);
+            //                 }, (err) => {
+            //                     fail();
+            //                 });
+            //             }).toThrow('In MOCKING MODE you have to define mock of query for enipoint: https://somewhere.com/users.');
 
-                    })
-            );
+            //         })
+            // );
 
 
-            it('It should use normal data in LIVE_BACKEND',
+            // it('It should use normal data in LIVE_BACKEND',
 
-                inject([Resource, Http, MockBackend, Jsonp],
-                    (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp: Jsonp) => {
+            //     inject([Resource, Http, MockBackend, Jsonp],
+            //         (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp: Jsonp) => {
 
-                        backend.connections.subscribe({
-                            next: connection => {
-                                // bad response from LIVE BACKEND
-                                let res = new Response(new ResponseOptions({
-                                    body: [] //  JSON.stringify(users)
-                                }));
-                                setTimeout(() => {
-                                    // Send a response to the request
-                                    connection.mockRespond(res);
-                                });
-                            }
-                        });
+            //             backend.connections.subscribe({
+            //                 next: connection => {
+            //                     // bad response from LIVE BACKEND
+            //                     let res = new Response(new ResponseOptions({
+            //                         body: [] //  JSON.stringify(users)
+            //                     }));
+            //                     setTimeout(() => {
+            //                         // Send a response to the request
+            //                         connection.mockRespond(res);
+            //                     });
+            //                 }
+            //             });
 
-                        rest = new Resource<APIS, User, User[]>(http, jp);
-                        let url = 'https://somewhere.com';
-                        Resource.reset();
-                        Resource.map(APIS.FIRST.toString(), url);
-                        Resource.mockingMode.setBackendOnly();
+            //             rest = new Resource<APIS, User, User[]>(http, jp);
+            //             let url = 'https://somewhere.com';
+            //             Resource.reset();
+            //             Resource.map(APIS.FIRST.toString(), url);
+            //             Resource.mockingMode.setBackendOnly();
 
-                        rest.add(APIS.FIRST, 'users');
-                        rest.api(APIS.FIRST, 'users')
-                            .mock(users) // empty mock
-                            .query()
-                            .subscribe((res) => {
-                                expect(res).not.toEqual(users);
-                            }, (err) => {
-                                fail;
-                            });
+            //             rest.add(APIS.FIRST, 'users');
+            //             rest.api(APIS.FIRST, 'users')
+            //                 .mock(users) // empty mock
+            //                 .query()
+            //                 .subscribe((res) => {
+            //                     expect(res).not.toEqual(users);
+            //                 }, (err) => {
+            //                     fail;
+            //                 });
 
-                    })
-            );
+            //         })
+            // );
 
 
 

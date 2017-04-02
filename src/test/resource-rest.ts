@@ -55,180 +55,180 @@ export class TestRest {
             });
 
 
-            it('should retrive model with get request',
-                inject([Resource, Http, MockBackend, Jsonp],
-                    (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
-                        backend.connections.subscribe(
-                            (c: MockConnection) => {
+            // it('should retrive model with get request',
+            //     inject([Resource, Http, MockBackend, Jsonp],
+            //         (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
+            //             backend.connections.subscribe(
+            //                 (c: MockConnection) => {
 
-                                expect(c.request.method).toBe(RequestMethod.Get);
-                                expect(c.request.url).toBe('https://somewhere.com/users/0');
-                                let res = new Response(new ResponseOptions({
-                                    body: JSON.stringify(user)
-                                }));
-                                c.mockRespond(res);
+            //                     expect(c.request.method).toBe(RequestMethod.Get);
+            //                     expect(c.request.url).toBe('https://somewhere.com/users/0');
+            //                     let res = new Response(new ResponseOptions({
+            //                         body: JSON.stringify(user)
+            //                     }));
+            //                     c.mockRespond(res);
 
-                            });
+            //                 });
 
-                        rest = new Resource<APIS, User, User[]>(http, jp);
-                        let url = 'https://somewhere.com';
-                        Resource.map(APIS.FIRST.toString(), url);
-                        rest.add(APIS.FIRST, 'users');
-                        rest.api(APIS.FIRST, 'users').get([{ id: 0 }]).subscribe((res) => {
-                            expect(res).toEqual(user);
-                        }, (err) => {
-                            fail;
-                        });
+            //             rest = new Resource<APIS, User, User[]>(http, jp);
+            //             let url = 'https://somewhere.com';
+            //             Resource.map(APIS.FIRST.toString(), url);
+            //             rest.add(APIS.FIRST, 'users');
+            //             rest.api(APIS.FIRST, 'users').get([{ id: 0 }]).subscribe((res) => {
+            //                 expect(res).toEqual(user);
+            //             }, (err) => {
+            //                 fail;
+            //             });
 
-                    }));
+            //         }));
 
-            it('should retrive models array with get request',
-                inject([Resource, Http, MockBackend, Jsonp],
-                    (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
-                        backend.connections.subscribe(
-                            (c: MockConnection) => {
+            // it('should retrive models array with get request',
+            //     inject([Resource, Http, MockBackend, Jsonp],
+            //         (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
+            //             backend.connections.subscribe(
+            //                 (c: MockConnection) => {
 
-                                expect(c.request.method).toBe(RequestMethod.Get);
-                                expect(c.request.url).toBe('https://somewhere.com/users');
-                                let res = new Response(new ResponseOptions({
-                                    body: JSON.stringify(users)
-                                }));
-                                c.mockRespond(res);
-
-
-
-                            });
-
-                        rest = new Resource<APIS, User, User[]>(http, jp);
-                        let url = 'https://somewhere.com';
-                        Resource.map(APIS.FIRST.toString(), url);
-                        rest.add(APIS.FIRST, 'users');
-                        let r = rest.api(APIS.FIRST, 'users').query();
-                        expect(r).toBeDefined();
-                        r.subscribe((res) => {
-                            expect(res).toEqual(users);
-                        }, (err) => {
-                            fail;
-                        });
-
-                    }));
+            //                     expect(c.request.method).toBe(RequestMethod.Get);
+            //                     expect(c.request.url).toBe('https://somewhere.com/users');
+            //                     let res = new Response(new ResponseOptions({
+            //                         body: JSON.stringify(users)
+            //                     }));
+            //                     c.mockRespond(res);
 
 
-            it('should save model',
-                inject([Resource, Http, MockBackend, Jsonp],
-                    (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
-                        backend.connections.subscribe(
-                            (c: MockConnection) => {
 
-                                expect(c.request.method).toBe(RequestMethod.Post);
-                                expect(c.request.url).toBe('https://somewhere.com/users');
-                                user.id = 1;
-                                let res = new Response(new ResponseOptions({
-                                    body: JSON.stringify(user)
-                                }));
-                                c.mockRespond(res);
+            //                 });
 
-                            });
+            //             rest = new Resource<APIS, User, User[]>(http, jp);
+            //             let url = 'https://somewhere.com';
+            //             Resource.map(APIS.FIRST.toString(), url);
+            //             rest.add(APIS.FIRST, 'users');
+            //             let r = rest.api(APIS.FIRST, 'users').query();
+            //             expect(r).toBeDefined();
+            //             r.subscribe((res) => {
+            //                 expect(res).toEqual(users);
+            //             }, (err) => {
+            //                 fail;
+            //             });
 
-                        rest = new Resource<APIS, User, User[]>(http, jp);
-                        let url = 'https://somewhere.com';
-                        Resource.map(APIS.FIRST.toString(), url);
-                        rest.add(APIS.FIRST, 'users');
-                        rest.api(APIS.FIRST, 'users').save(user).subscribe((res) => {
-                            expect(res.id).toBeDefined();
-                        }, (err) => {
-                            fail;
-                        });
-
-                    }));
+            //         }));
 
 
-            it('should update model',
-                inject([Resource, Http, MockBackend, Jsonp],
-                    (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
-                        backend.connections.subscribe(
-                            (c: MockConnection) => {
+            // it('should save model',
+            //     inject([Resource, Http, MockBackend, Jsonp],
+            //         (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
+            //             backend.connections.subscribe(
+            //                 (c: MockConnection) => {
 
-                                expect(c.request.method).toBe(RequestMethod.Put);
-                                expect(c.request.url).toBe('https://somewhere.com/users/0');
-                                let res = new Response(new ResponseOptions({
-                                    body: JSON.stringify(user)
-                                }));
-                                c.mockRespond(res);
+            //                     expect(c.request.method).toBe(RequestMethod.Post);
+            //                     expect(c.request.url).toBe('https://somewhere.com/users');
+            //                     user.id = 1;
+            //                     let res = new Response(new ResponseOptions({
+            //                         body: JSON.stringify(user)
+            //                     }));
+            //                     c.mockRespond(res);
 
-                            });
+            //                 });
 
-                        rest = new Resource<APIS, User, User[]>(http, jp);
-                        let url = 'https://somewhere.com';
-                        Resource.map(APIS.FIRST.toString(), url);
-                        rest.add(APIS.FIRST, 'users');
-                        rest.api(APIS.FIRST, 'users').update(user, [{ id: 0 }]).subscribe((res) => {
-                            expect(res).toEqual(user);
-                        }, (err) => {
-                            fail;
-                        });
+            //             rest = new Resource<APIS, User, User[]>(http, jp);
+            //             let url = 'https://somewhere.com';
+            //             Resource.map(APIS.FIRST.toString(), url);
+            //             rest.add(APIS.FIRST, 'users');
+            //             rest.api(APIS.FIRST, 'users').save(user).subscribe((res) => {
+            //                 expect(res.id).toBeDefined();
+            //             }, (err) => {
+            //                 fail;
+            //             });
 
-                    }));
+            //         }));
 
 
-            it('should delete model',
-                inject([Resource, Http, MockBackend, Jsonp],
-                    (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
-                        backend.connections.subscribe(
-                            (c: MockConnection) => {
+            // it('should update model',
+            //     inject([Resource, Http, MockBackend, Jsonp],
+            //         (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
+            //             backend.connections.subscribe(
+            //                 (c: MockConnection) => {
 
-                                expect(c.request.method).toBe(RequestMethod.Delete);
-                                expect(c.request.url).toBe('https://somewhere.com/users/0');
-                                let res = new Response(new ResponseOptions({
-                                    body: JSON.stringify(user)
-                                }));
-                                c.mockRespond(res);
+            //                     expect(c.request.method).toBe(RequestMethod.Put);
+            //                     expect(c.request.url).toBe('https://somewhere.com/users/0');
+            //                     let res = new Response(new ResponseOptions({
+            //                         body: JSON.stringify(user)
+            //                     }));
+            //                     c.mockRespond(res);
 
-                            });
+            //                 });
 
-                        rest = new Resource<APIS, User, User[]>(http, jp);
-                        let url = 'https://somewhere.com';
-                        Resource.map(APIS.FIRST.toString(), url);
-                        rest.add(APIS.FIRST, 'users');
-                        rest.api(APIS.FIRST, 'users').remove([{ id: 0 }]).subscribe((res) => {
-                            expect(res).toEqual(user);
-                        }, (err) => {
-                            fail;
-                        });
+            //             rest = new Resource<APIS, User, User[]>(http, jp);
+            //             let url = 'https://somewhere.com';
+            //             Resource.map(APIS.FIRST.toString(), url);
+            //             rest.add(APIS.FIRST, 'users');
+            //             rest.api(APIS.FIRST, 'users').update(user, [{ id: 0 }]).subscribe((res) => {
+            //                 expect(res).toEqual(user);
+            //             }, (err) => {
+            //                 fail;
+            //             });
 
-                    }));
+            //         }));
+
+
+            // it('should delete model',
+            //     inject([Resource, Http, MockBackend, Jsonp],
+            //         (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
+            //             backend.connections.subscribe(
+            //                 (c: MockConnection) => {
+
+            //                     expect(c.request.method).toBe(RequestMethod.Delete);
+            //                     expect(c.request.url).toBe('https://somewhere.com/users/0');
+            //                     let res = new Response(new ResponseOptions({
+            //                         body: JSON.stringify(user)
+            //                     }));
+            //                     c.mockRespond(res);
+
+            //                 });
+
+            //             rest = new Resource<APIS, User, User[]>(http, jp);
+            //             let url = 'https://somewhere.com';
+            //             Resource.map(APIS.FIRST.toString(), url);
+            //             rest.add(APIS.FIRST, 'users');
+            //             rest.api(APIS.FIRST, 'users').remove([{ id: 0 }]).subscribe((res) => {
+            //                 expect(res).toEqual(user);
+            //             }, (err) => {
+            //                 fail;
+            //             });
+
+            //         }));
 
            
-            xit('should get jsonp data',
-                inject([Resource, Http, MockBackend, Jsonp],
-                    (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp: Jsonp) => {
+            // xit('should get jsonp data',
+            //     inject([Resource, Http, MockBackend, Jsonp],
+            //         (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp: Jsonp) => {
 
-                        backend.connections.subscribe({
-                            next: connection => {
+            //             backend.connections.subscribe({
+            //                 next: connection => {
 
-                                let res = new Response(new ResponseOptions({
-                                    body: JSON.stringify(users)
-                                }));
+            //                     let res = new Response(new ResponseOptions({
+            //                         body: JSON.stringify(users)
+            //                     }));
 
-                                setTimeout(() => {
-                                    // Send a response to the request
-                                    connection.mockRespond(res);
-                                });
-                            }
-                        });
+            //                     setTimeout(() => {
+            //                         // Send a response to the request
+            //                         connection.mockRespond(res);
+            //                     });
+            //                 }
+            //             });
 
 
-                        rest = new Resource<APIS, User, User[]>(http, jp);
-                        let url = 'https://somewhere.com';
-                        Resource.map(APIS.FIRST.toString(), url);
-                        rest.add(APIS.FIRST, 'users');
-                        rest.api(APIS.FIRST, 'users').jsonp().subscribe((res) => {
-                            expect(res).toEqual(user);
-                        }, (err) => {
-                            fail;
-                        });
+            //             rest = new Resource<APIS, User, User[]>(http, jp);
+            //             let url = 'https://somewhere.com';
+            //             Resource.map(APIS.FIRST.toString(), url);
+            //             rest.add(APIS.FIRST, 'users');
+            //             rest.api(APIS.FIRST, 'users').jsonp().subscribe((res) => {
+            //                 expect(res).toEqual(user);
+            //             }, (err) => {
+            //                 fail;
+            //             });
 
-                    }));
+            //         }));
 
 
 

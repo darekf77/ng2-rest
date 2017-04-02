@@ -8,6 +8,7 @@
         "**/*.d.ts": {
             "when": "$(basename).ts"
         },
+        "preview": true,
         "**/*.map": true
     }
 }

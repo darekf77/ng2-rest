@@ -91,7 +91,7 @@ export class TestMockingClass {
                             book: {}
                         };
                         let res = (MockBackendModule.MockAutoBackend.goInside(d, ['book']));
-                        
+
                         expect(deepEqual(d, d2)).toBeTruthy();
                     }));
 
@@ -112,7 +112,7 @@ export class TestMockingClass {
                             }
                         };
                         let res = MockBackendModule.MockAutoBackend.goInside(d, ['book', 'cat']);
-                        
+
                         expect(deepEqual(d, d3)).toBeTruthy();
                     }));
 
@@ -135,7 +135,7 @@ export class TestMockingClass {
                             }
                         };
                         let res = MockBackendModule.MockAutoBackend.goInside(d, ['book', 'cat', 'mouse']);
-                        
+
                         expect(deepEqual(d, d4)).toBeTruthy();
                     }));
 
@@ -159,7 +159,7 @@ export class TestMockingClass {
                         };
 
                         let d = new MockBackendModule.MockAutoBackend(t, 7);
-                        
+
                         // expect(deepEqual(d.model,d2.model)).toBeFalsy();
 
                     }));

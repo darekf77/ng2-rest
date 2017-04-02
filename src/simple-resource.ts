@@ -1,13 +1,12 @@
-import { Inject } from '@angular/core';
-import { Http, Jsonp, Headers } from '@angular/http';
 
 import { Subscription } from 'rxjs';
 
-import { Resource } from './resource.service';
-import { Rest } from './rest';
+import { Resource, ResourceModel } from './resource.service';
+import { Rest as ModuleRest } from './rest';
 import { UrlNestedParams } from './nested-params';
 import { MockBackend, MockRequest, MockResponse } from './mock-backend';
-
+import { Rest } from "./rest.class";
+import { RestHeaders } from './rest-request';
 
 
 export interface Mock<A> {
@@ -17,7 +16,7 @@ export interface Mock<A> {
     data: any;
 }
 
-export interface RestPromises<A, TA, QP extends Rest.UrlParams> {
+export interface RestPromises<A, TA, QP extends ModuleRest.UrlParams> {
     get: (queryParams?: QP) => Promise<A>;
     query: (queryParams?: QP) => Promise<TA>;
     save: (item?: A, queryParams?: QP) => Promise<A>;
@@ -25,9 +24,12 @@ export interface RestPromises<A, TA, QP extends Rest.UrlParams> {
     remove: (queryParams?: QP) => Promise<A>;
 }
 
-export interface Model<A, TA, RP extends Object, QP extends Rest.UrlParams> {
+export interface Model<A, TA, RP extends Object, QP extends ModuleRest.UrlParams> {
     (restParams?: RP): RestPromises<A, TA, QP>;
 }
+
+
+
 
 /**
  *
@@ -41,10 +43,12 @@ export interface Model<A, TA, RP extends Object, QP extends Rest.UrlParams> {
  * @template RP rest url parameters type
  * @template QP query parameter type
  */
-class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> extends Resource<E, A, TA> {
+class ExtendedResource<E, A, TA, RP extends Object, QP extends ModuleRest.UrlParams>  {
     public static doNotSerializeQueryParams = false;
     public static handlers: Subscription[] = [];
     mock: Mock<A> = <Mock<A>>{ timeout: 100, howManyMock: 100, data: undefined };
+
+    rest: ResourceModel<A, TA>;
 
     /**
      * Get model by rest params
@@ -55,9 +59,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
 
             get: (queryPrams?: QP) => {
                 return new Promise<A>((resolve, reject) => {
-
-                    ExtendedResource.handlers.push(this.api(<any>this.endpoint,
-                        UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
+                    ExtendedResource.handlers.push(this.rest.model(restParams)
                         .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                         .get([queryPrams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
@@ -69,8 +71,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
             query: (queryPrams?: QP) => {
                 return new Promise<TA>((resolve, reject) => {
 
-                    ExtendedResource.handlers.push(this.api(<any>this.endpoint,
-                        UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
+                    ExtendedResource.handlers.push(this.rest.model(restParams)
                         .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                         .query([queryPrams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
@@ -84,8 +85,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
             save: (item: A, queryParams?: QP) => {
                 return new Promise<A>((resolve, reject) => {
 
-                    ExtendedResource.handlers.push(this.api(<any>this.endpoint,
-                        UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
+                    ExtendedResource.handlers.push(this.rest.model(restParams)
                         .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                         .save(item, [queryParams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
@@ -99,8 +99,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
             update: (item: A, queryParams?: QP) => {
                 return new Promise<A>((resolve, reject) => {
 
-                    ExtendedResource.handlers.push(this.api(<any>this.endpoint,
-                        UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
+                    ExtendedResource.handlers.push(this.rest.model(restParams)
                         .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                         .update(item, [queryParams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
@@ -114,8 +113,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
             remove: (queryPrams?: QP) => {
                 return new Promise<A>((resolve, reject) => {
 
-                    ExtendedResource.handlers.push(this.api(<any>this.endpoint,
-                        UrlNestedParams.interpolateParamsToUrl(restParams, this.path_model))
+                    ExtendedResource.handlers.push(this.rest.model(restParams)
                         .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                         .remove([queryPrams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
@@ -133,9 +131,8 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
     // add(endpoint: E, model: string, group?: string, name?: string, description?: string) { }
 
     public constructor(private endpoint: E | string, private path_model: string) {
-        super();
-        Resource.map(<any>endpoint, <any>endpoint);
-        this.add(<any>endpoint, path_model);
+        this.rest = <any>Resource.create<A, TA>(<any>endpoint, path_model);
+
     }
 
 }
@@ -152,7 +149,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Rest.UrlParams> e
  * @template QP query parameters type
  */
 export class SimpleResource<A, TA> {
-    model: Model<A, TA, Object, Rest.UrlParams>;
+    model: Model<A, TA, Object, ModuleRest.UrlParams>;
     mock: Mock<A>;
 
     private static _isSetQueryParamsSerialization = false;
@@ -185,7 +182,7 @@ export class SimpleResource<A, TA> {
     }
 
     constructor(endpoint: string, model: string) {
-        let rest = new ExtendedResource<string, A, TA, Object, Rest.UrlParams>(endpoint, model);
+        let rest = new ExtendedResource<string, A, TA, Object, ModuleRest.UrlParams>(endpoint, model);
         this.model = rest.model;
         this.mock = rest.mock;
         this.destroy = () => {

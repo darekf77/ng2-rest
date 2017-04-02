@@ -1,6 +1,3 @@
-import { Http, Response, Headers, Jsonp } from '@angular/http';
-import { FormControl, FormGroup } from '@angular/forms';
-
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs/Observable';
@@ -15,13 +12,14 @@ import { Docs } from './docs';
 import { Contracts } from './contracts';
 import { MockBackend, MockResponse } from './mock-backend';
 import { Http as HttpModule } from './http';
+import { RestRequest, RestHeaders } from "./rest-request";
 
 export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
 
     public static docServerUrl: string;
     public static docsTitle: string;
-    public static headers: Headers = new Headers();
-    public static headersResponse: Headers = new Headers();
+    public static headers: RestHeaders = new RestHeaders();
+    public static headersResponse: RestHeaders = new RestHeaders();
     private form: Contracts.FormInputBind[];
     public static mockingMode: MockingMode;
     public __usecase_desc;
@@ -56,8 +54,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
 
     constructor(
         endpoint: string,
-        private http: Http,
-        private jp: Jsonp,
+        private request: RestRequest,
         private description: string,
         private name: string,
         private group: string) {
@@ -81,7 +78,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
             tmpUrl = Rest.docsTitle ? `${tmpUrl}/api/start/${encodeURIComponent(Rest.docsTitle)}` : `${tmpUrl}/api/start`;
 
             Rest.waitingForDocsServer = true;
-            http.get(tmpUrl).subscribe(() => {
+            request.get(tmpUrl, Rest.headers).subscribe(() => {
                 Rest.waitingForDocsServer = false;
                 console.info('Docs server restarted');
             }, (err) => {
@@ -105,7 +102,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
             model.group = this.group;
             model.usecase = this.__usecase_desc;
             model.url = this.endpoint;
-            model.form = this.form;
+            // model.form = this.form;
             model.headers = this.getHeadersJSON();
             model.restQueryParams = JSON.stringify(this.restQueryParams);
 
@@ -113,7 +110,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
                 Rest.docServerUrl.slice(0, Rest.docServerUrl.length - 1) : Rest.docServerUrl;
             url = `${url}/api/save`;
 
-            this.http.post(url, JSON.stringify(model), { headers: Rest.headers }).subscribe(() => {
+            this.request.post(url, JSON.stringify(model), Rest.headers).subscribe(() => {
                 log.i('request saved in docs server');
             });
         }
@@ -137,12 +134,6 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         return `${this.endpoint}${RestModule.getParamsUrl(params, doNotSerializeParams)}`;
     }
 
-    public contract(form: FormGroup, arrays?: Contracts.FormGroupArrays) {
-        if (arrays) this.form = Contracts.prepareForm(form).concat(Contracts.prepareFormArrays(arrays));
-        else this.form = Contracts.prepareForm(form);
-        return this;
-    }
-
     query(params: RestModule.UrlParams[] = undefined, doNotSerializeParams: boolean = false, _sub: Subject<TA> = undefined): Observable<TA> {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of query for enipoint: ${this.endpoint}.`);
@@ -156,7 +147,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
             return sub;
         }
         let u = this.creatUrl(params, doNotSerializeParams);
-        return this.http.get(u, { headers: Rest.headers }).map(res => {
+        return this.request.get(u, Rest.headers).map(res => {
             Rest.headersResponse = res.headers;
             let r = undefined;
             try {
@@ -188,7 +179,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
             return sub;
         }
         let u = this.creatUrl(params, doNotSerializeParams);
-        return this.http.get(u, { headers: Rest.headers }).map(res => {
+        return this.request.get(u, Rest.headers).map(res => {
             Rest.headersResponse = res.headers;
             let r = undefined;
             try {
@@ -220,8 +211,8 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         }
         let u = this.creatUrl(params, doNotSerializeParams);
         let d = JSON.stringify(item);
-        return this.http.post(u, d,
-            { headers: Rest.headers }).map(res => {
+        return this.request.post(u, d,
+            Rest.headers).map(res => {
                 Rest.headersResponse = res.headers;
                 let r = undefined;
                 try {
@@ -254,8 +245,8 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         }
         let u = this.creatUrl(params, doNotSerializeParams);
         let d = JSON.stringify(item);
-        return this.http.put(u, JSON.stringify(item),
-            { headers: Rest.headers }).map(res => {
+        return this.request.put(u, JSON.stringify(item),
+            Rest.headers).map(res => {
                 Rest.headersResponse = res.headers;
                 let r = undefined;
                 try {
@@ -288,8 +279,8 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
             return sub;
         }
         let u = this.creatUrl(params, doNotSerializeParams);
-        return this.http.delete(u,
-            { headers: Rest.headers }).map(res => {
+        return this.request.delete(u,
+            Rest.headers).map(res => {
                 Rest.headersResponse = res.headers;
                 if (res.text() !== '') {
                     let r = undefined;
@@ -324,7 +315,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
             return sub;
         }
         let u = this.endpoint;
-        return this.jp.request(u).map(res => {
+        return this.request.jp(u).map(res => {
             Rest.headersResponse = res.headers;
             let r = undefined;
             try {

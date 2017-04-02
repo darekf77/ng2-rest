@@ -1,19 +1,50 @@
-/**
- * @author: @AngularClass
- */
+var webpack = require('webpack'),
+    path = require('path'),
+    fs = require('fs'),
+    WebpackStrip = require('strip-loader');
 
-// Look in ./config folder for webpack.dev.js
-switch (process.env.NODE_ENV) {
-  case 'prod':
-  case 'production':
-    module.exports = require('./config/webpack.prod')({env: 'production'});
-    break;
-  case 'test':
-  case 'testing':
-    module.exports = require('./config/webpack.test')({env: 'test'});
-    break;
-  case 'dev':
-  case 'development':
-  default:
-    module.exports = require('./config/webpack.dev')({env: 'development'});
+var WebpackOnBuildPlugin = require('on-build-webpack');
+
+var nodeModules = {};
+fs.readdirSync('node_modules')
+    .filter(function (x) {
+        return ['.bin'].indexOf(x) === -1;
+    })
+    .forEach(function (mod) {
+        nodeModules[mod] = 'commonjs ' + mod;
+    });
+
+module.exports = {
+    entry: './index.ts',
+    output: {
+        // path: __dirname + '/bin',
+        libraryTarget: "commonjs",
+        filename: 'bundle.js'
+    },
+    resolve: {
+        extensions: ['', '.ts', '.js']
+    },
+    module: {
+        loaders: [
+            { test: /\.ts$/, loaders: ['ts-loader'] }
+            // { test: /\.json$/, loaders: ['json-loader'] }
+        ]
+    },
+    // externals: nodeModules
+    // node: {
+    //     fs: "empty",
+    //     __dirname: false,
+    //     __filename: false
+    // },
+    plugins: [
+        // new webpack.optimize.UglifyJsPlugin({
+        //     compress: {
+        //         warnings: false
+        //     }
+        // }),
+        new WebpackOnBuildPlugin(function (stats) {
+            // Do whatever you want... 
+        }),
+    ]
 }
+

@@ -156,117 +156,117 @@ export function TestNestedParams() {
             expect(UrlNestedParams.containsModels(url, ['book', 'author'])).toBeFalsy();
         })
 
-        it('should save nested model (1 level) ',
-            inject([Resource, Http, MockBackend, Jsonp],
-                (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
-                    backend.connections.subscribe(
-                        (c: MockConnection) => {
+        // it('should save nested model (1 level) ',
+        //     inject([Resource, Http, MockBackend, Jsonp],
+        //         (rest: Resource<APIS, User, User[]>, http: Http, backend: MockBackend, jp) => {
+        //             backend.connections.subscribe(
+        //                 (c: MockConnection) => {
 
-                            expect(c.request.method).toBe(RequestMethod.Post);
-                            // expect(c.request.url).toBe('https://somewhere.com/users/12');
-                            user.id = 1;
-                            let res = new Response(new ResponseOptions({
-                                body: JSON.stringify(user)
-                            }));
-                            c.mockRespond(res);
+        //                     expect(c.request.method).toBe(RequestMethod.Post);
+        //                     // expect(c.request.url).toBe('https://somewhere.com/users/12');
+        //                     user.id = 1;
+        //                     let res = new Response(new ResponseOptions({
+        //                         body: JSON.stringify(user)
+        //                     }));
+        //                     c.mockRespond(res);
 
-                        });
+        //                 });
 
-                    rest = new Resource<APIS, User, User[]>(http, jp);
-                    let url = 'https://somewhere.com/users/:userid';
-                    Resource.map(APIS.FIRST.toString(), url);
-                    Resource.mockingMode.setBackendOnly();
-                    rest.add(APIS.FIRST, 'users/:userid');
-                    rest.api(APIS.FIRST, `users/12`, )
-                        .save(user).subscribe((res) => {
-                            expect(res.id).toBeDefined();
-                        }, (err) => {
-                            fail;
-                        });
+        //             rest = new Resource<APIS, User, User[]>(http, jp);
+        //             let url = 'https://somewhere.com/users/:userid';
+        //             Resource.map(APIS.FIRST.toString(), url);
+        //             Resource.mockingMode.setBackendOnly();
+        //             rest.add(APIS.FIRST, 'users/:userid');
+        //             rest.api(APIS.FIRST, `users/12`, )
+        //                 .save(user).subscribe((res) => {
+        //                     expect(res.id).toBeDefined();
+        //                 }, (err) => {
+        //                     fail;
+        //                 });
 
-                }));
-
-
+        //         }));
 
 
-        it('should have proper rest query params', async(() => {
-            let d = inject([Resource, Http, Jsonp],
-                (rest: Resource<APIS, User, User[]>, http: Http, jp: Jsonp) => {
 
-                    let title = 'some title';
 
-                    rest = new Resource<APIS, User, User[]>(http, jp);
-                    let url = 'https://somewhere.com';
-                    Resource.map(APIS.FIRST.toString(), url);
-                    Resource.mockingMode.setMocksOnly();
-                    rest.add(APIS.FIRST, 'books/:bookid/title/:titleId');
+        // it('should have proper rest query params', async(() => {
+        //     let d = inject([Resource, Http, Jsonp],
+        //         (rest: Resource<APIS, User, User[]>, http: Http, jp: Jsonp) => {
 
-                    let ctrl = (request: MockRequest<User>) => {
+        //             let title = 'some title';
+
+        //             rest = new Resource<APIS, User, User[]>(http, jp);
+        //             let url = 'https://somewhere.com';
+        //             Resource.map(APIS.FIRST.toString(), url);
+        //             Resource.mockingMode.setMocksOnly();
+        //             rest.add(APIS.FIRST, 'books/:bookid/title/:titleId');
+
+        //             let ctrl = (request: MockRequest<User>) => {
                         
-                        expect(request.restParams).toBeDefined();
-                        expect(request.restParams['bookid']).toBe(34);
-                        expect(request.restParams['titleId']).toBe(title)
-                        return request.data;
-                    }
+        //                 expect(request.restParams).toBeDefined();
+        //                 expect(request.restParams['bookid']).toBe(34);
+        //                 expect(request.restParams['titleId']).toBe(title)
+        //                 return request.data;
+        //             }
 
-                    rest.api(APIS.FIRST, `books/34/title/${title}`)
-                        .mock(user, 0, ctrl)
-                        .get([{ id: 0 }]).subscribe((res) => {
-                            expect(res.id).toBe(100);
-                        }, (err) => {
-                            fail;
-                        });
+        //             rest.api(APIS.FIRST, `books/34/title/${title}`)
+        //                 .mock(user, 0, ctrl)
+        //                 .get([{ id: 0 }]).subscribe((res) => {
+        //                     expect(res.id).toBe(100);
+        //                 }, (err) => {
+        //                     fail;
+        //                 });
 
-                })
+        //         })
 
-            d();
-        }));
+        //     d();
+        // }));
 
 
-        it('should have proper rest query params 3 level aa', async(() => {
-            let d = inject([Resource, Http, Jsonp],
-                (rest: Resource<APIS, User, User[]>, http: Http, jp: Jsonp) => {
+        // it('should have proper rest query params 3 level aa', async(() => {
+        //     let d = inject([Resource, Http, Jsonp],
+        //         (rest: Resource<APIS, User, User[]>, http: Http, jp: Jsonp) => {
 
-                    let title = 'sometitle';
+        //             let title = 'sometitle';
 
-                    rest = new Resource<APIS, User, User[]>(http, jp);
-                    let url = 'https://somewhere.com';
-                    Resource.map(APIS.FIRST.toString(), url);
-                    Resource.mockingMode.setMocksOnly();
-                    rest.add(APIS.FIRST, 'books/:bookid/title/:titleId/mission/:missionId');
+        //             rest = new Resource<APIS, User, User[]>(http, jp);
+        //             let url = 'https://somewhere.com';
+        //             Resource.map(APIS.FIRST.toString(), url);
+        //             Resource.mockingMode.setMocksOnly();
+        //             rest.add(APIS.FIRST, 'books/:bookid/title/:titleId/mission/:missionId');
 
-                    let ctrl = (request: MockRequest<User>) => {
+        //             let ctrl = (request: MockRequest<User>) => {
                         
-                        expect(request.restParams).toBeDefined();
-                        expect(request.restParams['bookid']).toBe(34);
-                        expect(request.restParams['titleId']).toBe(title)
-                        expect(request.restParams['missionId']).toBeTruthy();
-                        return request.data;
-                    }
+        //                 expect(request.restParams).toBeDefined();
+        //                 expect(request.restParams['bookid']).toBe(34);
+        //                 expect(request.restParams['titleId']).toBe(title)
+        //                 expect(request.restParams['missionId']).toBeTruthy();
+        //                 return request.data;
+        //             }
 
-                    rest.api(APIS.FIRST, `books/34/title/${title}/mission/true`)
-                        .mock(user, 0, ctrl)
-                        .get([{ id: 0 }]).subscribe((res) => {
-                            expect(res.id).toBe(100);
-                        }, (err) => {
-                            fail;
-                        });
+        //             rest.api(APIS.FIRST, `books/34/title/${title}/mission/true`)
+        //                 .mock(user, 0, ctrl)
+        //                 .get([{ id: 0 }]).subscribe((res) => {
+        //                     expect(res.id).toBe(100);
+        //                 }, (err) => {
+        //                     fail;
+        //                 });
 
-                })
+        //         })
 
-            d();
-        }));
+        //     d();
+        // }));
 
 
-        it('shoudl check if url contains models with dash ', () => {
-            let url = 'http://something.com/book-ddd/12/author';
-            expect(UrlNestedParams.containsModels(url, ['book-ddd', 'author'])).toBeTruthy();
-        })
+        // it('shoudl check if url contains models with dash ', () => {
+        //     let url = 'http://something.com/book-ddd/12/author';
+        //     expect(UrlNestedParams.containsModels(url, ['book-ddd', 'author'])).toBeTruthy();
+        // })
 
-        it('shoudl retrive models ', () => {
-            let pattern = 'http://something.com/book-shitty/:boookId/author/:authorId';
-            expect(UrlNestedParams.getModels(pattern)).toEqual(['book-shitty', 'author']);
-        })
+        // it('shoudl retrive models ', () => {
+        //     let pattern = 'http://something.com/book-shitty/:boookId/author/:authorId';
+        //     expect(UrlNestedParams.getModels(pattern)).toEqual(['book-shitty', 'author']);
+        // })
 
 
     });
