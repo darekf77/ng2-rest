@@ -8,7 +8,11 @@ import { Preview } from '../base-preview';
 import { Subscription } from 'rxjs';
 import { Resource, MockingMode } from '../../../../src';
 
+const rest = Resource.create('http://vinod.co/rest/contactsjp.php');
+
 import { DatabaseService2 } from './database.service';
+
+
 
 @Component({
   selector: 'demo2',
@@ -25,6 +29,11 @@ export class Demo2Component implements OnInit, OnDestroy {
   users = [];
 
   public ngOnInit() {
+    Resource.mockingMode.setBackendOnly();
+    rest.model().jsonp().subscribe(data => {
+      console.log('jsonp data', data
+      )
+    })
 
   }
 

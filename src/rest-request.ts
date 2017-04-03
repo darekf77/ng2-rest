@@ -101,6 +101,12 @@ export class RestRequest {
 
     private handlerResult(res: MockResponse, method: Http.HttpMethod) {
         console.log('res', res)
+        if (res && !res.code) {
+            this.subjects[method].next({
+                json: () => (typeof res.data === 'string') ? JSON5.parse(res.data) : res.data
+            })
+            return;
+        }
         if (res && res.code >= 200 && res.code < 300) {
             this.subjects[method].next({
                 json: () => JSON5.parse(res.data)
@@ -164,8 +170,21 @@ export class RestRequest {
         return this.subjects['PUT'].asObservable();
     }
 
-    jp(url: string): Observable<any> {
-        setTimeout(() => this.req(url, 'JSONP'))
+    jsonp(url: string): Observable<any> {
+        setTimeout(() => {
+            if (url.endsWith('/')) url = url.slice(0, url.length - 1)
+            let num = Math.round(10000 * Math.random());
+            let callbackMethodName = "cb_" + num;
+            window[callbackMethodName] = (data) => {
+                this.handlerResult({
+                    data
+                }, 'JSONP')
+            }
+            let sc = document.createElement('script');
+            sc.src = `${url}?callback=${callbackMethodName}`;
+            document.body.appendChild(sc);
+            document.body.removeChild(sc);
+        })
         return this.subjects['JSONP'].asObservable();
     }
 

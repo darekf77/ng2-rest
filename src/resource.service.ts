@@ -16,13 +16,13 @@ export interface ResourceModel<A, TA> {
 export class Resource<E, T, TA> {
     private static instance = new Resource<string, any, any>();
 
-    public static create<A, TA>(e: string, model: string): ResourceModel<A, TA> {
+    public static create<A, TA>(e: string, model?: string): ResourceModel<A, TA> {
         Resource.map(e, e);
-        Resource.instance.add(e, model);
+        Resource.instance.add(e, model ? model : '');
         return {
             model: (params?: Object) => Resource.instance.api(
                 e,
-                UrlNestedParams.interpolateParamsToUrl(params, model)
+                model ? UrlNestedParams.interpolateParamsToUrl(params, model) : ''
             )
         }
     }

@@ -315,7 +315,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
             return sub;
         }
         let u = this.endpoint;
-        return this.request.jp(u).map(res => {
+        return this.request.jsonp(u).map(res => {
             Rest.headersResponse = res.headers;
             let r = undefined;
             try {
