@@ -302,7 +302,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
     }
 
 
-    jsonp(params?: RestModule.UrlParams[], _sub: Subject<T> = undefined): Observable<T> {
+    jsonp(url?: string, params?: RestModule.UrlParams[], _sub: Subject<T> = undefined): Observable<T> {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of jsonp for enipoint: ${this.endpoint}.`);
         }
@@ -310,11 +310,11 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
             let sub: Subject<T> = _sub ? _sub : new Subject<T>();
             let obs = sub.asObservable();
             setTimeout(() => {
-                this.jsonp(params, _sub).subscribe(e => sub.next(e));
+                this.jsonp(url, params, _sub).subscribe(e => sub.next(e));
             }, Rest.waitTimeMs)
             return sub;
         }
-        let u = this.endpoint;
+        let u = (url && UrlNestedParams.checkValidUrl(url)) ? url : this.endpoint;
         return this.request.jsonp(u).map(res => {
             Rest.headersResponse = res.headers;
             let r = undefined;
