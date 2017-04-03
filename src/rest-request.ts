@@ -1,4 +1,4 @@
-
+import * as JSON5 from 'json5';
 
 import { Observable, Subject } from 'rxjs';
 import { Http } from "./http";
@@ -103,7 +103,7 @@ export class RestRequest {
         console.log('res', res)
         if (res && res.code >= 200 && res.code < 300) {
             this.subjects[method].next({
-                json: () => JSON.parse(res.data)
+                json: () => JSON5.parse(res.data)
             })
         } else {
             this.subjects[method].error({

@@ -32,6 +32,7 @@
     "@types/faker": "^3.1.32",
     "diff": "^3.2.0",
     "faker": "^3.1.0",
+    "json5": "^0.5.1",
     "ng2-logger": "file:///Users/darek/ProjectsMac/npm/ng2-logger"
   },
   "devDependencies": {
