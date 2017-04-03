@@ -34,7 +34,7 @@ export class Resource<E, T, TA> {
         Resource.mockingModeIsSet = false;
     }
 
-    private request: RestRequest;
+    private static request: RestRequest = new RestRequest();
     private constructor() {
         // Quick fix
         if (Resource.__mockingMode === undefined) Resource.__mockingMode = MockingMode.LIVE_BACKEND_ONLY;
@@ -190,7 +190,7 @@ export class Resource<E, T, TA> {
     add(endpoint: E, model: string, group?: string, name?: string, description?: string) {
         log.i(`I am maping ${model} on ${<any>endpoint}`);
         if (Rest.eureka && Rest.eureka.state === Eureka.EurekaState.DISABLED) {
-            Rest.eureka.discovery(this.request);
+            Rest.eureka.discovery(Resource.request);
         }
 
         if (Rest.eureka && Rest.eureka.state !== Eureka.EurekaState.ENABLE // && Rest.eureka.state !== EurekaState.SERVER_ERROR
@@ -230,7 +230,7 @@ export class Resource<E, T, TA> {
         }
         Resource.endpoints[e].models[model] =
             new Rest<T, TA>(Resource.endpoints[e].url
-                + '/' + model, this.request, description, name, group);
+                + '/' + model, Resource.request, description, name, group);
         return;
     }
 
