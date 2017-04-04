@@ -20,7 +20,6 @@ import {
     TestRestMock,
     TestMockingClass,
     TestProduction,
-    TestContracts,
     TestQueryParams,
     TestNestedParams,
     TestSimpleRest
@@ -52,7 +51,6 @@ describe('ng2-rest', () => {
     new TestRest();
     new TestRestMock();
     new TestProduction();
-    new TestContracts();
     TestQueryParams();
     TestNestedParams();
     new TestSimpleRest()
