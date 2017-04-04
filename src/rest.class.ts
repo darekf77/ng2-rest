@@ -9,7 +9,6 @@ import { Rest as RestModule } from './rest';
 import { UrlNestedParams } from './nested-params';
 import { Eureka } from './eureka';
 import { Docs } from './docs';
-import { Contracts } from './contracts';
 import { MockBackend, MockResponse } from './mock-backend';
 import { Http as HttpModule } from './http';
 import { RestRequest, RestHeaders } from "./rest-request";
@@ -20,7 +19,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
     public static docsTitle: string;
     public static headers: RestHeaders = new RestHeaders();
     public static headersResponse: RestHeaders = new RestHeaders();
-    private form: Contracts.FormInputBind[];
+    
     public static mockingMode: MockingMode;
     public __usecase_desc;
     public static eureka: Eureka.Eureka<any, any>;

@@ -2,7 +2,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { MaterialModule } from '@angular/material/module';
-import { Ng2RestModule } from '../../../src';
 
 import {
   NgModule,
@@ -70,7 +69,6 @@ type StoreType = {
     FormsModule,
     HttpModule,
     RouterModule.forRoot(ROUTES, { useHash: true, preloadingStrategy: PreloadAllModules }),
-    Ng2RestModule,
     MaterialModule.forRoot()
   ],
   providers: [ // expose our Services and Providers into Angular's dependency injection

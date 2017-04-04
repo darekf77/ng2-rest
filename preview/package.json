@@ -89,7 +89,6 @@
     "ie-shim": "^0.1.0",
     "jasmine-core": "^2.5.2",
     "ng2-logger": "^0.1.21",
-    "ng2-rest": "file:///Users/darek/ProjectsMac/npm/ng2-rest",
     "reflect-metadata": "^0.1.9",
     "rxjs": "5.0.2",
     "zone.js": "0.7.6"
