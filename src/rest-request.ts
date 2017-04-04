@@ -4,8 +4,14 @@ import { Observable, Subject } from 'rxjs';
 import { Http } from "./http";
 import { MockResponse } from './mock-backend';
 
+
+interface RHeader {
+    values: string[];
+}
+
 export class RestHeaders {
 
+    private headers: RHeader[];
     constructor() {
 
     }
