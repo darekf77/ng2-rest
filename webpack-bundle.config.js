@@ -30,7 +30,9 @@ module.exports = {
             // { test: /\.json$/, loaders: ['json-loader'] }
         ]
     },
-    // externals: nodeModules
+    // externals: {
+    //     'rxjs': "rxjs"
+    // },
     // node: {
     //     fs: "empty",
     //     __dirname: false,
