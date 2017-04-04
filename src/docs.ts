@@ -1,4 +1,3 @@
-import { Contracts } from './contracts';
 import { Http } from './http';
 
 export namespace Docs {
