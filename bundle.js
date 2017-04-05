@@ -1,4 +1,4 @@
-define(["rxjs"], function(__WEBPACK_EXTERNAL_MODULE_3__) { return /******/ (function(modules) { // webpackBootstrap
+(function(e, a) { for(var i in a) e[i] = a[i]; }(exports, /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -335,7 +335,7 @@ var Level;
 /* 3 */
 /***/ (function(module, exports) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
+module.exports = require("rxjs");
 
 /***/ }),
 /* 4 */
@@ -73212,4 +73212,4 @@ __export(__webpack_require__(18));
 
 
 /***/ })
-/******/ ])});;
+/******/ ])));
