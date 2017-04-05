@@ -1,5 +1,9 @@
 
-import { Subscription } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+import { Subscription } from 'rxjs/Subscription';
+
+import 'rxjs/add/operator/map';
 
 import { Resource, ResourceModel } from './resource.service';
 import { Rest as ModuleRest } from './rest';

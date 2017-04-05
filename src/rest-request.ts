@@ -1,8 +1,15 @@
+import { NgZone } from '@angular/core'
+
 import * as JSON5 from 'json5';
 
-import { Observable, Subject } from 'rxjs';
+
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+import 'rxjs/add/operator/map';
+
 import { Http } from "./http";
 import { MockResponse } from './mock-backend';
+
 
 
 interface RHeader {
@@ -32,6 +39,7 @@ type ReqParams = { url: string, method: Http.HttpMethod, headers?: RestHeaders, 
 
 export class RestRequest {
 
+    public static zone: NgZone;
     private subjects = {
         'GET': new Subject(),
         'POST': new Subject(),
@@ -100,7 +108,14 @@ export class RestRequest {
         let tmp = this;
 
         this.worker.addEventListener('message', (e) => {
-            if (e && e.data) tmp.handlerResult(e.data, e.data['method']);
+            if (RestRequest.zone) {
+                RestRequest.zone.run(() => {
+                    if (e && e.data) tmp.handlerResult(e.data, e.data['method']);
+                })
+            } else {
+                if (e && e.data) tmp.handlerResult(e.data, e.data['method']);
+            }
+
         }, false);
 
     }
@@ -123,6 +138,7 @@ export class RestRequest {
             })
         }
     }
+
 
     private req(url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any) {
 

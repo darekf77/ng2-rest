@@ -3,6 +3,8 @@ var webpack = require('webpack'),
     fs = require('fs'),
     WebpackStrip = require('strip-loader');
 
+var  webpackRxjsExternals = require('webpack-rxjs-externals');
+
 // var WebpackOnBuildPlugin = require('on-build-webpack');
 
 // var nodeModules = {};
@@ -30,20 +32,22 @@ module.exports = {
             // { test: /\.json$/, loaders: ['json-loader'] }
         ]
     },
-    // externals: {
-    //     'rxjs': "rxjs"
-    // },
+    externals: {
+        'rxjs/Observable' : 'rxjs/Observable',
+        'rxjs/Subject' : 'rxjs/Subject',
+        'rxjs/add/operator/map': 'rxjs/add/operator/map'
+    },
     // node: {
     //     fs: "empty",
     //     __dirname: false,
     //     __filename: false
     // },
     plugins: [
-        new webpack.optimize.UglifyJsPlugin({
-            compress: {
-                warnings: false
-            }
-        })
+        // new webpack.optimize.UglifyJsPlugin({
+        //     compress: {
+        //         warnings: false
+        //     }
+        // })
         // new WebpackOnBuildPlugin(function (stats) {
         //     // Do whatever you want... 
         // }),
