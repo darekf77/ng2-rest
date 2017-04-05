@@ -1,10 +1,10 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("rxjs/bundles/Rx.umd.min.js"));
+		module.exports = factory(require("rxjs/rxjs"));
 	else if(typeof define === 'function' && define.amd)
-		define(["rxjs/bundles/Rx.umd.min.js"], factory);
+		define(["rxjs/rxjs"], factory);
 	else {
-		var a = typeof exports === 'object' ? factory(require("rxjs/bundles/Rx.umd.min.js")) : factory(root["rxjs/bundles/Rx.umd.min.js"]);
+		var a = typeof exports === 'object' ? factory(require("rxjs/rxjs")) : factory(root["rxjs/rxjs"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
 })(this, function(__WEBPACK_EXTERNAL_MODULE_3__) {
