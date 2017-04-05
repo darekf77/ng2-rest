@@ -497,8 +497,16 @@ var RestRequest = (function () {
         URL.revokeObjectURL(blobURL);
         var tmp = this;
         this.worker.addEventListener('message', function (e) {
-            if (e && e.data)
-                tmp.handlerResult(e.data, e.data['method']);
+            if (RestRequest.zone) {
+                RestRequest.zone.run(function () {
+                    if (e && e.data)
+                        tmp.handlerResult(e.data, e.data['method']);
+                });
+            }
+            else {
+                if (e && e.data)
+                    tmp.handlerResult(e.data, e.data['method']);
+            }
         }, false);
     };
     RestRequest.prototype.handlerResult = function (res, method) {
@@ -1513,6 +1521,9 @@ var Resource = (function () {
         return {
             model: function (params) { return Resource.instance.api(e, model ? nested_params_1.UrlNestedParams.interpolateParamsToUrl(params, model) : ''); }
         };
+    };
+    Resource.init = function (zone) {
+        rest_request_1.RestRequest.zone = zone;
     };
     Resource.reset = function () {
         Resource.endpoints = {};
