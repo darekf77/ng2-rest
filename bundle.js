@@ -1,4 +1,14 @@
-(function(e, a) { for(var i in a) e[i] = a[i]; }(global, /******/ (function(modules) { // webpackBootstrap
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory(require("rxjs/Subject"));
+	else if(typeof define === 'function' && define.amd)
+		define(["rxjs/Subject"], factory);
+	else {
+		var a = typeof exports === 'object' ? factory(require("rxjs/Subject")) : factory(root["rxjs/Subject"]);
+		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
+	}
+})(this, function(__WEBPACK_EXTERNAL_MODULE_3__) {
+return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -335,7 +345,7 @@ var Level;
 /* 3 */
 /***/ (function(module, exports) {
 
-(function() { module.exports = global["rxjs"]; }());
+module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
 
 /***/ }),
 /* 4 */
@@ -419,7 +429,7 @@ var MockingMode;
 "use strict";
 
 var JSON5 = __webpack_require__(991);
-var rxjs_1 = __webpack_require__(3);
+var Subject_1 = __webpack_require__(3);
 var RestHeaders = (function () {
     function RestHeaders() {
     }
@@ -434,11 +444,11 @@ exports.RestHeaders = RestHeaders;
 var RestRequest = (function () {
     function RestRequest() {
         this.subjects = {
-            'GET': new rxjs_1.Subject(),
-            'POST': new rxjs_1.Subject(),
-            'PUT': new rxjs_1.Subject(),
-            'DELETE': new rxjs_1.Subject(),
-            'JSONP': new rxjs_1.Subject()
+            'GET': new Subject_1.Subject(),
+            'POST': new Subject_1.Subject(),
+            'PUT': new Subject_1.Subject(),
+            'DELETE': new Subject_1.Subject(),
+            'JSONP': new Subject_1.Subject()
         };
         this.workerActive = false;
         if (typeof (Worker) !== "undefined") {
@@ -1014,7 +1024,7 @@ exports.contain = contain;
 
 "use strict";
 
-var rxjs_1 = __webpack_require__(3);
+var Subject_1 = __webpack_require__(3);
 var ng2_logger_1 = __webpack_require__(1);
 var log = ng2_logger_1.Log.create('eureka', ng2_logger_1.Level.__NOTHING);
 var helpers_1 = __webpack_require__(13);
@@ -1025,7 +1035,7 @@ var Eureka;
     var Eureka = (function () {
         function Eureka(config) {
             this.config = config;
-            this.subjectInstanceFounded = new rxjs_1.Subject();
+            this.subjectInstanceFounded = new Subject_1.Subject();
             this.onInstance = this.subjectInstanceFounded.asObservable();
             this._state = EurekaState.DISABLED;
             this.headers = new rest_request_1.RestHeaders();
@@ -1473,7 +1483,7 @@ var UrlNestedParams;
 
 "use strict";
 
-var rxjs_1 = __webpack_require__(3);
+var Subject_1 = __webpack_require__(3);
 var ng2_logger_1 = __webpack_require__(1);
 var log = ng2_logger_1.Log.create('resouce-service', ng2_logger_1.Level.__NOTHING);
 var eureka_1 = __webpack_require__(12);
@@ -1736,7 +1746,7 @@ Resource.mockingMode = {
  * @param {T} endpoint_url
  * @returns {boolean}
  */
-Resource.subEurekaEndpointReady = new rxjs_1.Subject();
+Resource.subEurekaEndpointReady = new Subject_1.Subject();
 Resource.obs = Resource.subEurekaEndpointReady.asObservable();
 exports.Resource = Resource;
 
@@ -72582,7 +72592,7 @@ exports.Logger = Logger;
 
 "use strict";
 
-var rxjs_1 = __webpack_require__(3);
+var Subject_1 = __webpack_require__(3);
 var ng2_logger_1 = __webpack_require__(1);
 var log = ng2_logger_1.Log.create('rest.class', ng2_logger_1.Level.__NOTHING);
 var mocking_mode_1 = __webpack_require__(5);
@@ -72691,7 +72701,7 @@ var Rest = (function () {
             throw ("In MOCKING MODE you have to define mock of query for enipoint: " + this.endpoint + ".");
         }
         if (this.appIsWaiting()) {
-            var sub_1 = _sub ? _sub : new rxjs_1.Subject();
+            var sub_1 = _sub ? _sub : new Subject_1.Subject();
             var obs = sub_1.asObservable();
             setTimeout(function () {
                 _this.query(params, doNotSerializeParams, sub_1).subscribe(function (e) { return sub_1.next(e); });
@@ -72725,7 +72735,7 @@ var Rest = (function () {
             throw ("In MOCKING MODE you have to define mock of get for enipoint: " + this.endpoint + ".");
         }
         if (this.appIsWaiting()) {
-            var sub_2 = _sub ? _sub : new rxjs_1.Subject();
+            var sub_2 = _sub ? _sub : new Subject_1.Subject();
             var obs = sub_2.asObservable();
             setTimeout(function () {
                 _this.get(params, doNotSerializeParams, sub_2).subscribe(function (e) { return sub_2.next(e); });
@@ -72759,7 +72769,7 @@ var Rest = (function () {
             throw ("In MOCKING MODE you have to define mock of save for enipoint: " + this.endpoint + ".");
         }
         if (this.appIsWaiting()) {
-            var sub_3 = _sub ? _sub : new rxjs_1.Subject();
+            var sub_3 = _sub ? _sub : new Subject_1.Subject();
             var obs = sub_3.asObservable();
             setTimeout(function () {
                 _this.save(item, params, doNotSerializeParams, sub_3).subscribe(function (e) { return sub_3.next(e); });
@@ -72794,7 +72804,7 @@ var Rest = (function () {
             throw ("In MOCKING MODE you have to define mock of update for enipoint: " + this.endpoint + ".");
         }
         if (this.appIsWaiting()) {
-            var sub_4 = _sub ? _sub : new rxjs_1.Subject();
+            var sub_4 = _sub ? _sub : new Subject_1.Subject();
             var obs = sub_4.asObservable();
             setTimeout(function () {
                 _this.update(item, params, doNotSerializeParams, sub_4).subscribe(function (e) { return sub_4.next(e); });
@@ -72830,7 +72840,7 @@ var Rest = (function () {
             throw ("In MOCKING MODE you have to define mock of remove for enipoint: " + this.endpoint + ".");
         }
         if (this.appIsWaiting()) {
-            var sub_5 = _sub ? _sub : new rxjs_1.Subject();
+            var sub_5 = _sub ? _sub : new Subject_1.Subject();
             var obs = sub_5.asObservable();
             setTimeout(function () {
                 _this.remove(params, doNotSerializeParams, sub_5).subscribe(function (e) { return sub_5.next(e); });
@@ -72866,7 +72876,7 @@ var Rest = (function () {
             throw ("In MOCKING MODE you have to define mock of jsonp for enipoint: " + this.endpoint + ".");
         }
         if (this.appIsWaiting()) {
-            var sub_6 = _sub ? _sub : new rxjs_1.Subject();
+            var sub_6 = _sub ? _sub : new Subject_1.Subject();
             var obs = sub_6.asObservable();
             setTimeout(function () {
                 _this.jsonp(params, _sub).subscribe(function (e) { return sub_6.next(e); });
@@ -72998,7 +73008,7 @@ var Rest = (function () {
         t.query = function (params, doNotSerializeParams) {
             if (doNotSerializeParams === void 0) { doNotSerializeParams = false; }
             currentMethod = 'GET';
-            subject = new rxjs_1.Subject();
+            subject = new Subject_1.Subject();
             rest_1.Rest.prepare(params);
             currentUrlParams = JSON.stringify(params);
             currentFullUrl = _this.creatUrl(params, doNotSerializeParams);
@@ -73008,7 +73018,7 @@ var Rest = (function () {
             if (doNotSerializeParams === void 0) { doNotSerializeParams = false; }
             if (_sub === void 0) { _sub = undefined; }
             currentMethod = 'GET';
-            subject = new rxjs_1.Subject();
+            subject = new Subject_1.Subject();
             rest_1.Rest.prepare(params);
             currentUrlParams = JSON.stringify(params);
             currentFullUrl = _this.creatUrl(params, doNotSerializeParams);
@@ -73017,7 +73027,7 @@ var Rest = (function () {
         t.save = function (item, params, doNotSerializeParams) {
             if (doNotSerializeParams === void 0) { doNotSerializeParams = false; }
             currentMethod = 'POST';
-            subject = new rxjs_1.Subject();
+            subject = new Subject_1.Subject();
             rest_1.Rest.prepare(params);
             currentUrlParams = params ? JSON.stringify(params) : '{}';
             currentFullUrl = _this.creatUrl(params, doNotSerializeParams);
@@ -73027,7 +73037,7 @@ var Rest = (function () {
         t.update = function (item, params, doNotSerializeParams) {
             if (doNotSerializeParams === void 0) { doNotSerializeParams = false; }
             currentMethod = 'PUT';
-            subject = new rxjs_1.Subject();
+            subject = new Subject_1.Subject();
             rest_1.Rest.prepare(params);
             currentUrlParams = JSON.stringify(params);
             currentFullUrl = _this.creatUrl(params, doNotSerializeParams);
@@ -73037,7 +73047,7 @@ var Rest = (function () {
         t.remove = function (params, doNotSerializeParams) {
             if (doNotSerializeParams === void 0) { doNotSerializeParams = false; }
             currentMethod = 'DELETE';
-            subject = new rxjs_1.Subject();
+            subject = new Subject_1.Subject();
             rest_1.Rest.prepare(params);
             currentUrlParams = JSON.stringify(params);
             currentFullUrl = _this.creatUrl(params, doNotSerializeParams);
@@ -73045,7 +73055,7 @@ var Rest = (function () {
         };
         t.jsonp = function (params) {
             currentMethod = 'JSONP';
-            subject = new rxjs_1.Subject();
+            subject = new Subject_1.Subject();
             rest_1.Rest.prepare(params);
             currentFullUrl = _this.endpoint;
             return subject.asObservable();
@@ -73212,4 +73222,5 @@ __export(__webpack_require__(18));
 
 
 /***/ })
-/******/ ])));
+/******/ ]);
+});
