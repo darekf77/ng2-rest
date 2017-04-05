@@ -1,14 +1,4 @@
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("rxjs"));
-	else if(typeof define === 'function' && define.amd)
-		define(["rxjs"], factory);
-	else {
-		var a = typeof exports === 'object' ? factory(require("rxjs")) : factory(root["rxjs"]);
-		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
-	}
-})(this, function(__WEBPACK_EXTERNAL_MODULE_3__) {
-return /******/ (function(modules) { // webpackBootstrap
+define(["rxjs"], function(__WEBPACK_EXTERNAL_MODULE_3__) { return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -73222,5 +73212,4 @@ __export(__webpack_require__(18));
 
 
 /***/ })
-/******/ ]);
-});
+/******/ ])});;
