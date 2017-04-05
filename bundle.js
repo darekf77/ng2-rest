@@ -1,4 +1,4 @@
-(function(e, a) { for(var i in a) e[i] = a[i]; }(exports, /******/ (function(modules) { // webpackBootstrap
+(function(e, a) { for(var i in a) e[i] = a[i]; }(global, /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -335,7 +335,7 @@ var Level;
 /* 3 */
 /***/ (function(module, exports) {
 
-module.exports = require("rxjs");
+(function() { module.exports = global["rxjs"]; }());
 
 /***/ }),
 /* 4 */
