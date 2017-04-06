@@ -10,7 +10,7 @@ import { Rest as ModuleRest } from './rest';
 import { UrlNestedParams } from './nested-params';
 import { MockBackend, MockRequest, MockResponse } from './mock-backend';
 import { Rest } from "./rest.class";
-import { RestHeaders } from './rest-request';
+import { RestHeaders } from './rest-headers';
 
 
 export interface Mock<A> {

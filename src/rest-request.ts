@@ -9,32 +9,11 @@ import 'rxjs/add/operator/map';
 
 import { Http } from "./http";
 import { MockResponse } from './mock-backend';
-
-
-
-interface RHeader {
-    values: string[];
-}
-
-export class RestHeaders {
-
-    private headers: RHeader[];
-    constructor() {
-
-    }
-
-    append(key: string, value: string) {
-
-    }
-
-    toJSON(): Object {
-        return undefined;
-    }
-
-}
+import { RestHeaders } from "./rest-headers";
 
 
 type ReqParams = { url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any };
+
 
 
 export class RestRequest {
@@ -57,12 +36,20 @@ export class RestRequest {
         }
     }
 
+
+
     private worker: Worker;
+
+    /**
+     * Worke to handle XMLHttpRequest
+     */
     private createWorker() {
         // Build a worker from an anonymous function body
         var blobURL = URL.createObjectURL(new Blob(['(',
 
             function () {
+                var firstTime = true;
+                var scope = this;
 
                 function request(url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any): MockResponse {
                     var representationOfDesiredState = body;
@@ -70,15 +57,13 @@ export class RestRequest {
 
                     client.addEventListener
                     client.open(method, url, false);
-                    client.setRequestHeader("Content-Type", "application/json");
-                    client.setRequestHeader("Accept", "application/json");
-
                     client.send(representationOfDesiredState);
-
+                    var h = eval('RestHeaders.fromResponseHeaderString(client.getAllResponseHeaders())');
                     return {
                         data: client.responseText,
                         error: client.statusText,
-                        code: <Http.HttpCode>client.status
+                        code: <Http.HttpCode>client.status,
+                        headers: h
                     };
 
                 }
@@ -86,6 +71,11 @@ export class RestRequest {
                 // self.postMessage("I\'m working before postMessage(\'ali\').");
 
                 self.addEventListener('message', function (e) {
+                    if (firstTime) {
+                        firstTime = false;
+                        scope.eval(e.data)
+                        return;
+                    }
                     let data: ReqParams = e.data;
                     if (data) {
                         let res = request(data.url, data.method, data.headers, data.body);
@@ -101,6 +91,7 @@ export class RestRequest {
             ')()'], { type: 'application/javascript' }));
 
         this.worker = new Worker(blobURL);
+        this.worker.postMessage(require('!raw-loader!./rest-headers-raw.js'))
 
         // Won't be needing this anymore
         URL.revokeObjectURL(blobURL);
@@ -121,20 +112,22 @@ export class RestRequest {
     }
 
     private handlerResult(res: MockResponse, method: Http.HttpMethod) {
-        console.log('res', res)
         if (res && !res.code) {
             this.subjects[method].next({
-                json: () => (typeof res.data === 'string') ? JSON5.parse(res.data) : res.data
+                json: () => (typeof res.data === 'string') ? JSON5.parse(res.data) : res.data,
+                headers: new RestHeaders(res.headers)
             })
             return;
         }
         if (res && res.code >= 200 && res.code < 300) {
             this.subjects[method].next({
-                json: () => JSON5.parse(res.data)
+                json: () => JSON5.parse(res.data),
+                headers: new RestHeaders(res.headers)
             })
         } else {
             this.subjects[method].error({
-                error: res ? res.error : 'undefined response'
+                error: res ? res.error : 'undefined response',
+                headers: new RestHeaders(res.headers)
             })
         }
     }
@@ -157,15 +150,13 @@ export class RestRequest {
 
         client.addEventListener
         client.open(method, url, false);
-        client.setRequestHeader("Content-Type", "application/json");
-        client.setRequestHeader("Accept", "application/json");
-
         client.send(representationOfDesiredState);
 
         return {
             data: client.responseText,
             error: client.statusText,
-            code: <Http.HttpCode>client.status
+            code: <Http.HttpCode>client.status,
+            headers: RestHeaders.fromResponseHeaderString(client.getAllResponseHeaders())
         };
 
     }
