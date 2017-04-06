@@ -1,4 +1,4 @@
-import * as faker from 'faker';
+import { fake } from 'faker';
 import { Http } from './http';
 
 import { Helpers } from './helpers';
@@ -272,7 +272,7 @@ export namespace MockBackend {
                     if (p.startsWith('$') && 'string' === typeof value) {
                         let val: any = undefined;
                         try {
-                            val = faker.fake(value);
+                            val = fake(value);
                         } catch (e) {
                             console.error(e);
                         }

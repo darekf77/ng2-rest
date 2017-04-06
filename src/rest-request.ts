@@ -64,7 +64,7 @@ export class RestRequest {
             self.addEventListener('message', function (e) {
                 if (firstTime) {
                     firstTime = false;
-                    scope.eval(e.data)
+                    scope.eval( e.data.replace('export { RestHeaders };', ''))
                     return;
                 }
                 let data: ReqParams = e.data;
@@ -92,7 +92,7 @@ export class RestRequest {
 
         if (!RestRequest._worker) {
             RestRequest._worker = new Worker(RestRequest.blobURL);
-            RestRequest._worker.postMessage(require('!raw-loader!./rest-headers-raw.js'))
+            RestRequest._worker.postMessage(require('!raw-loader!awesome-typescript-loader!./rest-headers.ts'))
             URL.revokeObjectURL(RestRequest.blobURL);
         }
         this.worker = RestRequest._worker;

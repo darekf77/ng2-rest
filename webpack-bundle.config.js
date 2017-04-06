@@ -3,7 +3,6 @@ var webpack = require('webpack'),
     fs = require('fs'),
     WebpackStrip = require('strip-loader');
 
-var  webpackRxjsExternals = require('webpack-rxjs-externals');
 
 // var WebpackOnBuildPlugin = require('on-build-webpack');
 
@@ -33,9 +32,10 @@ module.exports = {
         ]
     },
     externals: {
-        'rxjs/Observable' : 'rxjs/Observable',
-        'rxjs/Subject' : 'rxjs/Subject',
-        'rxjs/add/operator/map': 'rxjs/add/operator/map'
+        'rxjs/Observable': 'rxjs/Observable',
+        'rxjs/Subject': 'rxjs/Subject',
+        'rxjs/add/operator/map': 'rxjs/add/operator/map',
+        '@angular/core': '@angular/core'
     },
     // node: {
     //     fs: "empty",
