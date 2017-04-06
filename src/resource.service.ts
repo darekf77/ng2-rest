@@ -33,7 +33,7 @@ export class Resource<E, T, TA> {
     }
 
     public static init(zone: NgZone) {
-        if(zone instanceof NgZone) RestRequest.zone = zone;
+        RestRequest.zone = zone;
     }
 
     private static endpoints = {};

@@ -1,5 +1,5 @@
 import {
-  Component,
+  Component, NgZone,
   OnInit, OnDestroy
 } from '@angular/core';
 import { MdSnackBar } from '@angular/material';
@@ -14,14 +14,16 @@ import { DatabaseService2 } from './database.service';
 
 
 
+
 @Component({
   selector: 'demo2',
   templateUrl: './demo2.component.html'
 })
 export class Demo2Component implements OnInit, OnDestroy {
 
-  constructor(public db: DatabaseService2, private snackBar: MdSnackBar) {
+  constructor(public db: DatabaseService2, private snackBar: MdSnackBar, zone: NgZone) {
     Resource.mockingMode.setMocksOnly();
+    Resource.init(zone);
   }
 
   handlers: Subscription[] = [];

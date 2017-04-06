@@ -40,8 +40,7 @@ export class RestRequest {
 
         function () {
             var firstTime = true;
-            var scope = this;
-
+            
             function request(url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any): MockResponse {
                 var representationOfDesiredState = body;
                 var client = new XMLHttpRequest();
@@ -49,6 +48,7 @@ export class RestRequest {
                 client.addEventListener
                 client.open(method, url, false);
                 client.send(representationOfDesiredState);
+                // console.log('RestHeaders', this )
                 var h = eval('RestHeaders.fromResponseHeaderString(client.getAllResponseHeaders())');
                 return {
                     data: client.responseText,
@@ -61,10 +61,15 @@ export class RestRequest {
 
             // self.postMessage("I\'m working before postMessage(\'ali\').");
 
-            self.addEventListener('message', function (e) {
+            self.addEventListener('message', (e) => {
                 if (firstTime) {
                     firstTime = false;
-                    scope.eval( e.data.replace('export { RestHeaders };', ''))
+                    var fn = e.data
+                        .replace('export { RestHeaders };', '')
+                        .replace('exports.RestHeaders = RestHeaders;', '')
+                        .replace('"use strict"','')
+                    // console.log('e.data',fn)
+                    this.eval(fn)
                     return;
                 }
                 let data: ReqParams = e.data;
@@ -100,6 +105,7 @@ export class RestRequest {
         let tmp = this;
 
         this.worker.addEventListener('message', (e) => {
+            // console.log('inside zone!',RestRequest.zone)
             if (RestRequest.zone) {
                 RestRequest.zone.run(() => {
                     if (e && e.data) tmp.handlerResult(e.data, e.data['method']);
