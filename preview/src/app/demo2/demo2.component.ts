@@ -46,7 +46,6 @@ export class Demo2Component implements OnInit, OnDestroy {
     let h = this.db.models.users.subscribe(data => {
       console.log('Resource.Headers.response', Resource.Headers.response)
       this.users = data;
-      h.unsubscribe();
     });
   }
 

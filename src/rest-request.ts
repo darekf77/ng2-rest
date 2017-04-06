@@ -36,65 +36,66 @@ export class RestRequest {
         }
     }
 
+    private static blobURL = URL.createObjectURL(new Blob(['(',
 
+        function () {
+            var firstTime = true;
+            var scope = this;
+
+            function request(url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any): MockResponse {
+                var representationOfDesiredState = body;
+                var client = new XMLHttpRequest();
+
+                client.addEventListener
+                client.open(method, url, false);
+                client.send(representationOfDesiredState);
+                var h = eval('RestHeaders.fromResponseHeaderString(client.getAllResponseHeaders())');
+                return {
+                    data: client.responseText,
+                    error: client.statusText,
+                    code: <Http.HttpCode>client.status,
+                    headers: h
+                };
+
+            }
+
+            // self.postMessage("I\'m working before postMessage(\'ali\').");
+
+            self.addEventListener('message', function (e) {
+                if (firstTime) {
+                    firstTime = false;
+                    scope.eval(e.data)
+                    return;
+                }
+                let data: ReqParams = e.data;
+                if (data) {
+                    let res = request(data.url, data.method, data.headers, data.body);
+                    res['method'] = data.method;
+                    self.postMessage(res, undefined)
+                }
+
+            }, false);
+
+
+        }.toString(),
+
+        ')()'], { type: 'application/javascript' }));
 
     private worker: Worker;
+    private static _worker: Worker;
 
     /**
      * Worke to handle XMLHttpRequest
      */
     private createWorker() {
         // Build a worker from an anonymous function body
-        var blobURL = URL.createObjectURL(new Blob(['(',
 
-            function () {
-                var firstTime = true;
-                var scope = this;
-
-                function request(url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any): MockResponse {
-                    var representationOfDesiredState = body;
-                    var client = new XMLHttpRequest();
-
-                    client.addEventListener
-                    client.open(method, url, false);
-                    client.send(representationOfDesiredState);
-                    var h = eval('RestHeaders.fromResponseHeaderString(client.getAllResponseHeaders())');
-                    return {
-                        data: client.responseText,
-                        error: client.statusText,
-                        code: <Http.HttpCode>client.status,
-                        headers: h
-                    };
-
-                }
-
-                // self.postMessage("I\'m working before postMessage(\'ali\').");
-
-                self.addEventListener('message', function (e) {
-                    if (firstTime) {
-                        firstTime = false;
-                        scope.eval(e.data)
-                        return;
-                    }
-                    let data: ReqParams = e.data;
-                    if (data) {
-                        let res = request(data.url, data.method, data.headers, data.body);
-                        res['method'] = data.method;
-                        self.postMessage(res, undefined)
-                    }
-
-                }, false);
-
-
-            }.toString(),
-
-            ')()'], { type: 'application/javascript' }));
-
-        this.worker = new Worker(blobURL);
-        this.worker.postMessage(require('!raw-loader!./rest-headers-raw.js'))
-
-        // Won't be needing this anymore
-        URL.revokeObjectURL(blobURL);
+        if (!RestRequest._worker) {
+            RestRequest._worker = new Worker(RestRequest.blobURL);
+            RestRequest._worker.postMessage(require('!raw-loader!./rest-headers-raw.js'))
+            URL.revokeObjectURL(RestRequest.blobURL);
+        }
+        this.worker = RestRequest._worker;
 
         let tmp = this;
 
@@ -117,6 +118,7 @@ export class RestRequest {
                 json: () => (typeof res.data === 'string') ? JSON5.parse(res.data) : res.data,
                 headers: new RestHeaders(res.headers)
             })
+            this.subjects[method].observers.length = 0;
             return;
         }
         if (res && res.code >= 200 && res.code < 300) {
@@ -130,6 +132,7 @@ export class RestRequest {
                 headers: new RestHeaders(res.headers)
             })
         }
+        this.subjects[method].observers.length = 0;
     }
 
 
