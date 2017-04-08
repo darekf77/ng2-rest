@@ -1,12 +1,16 @@
 
-import { Subscription } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+import { Subscription } from 'rxjs/Subscription';
+
+import 'rxjs/add/operator/map';
 
 import { Resource, ResourceModel } from './resource.service';
 import { Rest as ModuleRest } from './rest';
 import { UrlNestedParams } from './nested-params';
 import { MockBackend, MockRequest, MockResponse } from './mock-backend';
 import { Rest } from "./rest.class";
-import { RestHeaders } from './rest-request';
+import { RestHeaders } from './rest-headers';
 
 
 export interface Mock<A> {

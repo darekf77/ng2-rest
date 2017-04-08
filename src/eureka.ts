@@ -1,10 +1,13 @@
-import { Observable, Subject } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+import 'rxjs/add/operator/map';
 
 import { Log, Level } from 'ng2-logger/ng2-logger';
 const log = Log.create('eureka', Level.__NOTHING)
 
 import { Helpers } from './helpers';
-import { RestRequest, RestHeaders } from "./rest-request";
+import { RestRequest } from "./rest-request";
+import { RestHeaders } from "./rest-headers";
 
 export namespace Eureka {
 

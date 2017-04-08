@@ -1,9 +1,10 @@
-import * as faker from 'faker';
+import { fake } from 'faker';
 import { Http } from './http';
 
 import { Helpers } from './helpers';
 
 import { Log, Level } from 'ng2-logger/ng2-logger';
+import { RestHeaders } from "./rest-headers";
 const log = Log.create('eureka', Level.__NOTHING)
 
 
@@ -74,6 +75,7 @@ export interface MockResponse {
      * @memberOf MockResponse
      */
     error?: string;
+    headers?: RestHeaders;
 }
 
 export namespace MockBackend {
@@ -270,7 +272,7 @@ export namespace MockBackend {
                     if (p.startsWith('$') && 'string' === typeof value) {
                         let val: any = undefined;
                         try {
-                            val = faker.fake(value);
+                            val = fake(value);
                         } catch (e) {
                             console.error(e);
                         }

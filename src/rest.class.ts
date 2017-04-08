@@ -1,18 +1,20 @@
+
+import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
-import { Observable } from 'rxjs/Observable';
 import { Log, Level } from 'ng2-logger/ng2-logger';
 const log = Log.create('rest.class', Level.__NOTHING)
+import * as JSON5 from 'json5';
 
 import { MockingMode } from './mocking-mode';
 import { Rest as RestModule } from './rest';
 import { UrlNestedParams } from './nested-params';
 import { Eureka } from './eureka';
 import { Docs } from './docs';
-import { Contracts } from './contracts';
 import { MockBackend, MockResponse } from './mock-backend';
 import { Http as HttpModule } from './http';
-import { RestRequest, RestHeaders } from "./rest-request";
+import { RestRequest } from "./rest-request";
+import { RestHeaders } from "./rest-headers";
 
 export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
 
@@ -20,7 +22,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
     public static docsTitle: string;
     public static headers: RestHeaders = new RestHeaders();
     public static headersResponse: RestHeaders = new RestHeaders();
-    private form: Contracts.FormInputBind[];
+    
     public static mockingMode: MockingMode;
     public __usecase_desc;
     public static eureka: Eureka.Eureka<any, any>;
@@ -357,7 +359,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
                     tdata = JSON.parse(JSON.stringify(data));
                 }
                 else if (typeof data === 'string') {
-                    tdata = JSON.parse(data);
+                    tdata = JSON5.parse(data);
                 }
                 else {
                     throw new Error(`Data for mock isn't string or object, endpoint:${this.endpoint}`);
@@ -420,7 +422,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
             else {
                 if (typeof data === 'object' || typeof data === 'string') {
                     let res: MockResponse = {
-                        data: (typeof data === 'string') ? JSON.parse(data) : JSON.parse(JSON.stringify(data)),
+                        data: (typeof data === 'string') ? JSON5.parse(data) : JSON.parse(JSON.stringify(data)),
                         code: 200
                     };
                     this.log(<Docs.DocModel>{

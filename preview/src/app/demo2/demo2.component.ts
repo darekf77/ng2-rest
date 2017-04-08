@@ -1,5 +1,5 @@
 import {
-  Component,
+  Component, NgZone,
   OnInit, OnDestroy
 } from '@angular/core';
 import { MdSnackBar } from '@angular/material';
@@ -14,14 +14,16 @@ import { DatabaseService2 } from './database.service';
 
 
 
+
 @Component({
   selector: 'demo2',
   templateUrl: './demo2.component.html'
 })
 export class Demo2Component implements OnInit, OnDestroy {
 
-  constructor(public db: DatabaseService2, private snackBar: MdSnackBar) {
+  constructor(public db: DatabaseService2, private snackBar: MdSnackBar, zone: NgZone) {
     Resource.mockingMode.setMocksOnly();
+    Resource.init(zone);
   }
 
   handlers: Subscription[] = [];
@@ -29,11 +31,11 @@ export class Demo2Component implements OnInit, OnDestroy {
   users = [];
 
   public ngOnInit() {
-    Resource.mockingMode.setBackendOnly();
-    rest.model().jsonp().subscribe(data => {
-      console.log('jsonp data', data
-      )
-    })
+    // Resource.mockingMode.setBackendOnly();
+    // rest.model().jsonp().subscribe(data => {
+    //   console.log('jsonp data', data
+    //   )
+    // })
 
   }
 
@@ -42,9 +44,11 @@ export class Demo2Component implements OnInit, OnDestroy {
   }
 
   getData() {
-    this.handlers.push(this.db.models.users.subscribe(data => {
+    console.log('Resource.Headers.request', Resource.Headers.request)
+    let h = this.db.models.users.subscribe(data => {
+      console.log('Resource.Headers.response', Resource.Headers.response)
       this.users = data;
-    }));
+    });
   }
 
   toogleMock() {

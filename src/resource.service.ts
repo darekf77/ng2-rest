@@ -1,5 +1,7 @@
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+import 'rxjs/add/operator/map';
 
-import { Observable, Subject } from 'rxjs';
 import { Log, Level } from 'ng2-logger/ng2-logger';
 const log = Log.create('resouce-service', Level.__NOTHING)
 
@@ -7,7 +9,10 @@ import { Eureka } from './eureka';
 import { MockingMode } from './mocking-mode';
 import { UrlNestedParams } from './nested-params';
 import { Rest } from './rest.class';
-import { RestRequest, RestHeaders } from "./rest-request";
+import { RestRequest } from "./rest-request";
+import { RestHeaders } from "./rest-headers";
+
+import { NgZone } from '@angular/core';
 
 export interface ResourceModel<A, TA> {
     model: (m?: Object) => Rest<A, TA>
@@ -27,6 +32,9 @@ export class Resource<E, T, TA> {
         }
     }
 
+    public static init(zone: NgZone) {
+        RestRequest.zone = zone;
+    }
 
     private static endpoints = {};
     public static reset() {
