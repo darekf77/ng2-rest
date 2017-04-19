@@ -1,7 +1,7 @@
 {
   "name": "ng2-rest",
   "version": "7.0.0",
-  "description": "rest package for angular 2",
+  "description": "rest package for angular and react",
   "main": "index.js",
   "scripts": {
     "test": "karma start --auto-watch --no-single-run",
