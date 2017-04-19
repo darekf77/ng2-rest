@@ -199,7 +199,7 @@ export class RestRequest {
                 client.addEventListener
                 client.open(method, url, false);
                 client.send(representationOfDesiredState);
-                // console.log('RestHeaders', this )
+                // console.log('RestHeaders', eval(`RestHeaders.fromResponseHeaderString`))
                 var h = eval('RestHeaders.fromResponseHeaderString(client.getAllResponseHeaders())');
                 return {
                     data: client.responseText,
