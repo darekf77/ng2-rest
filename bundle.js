@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("rxjs/add/operator/map"), require("rxjs/Subject"));
+		module.exports = factory(require("rxjs/Subject"), require("rxjs/add/operator/map"));
 	else if(typeof define === 'function' && define.amd)
-		define(["rxjs/add/operator/map", "rxjs/Subject"], factory);
+		define(["rxjs/Subject", "rxjs/add/operator/map"], factory);
 	else {
-		var a = typeof exports === 'object' ? factory(require("rxjs/add/operator/map"), require("rxjs/Subject")) : factory(root["rxjs/add/operator/map"], root["rxjs/Subject"]);
+		var a = typeof exports === 'object' ? factory(require("rxjs/Subject"), require("rxjs/add/operator/map")) : factory(root["rxjs/Subject"], root["rxjs/add/operator/map"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(this, function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_4__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_4__, __WEBPACK_EXTERNAL_MODULE_2__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -43,18 +43,16 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 /******/
-/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	// identity function for calling harmory imports with the correct context
 /******/ 	__webpack_require__.i = function(value) { return value; };
 /******/
-/******/ 	// define getter function for harmony exports
+/******/ 	// define getter function for harmory exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
-/******/ 		}
+/******/ 		Object.defineProperty(exports, name, {
+/******/ 			configurable: false,
+/******/ 			enumerable: true,
+/******/ 			get: getter
+/******/ 		});
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -78,10 +76,10 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 "use strict";
-/*istanbul ignore start*/
+/*istanbul ignore start*/'use strict';
 
 exports.__esModule = true;
 exports['default'] = /*istanbul ignore end*/Diff;
@@ -318,11 +316,10 @@ function clonePath(path) {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-
+"use strict";
 function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 __export(__webpack_require__(993));
 //# sourceMappingURL=ng2-logger.js.map
 
@@ -334,11 +331,10 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
 
 /***/ },
 /* 3 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
+"use strict";
 var Level;
 (function (Level) {
     Level[Level["DATA"] = 0] = "DATA";
@@ -360,7 +356,7 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/*istanbul ignore start*/
+/*istanbul ignore start*/'use strict';
 
 exports.__esModule = true;
 exports.lineDiff = undefined;
@@ -417,10 +413,10 @@ function diffTrimmedLines(oldStr, newStr, callback) {
 
 /***/ },
 /* 6 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 "use strict";
-
+"use strict";
 var MockingMode;
 (function (MockingMode) {
     MockingMode[MockingMode["MOCKS_ONLY"] = 0] = "MOCKS_ONLY";
@@ -432,10 +428,10 @@ var MockingMode;
 
 /***/ },
 /* 7 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 "use strict";
-
+"use strict";
 /**
  * Based on Headers from https://github.com/angular/angular/blob/master/packages/http/src/headers.ts
  */
@@ -570,10 +566,10 @@ exports.RestHeaders = RestHeaders;
 
 /***/ },
 /* 8 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 "use strict";
-/*istanbul ignore start*/
+/*istanbul ignore start*/'use strict';
 
 exports.__esModule = true;
 exports. /*istanbul ignore end*/parsePatch = parsePatch;
@@ -720,10 +716,10 @@ function parsePatch(uniDiff) {
 
 /***/ },
 /* 9 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 "use strict";
-/*istanbul ignore start*/
+/*istanbul ignore start*/'use strict';
 
 exports.__esModule = true;
 exports. /*istanbul ignore end*/generateOptions = generateOptions;
@@ -1735,8 +1731,7 @@ JSON5.stringify = function (obj, replacer, space) {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
+"use strict";
 var level_1 = __webpack_require__(3);
 var Display = (function () {
     function Display() {
@@ -1772,11 +1767,10 @@ exports.Display = Display;
 
 /***/ },
 /* 13 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
+"use strict";
 function contain(arr, item) {
     return arr.filter(function (l) { return l === item || ((item.match && typeof item.match === 'function') ? item.match(l) : false); }).length > 0;
 }
@@ -1789,7 +1783,7 @@ exports.contain = contain;
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-
+"use strict";
 var Subject_1 = __webpack_require__(4);
 __webpack_require__(2);
 var ng2_logger_1 = __webpack_require__(1);
@@ -1883,10 +1877,10 @@ var Eureka;
 
 /***/ },
 /* 15 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 "use strict";
-
+"use strict";
 var Helpers;
 (function (Helpers) {
     /**
@@ -1914,7 +1908,7 @@ var Helpers;
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-
+"use strict";
 var faker_1 = __webpack_require__(33);
 var helpers_1 = __webpack_require__(15);
 var ng2_logger_1 = __webpack_require__(1);
@@ -2123,7 +2117,7 @@ var MockBackend;
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-
+"use strict";
 var diff_1 = __webpack_require__(29);
 var ng2_logger_1 = __webpack_require__(1);
 var log = ng2_logger_1.Log.create('nested params', ng2_logger_1.Level.__NOTHING);
@@ -2249,7 +2243,7 @@ var UrlNestedParams;
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-
+"use strict";
 var Subject_1 = __webpack_require__(4);
 __webpack_require__(2);
 var ng2_logger_1 = __webpack_require__(1);
@@ -2273,7 +2267,7 @@ var Resource = (function () {
             model: function (params) { return Resource.instance.api(e, model ? nested_params_1.UrlNestedParams.interpolateParamsToUrl(params, model) : ''); }
         };
     };
-    Resource.init = function (zone) {
+    Resource.initNgZone = function (zone) {
         rest_request_1.RestRequest.zone = zone;
     };
     Resource.reset = function () {
@@ -2527,7 +2521,7 @@ exports.Resource = Resource;
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-
+"use strict";
 __webpack_require__(2);
 var ng2_logger_1 = __webpack_require__(1);
 var log = ng2_logger_1.Log.create('rest namespace', ng2_logger_1.Level.__NOTHING);
@@ -2663,7 +2657,7 @@ var Rest;
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-
+"use strict";
 function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
@@ -2677,10 +2671,10 @@ __export(__webpack_require__(999));
 
 /***/ },
 /* 21 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 "use strict";
-/*istanbul ignore start*/
+/*istanbul ignore start*/"use strict";
 
 exports.__esModule = true;
 exports. /*istanbul ignore end*/convertChangesToDMP = convertChangesToDMP;
@@ -2708,10 +2702,10 @@ function convertChangesToDMP(changes) {
 
 /***/ },
 /* 22 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 "use strict";
-/*istanbul ignore start*/
+/*istanbul ignore start*/'use strict';
 
 exports.__esModule = true;
 exports. /*istanbul ignore end*/convertChangesToXML = convertChangesToXML;
@@ -2753,7 +2747,7 @@ function escapeHTML(s) {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/*istanbul ignore start*/
+/*istanbul ignore start*/'use strict';
 
 exports.__esModule = true;
 exports.arrayDiff = undefined;
@@ -2782,7 +2776,7 @@ function diffArrays(oldArr, newArr, callback) {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/*istanbul ignore start*/
+/*istanbul ignore start*/'use strict';
 
 exports.__esModule = true;
 exports.characterDiff = undefined;
@@ -2807,7 +2801,7 @@ function diffChars(oldStr, newStr, callback) {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/*istanbul ignore start*/
+/*istanbul ignore start*/'use strict';
 
 exports.__esModule = true;
 exports.cssDiff = undefined;
@@ -2836,7 +2830,7 @@ function diffCss(oldStr, newStr, callback) {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/*istanbul ignore start*/
+/*istanbul ignore start*/'use strict';
 
 exports.__esModule = true;
 exports.jsonDiff = undefined;
@@ -2952,7 +2946,7 @@ function canonicalize(obj, stack, replacementStack) {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/*istanbul ignore start*/
+/*istanbul ignore start*/'use strict';
 
 exports.__esModule = true;
 exports.sentenceDiff = undefined;
@@ -2981,7 +2975,7 @@ function diffSentences(oldStr, newStr, callback) {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/*istanbul ignore start*/
+/*istanbul ignore start*/'use strict';
 
 exports.__esModule = true;
 exports.wordDiff = undefined;
@@ -3058,7 +3052,7 @@ function diffWordsWithSpace(oldStr, newStr, callback) {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/*istanbul ignore start*/
+/*istanbul ignore start*/'use strict';
 
 exports.__esModule = true;
 exports.canonicalize = exports.convertChangesToXML = exports.convertChangesToDMP = exports.parsePatch = exports.applyPatches = exports.applyPatch = exports.createPatch = exports.createTwoFilesPatch = exports.structuredPatch = exports.diffArrays = exports.diffJson = exports.diffCss = exports.diffSentences = exports.diffTrimmedLines = exports.diffLines = exports.diffWordsWithSpace = exports.diffWords = exports.diffChars = exports.Diff = undefined;
@@ -3138,7 +3132,7 @@ exports. /*istanbul ignore end*/Diff = _base2['default'];
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/*istanbul ignore start*/
+/*istanbul ignore start*/'use strict';
 
 exports.__esModule = true;
 exports. /*istanbul ignore end*/applyPatch = applyPatch;
@@ -3322,7 +3316,7 @@ function applyPatches(uniDiff, options) {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/*istanbul ignore start*/
+/*istanbul ignore start*/'use strict';
 
 exports.__esModule = true;
 exports. /*istanbul ignore end*/structuredPatch = structuredPatch;
@@ -3482,10 +3476,10 @@ function createPatch(fileName, oldStr, newStr, oldHeader, newHeader, options) {
 
 /***/ },
 /* 32 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 "use strict";
-/*istanbul ignore start*/
+/*istanbul ignore start*/"use strict";
 
 exports.__esModule = true;
 
@@ -72326,11 +72320,10 @@ exports.generate = function generate() {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-
+"use strict";
 function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 __export(__webpack_require__(994));
 __export(__webpack_require__(3));
 //# sourceMappingURL=index.js.map
@@ -72340,8 +72333,7 @@ __export(__webpack_require__(3));
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
+"use strict";
 var logger_1 = __webpack_require__(995);
 var level_1 = __webpack_require__(3);
 var display_1 = __webpack_require__(12);
@@ -72469,8 +72461,7 @@ exports.Log = Log;
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
+"use strict";
 var level_1 = __webpack_require__(3);
 var display_1 = __webpack_require__(12);
 var include_1 = __webpack_require__(13);
@@ -72596,7 +72587,7 @@ module.exports = "\"use strict\";\r\n/**\r\n * Based on Headers from https://git
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-
+"use strict";
 var JSON5 = __webpack_require__(11);
 var Subject_1 = __webpack_require__(4);
 __webpack_require__(2);
@@ -72776,7 +72767,7 @@ exports.RestRequest = RestRequest;
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-
+"use strict";
 var Subject_1 = __webpack_require__(4);
 __webpack_require__(2);
 var ng2_logger_1 = __webpack_require__(1);
@@ -73269,7 +73260,7 @@ exports.Rest = Rest;
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-
+"use strict";
 __webpack_require__(2);
 var resource_service_1 = __webpack_require__(18);
 /**
@@ -73402,7 +73393,7 @@ exports.SimpleResource = SimpleResource;
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-
+"use strict";
 function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
@@ -73410,5 +73401,6 @@ __export(__webpack_require__(20));
 
 
 /***/ }
-/******/ ]);
+/******/ ])
 });
+;
