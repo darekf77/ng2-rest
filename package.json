@@ -32,7 +32,7 @@
     "diff": "^3.2.0",
     "faker": "^3.1.0",
     "json5": "^0.5.1",
-    "ng2-logger": "^0.1.21",
+    "ng2-logger": "^1.0.0",
     "rxjs": "^5.0.1"
   },
   "devDependencies": {

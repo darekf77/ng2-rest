@@ -1,6 +1,6 @@
 import { diffChars } from 'diff';
 
-import { Log, Level } from 'ng2-logger/ng2-logger';
+import { Log, Level } from 'ng2-logger';
 const log = Log.create('nested params', Level.__NOTHING)
 
 export namespace UrlNestedParams {

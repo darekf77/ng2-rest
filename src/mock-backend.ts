@@ -3,7 +3,7 @@ import { Http } from './http';
 
 import { Helpers } from './helpers';
 
-import { Log, Level } from 'ng2-logger/ng2-logger';
+import { Log, Level } from 'ng2-logger';
 import { RestHeaders } from "./rest-headers";
 const log = Log.create('eureka', Level.__NOTHING)
 

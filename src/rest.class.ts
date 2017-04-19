@@ -2,7 +2,7 @@
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
-import { Log, Level } from 'ng2-logger/ng2-logger';
+import { Log, Level } from 'ng2-logger';
 const log = Log.create('rest.class', Level.__NOTHING)
 import * as JSON5 from 'json5';
 

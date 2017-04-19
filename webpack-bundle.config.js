@@ -43,11 +43,11 @@ module.exports = {
     //     __filename: false
     // },
     plugins: [
-        // new webpack.optimize.UglifyJsPlugin({
-        //     compress: {
-        //         warnings: false
-        //     }
-        // })
+        new webpack.optimize.UglifyJsPlugin({
+            compress: {
+                warnings: false
+            }
+        })
         // new WebpackOnBuildPlugin(function (stats) {
         //     // Do whatever you want... 
         // }),
