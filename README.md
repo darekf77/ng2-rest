@@ -23,7 +23,7 @@ import { Resource } from 'ng2-rest';
 If you are Angular 2 or 4 user do this:
 ```ts
 constructor(zone:NgZone) {
-    Resource.init(zone)
+    Resource.initNgZone(zone)
 }
 ```
 
