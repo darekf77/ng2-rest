@@ -1,12 +1,13 @@
 ## ng2-rest ##
 
-Compatible with
+Compatible with Angular JS/2/4 and ReactJS
 
- 1. [AngularClass/angular2-webpack-starter](https://github.com/AngularClass/angular2-webpack-starter)
- 2. [Angular CLI (AOT support) ](https://github.com/angular/angular-cli)
+Simple, efficient REST api with **Angular or React**. 
+Best way connectapplication with RESTfull backend or JSONP api.
 
-Simple, efficient REST api with **Angular 2**. 
-Best way connect Angular2 application with restfull backend.
+[Plunker ReactJS demo](https://embed.plnkr.co/TDD0Pl/)
+
+[Plunker Angular4 demo](https://embed.plnkr.co/gqygXk/)
 
 [Demo github](https://darekf77.github.io/ng2-rest)
 
@@ -14,26 +15,65 @@ To install package run:
 
     npm install ng2-rest --save
 
-Import module
+Import Resource class:
+```ts
+import { Resource } from 'ng2-rest';
+```
 
+If you are Angular 2 or 4 user do this:
+```ts
+constructor(zone:NgZone) {
+    Resource.init(zone)
+}
+```
 
+Resource
+========
+
+Fit you existing API (not only REST) into new fluent objects with **Resource**  class an observables:
+
+**service.ts**
 
 ```ts
-import {Ng2RestModule} from 'ng2-rest';
+// express.js style url endpoint model
+const rest = Resource.create("http://localhost:/api","users/:id/books/:bookid")
 
-@NgModule({
-	bootstrap: [AppComponent],
-	imports: [ 
-		Ng2RestModule
-	])
-export class AppModule { }
+class DatabaseService { 
+	// create your fluent API
+	get model() {
+		return {
+			getAllUserBooks: ()=> rest
+				.model({ id:1 })
+				.query(),
+			getAllUserBooksSortedAscAndLimit5: ()=> rest
+				.model({ id:1 })
+				.query([{ sort: 'asc', limit:5 }]), // query params ex.
+			saveCurrentUser: ()=> rest
+				.model({ id:1, bookid:2 })
+				.save(this.user)
+		}
+	};
+}
 ```
+
+
+Specification
+-------------
+
+| Name | Parameters  | Description |
+| :---: | --- | ---: |
+| **query** | `UrlParams[] ` |  fetch array of your models, optionally with parameters |
+| **get** | `UrlParams[] ` |   get model by parameters  |
+| **save** | `model, UrlParams[] ` |   post object model  |
+| **update** | `model, UrlParams[]` |   put object model |
+| **remove** | `UrlParams[]` |   remove object by params |
+| **jsonp** | `UrlParams[]` |   get jsonp data |
+
 
 SimpleResource
 ==============
 
-Quickest way to use your REST API.
-SimpleResource is the wrapper of old Resource.
+**Resource** wrapper for very nice **async**/**await** programming based on promises.
 
 ```ts
 import { SimpleResource } from 'ng2-rest';
@@ -98,137 +138,6 @@ export class DemoComponent implements OnInit, OnDestroy {
 
 ```
 
-Specification
--------------
-
-| Name | Parameters  | Description |
-| :---: | --- | ---: |
-| **query** | `(optional) UrlParams[] ` |  fetch array of your models, optionally with parameters |
-| **get** | `UrlParams[] ` |   get model by parameters  |
-| **save** | `model, UrlParams[] ` |   post object model  |
-| **update** | `model, UrlParams[]` |   put object model |
-| **remove** | `UrlParams[]` |   remove object by params |parameters |
-
-Resource
-========
-
-Fit you existing API (not only REST) into new fluent objects with
-**Resource** service, which it is more advance version of **SimpleResource**;
-
-Examples:
-
-**service.ts**
-
-```ts
-import { Resource } from 'ng2-rest';
-
-	enum ENDPOINTS {
-		API,
-		OTHER_API
-	};
-
-     @Injectable()
-        export class DatabaseService { 
-                        // < enum or 'string', single_model, query_model>
-            constructor(private rest: Resource<ENDPOINTS,User,User[]>) {
-            
-	            // map endpoints and urls
-                Resource.map(ENDPOINTS.API.toString(),
-	                'http://localhost:/api');
-				Resource.map(ENDPOINTS.OTHER_API.toString(),
-					'http://example.com/api');
-				
-				// define your models  
-				rest.add(ENDPOINTS.API, 'users'); 
-                rest.add(ENDPOINTS.API, 'users/:some_param'); 
-                rest.add(ENDPOINTS.API, 'users/:some_param/books/:bookid'); 
-                
-              }
-              
-              // create your fluent API
-              get model() {
-                return {
-					getAll:  this.rest
-		                .api(ENDPOINTS.API, 'users')
-		                .query(),
-	                getAllSorted:  this.rest
-		                .api(ENDPOINTS.API, '/users/inside')
-		                .query([{ sorted: true }]),
-	                getSuperUser: this.rest
-		                .api(ENDPOINTS.API, 'users/super')
-		                .get([{id:0}]),
-	                saveCurrentUser : this.rest
-		                .api(ENDPOINTS.API, 'users')
-		                .save(this.user)
-				}
-              };
-
-		     
-		     
-			 mock_controller = (request: MockRequest<any> ):MockResponse
-			  => { 
-				 let user = request.data;
-			     user.id = request.params['id'];
-			     return { data:user }; 
-			 }
-			 
-			 users = [ { name:"name1":id:1 }, { name:"name2":id:2 }   ]
-             get mocked_models() {
-                return {
-					getAllMocks:  this.rest
-	                .api(ENDPOINTS.API,'users')
-	                .mock(JSON.stringify(this.users))
-	                .query(),
-               getFirstMock:  this.rest
-	               .api(ENDPOINTS.API, 'users')
-	               .mock(require('user.json')), 1000)
-	               .get([{ id:0 }]), // timeout 1000ms = 1s
-                getDataFromController:  this.rest
-	                .api(ENDPOINTS.API, 'users')
-	                .mock(require('user.json')), 0, mock_controller)
-	                .get([{id:100}])
-				}
-             };
-
-              user:User;
-              
-             }
-```
-**component.ts**		
-```ts
-...
-
-import { Subscription } from 'rxjs';
-import { Resource } from 'ng2-rest';
-
-import { DatabaseService } from './service';
-
-@Component({
-  ..
-})
-export class DemoComponent implements OnInit, OnDestroy {
-
-  constructor(public db: DatabaseService, private snackBar: MdSnackBar) {
-    Resource.mockingMode.setMocksOnly();
-  }
-
-  handlers: Subscription[] = [];
-  users = [];
-
-  public ngOnInit() {
-	this.handlers.push(this.db.models.users.subscribe(data => {
-      this.users = data;
-    }));
-  }
-
- 
-  public ngOnDestroy() {
-    this.handlers.forEach(h => h.unsubscribe())
-  }
-
-}
-	
-```
 
 Simple data mocking
 ============
@@ -244,7 +153,7 @@ It is one of the best features here. You don't need a backend for your front-end
 
 	// service.ts
 	...
-	getUsers = () => this.rest.api( ENDPOINT.API, modelName )
+	getUsers = () => rest.model()
 		.mock( require('./user.json') ).
 		query()
 
@@ -263,6 +172,8 @@ Mock Controller
 
  Sample MockController function to return mocked data based on params:
 ```ts
+import {MockRequest,MockResponse } from 'ng2-rest
+
 	// mock-controller.ts
     export function mockController(
 	    request: MockRequest<User> ): MockResponse 
@@ -282,7 +193,7 @@ Mock Controller
 	// service.ts
 	import { mockController } from './mock-controller';
 	...
-	data = (id) => this.rest.api( ENDPOINT.API, modelName )
+	data = (id) => rest.model()
 		.mock( { id: 10, name: 'Dariusz'  }, mockController).
 		get([{ id: id }] )) 
 
@@ -394,11 +305,14 @@ Pagination example
 Headers
 -------
 
-With ng2-rest you can also easly acces you response and request headers
+With **ngx-rest** you can also easily access you response and request headers
 ```ts
-	// you can also use class Resource for that
+	// Resource
+	console.log( Resource.Headers.request  );
+	console.log( Resource.Headers.response  );
+	
+	// SimpleResource
 	console.log(SimpleResource.headers.request);
 	console.log(SimpleResource.headers.response);
-
 ```
 

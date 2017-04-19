@@ -3,19 +3,20 @@ import {
   OnInit, OnDestroy
 } from '@angular/core';
 import { MdSnackBar } from '@angular/material';
-import { Preview } from '../base-preview';
-import { SimpleResource } from '../../../../src';
+import { Preview, PreviewBase } from '../base-preview'; //###
+import { SimpleResource } from '../../../../src'; //### import { SimpleResource } from 'ng2-rest'; ###
 
 
 @Component({
   selector: 'demo1',
   templateUrl: './demo1.component.html'
 })
-export class Demo1Component implements OnInit, OnDestroy {
+export class Demo1Component extends PreviewBase implements OnInit, OnDestroy { //###export class Demo1Component implements OnInit, OnDestroy {###
 
   public usersService = new SimpleResource<any, any>('https://demo9781896.mockable.io', 'users');
 
   constructor(private snackBar: MdSnackBar) {
+    super(); this.preview() //###
     SimpleResource.mockingMode.setMocksOnly();
   }
 
@@ -62,13 +63,11 @@ export class Demo1Component implements OnInit, OnDestroy {
   }
 
 
-
-
-  previews: Preview[] = [
-    { content: require('!raw-loader!./data.json'), name: 'data.json', lang: 'json' },
-    { content: require('!raw-loader!./demo1.component.ts'), name: 'demo1.component..ts', lang: 'typescript' },
-    { content: require('!raw-loader!./demo1.component.html'), name: 'demo1.component.html', lang: 'html' },
-  ]
+  preview() { //###
+    this.previews.push(new Preview('data.json', 'json', require('!raw-loader!./data.json'))); //###
+    this.previews.push(new Preview('demo1.component.ts', 'typescript', require('!raw-loader!./demo1.component.ts'))); //###
+    this.previews.push(new Preview('demo1.component.html', 'html', require('!raw-loader!./demo1.component.html'))); //###
+  }//###
 
 
 }
