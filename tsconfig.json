@@ -16,17 +16,8 @@
       "es7"
     ],
     "types": [
-      "faker",
-      "hammerjs",
       "jasmine",
-      "node",
-      "protractor",
-      "selenium-webdriver",
-      "source-map",
-      "uglify-js",
-      "webpack",
-      "chai",
-      "chai-as-promised"
+      "node"
     ]
   },
   "exclude": [
@@ -41,5 +32,7 @@
   },
   "compileOnSave": false,
   "buildOnSave": false,
-  "atom": { "rewriteTsconfig": false }
+  "atom": {
+    "rewriteTsconfig": false
+  }
 }

@@ -63,7 +63,7 @@ export namespace Rest {
     export type FnMethodSave<T> = (item?: T, params?: UrlParams[], doNotSerializeParams?: boolean, _sub?: Subject<T>) => Observable<T>
     export type FnMethodUpdate<T> = (item?: T, params?: UrlParams[], doNotSerializeParams?: boolean, _sub?: Subject<T>) => Observable<T>
     export type FnMethodRemove<T> = (params?: UrlParams[], doNotSerializeParams?: boolean, _sub?: Subject<T>) => Observable<T>;
-    export type FnMethodJsonp<T> = (params?: UrlParams[], _sub?: Subject<T>) => Observable<T>;
+    export type FnMethodJsonp<T> = (rl?: string, params?: UrlParams[], _sub?: Subject<T>) => Observable<T>;
 
     export interface FnMethodsHttp<T, TA> {
 

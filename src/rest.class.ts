@@ -22,7 +22,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
     public static docsTitle: string;
     public static headers: RestHeaders = new RestHeaders();
     public static headersResponse: RestHeaders = new RestHeaders();
-    
+
     public static mockingMode: MockingMode;
     public __usecase_desc;
     public static eureka: Eureka.Eureka<any, any>;
@@ -498,11 +498,12 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
             return subject.asObservable();
         };
 
-        t.jsonp = (params?: RestModule.UrlParams[], ): Observable<T> => {
+        t.jsonp = (url?: string, params?: RestModule.UrlParams[], ): Observable<T> => {
             currentMethod = 'JSONP';
             subject = new Subject<any>();
             RestModule.prepare(params);
-            currentFullUrl = this.endpoint;
+            let u = (url && UrlNestedParams.checkValidUrl(url)) ? url : this.endpoint;
+            currentFullUrl = u;
 
             return subject.asObservable();
         };
