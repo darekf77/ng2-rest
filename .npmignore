@@ -32,3 +32,5 @@ protractor.conf.js
 tsconfig.json
 tslint.json
 tsconfig.webpack.json
+karma-shim.js
+/src/test
