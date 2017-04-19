@@ -20,7 +20,7 @@ module.exports = {
     output: {
         // path: __dirname + '/bin',
         libraryTarget: "umd",
-        filename: 'bundle.js'
+        filename: 'bundle.umd.js'
     },
     resolve: {
         extensions: ['.ts', '.js']

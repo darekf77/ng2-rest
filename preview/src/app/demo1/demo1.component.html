@@ -1,5 +1,4 @@
-<md-card>
-    <!--<md-card-title>Simple Resource Demo</md-card-title>-->
+<md-card>1
     <md-card-content>
         <p>
             Demo is showing how to in very simple way create 
@@ -14,10 +13,10 @@
         <br> Data: {{ users | json }}
     </md-card-content>
 </md-card>
-<br>
-<br>
-<md-tab-group *ngIf="previews && previews.length > 0">
-    <md-tab *ngFor="let preview of previews" label="{{preview.name}}">
-        <pre><code highlight class="{{preview.lang}}">{{preview.content}}</code></pre>
-    </md-tab>
-</md-tab-group>
+<br><!-- ###-->
+<br><!-- ###-->
+<md-tab-group *ngIf="previews && previews.length > 0"> <!-- ###-->
+    <md-tab *ngFor="let preview of previews" label="{{preview.name}}"><!-- ###-->
+        <pre><code highlight class="{{preview.lang}}">{{preview.content}}</code></pre><!-- ###-->
+    </md-tab><!-- ###-->
+</md-tab-group><!-- ###-->

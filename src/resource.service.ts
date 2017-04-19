@@ -32,7 +32,7 @@ export class Resource<E, T, TA> {
         }
     }
 
-    public static init(zone: NgZone) {
+    public static initNgZone(zone: NgZone) {
         RestRequest.zone = zone;
     }
 
