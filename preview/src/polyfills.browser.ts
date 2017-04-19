@@ -1,5 +1,5 @@
 // TODO(gdi2290): switch to DLLs
-
+declare let ENV
 // Polyfills
 
 // import 'ie-shim'; // Internet Explorer 9 support
