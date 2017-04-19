@@ -81,6 +81,7 @@
     "@angularclass/conventions-loader": "^1.0.2",
     "@angularclass/hmr": "~1.2.2",
     "@angularclass/hmr-loader": "~3.0.2",
+    "@types/diff": "0.0.31",
     "bootstrap": "^3.3.7",
     "core-js": "^2.4.1",
     "diff": "3.2.0",
