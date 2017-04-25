@@ -190,16 +190,25 @@ export class RestRequest {
 
 
 
+
             var firstTime = true;
 
             function request(url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any): MockResponse {
                 var representationOfDesiredState = body;
                 var client = new XMLHttpRequest();
 
-                client.addEventListener
-                client.open(method, url, false);
-                client.send(representationOfDesiredState);
                 // console.log('RestHeaders', this )
+
+
+                client.open(method, url, false);
+
+                var headersMap: Map<string, string[]> = headers._headers;
+                if (headersMap) headersMap.forEach((v, k) => {
+                    client.setRequestHeader(k, v.join(';'))
+                })
+
+                client.send(representationOfDesiredState);
+
                 var h = eval('RestHeaders.fromResponseHeaderString(client.getAllResponseHeaders())');
                 return {
                     data: client.responseText,
@@ -225,6 +234,7 @@ export class RestRequest {
                 // }
                 let data: ReqParams = e.data;
                 if (data) {
+                    // let res = request(data.url, data.method, eval('new RestHeaders(data.headers)') , data.body);
                     let res = request(data.url, data.method, data.headers as any, data.body);
                     res['method'] = data.method;
                     self.postMessage(res, undefined)

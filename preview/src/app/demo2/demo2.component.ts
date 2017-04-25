@@ -38,6 +38,7 @@ export class Demo2Component extends PreviewBase implements OnDestroy {
   }
 
   getData() {
+    Resource.Headers.request.set('Authorizationiaa', 'Basic d2ViX2FwcDo=');
     let h = this.db.models.users.subscribe(data => {
       this.users = data;
     });
