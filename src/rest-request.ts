@@ -11,21 +11,19 @@ import { Http } from "./http";
 import { MockResponse } from './mock-backend';
 import { RestHeaders } from "./rest-headers";
 
+const jobIDkey = 'jobID'
 
-type ReqParams = { url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any };
+type ReqParams = { url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any, jobid: number };
 
 
 
 export class RestRequest {
 
     public static zone: NgZone;
-    private subjects = {
-        'GET': new Subject(),
-        'POST': new Subject(),
-        'PUT': new Subject(),
-        'DELETE': new Subject(),
-        'JSONP': new Subject()
-    }
+
+    private static jobId = 0;
+    private freeSubjects: Subject<any>[] = [];
+    private subjectInuUse: { [id: number]: Subject<any> } = {};
 
     private workerActive = false;
 
@@ -193,7 +191,7 @@ export class RestRequest {
 
             var firstTime = true;
 
-            function request(url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any): MockResponse {
+            function request(url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any, jobid?: number): MockResponse {
                 var representationOfDesiredState = body;
                 var client = new XMLHttpRequest();
 
@@ -214,7 +212,8 @@ export class RestRequest {
                     data: client.responseText,
                     error: client.statusText,
                     code: <Http.HttpCode>client.status,
-                    headers: h
+                    headers: h,
+                    jobid
                 };
 
             }
@@ -235,7 +234,7 @@ export class RestRequest {
                 let data: ReqParams = e.data;
                 if (data) {
                     // let res = request(data.url, data.method, eval('new RestHeaders(data.headers)') , data.body);
-                    let res = request(data.url, data.method, data.headers as any, data.body);
+                    let res = request(data.url, data.method, data.headers as any, data.body, data.jobid);
                     res['method'] = data.method;
                     self.postMessage(res, undefined)
                 }
@@ -271,47 +270,58 @@ export class RestRequest {
             // console.log('inside zone!',RestRequest.zone)
             if (RestRequest.zone) {
                 RestRequest.zone.run(() => {
-                    if (e && e.data) tmp.handlerResult(e.data, e.data['method']);
+                    if (e && e.data) tmp.handlerResult(e.data, e.data['method'], e.data.jobid);
                 })
             } else {
-                if (e && e.data) tmp.handlerResult(e.data, e.data['method']);
+                if (e && e.data) tmp.handlerResult(e.data, e.data['method'], e.data.jobid);
             }
 
         }, false);
 
     }
 
-    private handlerResult(res: MockResponse, method: Http.HttpMethod) {
+    private handlerResult(res: MockResponse, method: Http.HttpMethod, jobid?: number) {
+
+        // no http code case
         if (res && !res.code) {
-            this.subjects[method].next({
+            this.subjectInuUse[jobid].next({
                 json: () => (typeof res.data === 'string') ? JSON5.parse(res.data) : res.data,
-                headers: new RestHeaders(res.headers)
+                headers: new RestHeaders(res.headers, true)
             })
-            this.subjects[method].observers.length = 0;
+            this.subjectInuUse[jobid].observers.length = 0;
+            this.freeSubjects.push(this.subjectInuUse[jobid]);
             return;
         }
+
+        // normal request case
         if (res && res.code >= 200 && res.code < 300) {
-            this.subjects[method].next({
+            let headers = new RestHeaders(res.headers, true);
+            this.subjectInuUse[jobid].next({
                 json: () => JSON5.parse(res.data),
-                headers: new RestHeaders(res.headers)
+                headers
             })
-        } else {
-            this.subjects[method].error({
-                error: res ? res.error : 'undefined response',
-                headers: new RestHeaders(res.headers)
-            })
+            this.subjectInuUse[jobid].observers.length = 0;
+            this.freeSubjects.push(this.subjectInuUse[jobid]);
         }
-        this.subjects[method].observers.length = 0;
+
+        // error request case
+        this.subjectInuUse[jobid].error({
+            error: res ? res.error : 'undefined response',
+            headers: new RestHeaders(res.headers, true)
+        })
+
+        this.subjectInuUse[jobid].observers.length = 0;
+        this.freeSubjects.push(this.subjectInuUse[jobid]);
     }
 
 
-    private req(url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any) {
+    private req(url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any, jobid?: number) {
 
         if (this.workerActive) {
-            this.worker.postMessage({ url, method, headers, body });
+            this.worker.postMessage({ url, method, headers, body, jobid });
         } else {
             let res = this.request(url, method, headers, body);
-            this.handlerResult(res, method);
+            this.handlerResult(res, method, jobid);
         }
 
     }
@@ -334,28 +344,50 @@ export class RestRequest {
     }
 
 
+    private getSubject(): { subject: Subject<any>, id: number } {
+        let id: number, subject: Subject<any>;
+
+        // if (this.freeSubjects.length > 0) {
+        //     subject = this.freeSubjects.shift();
+        //     id = subject[jobIDkey];
+        // } else {
+        id = RestRequest.jobId++;
+        subject = new Subject()
+        subject[jobIDkey] = id;
+        this.subjectInuUse[id] = subject;
+        // }
+        // console.info('id', id)
+        // console.info('subject', subject)
+        return { subject, id };
+    }
+
 
     get(url: string, headers: RestHeaders): Observable<any> {
-        setTimeout(() => this.req(url, 'GET', headers))
-        return this.subjects['GET'].asObservable();
+        let { id, subject } = this.getSubject();
+        setTimeout(() => this.req(url, 'GET', headers, undefined, id))
+        return subject.asObservable();
     }
 
     delete(url: string, headers: RestHeaders): Observable<any> {
-        setTimeout(() => this.req(url, 'DELETE', headers))
-        return this.subjects['DELETE'].asObservable();
+        let { id, subject } = this.getSubject();
+        setTimeout(() => this.req(url, 'DELETE', headers, undefined, id))
+        return subject.asObservable();
     }
 
     post(url: string, body: string, headers: RestHeaders): Observable<any> {
-        setTimeout(() => this.req(url, 'POST', headers, body))
-        return this.subjects['POST'].asObservable();
+        let { id, subject } = this.getSubject();
+        setTimeout(() => this.req(url, 'POST', headers, body, id))
+        return subject.asObservable();
     }
 
     put(url: string, body: string, headers: RestHeaders): Observable<any> {
-        setTimeout(() => this.req(url, 'PUT', headers, body))
-        return this.subjects['PUT'].asObservable();
+        let { id, subject } = this.getSubject();
+        setTimeout(() => this.req(url, 'PUT', headers, body, id))
+        return subject.asObservable();
     }
 
     jsonp(url: string): Observable<any> {
+        let { id, subject } = this.getSubject();
         setTimeout(() => {
             if (url.endsWith('/')) url = url.slice(0, url.length - 1)
             let num = Math.round(10000 * Math.random());
@@ -363,14 +395,14 @@ export class RestRequest {
             window[callbackMethodName] = (data) => {
                 this.handlerResult({
                     data
-                }, 'JSONP')
+                }, 'JSONP', id)
             }
             let sc = document.createElement('script');
             sc.src = `${url}?callback=${callbackMethodName}`;
             document.body.appendChild(sc);
             document.body.removeChild(sc);
         })
-        return this.subjects['JSONP'].asObservable();
+        return subject.asObservable();
     }
 
 

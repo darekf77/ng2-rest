@@ -76,6 +76,11 @@ export interface MockResponse {
      */
     error?: string;
     headers?: RestHeaders;
+
+    /**
+     * do no use
+     */
+    jobid?: number;
 }
 
 export namespace MockBackend {

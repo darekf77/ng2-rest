@@ -8,7 +8,7 @@ export class RestHeaders {
   _normalizedNames: Map<string, string> = new Map();
 
   // TODO(vicb): any -> string|string[]
-  constructor(headers?: RestHeaders|{[name: string]: any}) {
+  constructor(headers?: RestHeaders | { [name: string]: any } | any, recreate = false) {
     if (!headers) {
       return;
     }
@@ -17,6 +17,12 @@ export class RestHeaders {
       headers.forEach((values: string[], name: string) => {
         values.forEach(value => this.append(name, value));
       });
+      return;
+    }
+
+    if (recreate) {
+      this._headers = headers._headers;
+      this._normalizedNames = headers._normalizedNames;
       return;
     }
 
@@ -61,7 +67,7 @@ export class RestHeaders {
   /**
    * Deletes all header values for the given name.
    */
-  delete (name: string): void {
+  delete(name: string): void {
     const lcName = name.toLowerCase();
     this._normalizedNames.delete(lcName);
     this._headers.delete(lcName);
@@ -69,7 +75,7 @@ export class RestHeaders {
 
   forEach(fn: (values: string[], name: string, headers: Map<string, string[]>) => void): void {
     this._headers.forEach(
-        (values, lcName) => fn(values, this._normalizedNames.get(lcName), this._headers));
+      (values, lcName) => fn(values, this._normalizedNames.get(lcName), this._headers));
   }
 
   /**
@@ -98,7 +104,7 @@ export class RestHeaders {
   /**
    * Sets or overrides header value for given name.
    */
-  set(name: string, value: string|string[]): void {
+  set(name: string, value: string | string[]): void {
     if (Array.isArray(value)) {
       if (value.length) {
         this._headers.set(name.toLowerCase(), [value.join(',')]);
@@ -118,8 +124,8 @@ export class RestHeaders {
    * Returns string of all headers.
    */
   // TODO(vicb): returns {[name: string]: string[]}
-  toJSON(): {[name: string]: any} {
-    const serialized: {[name: string]: string[]} = {};
+  toJSON(): { [name: string]: any } {
+    const serialized: { [name: string]: string[] } = {};
 
     this._headers.forEach((values: string[], name: string) => {
       const split: string[] = [];
