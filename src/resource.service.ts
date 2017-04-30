@@ -1,6 +1,9 @@
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/takeUntil';
+import 'rxjs/add/operator/take';
+import 'rxjs/add/operator/toPromise';
 
 import { Log, Level } from 'ng2-logger';
 const log = Log.create('resouce-service', Level.__NOTHING)

@@ -27,34 +27,37 @@ constructor(zone:NgZone) {
 }
 ```
 
+
 Resource
 ========
 
-Fit you existing API (not only REST) into new fluent objects with **Resource**  class an observables:
+Fit you existing API (not only REST) into new fluent objects with **Resource**  class an observables. Use power of **asyn** in new angular 4 templates;
 
-**service.ts**
+**template.html**
+```html
+User books:
+<ul> 
+	<li *ngFor="book in books | async" > {{book.title}} <li>
+<url>
 
+```
+**component.ts**
 ```ts
 // express.js style url endpoint model
 const rest = Resource.create("http://localhost:/api","users/:id/books/:bookid")
 
-class DatabaseService { 
+class BooksComponent { 
 	// create your fluent API
-	get model() {
-		return {
-			getAllUserBooks: ()=> rest
-				.model({ id:1 })
-				.query(),
-			getAllUserBooksSortedAscAndLimit5: ()=> rest
-				.model({ id:1 })
-				.query([{ sort: 'asc', limit:5 }]), // query params ex.
-			saveCurrentUser: ()=> rest
-				.model({ id:1, bookid:2 })
+	books = getAllUserBook: ()=> rest
+				.model({ id:1  })
 				.save(this.user)
-		}
-	};
 }
 ```
+SimpleResource
+--------
+Note: From version 7.1.0 **SimpleResource** has changed and if you are still using it
+consider to build your promises api like this  `getMyElements().take(1).toPromies();`
+
 
 
 Specification
@@ -68,75 +71,6 @@ Specification
 | **update** | `model, UrlParams[]` |   put object model |
 | **remove** | `UrlParams[]` |   remove object by params |
 | **jsonp** | `UrlParams[]` |   get jsonp data |
-
-
-SimpleResource
-==============
-
-**Resource** wrapper for very nice **async**/**await** programming based on promises.
-
-```ts
-import { SimpleResource } from 'ng2-rest';
-
-@Component({
-...
-})
-export class DemoComponent implements OnInit, OnDestroy {
-  
-
- // SIMPLEST ACCESS TO YOUT REST API  (in express.js style) 
-  public usersService = new SimpleResource<any, any>('http://demo9781896.mockable.io', 'users/:id');
-  private users = [];
-
-  constructor() {
-		SimpleResource.mockingMode.setBackendOnly();
-		
-		// OR if you wanna mock your data
-		// SimpleResource.mockingMode.setMocksOnly();
-		// this.usersService.mock.data = [
-		// 	{"name":"Bob mock","id":1},
-		// 	{"name":"Alice mock","id":2}
-		// ];
-	    // this.usersService.mock.controller = (r) => {
-	    //   return { data: r.data }
-	    // }
-	    
-  }
-
-  public ngOnInit() { }
-
- async getData() { // you can also use normal promises insted of async/await
-    try {
-    
-      let users = await this.usersService.model().query();
-	  
-	  // sorting in query params
-	  // let users = await this.usersService.model().query({ sort:'asc' });
-      if (users) {
-        this.users = users;
-      }
-	  
-	  // users manipulation GET, PUT, DELETE, POST
-	  let user = await this.usersService.model({ id:3 }).get();	
-      let user = await this.usersService.model({ id:3 }).update(users[0]);
-      await this.usersService.model({ id:3 }).remove();
-      await this.usersService.model().save({ name: 'Dariusz' });
-
-    } catch (e) {
-      console.error(e)
-    }
-  }
-
-  public ngOnDestroy() {
-    this.usersService.destroy();
-  }
-
-}
-
-
-
-
-```
 
 
 Simple data mocking

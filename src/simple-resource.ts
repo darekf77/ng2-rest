@@ -2,8 +2,12 @@
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
+import { Observer } from "rxjs/Observer";
 
 import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/takeUntil';
+import 'rxjs/add/operator/take';
+import 'rxjs/add/operator/toPromise';
 
 import { Resource, ResourceModel } from './resource.service';
 import { Rest as ModuleRest } from './rest';
@@ -21,11 +25,11 @@ export interface Mock<A> {
 }
 
 export interface RestPromises<A, TA, QP extends ModuleRest.UrlParams> {
-    get: (queryParams?: QP) => Promise<A>;
-    query: (queryParams?: QP) => Promise<TA>;
-    save: (item?: A, queryParams?: QP) => Promise<A>;
-    update: (item?: A, queryParams?: QP) => Promise<A>;
-    remove: (queryParams?: QP) => Promise<A>;
+    get: (queryParams?: QP) => Observable<A>;
+    query: (queryParams?: QP) => Observable<TA>;
+    save: (item?: A, queryParams?: QP) => Observable<A>;
+    update: (item?: A, queryParams?: QP) => Observable<A>;
+    remove: (queryParams?: QP) => Observable<A | any>;
 }
 
 export interface Model<A, TA, RP extends Object, QP extends ModuleRest.UrlParams> {
@@ -62,68 +66,67 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends ModuleRest.UrlPar
         return {
 
             get: (queryPrams?: QP) => {
-                return new Promise<A>((resolve, reject) => {
+                return Observable.create((observer: Observer<A>) => {
                     ExtendedResource.handlers.push(this.rest.model(restParams)
                         .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                         .get([queryPrams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
-                        data => resolve(data),
-                        err => reject(err)))
+                        data => observer.next(data),
+                        err => observer.next(err),
+                        () => observer.complete()))
                 })
             },
 
             query: (queryPrams?: QP) => {
-                return new Promise<TA>((resolve, reject) => {
-
+                return Observable.create((observer: Observer<TA>) => {
                     ExtendedResource.handlers.push(this.rest.model(restParams)
                         .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                         .query([queryPrams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
-                        data => resolve(data),
-                        err => reject(err)))
-
+                        data => observer.next(data),
+                        err => observer.next(err),
+                        () => observer.complete()))
                 })
             },
 
 
             save: (item: A, queryParams?: QP) => {
-                return new Promise<A>((resolve, reject) => {
-
+                return Observable.create((observer: Observer<A>) => {
                     ExtendedResource.handlers.push(this.rest.model(restParams)
                         .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                         .save(item, [queryParams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
-                        data => resolve(data),
-                        err => reject(err)))
-
+                        data => observer.next(data),
+                        err => observer.next(err),
+                        () => observer.complete()))
                 })
+
             },
 
 
             update: (item: A, queryParams?: QP) => {
-                return new Promise<A>((resolve, reject) => {
-
+                return Observable.create((observer: Observer<A>) => {
                     ExtendedResource.handlers.push(this.rest.model(restParams)
                         .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                         .update(item, [queryParams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
-                        data => resolve(data),
-                        err => reject(err)))
-
+                        data => observer.next(data),
+                        err => observer.next(err),
+                        () => observer.complete()))
                 })
+
             },
 
 
             remove: (queryPrams?: QP) => {
-                return new Promise<A>((resolve, reject) => {
-
-                    ExtendedResource.handlers.push(this.rest.model(restParams)
+                return Observable.create((observer: Observer<A>) => {
+                     ExtendedResource.handlers.push(this.rest.model(restParams)
                         .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                         .remove([queryPrams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
-                        data => resolve(data),
-                        err => reject(err)))
-
+                        data => observer.next(data),
+                        err => observer.next(err),
+                        () => observer.complete()))
                 })
             }
 

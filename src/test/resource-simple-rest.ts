@@ -81,7 +81,7 @@ export class TestSimpleRest {
                         }
 
 
-                        rest.model({ id: 0 }).get().then(res => {
+                        rest.model({ id: 0 }).get().take(1).toPromise().then(res => {
                             expect(res).toEqual(user);
                         }, (err) => {
                             fail;
