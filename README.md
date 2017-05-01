@@ -54,7 +54,7 @@ class BooksComponent {
 
 	// create your fluent API
 	model = {
-		books : getAllUserBook: ()=> rest.model({ id:1  }).query()
+		books : getAllUserBooks: ()=> rest.model({ id:1  }).query()
 	}
 	
 }
@@ -245,7 +245,7 @@ Pagination example
 Headers
 -------
 
-With **ngx-rest** you can also easily access you response and request headers
+With **ng2-rest** you can also easily access you response and request headers
 ```ts
 	// Resource
 	console.log( Resource.Headers.request  );
