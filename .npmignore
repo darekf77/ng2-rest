@@ -20,7 +20,6 @@ copy_crm.sh
 /src/**/*.ts
 index.ts
 !/src/**/*.d.ts
-ng2-rest.js.map
 
 /docs
 /preview

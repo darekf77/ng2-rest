@@ -30,7 +30,7 @@ export class Resource<E, T, TA> {
         return {
             model: (params?: Object) => Resource.instance.api(
                 e,
-                model ? UrlNestedParams.interpolateParamsToUrl(params, model) : ''
+                UrlNestedParams.interpolateParamsToUrl(params, model)
             )
         }
     }

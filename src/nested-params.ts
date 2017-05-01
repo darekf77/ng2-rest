@@ -98,19 +98,47 @@ export namespace UrlNestedParams {
         return res;
     }
 
+
+    /**
+     * Models like books/:id
+     */
+    function cutUrlModel(params: Object, models: string[], output: string[]) {
+        if (models.length === 0) return output.join('\/');
+        let m = models.pop();
+        let param = m.match(/:[a-zA-Z0-9]+/)[0].replace(':', '');
+        let model = m.match(/[a-zA-Z0-9]+\//)[0].replace('\/', '');
+        if (params === undefined || params[param] === undefined || param === 'undefined') {
+            output.length = 0;
+            output.unshift(model)
+            return cutUrlModel(params, models, output);
+        } else {
+            let mrep = m.replace(new RegExp(`:${param}`, 'g'), `${params[param]}`)
+            output.unshift(mrep)
+            return cutUrlModel(params, models, output);
+        }
+    }
+
     export function interpolateParamsToUrl(params: Object, url: string): string {
-        let itHasSlash = false;
-        if (url.charAt(url.length - 1) !== '/') {
-            url = `${url}/`;
-            itHasSlash = true;
+
+        let slash = {
+            start: url.charAt(0) === '\/',
+            end: url.charAt(url.length - 1) === '\/'
         }
-        for (let p in params) {
-            if (params.hasOwnProperty(p)) {
-                let v = params[p];
-                url = url.replace(new RegExp(`:${p}/`, 'g'), `${v}/`)
-            }
+
+        if (!slash.end) url = `${url}/`;
+        if (!/:[a-zA-Z0-9]+\/$/g.test(url) && /[a-zA-Z0-9]+\/$/g.test(url)) {
+            url = url.replace(/\/$/g, '/:undefined')
         }
-        return itHasSlash ? url.slice(0, url.length - 1) : url;
+
+        let nestedParams = url.match(/[a-zA-Z0-9]+\/:[a-zA-Z0-9]+/g);
+        if (nestedParams.length > 0) {
+            url = cutUrlModel(params, nestedParams, [])
+        }
+
+        // console.log('joined output', url)
+        if (url.charAt(url.length - 1) !== '/' && slash.end) url = `${url}/`;
+        if (url.charAt(0) !== '\/' && slash.start) url = `/${url}`;
+        return url;
     }
 
 }

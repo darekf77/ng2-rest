@@ -137,15 +137,50 @@ export function TestNestedParams() {
             })
         })
 
-        it('should interpolate params', () => {
+
+        it('should interpolate params 1 level', () => {
+            let title = 'aaasdasd'
+            let obj = {
+                bookid: 34
+            }
+            let pattern = '/books/:bookid';
+            let url =     `/books/34`;
+            expect(UrlNestedParams.interpolateParamsToUrl(obj, pattern)).toEqual(url)
+
+        })
+
+        it('should interpolate params 3 level', () => {
             let title = 'aaasdasd'
             let obj = {
                 bookid: 34,
                 titleId: title,
                 missionId: true
             }
-            let pattern = 'http://something.com/books/:bookid/title/:titleId/mission/:missionId';
-            let url = `http://something.com/books/34/title/${title}/mission/true`;
+            let pattern = '/books/:bookid/title/:titleId/mission/:missionId';
+            let url =     `/books/34/title/${title}/mission/true`;
+            expect(UrlNestedParams.interpolateParamsToUrl(obj, pattern)).toEqual(url)
+
+        })
+
+        it('should interpolate params with last alone param', () => {
+            let title = 'aaasdasd'
+            let obj = {
+                bookid: 34,
+                titleId: title,
+                missionId: true
+            }
+            let pattern = '/books/:bookid/titles';
+            let url =     `/books/34/titles`;
+            expect(UrlNestedParams.interpolateParamsToUrl(obj, pattern)).toEqual(url)
+
+        })
+
+
+         it('should interpolate params with last alone param2', () => {
+            let title = 'aaasdasd'
+            let obj = {   }
+            let pattern = '/books/:bookid/titles';
+            let url =     `/books`;
             expect(UrlNestedParams.interpolateParamsToUrl(obj, pattern)).toEqual(url)
 
         })
