@@ -126,7 +126,7 @@ export namespace UrlNestedParams {
         }
 
         let nestedParams = url.match(/[a-zA-Z0-9]+\/:[a-zA-Z0-9]+/g);
-        if (nestedParams.length === 0) return url;
+        if (!nestedParams || (Array.isArray(nestedParams) && nestedParams.length === 0)) return url;
 
         // check alone params
         if (!slash.end) url = `${url}/`;

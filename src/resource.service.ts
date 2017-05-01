@@ -27,7 +27,7 @@ export class Resource<E, T, TA> {
     public static create<A, TA>(e: string, model?: string): ResourceModel<A, TA> {
         Resource.map(e, e);
         Resource.instance.add(e, model ? model : '');
-        if (model.charAt(model.length - 1) !== '/') model = `${model}/`;
+        // if (model.charAt(model.length - 1) !== '/') model = `${model}/`;
         return {
             model: (params?: Object) => Resource.instance.api(
                 e,
@@ -285,7 +285,7 @@ export class Resource<E, T, TA> {
 
 
     private checkNestedModels(model: string, allModels: Object) {
-        if (model.indexOf('/') !== -1) {
+        // if (model.indexOf('/') !== -1) { //TODO make this better, becouse now I unecesary checking shit
             for (let p in allModels) {
                 if (allModels.hasOwnProperty(p)) {
                     let m = allModels[p];
@@ -298,7 +298,7 @@ export class Resource<E, T, TA> {
                     }
                 }
             }
-        }
+        // }
         return model;
     }
 
