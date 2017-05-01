@@ -31,14 +31,18 @@ constructor(zone:NgZone) {
 Resource
 ========
 
-Fit you existing API (not only REST) into new fluent objects with **Resource**  class an observables. Use power of **asyn** in new angular 4 templates;
+Fit you existing API (not only REST) into new fluent objects with **Resource**  class an observables. Use power of **async** in new angular 4 templates;
 
 **template.html**
 ```html
 User books:
-<ul> 
-	<li *ngFor="book in books | async" > {{book.title}} <li>
-<url>
+<ul *ngIf="model.books | async; else loader; let books">
+
+  <li *ngFor="let book of books  "> {{book.title}} </li>
+
+</ul>
+
+<ng-template #loader> loading user books...  </ng-template>
 
 ```
 **component.ts**
@@ -47,10 +51,12 @@ User books:
 const rest = Resource.create("http://localhost:/api","users/:id/books/:bookid")
 
 class BooksComponent { 
+
 	// create your fluent API
-	books = getAllUserBook: ()=> rest
-				.model({ id:1  })
-				.save(this.user)
+	model = {
+		books : getAllUserBook: ()=> rest.model({ id:1  }).query()
+	}
+	
 }
 ```
 SimpleResource
@@ -250,3 +256,20 @@ With **ngx-rest** you can also easily access you response and request headers
 	console.log(SimpleResource.headers.response);
 ```
 
+Production mode
+---------------
+Nice things to do in production mode:
+
+**1. Disable warnings.**
+
+If you don't wanna see warning, disable it like this:
+```ts
+if (environment.production) {
+  Resource.enableWarnings = false;
+}
+```
+**2. Do not use mock data.**
+To prevent application from using mock do this:
+```ts
+Resource.mockingMode.setBackendOnly()
+```
