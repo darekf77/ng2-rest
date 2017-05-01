@@ -18,8 +18,8 @@ copy_crm.sh
 # https://github.com/angular/angular-cli/issues/3426
 
 /src/**/*.ts
-index.ts
 !/src/**/*.d.ts
+index.ts
 
 /docs
 /preview
@@ -33,3 +33,4 @@ tslint.json
 tsconfig.webpack.json
 karma-shim.js
 /src/test
+/src/resource.service.spec.ts
