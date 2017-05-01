@@ -125,19 +125,29 @@ export namespace UrlNestedParams {
             end: url.charAt(url.length - 1) === '\/'
         }
 
-        if (!slash.end) url = `${url}/`;
-        if (!/:[a-zA-Z0-9]+\/$/g.test(url) && /[a-zA-Z0-9]+\/$/g.test(url)) {
-            url = url.replace(/\/$/g, '/:undefined')
-        }
-
         let nestedParams = url.match(/[a-zA-Z0-9]+\/:[a-zA-Z0-9]+/g);
-        if (nestedParams.length > 0) {
+        if (nestedParams.length === 0) return url;
+
+        // check alone params
+        if (!slash.end) url = `${url}/`;
+        let addUndefinedForAlone = (!/:[a-zA-Z0-9]+\/$/g.test(url) && /[a-zA-Z0-9]+\/$/g.test(url));
+
+        let replace = (nestedParams.length > 1 ? nestedParams.join('\/') : nestedParams[0]) +
+            (addUndefinedForAlone ? '\/' + url.match(/[a-zA-Z0-9]+\/$/g)[0] : '\/');
+        let beginHref = url.replace(replace, '')
+
+        if (addUndefinedForAlone) {
+            url = url.replace(/\/$/g, '/:undefined')
+            nestedParams = url.match(/[a-zA-Z0-9]+\/:[a-zA-Z0-9]+/g);
+            url = cutUrlModel(params, nestedParams, [])
+        } else {
             url = cutUrlModel(params, nestedParams, [])
         }
+        url = beginHref + url;
 
-        // console.log('joined output', url)
         if (url.charAt(url.length - 1) !== '/' && slash.end) url = `${url}/`;
         if (url.charAt(0) !== '\/' && slash.start) url = `/${url}`;
+
         return url;
     }
 

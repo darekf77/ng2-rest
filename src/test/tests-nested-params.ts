@@ -149,6 +149,18 @@ export function TestNestedParams() {
 
         })
 
+
+         it('should interpolate params 1 level, based prefix ', () => {
+            let title = 'aaasdasd'
+            let obj = {
+                bookid: 34
+            }
+            let pattern = '/api/books/:bookid';
+            let url =     `/api/books/34`;
+            expect(UrlNestedParams.interpolateParamsToUrl(obj, pattern)).toEqual(url)
+
+        })
+
         it('should interpolate params 3 level', () => {
             let title = 'aaasdasd'
             let obj = {
