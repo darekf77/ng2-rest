@@ -365,7 +365,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
                     throw new Error(`Data for mock isn't string or object, endpoint:${this.endpoint}`);
                 }
                 if (this.backend === undefined && nunOfMocks > 0)
-                    this.backend = new MockBackend.MockAutoBackend<T>(data, nunOfMocks);
+                    this.backend = new MockBackend.MockAutoBackend<T>(tdata, nunOfMocks);
 
                 let bodyPOSTandPUT = (currentBodySend && typeof currentBodySend === 'string') ? JSON.parse(currentBodySend) : undefined;
                 log.i('currentFullUrl', currentFullUrl);
