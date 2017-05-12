@@ -194,27 +194,34 @@ export class RestRequest {
             function request(url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any, jobid?: number): MockResponse {
                 var representationOfDesiredState = body;
                 var client = new XMLHttpRequest();
+                try {
+                    // console.log('RestHeaders', this )
 
-                // console.log('RestHeaders', this )
 
+                    client.open(method, url, false);
 
-                client.open(method, url, false);
+                    var headersMap: Map<string, string[]> = headers._headers;
+                    if (headersMap) headersMap.forEach((v, k) => {
+                        client.setRequestHeader(k, v.join(';'))
+                    })
 
-                var headersMap: Map<string, string[]> = headers._headers;
-                if (headersMap) headersMap.forEach((v, k) => {
-                    client.setRequestHeader(k, v.join(';'))
-                })
+                    client.send(representationOfDesiredState);
 
-                client.send(representationOfDesiredState);
+                    var h = eval('RestHeaders.fromResponseHeaderString(client.getAllResponseHeaders())');
+                    return {
+                        data: client.responseText,
+                        code: <Http.HttpCode>client.status,
+                        headers: h,
+                        jobid
+                    };
+                } catch (error) {
+                    return {
+                        data: client.responseText,
+                        error: typeof error === 'object' ? JSON.stringify(error) : error,
+                        jobid
+                    };
+                }
 
-                var h = eval('RestHeaders.fromResponseHeaderString(client.getAllResponseHeaders())');
-                return {
-                    data: client.responseText,
-                    error: client.statusText,
-                    code: <Http.HttpCode>client.status,
-                    headers: h,
-                    jobid
-                };
 
             }
 
@@ -282,7 +289,17 @@ export class RestRequest {
 
     private handlerResult(res: MockResponse, method: Http.HttpMethod, jobid?: number) {
 
-        // no http code case
+        // error no internet
+        if (res && res.error) {
+            this.subjectInuUse[jobid].error({
+                error: JSON5.parse(res.error)
+            })
+            this.subjectInuUse[jobid].observers.length = 0;
+            this.freeSubjects.push(this.subjectInuUse[jobid]);
+            return;
+        }
+
+        // jsonp - no http code case
         if (res && !res.code) {
             this.subjectInuUse[jobid].next({
                 json: () => (typeof res.data === 'string') ? JSON5.parse(res.data) : res.data,
@@ -294,7 +311,7 @@ export class RestRequest {
         }
 
         // normal request case
-        if (res && res.code >= 200 && res.code < 300) {
+        if (res && res.code >= 200 && res.code < 300 && !res.error) {
             let headers = new RestHeaders(res.headers, true);
             this.subjectInuUse[jobid].next({
                 json: () => JSON5.parse(res.data),
@@ -302,12 +319,12 @@ export class RestRequest {
             })
             this.subjectInuUse[jobid].observers.length = 0;
             this.freeSubjects.push(this.subjectInuUse[jobid]);
+            return;
         }
 
-        // error request case
+        // error bad request  
         this.subjectInuUse[jobid].error({
-            error: res ? res.error : 'undefined response',
-            headers: new RestHeaders(res.headers, true)
+            error: res ? res.error : 'undefined response'
         })
 
         this.subjectInuUse[jobid].observers.length = 0;

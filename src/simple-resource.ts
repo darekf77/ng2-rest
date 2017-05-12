@@ -72,7 +72,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends ModuleRest.UrlPar
                         .get([queryPrams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
                         data => observer.next(data),
-                        err => observer.next(err),
+                        err => observer.error(err),
                         () => observer.complete()))
                 })
             },
@@ -84,7 +84,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends ModuleRest.UrlPar
                         .query([queryPrams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
                         data => observer.next(data),
-                        err => observer.next(err),
+                        err => observer.error(err),
                         () => observer.complete()))
                 })
             },
@@ -97,7 +97,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends ModuleRest.UrlPar
                         .save(item, [queryParams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
                         data => observer.next(data),
-                        err => observer.next(err),
+                        err => observer.error(err),
                         () => observer.complete()))
                 })
 
@@ -111,7 +111,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends ModuleRest.UrlPar
                         .update(item, [queryParams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
                         data => observer.next(data),
-                        err => observer.next(err),
+                        err => observer.error(err),
                         () => observer.complete()))
                 })
 
@@ -125,7 +125,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends ModuleRest.UrlPar
                         .remove([queryPrams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
                         data => observer.next(data),
-                        err => observer.next(err),
+                        err => observer.error(err),
                         () => observer.complete()))
                 })
             }
