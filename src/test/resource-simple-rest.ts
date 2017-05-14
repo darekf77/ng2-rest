@@ -70,22 +70,22 @@ export class TestSimpleRest {
 
                         // });
 
-                        let url = 'https://somewhere.com';
-                        let rest = new SimpleResource<User, User[]>(url, 'users/:id');
+                        // let url = 'https://somewhere.com';
+                        // let rest = new SimpleResource<User, User[]>(url, 'users/:id');
 
-                        rest.mock.data = user;
-                        rest.mock.controller = r => {
-                            let data: User = r.data;
-                            data.id = undefined;
-                            return { data }
-                        }
+                        // rest.mock.data = user;
+                        // rest.mock.controller = r => {
+                        //     let data: User = r.data;
+                        //     data.id = undefined;
+                        //     return { data }
+                        // }
 
 
-                        rest.model({ id: 0 }).get().take(1).toPromise().then(res => {
-                            expect(res).toEqual(user);
-                        }, (err) => {
-                            fail;
-                        })
+                        // rest.model({ id: 0 }).get().take(1).toPromise().then(res => {
+                        //     expect(res).toEqual(user);
+                        // }, (err) => {
+                        //     fail;
+                        // })
 
                         // rest.add(APIS.FIRST, 'users');
                         // rest.api(APIS.FIRST, 'users').remove([{ id: 0 }]).subscribe((res) => {
