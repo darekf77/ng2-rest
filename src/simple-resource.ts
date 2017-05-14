@@ -54,7 +54,6 @@ export interface Model<A, TA, RP extends Object, QP extends ModuleRest.UrlParams
 class ExtendedResource<E, A, TA, RP extends Object, QP extends ModuleRest.UrlParams>  {
     public static doNotSerializeQueryParams = false;
     public static handlers: Subscription[] = [];
-    mock: Mock<A> = <Mock<A>>{ timeout: 100, howManyMock: 100, data: undefined };
 
     rest: ResourceModel<A, TA>;
 
@@ -68,7 +67,6 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends ModuleRest.UrlPar
             get: (queryPrams?: QP) => {
                 return Observable.create((observer: Observer<A>) => {
                     ExtendedResource.handlers.push(this.rest.model(restParams)
-                        .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                         .get([queryPrams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
                         data => observer.next(data),
@@ -80,7 +78,6 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends ModuleRest.UrlPar
             query: (queryPrams?: QP) => {
                 return Observable.create((observer: Observer<TA>) => {
                     ExtendedResource.handlers.push(this.rest.model(restParams)
-                        .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                         .query([queryPrams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
                         data => observer.next(data),
@@ -93,7 +90,6 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends ModuleRest.UrlPar
             save: (item: A, queryParams?: QP) => {
                 return Observable.create((observer: Observer<A>) => {
                     ExtendedResource.handlers.push(this.rest.model(restParams)
-                        .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                         .save(item, [queryParams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
                         data => observer.next(data),
@@ -107,7 +103,6 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends ModuleRest.UrlPar
             update: (item: A, queryParams?: QP) => {
                 return Observable.create((observer: Observer<A>) => {
                     ExtendedResource.handlers.push(this.rest.model(restParams)
-                        .mock(this.mock.data, this.mock.timeout, this.mock.controller)
                         .update(item, [queryParams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
                         data => observer.next(data),
@@ -120,8 +115,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends ModuleRest.UrlPar
 
             remove: (queryPrams?: QP) => {
                 return Observable.create((observer: Observer<A>) => {
-                     ExtendedResource.handlers.push(this.rest.model(restParams)
-                        .mock(this.mock.data, this.mock.timeout, this.mock.controller)
+                    ExtendedResource.handlers.push(this.rest.model(restParams)
                         .remove([queryPrams], ExtendedResource.doNotSerializeQueryParams)
                         .subscribe(
                         data => observer.next(data),
@@ -157,7 +151,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends ModuleRest.UrlPar
  */
 export class SimpleResource<A, TA> {
     model: Model<A, TA, Object, ModuleRest.UrlParams>;
-    mock: Mock<A>;
+
 
     private static _isSetQueryParamsSerialization = false;
     public static set doNotSerializeQueryParams(value) {
@@ -171,10 +165,6 @@ export class SimpleResource<A, TA> {
     }
 
 
-    /**
-     * Should be called in ngDestroy()
-     */
-    destroy: () => void;
 
     public static get mockingMode() {
         return Resource.mockingMode;
@@ -191,10 +181,7 @@ export class SimpleResource<A, TA> {
     constructor(endpoint: string, model: string) {
         let rest = new ExtendedResource<string, A, TA, Object, ModuleRest.UrlParams>(endpoint, model);
         this.model = rest.model;
-        this.mock = rest.mock;
-        this.destroy = () => {
-            ExtendedResource.handlers.forEach(h => h.unsubscribe());
-        }
     }
 
 }
+

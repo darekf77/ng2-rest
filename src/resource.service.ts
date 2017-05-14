@@ -49,7 +49,7 @@ export class Resource<E, T, TA> {
     private static request: RestRequest = new RestRequest();
     private constructor() {
         // Quick fix
-        if (Resource.__mockingMode === undefined) Resource.__mockingMode = MockingMode.LIVE_BACKEND_ONLY;
+        if (Resource.__mockingMode === undefined) Resource.__mockingMode = MockingMode.MIX;
         log.i('heelooeoeoeo')
 
 
@@ -112,7 +112,7 @@ export class Resource<E, T, TA> {
 
     private static setMockingMode(mode: MockingMode, setOnce = false) {
 
-        if (Resource.mockingModeIsSet) {
+        if (Resource.mockingModeIsSet && !setOnce) {
             if (Resource.enableWarnings) console.warn('MOCKING MODE already set for entire application');
             return;
         }
@@ -121,7 +121,16 @@ export class Resource<E, T, TA> {
         log.i('Mode is set ', mode);
     }
 
+
+    /**
+     * For demo puropse
+     * Set mocking dynamicly in your app.
+     * Generaly you should use function setMockingMode(...)
+     */
     public static mockingMode = {
+        setDefault: () => {
+            Resource.setMockingMode(MockingMode.MIX);
+        },
         setMocksOnly: () => {
             Resource.setMockingMode(MockingMode.MOCKS_ONLY);
         },
@@ -129,7 +138,8 @@ export class Resource<E, T, TA> {
             Resource.setMockingMode(MockingMode.LIVE_BACKEND_ONLY);
         },
         isMockOnlyMode: () => Resource.__mockingMode === MockingMode.MOCKS_ONLY,
-        isBackendOnlyMode: () => Resource.__mockingMode === MockingMode.LIVE_BACKEND_ONLY
+        isBackendOnlyMode: () => Resource.__mockingMode === MockingMode.LIVE_BACKEND_ONLY,
+        isDefaultMode: () => Resource.__mockingMode === MockingMode.MIX
     }
 
 
@@ -286,18 +296,18 @@ export class Resource<E, T, TA> {
 
     private checkNestedModels(model: string, allModels: Object) {
         // if (model.indexOf('/') !== -1) { //TODO make this better, becouse now I unecesary checking shit
-            for (let p in allModels) {
-                if (allModels.hasOwnProperty(p)) {
-                    let m = allModels[p];
-                    if (UrlNestedParams.isValid(p)) {
-                        let urlModels = UrlNestedParams.getModels(p);
-                        if (UrlNestedParams.containsModels(model, urlModels)) {
-                            model = p;
-                            break;
-                        }
+        for (let p in allModels) {
+            if (allModels.hasOwnProperty(p)) {
+                let m = allModels[p];
+                if (UrlNestedParams.isValid(p)) {
+                    let urlModels = UrlNestedParams.getModels(p);
+                    if (UrlNestedParams.containsModels(model, urlModels)) {
+                        model = p;
+                        break;
                     }
                 }
             }
+        }
         // }
         return model;
     }

@@ -63,7 +63,7 @@ export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
         this._endpoint = endpoint;
 
         // Quick fix
-        if (Rest.mockingMode === undefined) Rest.mockingMode = MockingMode.LIVE_BACKEND_ONLY;
+        if (Rest.mockingMode === undefined) Rest.mockingMode = MockingMode.MIX;
 
         if (!Rest._headersAreSet) {
             Rest._headersAreSet = true;
