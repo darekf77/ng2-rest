@@ -16,7 +16,7 @@ import { Http as HttpModule } from './http';
 import { RestRequest } from "./rest-request";
 import { RestHeaders } from "./rest-headers";
 
-export class Rest<T, TA> implements RestModule.FnMethodsHttp<T, TA> {
+export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
 
     public static docServerUrl: string;
     public static docsTitle: string;
