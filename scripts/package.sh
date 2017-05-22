@@ -1,5 +1,5 @@
 sh scripts/delete_tsc_filtes.sh
-tsc
+./node_modules/.bin/tsc
 sh scripts/plunker_bundle.sh
 release-it
 # sh scripts/delete_tsc_filtes.sh
