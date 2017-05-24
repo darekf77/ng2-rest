@@ -125,6 +125,21 @@ export namespace UrlNestedParams {
             end: url.charAt(url.length - 1) === '\/'
         }
 
+        let morePramsOnEnd = url.match(/(\/:[a-zA-Z0-9]+){2,10}/g);
+        if (morePramsOnEnd && (Array.isArray(morePramsOnEnd) && morePramsOnEnd.length === 1)) {
+            // log.i('morePramsOnEnd', morePramsOnEnd)
+            let m = morePramsOnEnd[0];
+            let match = m.match(/\/:[a-zA-Z0-9]+/g);
+            // log.i('match', match)
+            match.forEach(e => {
+                let c = e.replace('\/:', '');
+                url = url.replace(e, `/${params[c]}`)
+                // log.i('c', c)
+                // log.i('prog url', url)
+            })
+            return url;
+        }
+
         let nestedParams = url.match(/[a-zA-Z0-9]+\/:[a-zA-Z0-9]+/g);
         if (!nestedParams || (Array.isArray(nestedParams) && nestedParams.length === 0)) return url;
 
