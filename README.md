@@ -5,11 +5,7 @@ Compatible with Angular JS/2/4 and ReactJS
 Simple, efficient REST api with **Angular or React**. 
 Best way connectapplication with RESTfull backend or JSONP api.
 
-[Plunker ReactJS demo](https://embed.plnkr.co/TDD0Pl/)
-
-[Plunker Angular4 demo](https://embed.plnkr.co/gqygXk/)
-
-[Demo github](https://darekf77.github.io/ng2-rest)
+[Plunker demo](http://embed.plnkr.co/mFhAiV/)
 
 To install package run:
 
@@ -31,18 +27,18 @@ constructor(zone:NgZone) {
 Resource
 ========
 
-Fit you existing API (not only REST) into new fluent objects with **Resource**  class an observables. Use power of **async** in new angular 4 templates;
+Fit you existing API (not only REST) into new fluent objects with **Resource**  class observables. Use power of **async** in new angular 4 templates;
 
-**template.html**
+**template.html**  
 ```html
-User books:
-<ul *ngIf="model.books | async; else loader; let books">
+Users:
+<ul   *ngIf="model.users | async; else loader; let users" >
 
-  <li *ngFor="let book of books  "> {{book.title}} </li>
+  <li  *ngFor="let user of users"> {{user.id}} - {{user.name}} </li>
 
 </ul>
 
-<ng-template #loader> loading user books...  </ng-template>
+<ng-template #loader> loading users...  </ng-template>
 
 ```
 **component.ts**
@@ -50,13 +46,16 @@ User books:
 // express.js style url endpoint model
 const rest = Resource.create("http://localhost:/api","users/:id/books/:bookid")
 
-class BooksComponent { 
+class UserComponent {
 
-	// create your fluent API
-	model = {
-		books : getAllUserBooks: ()=> rest.model({ id:1  }).query()
-	}
-	
+    model = {
+        users: rest.model().query()
+    }
+
+    constructor(private zone: NgZone) {
+        Resource.initNgZone(zone) // int require for 
+    }
+
 }
 ```
 SimpleResource
@@ -82,27 +81,33 @@ Specification
 Simple data mocking
 ============
 
-It is one of the best features here. You don't need a backend for your front-end coding. 
+You don't need a backend for your front-end coding. 
+Ng2-rest it is the simplest way to mocking data:
 
- Simplest way to mocking data:
 ```ts
-	// user.json
-	[{ id: 12, name: 'Dariusz' },
-	{ id: 15, name: 'Marcin' }]
 
+	let users_mock = ` [ 
+		{ "name": "Bob from mockable.io", "id": 1 }, 
+		{ "name": "Alice from mockable.io", "id": 2 } 
+		]`;
 
 	// service.ts
 	...
 	getUsers = () => rest.model()
-		.mock( require('./user.json') ).
+		.mock( users_mock ).
+		query()
+
+	// if you finish you app, you can easily comment mock function
+	// and use real data
+	getUsers = () => rest.model()
+		// .mock( users_mock ).
 		query()
 
 
 	// component.ts
 	...
 	service.getUsers().subscribe( users => {
-		console.log( 'users:', users ); 
-		// users: [{ id: 12, name: 'Dariusz' }, { id: 15, name: 'Marcin' }]
+		console.log( 'users:', users );
 	}
 ```
  
@@ -110,9 +115,9 @@ It is one of the best features here. You don't need a backend for your front-end
 Mock Controller
 ===============
 
- Sample MockController function to return mocked data based on params:
+ Sample MockController function to return mocked data based on params
 ```ts
-import {MockRequest,MockResponse } from 'ng2-rest
+import {MockRequest,MockResponse } from 'ng2-rest'
 
 	// mock-controller.ts
     export function mockController(
@@ -126,7 +131,8 @@ import {MockRequest,MockResponse } from 'ng2-rest
 		
 		let user = request.data;
 		user.id = request.params.id;
-		return { data:user }; // return nothing or undefined to propagate error
+		return { data:user }; 
+		// return nothing or undefined to propagate error
     }
 	
 	
@@ -250,10 +256,13 @@ With **ng2-rest** you can also easily access you response and request headers
 	// Resource
 	console.log( Resource.Headers.request  );
 	console.log( Resource.Headers.response  );
+	console.log( Resource.Headers.response.get('X-Total-Count')  );
 	
-	// SimpleResource
-	console.log(SimpleResource.headers.request);
-	console.log(SimpleResource.headers.response);
+	Resource.Headers.request.set('Content-type','application/json')
+	Resource.Headers.request.set('Authorization','Bearer 189aasda7d8ashd87ahs8da8s7d')
+	Resource.Headers.response.get('X-Total-Count')
+
+
 ```
 
 Production mode
