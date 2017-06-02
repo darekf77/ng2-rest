@@ -1,9 +1,9 @@
 ## ng2-rest ##
 
-Compatible with Angular JS/2/4 and ReactJS
+Compatible with Angular JS/2/4 and other frameworks
 
-Simple, efficient REST api with **Angular or React**. 
-Best way connectapplication with RESTfull backend or JSONP api.
+Simple, efficient REST api with **Angular or other frameworks**. 
+Best way connect your webapp with RESTfull backend or JSONP api.
 
 [Plunker demo](http://embed.plnkr.co/mFhAiV/)
 
@@ -44,7 +44,7 @@ Users:
 **component.ts**
 ```ts
 // express.js style url endpoint model
-const rest = Resource.create("http://localhost:/api","users/:id/books/:bookid")
+const rest = Resource.create("http://yourbackend.com/api","users/:id")
 
 class UserComponent {
 
@@ -67,7 +67,8 @@ consider to build your promises api like this  `getMyElements().take(1).toPromie
 
 Specification
 -------------
-
+Example **UrlParams[]** :
+ `[ { sort: true },{ filter: 'id,5' }, { filter: 'name,test' } ]` 
 | Name | Parameters  | Description |
 | :---: | --- | ---: |
 | **query** | `UrlParams[] ` |  fetch array of your models, optionally with parameters |
