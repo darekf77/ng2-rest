@@ -303,6 +303,7 @@ export class RestRequest {
         if (res && !res.code) {
             this.subjectInuUse[jobid].next({
                 json: () => (typeof res.data === 'string') ? JSON5.parse(res.data) : res.data,
+                text: () => res.data,
                 headers: new RestHeaders(res.headers, true)
             })
             this.subjectInuUse[jobid].observers.length = 0;
@@ -315,6 +316,7 @@ export class RestRequest {
             let headers = new RestHeaders(res.headers, true);
             this.subjectInuUse[jobid].next({
                 json: () => JSON5.parse(res.data),
+                text: () => res.data,
                 headers
             })
             this.subjectInuUse[jobid].observers.length = 0;
