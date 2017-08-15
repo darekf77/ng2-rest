@@ -325,8 +325,13 @@ export class RestRequest {
         }
 
         // error bad request  
+        let err =  res.data;
+        try {
+            err = JSON5.parse(err)
+        } catch (e) { }
+
         this.subjectInuUse[jobid].error({
-            error: res ? res.error : 'undefined response'
+            error: err
         })
 
         this.subjectInuUse[jobid].observers.length = 0;
