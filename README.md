@@ -49,7 +49,8 @@ const rest = Resource.create("http://yourbackend.com/api","users/:id")
 class UserComponent {
 
     model = {
-        users: rest.model().query()
+        users: rest.model().query(),
+		user: (id) => rest.model(id).get()
     }
 
     constructor(private zone: NgZone) {
