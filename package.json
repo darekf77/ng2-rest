@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "7.2.4",
+  "version": "8.0.0",
   "description": "rest package for angular and react",
   "main": "index.js",
   "scripts": {

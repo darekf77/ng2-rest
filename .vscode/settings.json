@@ -1,5 +1,13 @@
 // Place your settings in this file to overwrite default and user settings.
 {
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#3186d4"
+    },
+    "editor.rulers": [
+        100,
+        120
+    ],
+    "html.format.wrapAttributes": "force-aligned",
     "typescript.check.workspaceVersion": false,
     "files.exclude": {
         "**/*.js": {
