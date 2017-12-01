@@ -146,7 +146,7 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
             setTimeout(() => {
                 this.query(params, doNotSerializeParams, sub).subscribe(e => sub.next(e));
             }, Rest.waitTimeMs)
-            return sub;
+            return sub as any;
         }
         let u = this.creatUrl(params, doNotSerializeParams);
         return this.request.get(u, Rest.headers).map(res => {
@@ -178,7 +178,7 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
             setTimeout(() => {
                 this.get(params, doNotSerializeParams, sub).subscribe(e => sub.next(e));
             }, Rest.waitTimeMs)
-            return sub;
+            return sub as any;
         }
         let u = this.creatUrl(params, doNotSerializeParams);
         return this.request.get(u, Rest.headers).map(res => {
@@ -209,7 +209,7 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
             setTimeout(() => {
                 this.save(item, params, doNotSerializeParams, sub).subscribe(e => sub.next(e));
             }, Rest.waitTimeMs)
-            return sub;
+            return sub as any;
         }
         let u = this.creatUrl(params, doNotSerializeParams);
         let d = JSON.stringify(item);
@@ -243,7 +243,7 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
             setTimeout(() => {
                 this.update(item, params, doNotSerializeParams, sub).subscribe(e => sub.next(e));
             }, Rest.waitTimeMs)
-            return sub;
+            return sub as any;
         }
         let u = this.creatUrl(params, doNotSerializeParams);
         let d = JSON.stringify(item);
@@ -278,7 +278,7 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
             setTimeout(() => {
                 this.remove(params, doNotSerializeParams, sub).subscribe(e => sub.next(e));
             }, Rest.waitTimeMs)
-            return sub;
+            return sub  as any;
         }
         let u = this.creatUrl(params, doNotSerializeParams);
         return this.request.delete(u,
@@ -314,7 +314,7 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
             setTimeout(() => {
                 this.jsonp(url, params, _sub).subscribe(e => sub.next(e));
             }, Rest.waitTimeMs)
-            return sub;
+            return sub as any;
         }
         let u = (url && UrlNestedParams.checkValidUrl(url)) ? url : this.endpoint;
         return this.request.jsonp(u).map(res => {
