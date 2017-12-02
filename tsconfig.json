@@ -12,6 +12,7 @@
     "strictNullChecks": false,
     "declaration": true,
     "baseUrl": "./src",
+    "outDir": "dist",
     "lib": [
       "dom",
       "es7"
