@@ -2,11 +2,21 @@
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
-
 import { Log, Level } from 'ng2-logger';
+import { Http } from './http';
 const log = Log.create('rest namespace', Level.__NOTHING)
 
+
 export namespace Rest {
+
+    export type Methods = 'get' | 'query' | 'save' | 'update' | 'remove';
+
+    export function getNg2RestMethod(httpMethod: Http.HttpMethod): Rest.Methods {
+        if (httpMethod === 'GET') return 'get';
+        if (httpMethod === 'POST') return 'save';
+        if (httpMethod === 'PUT') return 'update';
+        if (httpMethod === 'DELETE') return 'remove';
+    }
 
     /**
      * Get query params from url, like 'ex' in /api/books?ex=value
