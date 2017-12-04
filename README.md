@@ -3,7 +3,9 @@
 Compatible with Angular JS/2/4 and other frameworks
 
 Simple, efficient REST api with **Angular or other frameworks**. 
-Best way connect your webapp with RESTfull backend or JSONP api.
+
+
+Nice way to connect your webapp with RESTfull backend or JSONP api.
 
 [Plunker demo](http://embed.plnkr.co/mFhAiV/)
 
@@ -16,18 +18,10 @@ Import Resource class:
 import { Resource } from 'ng2-rest';
 ```
 
-If you are Angular 2 or 4 user do this:
-```ts
-constructor(zone:NgZone) {
-    Resource.initNgZone(zone)
-}
-```
-
-
 Resource
 ========
 
-Fit you existing API (not only REST) into new fluent objects with **Resource**  class observables. Use power of **async** in new angular 4 templates;
+Fit you existing API (not only REST) into new fluent objects with **Resource**  class observables. Use power of **async** in new angular templates;
 
 **template.html**  
 ```html
@@ -43,31 +37,24 @@ Users:
 ```
 **component.ts**
 ```ts
-// express.js style url endpoint model
+// Express.js style url endpoint model
 const rest = Resource.create("http://yourbackend.com/api","users/:id")
 
 class UserComponent {
 
+   // Prepare your beautiful interface
     model = {
-        users: rest.model().query(),
-		user: (id) => rest.model(id).get()
+	 users: rest.model().query(), // get all users
+	 user: (id) => rest.model(id).get() // get user by id
     }
 
-    constructor(private zone: NgZone) {
-        Resource.initNgZone(zone) // int require for 
-    }
+    constructor() { }
 
 }
 ```
-SimpleResource
---------
-Note: From version 7.1.0 **SimpleResource** has changed and if you are still using it
-consider to build your promises api like this  `getMyElements().take(1).toPromies();`
-
-
 
 Specification
--------------
+============
 Example **UrlParams[]** :
  `[ { sort: true },{ filter: 'id,5' }, { filter: 'name,test' } ]` 
 | Name | Parameters  | Description |
@@ -81,7 +68,7 @@ Example **UrlParams[]** :
 
 
 Simple data mocking
-============
+-------------
 
 You don't need a backend for your front-end coding. 
 Ng2-rest it is the simplest way to mocking data:
@@ -96,8 +83,8 @@ Ng2-rest it is the simplest way to mocking data:
 	// service.ts
 	...
 	getUsers = () => rest.model()
-		.mock( users_mock ).
-		query()
+		.mock( users_mock )
+		.query()
 
 	// if you finish you app, you can easily comment mock function
 	// and use real data
@@ -115,7 +102,7 @@ Ng2-rest it is the simplest way to mocking data:
  
 
 Mock Controller
-===============
+-------------
 
  Sample MockController function to return mocked data based on params
 ```ts
@@ -155,7 +142,7 @@ import {MockRequest,MockResponse } from 'ng2-rest'
 
 
 MockAutoBackend
-===============
+-------------
 
 #### generators [$]
 
@@ -205,7 +192,7 @@ Outputs:
 ```
 
 Pagination example
-------------------
+-------------
 
  Sample MockController generating pagination data with MockAutoBackend:
 ```ts
@@ -251,7 +238,7 @@ Pagination example
 ```
 
 Headers
--------
+===
 
 With **ng2-rest** you can also easily access you response and request headers
 ```ts
@@ -268,7 +255,7 @@ With **ng2-rest** you can also easily access you response and request headers
 ```
 
 Production mode
----------------
+===
 Nice things to do in production mode:
 
 **1. Disable warnings.**

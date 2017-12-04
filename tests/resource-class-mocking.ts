@@ -12,9 +12,9 @@ import {
 import { MockBackend, MockConnection } from '@angular/http/testing';
 
 
-import { Resource } from '../resource.service';
+import { Resource } from '../src/resource.service';
 import { APIS, User } from './mock';
-import { MockBackend as MockBackendModule } from '../mock-backend';
+import { MockBackend as MockBackendModule } from '../src/mock-backend';
 
 let deepEqual = function (x, y) {
     if ((typeof x == 'object' && x != null) && (typeof y == 'object' && y != null)) {

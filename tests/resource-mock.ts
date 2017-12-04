@@ -11,10 +11,10 @@ import {
 } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
 
-import { Resource } from '../resource.service';
+import { Resource } from '../src/resource.service';
 import { APIS, User } from './mock';
-import { MockBackend as MockBackendModule, MockRequest, MockResponse } from '../mock-backend';
-import { MockingMode } from '../mocking-mode';
+import { MockBackend as MockBackendModule, MockRequest, MockResponse } from '../src/mock-backend';
+import { MockingMode } from '../src/mocking-mode';
 
 export class TestRestMock {
 

@@ -10,9 +10,9 @@ import {
     Jsonp, ConnectionBackend,
 } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
-import { Rest } from '../rest';
+import { Rest } from '../src/rest';
 
-import { Resource } from '../resource.service';
+import { Resource } from '../src/resource.service';
 import { APIS, User } from './mock';
 
 

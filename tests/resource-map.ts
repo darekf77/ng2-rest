@@ -11,7 +11,7 @@ import {
 } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
 
-import { Resource } from '../resource.service';
+import { Resource } from '../src/resource.service';
 import { APIS, User } from './mock';
 
 export class TestMap {
