@@ -16,7 +16,7 @@ export namespace Eureka {
     export class Eureka<T, TA> {
 
         protected subjectInstanceFounded: Subject<EurekaInstance>
-        = new Subject<EurekaInstance>();
+            = new Subject<EurekaInstance>();
         onInstance = this.subjectInstanceFounded.asObservable();
 
         private _instance: EurekaInstance;
@@ -63,8 +63,7 @@ export namespace Eureka {
             this.request = request;
             this._state = EurekaState.WAITING_FOR_INSTANCES;
             log.i('start JOURNE!!!')
-            this.request.get(`${this.config.serviceUrl}/${this.config.decoderName}`,
-                this.headers)
+            this.request.get(`${this.config.serviceUrl}/${this.config.decoderName}`, undefined, this.headers)
                 .subscribe(r => {
                     let data = r.json();
                     let res: EurekaApp = data['application'];
