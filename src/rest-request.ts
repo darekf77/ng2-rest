@@ -1,5 +1,3 @@
-import { NgZone } from '@angular/core'
-
 import * as JSON5 from 'json5';
 
 
@@ -19,7 +17,7 @@ type ReqParams = { url: string, method: Http.HttpMethod, headers?: RestHeaders, 
 
 export class RestRequest {
 
-    public static zone: NgZone;
+    public static zone;
 
     private static jobId = 0;
     private freeSubjects: Subject<any>[] = [];
@@ -28,6 +26,7 @@ export class RestRequest {
     private workerActive = false;
 
     constructor() {
+
         if (typeof (Worker) !== "undefined") {
             this.workerActive = true;
             this.createWorker();
@@ -274,6 +273,7 @@ export class RestRequest {
         let tmp = this;
 
         this.worker.addEventListener('message', (e) => {
+
             // console.log('inside zone!',RestRequest.zone)
             if (RestRequest.zone) {
                 RestRequest.zone.run(() => {
@@ -325,7 +325,7 @@ export class RestRequest {
         }
 
         // error bad request  
-        let err =  res.data;
+        let err = res.data;
         try {
             err = JSON5.parse(err)
         } catch (e) { }

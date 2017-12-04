@@ -15,16 +15,36 @@ import { Rest } from './rest.class';
 import { RestRequest } from "./rest-request";
 import { RestHeaders } from "./rest-headers";
 
-import { NgZone } from '@angular/core';
-
 export interface ResourceModel<A, TA> {
     model: (m?: Object) => Rest<A, TA>
 }
 
 export class Resource<E, T, TA> {
+
+    getZone() {
+        const isNode = (typeof window === 'undefined')
+        if (isNode) return;
+        const ng = window['ng'];
+        const getAllAngularRootElements = window['getAllAngularRootElements'];
+        if (!ng || !getAllAngularRootElements) return;
+        const probe = ng.probe;
+        const coreTokens = ng.coreTokens;
+        if (!coreTokens.NgZone) return;
+        const zoneClass = coreTokens.NgZone;
+        if (!probe || typeof probe !== 'function' || !getAllAngularRootElements) return;
+        const angularElements: any[] = getAllAngularRootElements();
+        if (!Array.isArray(angularElements) || angularElements.length === 0) return;
+        const rootElement = ng.probe(angularElements[0]);
+        const injector = rootElement.injector;
+        if (!injector || !injector.get || typeof injector.get !== 'function') return;
+        const zone = injector.get(zoneClass)
+        return zone;
+    }
+
     private static instance = new Resource<string, any, any>();
 
     public static create<A, TA = A[]>(e: string, model?: string): ResourceModel<A, TA> {
+        
         Resource.map(e, e);
         Resource.instance.add(e, model ? model : '');
         // if (model.charAt(model.length - 1) !== '/') model = `${model}/`;
@@ -36,10 +56,6 @@ export class Resource<E, T, TA> {
         }
     }
 
-    public static initNgZone(zone: NgZone) {
-        RestRequest.zone = zone;
-    }
-
     private static endpoints = {};
     public static reset() {
         Resource.endpoints = {};
@@ -48,12 +64,14 @@ export class Resource<E, T, TA> {
 
     private static request: RestRequest = new RestRequest();
     private constructor() {
-        // Quick fix
+        setTimeout(() => {
+            const zone = this.getZone();
+            RestRequest.zone = zone;
+        })
+        console.log('aaaaaaaa')
+
         if (Resource.__mockingMode === undefined) Resource.__mockingMode = MockingMode.MIX;
         log.i('heelooeoeoeo')
-
-
-
     }
 
     public static get Headers() {
@@ -153,7 +171,7 @@ export class Resource<E, T, TA> {
      */
 
     private static subEurekaEndpointReady: Subject<Eureka.EurekaInstance>
-    = new Subject<Eureka.EurekaInstance>();
+        = new Subject<Eureka.EurekaInstance>();
     private static obs = Resource.subEurekaEndpointReady.asObservable();
 
     // private static eureka: Eureka<any, any>;

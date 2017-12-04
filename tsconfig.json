@@ -17,16 +17,16 @@
       "dom",
       "es7"
     ],
-    "types": [
-      "jasmine",
-      "node"
+    "typeRoots": [
+      "node_modules/@types"
     ]
   },
   "exclude": [
     "node_modules",
     "preview",
     "docs",
-    "dist"
+    "dist",
+    "tests"
   ],
   "awesomeTypescriptLoaderOptions": {
     "forkChecker": true,
