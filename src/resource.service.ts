@@ -21,7 +21,10 @@ export interface ResourceModel<A, TA> {
 
 export class Resource<E, T, TA> {
 
-    getZone() {
+    public static enableWarnings: boolean = true;
+
+    //#region private mthods and fields
+    private getZone() {
         const isNode = (typeof window === 'undefined')
         if (isNode) return;
         const ng = window['ng'];
@@ -41,10 +44,33 @@ export class Resource<E, T, TA> {
         return zone;
     }
 
-    private static instance = new Resource<string, any, any>();
 
+    private checkNestedModels(model: string, allModels: Object) {
+        // if (model.indexOf('/') !== -1) { //TODO make this better, becouse now I unecesary checking shit
+        for (let p in allModels) {
+            if (allModels.hasOwnProperty(p)) {
+                let m = allModels[p];
+                if (UrlNestedParams.isValid(p)) {
+                    let urlModels = UrlNestedParams.getModels(p);
+                    if (UrlNestedParams.containsModels(model, urlModels)) {
+                        model = p;
+                        break;
+                    }
+                }
+            }
+        }
+        // }
+        return model;
+    }
+
+    private static instance = new Resource<string, any, any>();
+    private static endpoints = {};
+    private static request: RestRequest = new RestRequest();
+    //#endregion
+
+    //#region create
     public static create<A, TA = A[]>(e: string, model?: string): ResourceModel<A, TA> {
-        
+
         Resource.map(e, e);
         Resource.instance.add(e, model ? model : '');
         // if (model.charAt(model.length - 1) !== '/') model = `${model}/`;
@@ -55,25 +81,27 @@ export class Resource<E, T, TA> {
             )
         }
     }
+    //#endregion
 
-    private static endpoints = {};
+    //#region reset 
     public static reset() {
         Resource.endpoints = {};
         Resource.mockingModeIsSet = false;
     }
+    //#endregion
 
-    private static request: RestRequest = new RestRequest();
+    //#region constructor
     private constructor() {
         setTimeout(() => {
             const zone = this.getZone();
             RestRequest.zone = zone;
         })
-        console.log('aaaaaaaa')
-
         if (Resource.__mockingMode === undefined) Resource.__mockingMode = MockingMode.MIX;
         log.i('heelooeoeoeo')
     }
+    //#endregion
 
+    //#region header
     public static get Headers() {
         let res = {
             request: Rest.headers,
@@ -81,9 +109,11 @@ export class Resource<E, T, TA> {
         }
         return res;
     }
+    //#endregion
 
-    public static enableWarnings: boolean = true;
+    
 
+    //#region docs server
     /**
      * This funcion only works one time per tab in browse. 
      * It means that if e2e tests needs only one browse tab
@@ -117,7 +147,9 @@ export class Resource<E, T, TA> {
         }
 
     }
+    //#endregion
 
+    //#region mocking mode
     private static mockingModeIsSet = false;
     private static get __mockingMode(): MockingMode {
         return Rest.mockingMode;
@@ -159,17 +191,9 @@ export class Resource<E, T, TA> {
         isBackendOnlyMode: () => Resource.__mockingMode === MockingMode.LIVE_BACKEND_ONLY,
         isDefaultMode: () => Resource.__mockingMode === MockingMode.MIX
     }
+    //#endregion
 
-
-    /**
-     * Use enpoint in your app
-     * 
-     * @static
-     * @template T
-     * @param {T} endpoint_url
-     * @returns {boolean}
-     */
-
+    //#region eureka
     private static subEurekaEndpointReady: Subject<Eureka.EurekaInstance>
         = new Subject<Eureka.EurekaInstance>();
     private static obs = Resource.subEurekaEndpointReady.asObservable();
@@ -191,8 +215,9 @@ export class Resource<E, T, TA> {
         log.i('eureka mapped');
         return true;
     }
+    //#endregion
 
-
+    //#region map
     private static map(endpoint: string, url: string): boolean {
 
         log.i('url', url)
@@ -219,7 +244,9 @@ export class Resource<E, T, TA> {
         log.i('enpoints', Resource.endpoints)
         return true;
     }
+    //#endregion
 
+    //#region add
     /**
      * And enipoint to application
      * 
@@ -273,7 +300,9 @@ export class Resource<E, T, TA> {
                 + '/' + model, Resource.request, description, name, group);
         return;
     }
+    //#endregion
 
+    //#region api
     /**
      * Access api throught endpoint
      * 
@@ -310,24 +339,8 @@ export class Resource<E, T, TA> {
 
         return res;
     }
+    //#endregion
 
 
-    private checkNestedModels(model: string, allModels: Object) {
-        // if (model.indexOf('/') !== -1) { //TODO make this better, becouse now I unecesary checking shit
-        for (let p in allModels) {
-            if (allModels.hasOwnProperty(p)) {
-                let m = allModels[p];
-                if (UrlNestedParams.isValid(p)) {
-                    let urlModels = UrlNestedParams.getModels(p);
-                    if (UrlNestedParams.containsModels(model, urlModels)) {
-                        model = p;
-                        break;
-                    }
-                }
-            }
-        }
-        // }
-        return model;
-    }
 
 }

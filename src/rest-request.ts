@@ -386,13 +386,13 @@ export class RestRequest {
     }
 
 
-    get(url: string, headers: RestHeaders): Observable<any> {
+    get(url: string, body: string, headers: RestHeaders): Observable<any> {
         let { id, subject } = this.getSubject();
         setTimeout(() => this.req(url, 'GET', headers, undefined, id))
         return subject.asObservable();
     }
 
-    delete(url: string, headers: RestHeaders): Observable<any> {
+    delete(url: string, body: string, headers: RestHeaders): Observable<any> {
         let { id, subject } = this.getSubject();
         setTimeout(() => this.req(url, 'DELETE', headers, undefined, id))
         return subject.asObservable();

@@ -1,11 +1,11 @@
-
+//#region import
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import { Log, Level } from 'ng2-logger';
 const log = Log.create('rest.class', Level.__NOTHING)
 import * as JSON5 from 'json5';
-
+// local
 import { MockingMode } from './mocking-mode';
 import { Rest as RestModule } from './rest';
 import { UrlNestedParams } from './nested-params';
@@ -15,9 +15,11 @@ import { MockBackend, MockResponse } from './mock-backend';
 import { Http as HttpModule } from './http';
 import { RestRequest } from "./rest-request";
 import { RestHeaders } from "./rest-headers";
+//#endregion
 
 export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
 
+    //#region  private fields
     public static docServerUrl: string;
     public static docsTitle: string;
     public static headers: RestHeaders = new RestHeaders();
@@ -54,6 +56,31 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
         'Accept': 'application/json'
     };
 
+    private getHeadersJSON() {
+        return Rest.headers.toJSON();
+    }
+
+    public static waitTimeMs: number = 1000;
+    /**
+     * App is waiting unit get response from server
+     * 
+     * @returns
+     * 
+     * @memberOf Rest
+     */
+    private appIsWaiting() {
+        return ((Rest.eureka && Rest.eureka.isWaiting()) || Rest.waitingForDocsServer);
+    }
+
+    private prepareUrlOldWay = RestModule.prepareUrlOldWay;
+    private getParams = RestModule.getParamsUrl;
+    private creatUrl(params: any, doNotSerializeParams: boolean = false) {
+        return `${this.endpoint}${RestModule.getParamsUrl(params, doNotSerializeParams)}`;
+    }
+
+    //#endregion
+
+    //#region  constructor
     constructor(
         endpoint: string,
         private request: RestRequest,
@@ -80,7 +107,7 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
             tmpUrl = Rest.docsTitle ? `${tmpUrl}/api/start/${encodeURIComponent(Rest.docsTitle)}` : `${tmpUrl}/api/start`;
 
             Rest.waitingForDocsServer = true;
-            request.get(tmpUrl, Rest.headers).subscribe(() => {
+            request.get(tmpUrl, undefined, Rest.headers).subscribe(() => {
                 Rest.waitingForDocsServer = false;
                 console.info('Docs server restarted');
             }, (err) => {
@@ -90,12 +117,9 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
         }
 
     }
+    //#endregion
 
-    private getHeadersJSON() {
-        return Rest.headers.toJSON();
-    }
-
-
+    //#region  log
     private log(model: Docs.DocModel) {
         if (Rest.docServerUrl) {
 
@@ -117,123 +141,14 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
             });
         }
     }
+    //#endregion
 
-    public static waitTimeMs: number = 1000;
-    /**
-     * App is waiting unit get response from server
-     * 
-     * @returns
-     * 
-     * @memberOf Rest
-     */
-    private appIsWaiting() {
-        return ((Rest.eureka && Rest.eureka.isWaiting()) || Rest.waitingForDocsServer);
-    }
-
-    private prepareUrlOldWay = RestModule.prepareUrlOldWay;
-    private getParams = RestModule.getParamsUrl;
-    private creatUrl(params: any, doNotSerializeParams: boolean = false) {
-        return `${this.endpoint}${RestModule.getParamsUrl(params, doNotSerializeParams)}`;
-    }
-
-    query(params: RestModule.UrlParams[] = undefined, doNotSerializeParams: boolean = false, _sub: Subject<TA> = undefined): Observable<TA> {
-        if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
-            throw (`In MOCKING MODE you have to define mock of query for enipoint: ${this.endpoint}.`);
-        }
-        if (this.appIsWaiting()) {
-            let sub: Subject<TA> = _sub ? _sub : new Subject<TA>();
-            let obs = sub.asObservable();
-            setTimeout(() => {
-                this.query(params, doNotSerializeParams, sub).subscribe(e => sub.next(e));
-            }, Rest.waitTimeMs)
-            return sub as any;
-        }
-        let u = this.creatUrl(params, doNotSerializeParams);
-        return this.request.get(u, Rest.headers).map(res => {
-            Rest.headersResponse = res.headers;
-            let r = undefined;
-            try {
-                r = res.json()
-            } catch (error) {
-                console.warn(error);
-            }
-            this.log(<Docs.DocModel>{
-                urlParams: JSON.stringify(params),
-                bodyRecieve: JSON.stringify(r),
-                method: 'GET',
-                urlFull: u
-            });
-            return r;
-        });
-    }
-
-    get(params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: Subject<T> = undefined): Observable<T> {
-
-        if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
-            throw (`In MOCKING MODE you have to define mock of get for enipoint: ${this.endpoint}.`);
-        }
-        if (this.appIsWaiting()) {
-            let sub: Subject<T> = _sub ? _sub : new Subject<T>();
-            let obs = sub.asObservable();
-            setTimeout(() => {
-                this.get(params, doNotSerializeParams, sub).subscribe(e => sub.next(e));
-            }, Rest.waitTimeMs)
-            return sub as any;
-        }
-        let u = this.creatUrl(params, doNotSerializeParams);
-        return this.request.get(u, Rest.headers).map(res => {
-            Rest.headersResponse = res.headers;
-            let r = undefined;
-            try {
-                r = res.json()
-            } catch (error) {
-                console.warn(error);
-            }
-            this.log(<Docs.DocModel>{
-                urlParams: JSON.stringify(params),
-                bodyRecieve: JSON.stringify(r),
-                method: 'GET',
-                urlFull: u
-            });
-            return r;
-        });
-    }
-
-    save(item: T, params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: Subject<T> = undefined): Observable<T> {
-        if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
-            throw (`In MOCKING MODE you have to define mock of save for enipoint: ${this.endpoint}.`);
-        }
-        if (this.appIsWaiting()) {
-            let sub: Subject<T> = _sub ? _sub : new Subject<T>();
-            let obs = sub.asObservable();
-            setTimeout(() => {
-                this.save(item, params, doNotSerializeParams, sub).subscribe(e => sub.next(e));
-            }, Rest.waitTimeMs)
-            return sub as any;
-        }
-        let u = this.creatUrl(params, doNotSerializeParams);
-        let d = JSON.stringify(item);
-        return this.request.post(u, d,
-            Rest.headers).map(res => {
-                Rest.headersResponse = res.headers;
-                let r = undefined;
-                try {
-                    r = res.json()
-                } catch (error) {
-                    console.warn(error);
-                }
-                this.log(<Docs.DocModel>{
-                    bodySend: d,
-                    bodyRecieve: JSON.stringify(r),
-                    method: 'POST',
-                    urlFull: u
-                });
-                return r;
-            });
-    }
-
-
-    update(item: T, params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: Subject<T> = undefined): Observable<T> {
+    //#region  req
+    private req(method: HttpModule.HttpMethod,
+        item: T,
+        params?: RestModule.UrlParams[],
+        doNotSerializeParams: boolean = false,
+        _sub: Subject<T> = undefined): Observable<T> {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of update for enipoint: ${this.endpoint}.`);
         }
@@ -241,50 +156,16 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
             let sub: Subject<T> = _sub ? _sub : new Subject<T>();
             let obs = sub.asObservable();
             setTimeout(() => {
-                this.update(item, params, doNotSerializeParams, sub).subscribe(e => sub.next(e));
+                this[method.toLowerCase()](item, params, doNotSerializeParams, sub).subscribe(e => sub.next(e));
             }, Rest.waitTimeMs)
             return sub as any;
         }
         let u = this.creatUrl(params, doNotSerializeParams);
         let d = JSON.stringify(item);
-        return this.request.put(u, JSON.stringify(item),
+        return this.request[method.toLowerCase()](u, JSON.stringify(item),
             Rest.headers).map(res => {
-                Rest.headersResponse = res.headers;
-                let r = undefined;
-                try {
-                    r = res.json()
-                } catch (error) {
-                    console.warn(error);
-                }
-                this.log(<Docs.DocModel>{
-                    urlParams: JSON.stringify(params),
-                    bodySend: d,
-                    bodyRecieve: JSON.stringify(r),
-                    method: 'PUT',
-                    urlFull: u
-                });
-                return r;
-            });
-    }
-
-
-    remove(params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: Subject<T> = undefined): Observable<T> {
-        if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
-            throw (`In MOCKING MODE you have to define mock of remove for enipoint: ${this.endpoint}.`);
-        }
-        if (this.appIsWaiting()) {
-            let sub: Subject<T> = _sub ? _sub : new Subject<T>();
-            let obs = sub.asObservable();
-            setTimeout(() => {
-                this.remove(params, doNotSerializeParams, sub).subscribe(e => sub.next(e));
-            }, Rest.waitTimeMs)
-            return sub  as any;
-        }
-        let u = this.creatUrl(params, doNotSerializeParams);
-        return this.request.delete(u,
-            Rest.headers).map(res => {
-                Rest.headersResponse = res.headers;
                 if (res.text() !== '') {
+                    Rest.headersResponse = res.headers;
                     let r = undefined;
                     try {
                         r = res.json()
@@ -293,8 +174,9 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
                     }
                     this.log(<Docs.DocModel>{
                         urlParams: JSON.stringify(params),
+                        bodySend: d,
                         bodyRecieve: JSON.stringify(r),
-                        method: 'DELETE',
+                        method,
                         urlFull: u
                     });
                     return r;
@@ -302,8 +184,32 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
                 return {};
             });
     }
+    //#endregion
+
+    //#region http methods
+    query(params: RestModule.UrlParams[] = undefined, doNotSerializeParams: boolean = false, _sub: Subject<TA> = undefined): Observable<TA> {
+        return this.req('GET', undefined, params, doNotSerializeParams, _sub as any) as any;
+    }
+
+    get(params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: Subject<T> = undefined): Observable<T> {
+        return this.req('GET', undefined, params, doNotSerializeParams, _sub as any) as any;
+    }
+
+    save(item: T, params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: Subject<T> = undefined): Observable<T> {
+        return this.req('POST', item, params, doNotSerializeParams, _sub as any) as any;
+    }
+
+    update(item: T, params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: Subject<T> = undefined): Observable<T> {
+        return this.req('PUT', item, params, doNotSerializeParams, _sub as any) as any;
+    }
 
 
+    remove(params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: Subject<T> = undefined): Observable<T> {
+        return this.req('DELETE', undefined, params, doNotSerializeParams, _sub as any) as any;
+    }
+    //#endregion
+
+    //#region jsonp method
     jsonp(url?: string, params?: RestModule.UrlParams[], _sub: Subject<T> = undefined): Observable<T> {
         if (Rest.mockingMode === MockingMode.MOCKS_ONLY) {
             throw (`In MOCKING MODE you have to define mock of jsonp for enipoint: ${this.endpoint}.`);
@@ -333,10 +239,10 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
             return r;
         });
     }
+    //#endregion
 
+    //#region browser mock
     private backend: MockBackend.MockAutoBackend<T>;
-
-
 
     mock(data: any, timeout: number = 0, controller?: MockBackend.MockController<T>,
         nunOfMocks: number = 0): RestModule.FnMethodsHttp<T, TA> {
@@ -444,58 +350,34 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
 
         let t: RestModule.FnMethodsHttp<T, TA> = <RestModule.FnMethodsHttp<T, TA>>{};
 
-        t.query = (params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false): Observable<TA> => {
-            currentMethod = 'GET';
-            subject = new Subject<TA>();
-            RestModule.prepare(params);
-            currentUrlParams = JSON.stringify(params);
-            currentFullUrl = this.creatUrl(params, doNotSerializeParams);
-
-            return subject.asObservable();
-        };
-
-        t.get = (params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: any = undefined): Observable<T> => {
-            currentMethod = 'GET';
-            subject = new Subject<T>();
-            RestModule.prepare(params);
-            currentUrlParams = JSON.stringify(params);
-            currentFullUrl = this.creatUrl(params, doNotSerializeParams);
-
-            return subject.asObservable();
-        };
-
-        t.save = (item: T, params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false): Observable<T> => {
-            currentMethod = 'POST';
+        const reqMock = (method: HttpModule.HttpMethod, item: T, params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false) => {
+            currentMethod = method;
             subject = new Subject<T>();
             RestModule.prepare(params);
             currentUrlParams = params ? JSON.stringify(params) : '{}';
             currentFullUrl = this.creatUrl(params, doNotSerializeParams);
-
-            currentBodySend = JSON.stringify(item);
-
+            if (item) currentBodySend = JSON.stringify(item);
             return subject.asObservable();
+        };
+
+        t.query = (params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false): Observable<TA> => {
+            return reqMock('GET', undefined, params, doNotSerializeParams);
+        };
+
+        t.get = (params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: any = undefined): Observable<T> => {
+            return reqMock('GET', undefined, params, doNotSerializeParams);
+        };
+
+        t.save = (item: T, params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false): Observable<T> => {
+            return reqMock('POST', undefined, params, doNotSerializeParams);
         };
 
         t.update = (item: T, params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false): Observable<T> => {
-            currentMethod = 'PUT';
-            subject = new Subject<T>();
-            RestModule.prepare(params);
-            currentUrlParams = JSON.stringify(params);
-            currentFullUrl = this.creatUrl(params, doNotSerializeParams);
-
-            currentBodySend = JSON.stringify(item);
-
-            return subject.asObservable();
+            return reqMock('PUT', undefined, params, doNotSerializeParams);
         };
 
         t.remove = (params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false): Observable<T> => {
-            currentMethod = 'DELETE';
-            subject = new Subject<T>();
-            RestModule.prepare(params);
-            currentUrlParams = JSON.stringify(params);
-            currentFullUrl = this.creatUrl(params, doNotSerializeParams);
-
-            return subject.asObservable();
+            return reqMock('DELETE', undefined, params, doNotSerializeParams);
         };
 
         t.jsonp = (url?: string, params?: RestModule.UrlParams[], ): Observable<T> => {
@@ -511,12 +393,7 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
 
         return t;
     }
-
-
-
-
-
-
+    //#endregion
 
 }
 
