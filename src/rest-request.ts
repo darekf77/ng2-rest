@@ -6,7 +6,6 @@ import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 
 import { Http } from "./http";
-import { MockResponse } from './mock-backend';
 import { RestHeaders } from "./rest-headers";
 
 const jobIDkey = 'jobID'
@@ -14,6 +13,21 @@ const jobIDkey = 'jobID'
 type ReqParams = { url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any, jobid: number };
 
 
+export interface MockRequest<T> {
+    data: any;
+    params: Object;
+    restParams?: Object;
+    body: Object;
+    method: Http.HttpMethod;
+}
+
+export interface MockResponse {
+    data?: any;
+    code?: Http.HttpCode;
+    error?: string;
+    headers?: RestHeaders;
+    jobid?: number;
+}
 
 export class RestRequest {
 

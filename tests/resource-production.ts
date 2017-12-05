@@ -13,7 +13,6 @@ import { MockBackend, MockConnection } from '@angular/http/testing';
 
 import { Resource } from '../src/resource.service';
 import { APIS, User } from './mock';
-import { MockingMode } from '../src/mocking-mode';
 
 export class TestProduction {
 

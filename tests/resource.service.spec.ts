@@ -10,15 +10,13 @@ import {
     Jsonp, ConnectionBackend,
 } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
-
+import {} from 'jasmine';
 import { Resource } from '../src/resource.service';
 
 import {
     TestMap,
     TestAdd,
     TestRest,
-    TestRestMock,
-    TestMockingClass,
     TestProduction,
     TestQueryParams,
     TestNestedParams,
@@ -43,13 +41,9 @@ describe('ng2-rest', () => {
         });
     });
 
-    // it( 'shoud be done ', (done) => done() );
-
-    new TestMockingClass();
     new TestMap();
     new TestAdd();
     new TestRest();
-    new TestRestMock();
     new TestProduction();
     TestQueryParams();
     TestNestedParams();

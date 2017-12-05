@@ -8,12 +8,11 @@ import 'rxjs/add/operator/toPromise';
 import { Log, Level } from 'ng2-logger';
 const log = Log.create('resouce-service', Level.__NOTHING)
 
-import { Eureka } from './eureka';
-import { MockingMode } from './mocking-mode';
 import { UrlNestedParams } from './nested-params';
 import { Rest } from './rest.class';
 import { RestRequest } from "./rest-request";
 import { RestHeaders } from "./rest-headers";
+import { Cookie } from "./cookie";
 
 export interface ResourceModel<A, TA> {
     model: (m?: Object) => Rest<A, TA>
@@ -86,7 +85,6 @@ export class Resource<E, T, TA> {
     //#region reset 
     public static reset() {
         Resource.endpoints = {};
-        Resource.mockingModeIsSet = false;
     }
     //#endregion
 
@@ -96,8 +94,6 @@ export class Resource<E, T, TA> {
             const zone = this.getZone();
             RestRequest.zone = zone;
         })
-        if (Resource.__mockingMode === undefined) Resource.__mockingMode = MockingMode.MIX;
-        log.i('heelooeoeoeo')
     }
     //#endregion
 
@@ -111,7 +107,9 @@ export class Resource<E, T, TA> {
     }
     //#endregion
 
-    
+    public static get Cookies() {
+        return Cookie;
+    }
 
     //#region docs server
     /**
@@ -149,82 +147,10 @@ export class Resource<E, T, TA> {
     }
     //#endregion
 
-    //#region mocking mode
-    private static mockingModeIsSet = false;
-    private static get __mockingMode(): MockingMode {
-        return Rest.mockingMode;
-    }
-
-    private static set __mockingMode(mode) {
-        Rest.mockingMode = mode;
-    }
-    public static setMockingModeOnce = (mode: MockingMode) => Resource.setMockingMode(mode, true)
-
-    private static setMockingMode(mode: MockingMode, setOnce = false) {
-
-        if (Resource.mockingModeIsSet && !setOnce) {
-            if (Resource.enableWarnings) console.warn('MOCKING MODE already set for entire application');
-            return;
-        }
-        Resource.mockingModeIsSet = setOnce;
-        Resource.__mockingMode = mode;
-        log.i('Mode is set ', mode);
-    }
-
-
-    /**
-     * For demo puropse
-     * Set mocking dynamicly in your app.
-     * Generaly you should use function setMockingMode(...)
-     */
-    public static mockingMode = {
-        setDefault: () => {
-            Resource.setMockingMode(MockingMode.MIX);
-        },
-        setMocksOnly: () => {
-            Resource.setMockingMode(MockingMode.MOCKS_ONLY);
-        },
-        setBackendOnly: () => {
-            Resource.setMockingMode(MockingMode.LIVE_BACKEND_ONLY);
-        },
-        isMockOnlyMode: () => Resource.__mockingMode === MockingMode.MOCKS_ONLY,
-        isBackendOnlyMode: () => Resource.__mockingMode === MockingMode.LIVE_BACKEND_ONLY,
-        isDefaultMode: () => Resource.__mockingMode === MockingMode.MIX
-    }
-    //#endregion
-
-    //#region eureka
-    private static subEurekaEndpointReady: Subject<Eureka.EurekaInstance>
-        = new Subject<Eureka.EurekaInstance>();
-    private static obs = Resource.subEurekaEndpointReady.asObservable();
-
-    // private static eureka: Eureka<any, any>;
-    private static mapEureka(config: Eureka.EurekaConfig)
-        : boolean {
-        if (!config || !config.serviceUrl || !config.decoderName) {
-            throw `Bad Eureka config: ${JSON.stringify(config)}`;
-        }
-        Rest.eureka = new Eureka.Eureka(config);
-        Rest.eureka.onInstance.subscribe(ins => {
-            Resource.endpoints[ins.app] = {
-                url: ins.instanceId,
-                models: {}
-            };
-            Resource.subEurekaEndpointReady.next(ins);
-        });
-        log.i('eureka mapped');
-        return true;
-    }
-    //#endregion
-
     //#region map
     private static map(endpoint: string, url: string): boolean {
 
         log.i('url', url)
-
-        if (Rest.eureka) {
-            throw `Canno use 'map()' function after 'mapEureka()'`;
-        }
         let regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
         let e = endpoint;
         if (!regex.test(url)) {
@@ -254,21 +180,8 @@ export class Resource<E, T, TA> {
      * @param {string} model
      * @returns {boolean}
      */
-    add(endpoint: E, model: string, group?: string, name?: string, description?: string) {
+    private add(endpoint: E, model: string, group?: string, name?: string, description?: string) {
         log.i(`I am maping ${model} on ${<any>endpoint}`);
-        if (Rest.eureka && Rest.eureka.state === Eureka.EurekaState.DISABLED) {
-            Rest.eureka.discovery(Resource.request);
-        }
-
-        if (Rest.eureka && Rest.eureka.state !== Eureka.EurekaState.ENABLE // && Rest.eureka.state !== EurekaState.SERVER_ERROR
-        ) {
-            Resource.subEurekaEndpointReady.subscribe(ins => {
-                log.i('instance should exist ', ins)
-                this.add(endpoint, model, group, name, description);
-            })
-            return;
-        }
-
         if (!name) {
             let exName: string = model.replace(new RegExp('/', 'g'), ' ');
             let slName = exName.split(' ');
@@ -280,11 +193,7 @@ export class Resource<E, T, TA> {
         if (model.charAt(0) === '/') model = model.slice(1, model.length);
 
         let e: string;
-        if (Rest.eureka && Rest.eureka.state === Eureka.EurekaState.ENABLE && Rest.eureka.instance) {
-            e = Rest.eureka.instance.app;
-        } else {
-            e = <string>(endpoint).toString();
-        }
+        e = <string>(endpoint).toString();
 
         if (Resource.endpoints[e] === undefined) {
             console.error('Endpoint is not mapped ! Cannot add model ' + model);
@@ -310,7 +219,7 @@ export class Resource<E, T, TA> {
      * @param {string} model
      * @returns {Rest<T, TA>}
      */
-    api(endpoint: E, model: string, usecase?: string): Rest<T, TA> {
+    private api(endpoint: E, model: string, usecase?: string): Rest<T, TA> {
 
         if (model.charAt(0) === '/') model = model.slice(1, model.length);
         let e = <string>(endpoint).toString();

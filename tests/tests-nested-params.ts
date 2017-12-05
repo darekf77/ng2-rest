@@ -6,7 +6,7 @@ import { ViewContainerRef } from '@angular/core';
 
 import { UrlNestedParams } from '../src/nested-params';
 import { Resource } from '../src/resource.service';
-import { MockRequest } from '../src/mock-backend';
+import {} from 'jasmine';
 import { APIS, User } from './mock';
 import {
     Http, HttpModule,
@@ -16,7 +16,6 @@ import {
 } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
 
-import { MockingMode } from '../src/mocking-mode';
 
 export function TestNestedParams() {
 

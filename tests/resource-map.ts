@@ -3,6 +3,7 @@ import {
     inject
 } from '@angular/core/testing';
 import { ApplicationRef, ViewContainerRef } from '@angular/core';
+import {} from 'jasmine';
 import {
     Http, HttpModule,
     JsonpModule, XHRBackend, JSONPBackend,
