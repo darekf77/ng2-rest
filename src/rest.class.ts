@@ -14,6 +14,11 @@ import { RestRequest } from "./rest-request";
 import { RestHeaders } from "./rest-headers";
 //#endregion
 
+const DEFAULT_HEADERS = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+};
+
 export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
 
     //#region  private fields
@@ -46,10 +51,7 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
     }
 
     private static _headersAreSet: boolean = false;
-    private static _headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    };
+
 
     private getHeadersJSON() {
         return Rest.headers.toJSON();
@@ -86,8 +88,8 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
 
         if (!Rest._headersAreSet) {
             Rest._headersAreSet = true;
-            for (let h in Rest._headers) {
-                Rest.headers.append(h, Rest._headers[h]);
+            for (let h in DEFAULT_HEADERS) {
+                Rest.headers.append(h, DEFAULT_HEADERS[h]);
             }
         }
 
@@ -151,6 +153,9 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
         }
         let u = this.creatUrl(params, doNotSerializeParams);
         let d = JSON.stringify(item);
+        for (let h in DEFAULT_HEADERS) {
+            Rest.headers.set(h, DEFAULT_HEADERS[h]);
+        }
         return this.request[method.toLowerCase()](u, JSON.stringify(item),
             Rest.headers).map(res => {
                 if (res.text() !== '') {
@@ -176,25 +181,28 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
     //#endregion
 
     //#region http methods
-    query(params: RestModule.UrlParams[] = undefined, doNotSerializeParams: boolean = false, _sub: Subject<TA> = undefined): Observable<TA> {
-        return this.req('GET', undefined, params, doNotSerializeParams, _sub as any) as any;
+
+    array = {
+        get: (params: RestModule.UrlParams[] = undefined, doNotSerializeParams: boolean = false): Observable<TA> => {
+            return this.req('GET', undefined, params, doNotSerializeParams) as any
+        }
     }
 
-    get(params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: Subject<T> = undefined): Observable<T> {
-        return this.req('GET', undefined, params, doNotSerializeParams, _sub as any) as any;
+    get(params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false): Observable<T> {
+        return this.req('GET', undefined, params, doNotSerializeParams);
     }
 
-    save(item: T, params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: Subject<T> = undefined): Observable<T> {
-        return this.req('POST', item, params, doNotSerializeParams, _sub as any) as any;
+    post(item: T, params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false): Observable<T> {
+        return this.req('POST', item, params, doNotSerializeParams);
     }
 
-    update(item: T, params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: Subject<T> = undefined): Observable<T> {
-        return this.req('PUT', item, params, doNotSerializeParams, _sub as any) as any;
+    put(item: T, params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: Subject<T> = undefined): Observable<T> {
+        return this.req('PUT', item, params, doNotSerializeParams);
     }
 
 
-    remove(params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: Subject<T> = undefined): Observable<T> {
-        return this.req('DELETE', undefined, params, doNotSerializeParams, _sub as any) as any;
+    delete(params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: Subject<T> = undefined): Observable<T> {
+        return this.req('DELETE', undefined, params, doNotSerializeParams);
     }
     //#endregion
 

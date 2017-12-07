@@ -68,12 +68,12 @@ export namespace Rest {
 
 
 
-    export type FnMethodQuery<T> = (params?: UrlParams[], doNotSerializeParams?: boolean, _sub?: Subject<T>) => Observable<T>;
-    export type FnMethodGet<T> = (params?: UrlParams[], doNotSerializeParams?: boolean, _sub?: Subject<T>) => Observable<T>
-    export type FnMethodSave<T> = (item?: T, params?: UrlParams[], doNotSerializeParams?: boolean, _sub?: Subject<T>) => Observable<T>
-    export type FnMethodUpdate<T> = (item?: T, params?: UrlParams[], doNotSerializeParams?: boolean, _sub?: Subject<T>) => Observable<T>
-    export type FnMethodRemove<T> = (params?: UrlParams[], doNotSerializeParams?: boolean, _sub?: Subject<T>) => Observable<T>;
-    export type FnMethodJsonp<T> = (rl?: string, params?: UrlParams[], _sub?: Subject<T>) => Observable<T>;
+    export type FnMethodQuery<T> = (params?: UrlParams[], doNotSerializeParams?: boolean) => Observable<T>;
+    export type FnMethodGet<T> = (params?: UrlParams[], doNotSerializeParams?: boolean) => Observable<T>
+    export type FnMethodSave<T> = (item?: T, params?: UrlParams[], doNotSerializeParams?: boolean) => Observable<T>
+    export type FnMethodUpdate<T> = (item?: T, params?: UrlParams[], doNotSerializeParams?: boolean) => Observable<T>
+    export type FnMethodRemove<T> = (params?: UrlParams[], doNotSerializeParams?: boolean) => Observable<T>;
+    export type FnMethodJsonp<T> = (rl?: string, params?: UrlParams[]) => Observable<T>;
 
     export interface FnMethodsHttp<T, TA> {
 
@@ -83,7 +83,9 @@ export namespace Rest {
          * @type {FnMethodQuery<TA>}
          * @memberOf FnMethodsHttp
          */
-        query: FnMethodQuery<TA>;
+        array: {
+            get: FnMethodGet<TA>;
+        }
         /**
          * Get item from database
          * 
@@ -97,21 +99,21 @@ export namespace Rest {
          * @type {FnMethodSave<T>}
          * @memberOf FnMethodsHttp
          */
-        save: FnMethodSave<T>;
+        post: FnMethodSave<T>;
         /**
          * Update object in databse
          * 
          * @type {FnMethodUpdate<T>}
          * @memberOf FnMethodsHttp
          */
-        update: FnMethodUpdate<T>;
+        put: FnMethodUpdate<T>;
         /**
          * Remove object from database
          * 
          * @type {FnMethodRemove<T>}
          * @memberOf FnMethodsHttp
          */
-        remove: FnMethodRemove<T>;
+        delete: FnMethodRemove<T>;
         /**
          * Get item from JSONP 
          * 
