@@ -216,7 +216,6 @@ export class RestRequest {
                     var headersMap: Map<string, string[]> = headers._headers;
                     if (headersMap) headersMap.forEach((v, k) => {
                         client.setRequestHeader(k, v.join(';'))
-                        console.log(v)
                     })
                     client.send(representationOfDesiredState);
 
