@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
+declare const require: any;
 
 type Lang = 'html' | 'typescript' | 'scss' | 'json';
 

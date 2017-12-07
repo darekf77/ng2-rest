@@ -1,22 +1,23 @@
-<md-card>
-    <md-card-content>
-        <p>
-            Demo is showing how use Resource class to wrap
-            out existing endpoints.
-        </p>
-        <button md-raised-button (click)="getJSONP()" >Get data jsonp</button> url: http://vinod.co/rest/contactsjp.php <br><br>
-        <button md-raised-button (click)="getData()" >Get data from mockable.io lub mock</button>
-        <br>
-        <br>
-        <md-checkbox [checked]="checked"  (change)="toogleMock()" >Use mock</md-checkbox>
-        <br>
-        <br> Data: {{ users | json }}
-    </md-card-content>
-</md-card>
-<br><!-- ###-->
-<br><!-- ###-->
-<md-tab-group *ngIf="previews && previews.length > 0"> <!-- ###-->
-    <md-tab *ngFor="let preview of previews" label="{{preview.name}}"><!-- ###-->
-        <pre><code highlight class="{{preview.lang}}">{{preview.content}}</code></pre><!-- ###-->
-    </md-tab><!-- ###-->
-</md-tab-group><!-- ###-->
+<mat-card>
+
+    <p>
+        Demo is showing how use Resource class to wrap out existing endpoints.
+    </p>
+    <button mat-raised-button (click)="getJSONP()">Get data jsonp</button> url: http://vinod.co/rest/contactsjp.php
+    <br>
+    <br>
+    <button mat-raised-button (click)="getData()">Get data from mockable.io lub mock</button>
+    <br>
+    <br>
+    <mat-checkbox [checked]="checked" (change)="toogleMock()">Use mock</mat-checkbox>
+    <br>
+    <br> Data: {{ users | json }}
+</mat-card>
+
+<br>
+<br>
+<mat-tab-group *ngIf="previews && previews.length > 0">
+    <mat-tab *ngFor="let preview of previews" label="{{preview.name}}">
+        <pre><code highlight class="{{preview.lang}}">{{preview.content}}</code></pre>
+    </mat-tab>
+</mat-tab-group>

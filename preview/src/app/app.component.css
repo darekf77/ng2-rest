@@ -1,8 +1,10 @@
 html, body{
-  height: 100%;
-  font-family: Arial, Helvetica, sans-serif
-}
+    height: 100%;
+    font-family: Arial, Helvetica, sans-serif
+  }
+  
+  a.active {
+    text-decoration: underline
+  }
 
-a.active {
-  text-decoration: underline
-}
+  

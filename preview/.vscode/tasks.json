@@ -8,8 +8,11 @@
     "suppressTaskName": true,
     "tasks": [
         {
-            "taskName": "hmr",
-            "args": ["run","server:dev:hmr"],
+            "taskName": "serve",
+            "args": [
+                "run",
+                "start"
+            ],
             "isBuildCommand": true
         }
     ]
