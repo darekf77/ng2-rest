@@ -70,6 +70,19 @@ export class Resource<E, T, TA> {
     //#region create
     public static create<A, TA = A[]>(e: string, model?: string): ResourceModel<A, TA> {
 
+        const badRestRegEX = new RegExp('((\/:)[a-z]+)+', 'g');
+        const matchArr = model.match(badRestRegEX) || [];
+        const badModelsNextToEachOther = matchArr.join();
+        const atleas2DoubleDots = ((badModelsNextToEachOther.match(new RegExp(':', 'g')) || []).length >= 2 );
+        if (atleas2DoubleDots && model.search(badModelsNextToEachOther) !== -1) {
+            throw new Error(`
+
+Bad rest model: ${model}
+
+Do not create rest models like this:    /book/author/:bookid/:authorid
+Instead use nested approach:            /book/:bookid/author/:authorid
+            `)
+        };
         Resource.map(e, e);
         Resource.instance.add(e, model ? model : '');
         // if (model.charAt(model.length - 1) !== '/') model = `${model}/`;
