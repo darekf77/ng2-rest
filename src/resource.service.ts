@@ -37,6 +37,7 @@ export class Resource<E, T, TA> {
         const angularElements: any[] = getAllAngularRootElements();
         if (!Array.isArray(angularElements) || angularElements.length === 0) return;
         const rootElement = ng.probe(angularElements[0]);
+        if(!rootElement) return;
         const injector = rootElement.injector;
         if (!injector || !injector.get || typeof injector.get !== 'function') return;
         const zone = injector.get(zoneClass)
