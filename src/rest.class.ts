@@ -69,8 +69,6 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
         return Rest.waitingForDocsServer;
     }
 
-    private prepareUrlOldWay = RestModule.prepareUrlOldWay;
-    private getParams = RestModule.getParamsUrl;
     private creatUrl(params: any, doNotSerializeParams: boolean = false) {
         return `${this.endpoint}${RestModule.getParamsUrl(params, doNotSerializeParams)}`;
     }
@@ -141,23 +139,15 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
     private req(method: HttpModule.HttpMethod,
         item: T,
         params?: RestModule.UrlParams[],
-        doNotSerializeParams: boolean = false,
-        _sub: Subject<T> = undefined): Observable<T> {
-        if (this.appIsWaiting()) {
-            let sub: Subject<T> = _sub ? _sub : new Subject<T>();
-            let obs = sub.asObservable();
-            setTimeout(() => {
-                this[method.toLowerCase()](item, params, doNotSerializeParams, sub).subscribe(e => sub.next(e));
-            }, Rest.waitTimeMs)
-            return sub as any;
-        }
-        let u = this.creatUrl(params, doNotSerializeParams);
-        let d = JSON.stringify(item);
+        doNotSerializeParams: boolean = false) {
+
+        const modelUrl = this.creatUrl(params, doNotSerializeParams);
+        const body = item ? JSON.stringify(item) : undefined;
         for (let h in DEFAULT_HEADERS) {
             Rest.headers.set(h, DEFAULT_HEADERS[h]);
         }
-        return this.request[method.toLowerCase()](u, JSON.stringify(item),
-            Rest.headers).map(res => {
+        return this.request[method.toLowerCase()](modelUrl, body, Rest.headers)
+            .map(res => {
                 if (res.text() !== '') {
                     Rest.headersResponse = res.headers;
                     let r = undefined;
@@ -168,10 +158,10 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
                     }
                     this.log(<Docs.DocModel>{
                         urlParams: JSON.stringify(params),
-                        bodySend: d,
+                        bodySend: body,
                         bodyRecieve: JSON.stringify(r),
                         method,
-                        urlFull: u
+                        urlFull: modelUrl
                     });
                     return r;
                 }
@@ -182,14 +172,35 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
 
     //#region http methods
 
-    array = {
-        get: (params: RestModule.UrlParams[] = undefined, doNotSerializeParams: boolean = false): Observable<TA> => {
+    //#region replay
+    replay = {
+        get: (urlKey: string) => {
+            // this.request.delete
+        }
+    };
+
+    //#endregion
+
+    array: RestModule.Ng2RestMethods<TA> = {
+        get: (params: RestModule.UrlParams[] = undefined, doNotSerializeParams?: boolean): Observable<TA> => {
             return this.req('GET', undefined, params, doNotSerializeParams) as any
+        },
+        post: (items: TA, params?: RestModule.UrlParams[], doNotSerializeParams?: boolean): Observable<TA> => {
+            return this.req('POST', items as any, params, doNotSerializeParams) as any;
+        },
+        put: (items: TA, params?: RestModule.UrlParams[], doNotSerializeParams?: boolean): Observable<TA> => {
+            return this.req('PUT', items as any, params, doNotSerializeParams) as any;
+        },
+        delete: (params?: RestModule.UrlParams[], doNotSerializeParams?: boolean): Observable<TA> => {
+            return this.req('DELETE', undefined, params, doNotSerializeParams) as any;
+        },
+        jsonp: (params?: RestModule.UrlParams[], doNotSerializeParams?: boolean): Observable<TA> => {
+            return this.req('JSONP', undefined, params, doNotSerializeParams) as any;
         }
     }
 
     get(params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false): Observable<T> {
-        return this.req('GET', undefined, params, doNotSerializeParams);
+        return this.req('GET', undefined, params, doNotSerializeParams) as any;
     }
 
     post(item: T, params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false): Observable<T> {
@@ -200,38 +211,12 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
         return this.req('PUT', item, params, doNotSerializeParams);
     }
 
-
     delete(params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: Subject<T> = undefined): Observable<T> {
         return this.req('DELETE', undefined, params, doNotSerializeParams);
     }
-    //#endregion
 
-    //#region jsonp method
-    jsonp(url?: string, params?: RestModule.UrlParams[], _sub: Subject<T> = undefined): Observable<T> {
-        if (this.appIsWaiting()) {
-            let sub: Subject<T> = _sub ? _sub : new Subject<T>();
-            let obs = sub.asObservable();
-            setTimeout(() => {
-                this.jsonp(url, params, _sub).subscribe(e => sub.next(e));
-            }, Rest.waitTimeMs)
-            return sub as any;
-        }
-        let u = (url && UrlNestedParams.checkValidUrl(url)) ? url : this.endpoint;
-        return this.request.jsonp(u).map(res => {
-            Rest.headersResponse = res.headers;
-            let r = undefined;
-            try {
-                r = res.json()
-            } catch (error) {
-                console.warn(error);
-            }
-            this.log(<Docs.DocModel>{
-                bodyRecieve: JSON.stringify(r),
-                method: 'JSONP',
-                urlFull: u
-            });
-            return r;
-        });
+    jsonp(params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false): Observable<T> {
+        return this.req('JSONP', undefined, params, doNotSerializeParams);
     }
     //#endregion
 

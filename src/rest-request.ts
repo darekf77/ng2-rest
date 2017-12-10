@@ -12,7 +12,7 @@ const jobIDkey = 'jobID'
 
 type ReqParams = { url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any, jobid: number };
 
-
+//#region mock request
 export interface MockRequest<T> {
     data: any;
     params: Object;
@@ -20,7 +20,8 @@ export interface MockRequest<T> {
     body: Object;
     method: Http.HttpMethod;
 }
-
+//#endregion
+//#region mock repos
 export interface MockResponse {
     data?: any;
     code?: Http.HttpCode;
@@ -423,7 +424,7 @@ export class RestRequest {
         return subject.asObservable();
     }
 
-    jsonp(url: string): Observable<any> {
+    jsonp(url: string, body: string, headers: RestHeaders): Observable<any> {
         let { id, subject } = this.getSubject();
         setTimeout(() => {
             if (url.endsWith('/')) url = url.slice(0, url.length - 1)

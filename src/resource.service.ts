@@ -1,3 +1,4 @@
+//#region imports
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
@@ -13,12 +14,19 @@ import { Rest } from './rest.class';
 import { RestRequest } from "./rest-request";
 import { RestHeaders } from "./rest-headers";
 import { Cookie } from "./cookie";
+//#endregion
 
 export interface ResourceModel<A, TA> {
     model: (m?: Object) => Rest<A, TA>
 }
 
 export class Resource<E, T, TA> {
+
+    replay = {
+        get(urlKey: string) {
+            const endpoint: Rest<T, TA> = Resource.endpoints[urlKey];
+        }
+    }
 
     public static enableWarnings: boolean = true;
 
@@ -37,7 +45,7 @@ export class Resource<E, T, TA> {
         const angularElements: any[] = getAllAngularRootElements();
         if (!Array.isArray(angularElements) || angularElements.length === 0) return;
         const rootElement = ng.probe(angularElements[0]);
-        if(!rootElement) return;
+        if (!rootElement) return;
         const injector = rootElement.injector;
         if (!injector || !injector.get || typeof injector.get !== 'function') return;
         const zone = injector.get(zoneClass)
@@ -74,7 +82,7 @@ export class Resource<E, T, TA> {
         const badRestRegEX = new RegExp('((\/:)[a-z]+)+', 'g');
         const matchArr = model.match(badRestRegEX) || [];
         const badModelsNextToEachOther = matchArr.join();
-        const atleas2DoubleDots = ((badModelsNextToEachOther.match(new RegExp(':', 'g')) || []).length >= 2 );
+        const atleas2DoubleDots = ((badModelsNextToEachOther.match(new RegExp(':', 'g')) || []).length >= 2);
         if (atleas2DoubleDots && model.search(badModelsNextToEachOther) !== -1) {
             throw new Error(`
 

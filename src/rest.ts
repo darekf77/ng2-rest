@@ -9,15 +9,6 @@ const log = Log.create('rest namespace', Level.__NOTHING)
 
 export namespace Rest {
 
-    export type Methods = 'get' | 'query' | 'save' | 'update' | 'remove';
-
-    export function getNg2RestMethod(httpMethod: Http.HttpMethod): Rest.Methods {
-        if (httpMethod === 'GET') return 'get';
-        if (httpMethod === 'POST') return 'save';
-        if (httpMethod === 'PUT') return 'update';
-        if (httpMethod === 'DELETE') return 'remove';
-    }
-
     /**
      * Get query params from url, like 'ex' in /api/books?ex=value
     */
@@ -66,61 +57,19 @@ export namespace Rest {
     }
 
 
+    export type MethodWithoutBody<T> = (params?: UrlParams[], doNotSerializeParams?: boolean) => Observable<T>
+    export type MethodWithBody<T> = (item?: T, params?: UrlParams[], doNotSerializeParams?: boolean) => Observable<T>
 
+    export interface Ng2RestMethods<T> {
+        get: MethodWithoutBody<T>;
+        post: MethodWithBody<T>;
+        put: MethodWithBody<T>;
+        delete: MethodWithoutBody<T>;
+        jsonp: MethodWithoutBody<T>;
+    }
 
-    export type FnMethodQuery<T> = (params?: UrlParams[], doNotSerializeParams?: boolean) => Observable<T>;
-    export type FnMethodGet<T> = (params?: UrlParams[], doNotSerializeParams?: boolean) => Observable<T>
-    export type FnMethodSave<T> = (item?: T, params?: UrlParams[], doNotSerializeParams?: boolean) => Observable<T>
-    export type FnMethodUpdate<T> = (item?: T, params?: UrlParams[], doNotSerializeParams?: boolean) => Observable<T>
-    export type FnMethodRemove<T> = (params?: UrlParams[], doNotSerializeParams?: boolean) => Observable<T>;
-    export type FnMethodJsonp<T> = (rl?: string, params?: UrlParams[]) => Observable<T>;
-
-    export interface FnMethodsHttp<T, TA> {
-
-        /**
-         * Get collection of item from database
-         * 
-         * @type {FnMethodQuery<TA>}
-         * @memberOf FnMethodsHttp
-         */
-        array: {
-            get: FnMethodGet<TA>;
-        }
-        /**
-         * Get item from database
-         * 
-         * @type {FnMethodGet<T>}
-         * @memberOf FnMethodsHttp
-         */
-        get: FnMethodGet<T>;
-        /**
-         * Save object in database
-         * 
-         * @type {FnMethodSave<T>}
-         * @memberOf FnMethodsHttp
-         */
-        post: FnMethodSave<T>;
-        /**
-         * Update object in databse
-         * 
-         * @type {FnMethodUpdate<T>}
-         * @memberOf FnMethodsHttp
-         */
-        put: FnMethodUpdate<T>;
-        /**
-         * Remove object from database
-         * 
-         * @type {FnMethodRemove<T>}
-         * @memberOf FnMethodsHttp
-         */
-        delete: FnMethodRemove<T>;
-        /**
-         * Get item from JSONP 
-         * 
-         * @type {FnMethodJsonp<T>}
-         * @memberOf FnMethodsHttp
-         */
-        jsonp: FnMethodJsonp<T>;
+    export interface FnMethodsHttp<T, TA> extends Ng2RestMethods<T> {
+        array: Ng2RestMethods<TA>;
     };
 
 
@@ -210,12 +159,6 @@ export namespace Rest {
         regex?: RegExp;
     }[];
 
-    export function prepare(params: UrlParams[]) {
-        if (params && params instanceof Array) {
-            params.forEach((p: any) => {
-                if (p !== undefined && p.regex !== undefined && p.regex instanceof RegExp) p['regex'] = p.regex.source;
-            });
-        }
-    }
+
 
 }

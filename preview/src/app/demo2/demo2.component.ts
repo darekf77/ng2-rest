@@ -23,7 +23,9 @@ export class Demo2Component extends PreviewBase implements OnDestroy {
   constructor(private snackBar: MatSnackBar, zone: NgZone) {
     super(); this.preview(); // ###
 
-    rest.model().array.get().subscribe(data => {
+    rest.model({
+      test: 11
+    }).array.get().subscribe(data => {
       this.users = data as any;
     });
 
@@ -32,6 +34,14 @@ export class Demo2Component extends PreviewBase implements OnDestroy {
     });
 
   }
+
+  private replaydata;
+  public replay = {
+    get() {
+
+    }
+  };
+
   handlers: Subscription[] = [];
   users = [];
 
@@ -40,10 +50,10 @@ export class Demo2Component extends PreviewBase implements OnDestroy {
   }
 
   public getJSONP() {
-    const h = rest.model().jsonp().subscribe(data => {
-      this.users = data as any;
-    });
-    this.handlers.push(h as any);
+    // const h = rest.model().jsonp().toPromise().subscribe(data => {
+    //   this.users = data as any;
+    // });
+    // this.handlers.push(h as any);
   }
 
   preview() { //###
