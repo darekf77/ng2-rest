@@ -12,6 +12,7 @@ import { Docs } from './docs';
 import { Http as HttpModule } from './http';
 import { RestRequest } from "./rest-request";
 import { RestHeaders } from "./rest-headers";
+import { Http } from '../index';
 //#endregion
 
 export const DEFAULT_HEADERS = {
@@ -31,10 +32,10 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
     public static waitingForDocsServer: boolean = false;
     public static restartServerRequest: boolean = false;
 
-    private _endpoint: string;
+    private __meta_endpoint: string;
     private _endpointRest: string;
     private get endpoint() {
-        let e = this._endpoint;
+        let e = this.__meta_endpoint;
         if (this.restQueryParams !== undefined && this._endpointRest !== undefined
             && typeof this._endpointRest === 'string' && this._endpointRest.trim() !== '') e = this._endpointRest;
         return e;
@@ -45,7 +46,7 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
         if (endpoint === undefined) {
             this.restQueryParams = undefined;
         } else {
-            this.restQueryParams = UrlNestedParams.getRestParams(endpoint, this._endpoint);
+            this.restQueryParams = UrlNestedParams.getRestParams(endpoint, this.__meta_endpoint);
         }
 
     }
@@ -81,8 +82,10 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
         private request: RestRequest,
         private description: string,
         private name: string,
-        private group: string) {
-        this._endpoint = endpoint;
+        private group: string,
+        private meta: { path: string, endpoint: string; }
+    ) {
+        this.__meta_endpoint = endpoint;
 
         if (!Rest._headersAreSet) {
             Rest._headersAreSet = true;
@@ -99,7 +102,7 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
             tmpUrl = Rest.docsTitle ? `${tmpUrl}/api/start/${encodeURIComponent(Rest.docsTitle)}` : `${tmpUrl}/api/start`;
 
             Rest.waitingForDocsServer = true;
-            request.get(tmpUrl, undefined, Rest.headers).subscribe(() => {
+            request.get(tmpUrl, undefined, Rest.headers, meta).subscribe(() => {
                 Rest.waitingForDocsServer = false;
                 console.info('Docs server restarted');
             }, (err) => {
@@ -128,7 +131,7 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
                 Rest.docServerUrl.slice(0, Rest.docServerUrl.length - 1) : Rest.docServerUrl;
             url = `${url}/api/save`;
 
-            this.request.post(url, JSON.stringify(model), Rest.headers).subscribe(() => {
+            this.request.post(url, JSON.stringify(model), Rest.headers, this.meta).subscribe(() => {
                 log.i('request saved in docs server');
             });
         }
@@ -146,7 +149,7 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
         for (let h in DEFAULT_HEADERS) {
             Rest.headers.set(h, DEFAULT_HEADERS[h]);
         }
-        return this.request[method.toLowerCase()](modelUrl, body, Rest.headers)
+        return this.request[method.toLowerCase()](modelUrl, body, Rest.headers, this.meta)
             .map(res => {
                 if (res.text() !== '') {
                     Rest.headersResponse = res.headers;
@@ -173,11 +176,9 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
     //#region http methods
 
     //#region replay
-    replay = {
-        get: (urlKey: string) => {
-            // this.request.delete
-        }
-    };
+    replay(method: Http.HttpMethod) {
+        this.request.replay(method, this.meta);
+    }
 
     //#endregion
 

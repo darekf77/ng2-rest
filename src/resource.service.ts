@@ -14,19 +14,15 @@ import { Rest } from './rest.class';
 import { RestRequest } from "./rest-request";
 import { RestHeaders } from "./rest-headers";
 import { Cookie } from "./cookie";
+import { Http } from "./http";
 //#endregion
 
 export interface ResourceModel<A, TA> {
-    model: (m?: Object) => Rest<A, TA>
+    model: (m?: Object) => Rest<A, TA>,
+    replay: (method: Http.HttpMethod) => void;
 }
 
 export class Resource<E, T, TA> {
-
-    replay = {
-        get(urlKey: string) {
-            const endpoint: Rest<T, TA> = Resource.endpoints[urlKey];
-        }
-    }
 
     public static enableWarnings: boolean = true;
 
@@ -73,6 +69,13 @@ export class Resource<E, T, TA> {
 
     private static instance = new Resource<string, any, any>();
     private static endpoints = {};
+    public static getModel(endpoint: string, model: string): Rest<any> {
+        model = Resource.prepareModel(model);
+        const e = Resource.endpoints[endpoint];
+        if (!e) return undefined;
+        const r = Resource.endpoints[endpoint].models[model];
+        return Resource.endpoints[endpoint].models[model];
+    }
     private static request: RestRequest = new RestRequest();
     //#endregion
 
@@ -99,7 +102,10 @@ Instead use nested approach:            /book/:bookid/author/:authorid
             model: (params?: Object) => Resource.instance.api(
                 e,
                 UrlNestedParams.interpolateParamsToUrl(params, model)
-            )
+            ),
+            replay: (method: Http.HttpMethod) => {
+                Resource.getModel(e, model).replay(method);
+            }
         }
     }
     //#endregion
@@ -194,6 +200,13 @@ Instead use nested approach:            /book/:bookid/author/:authorid
     }
     //#endregion
 
+    private static prepareModel(model) {
+        if (model.charAt(model.length - 1) === '/') model = model.slice(0, model.length - 1);
+        if (model.charAt(0) === '/') model = model.slice(1, model.length);
+        return model;
+    }
+
+
     //#region add
     /**
      * And enipoint to application
@@ -211,8 +224,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
             let rName = slName.map(fr => (fr[0]) ? (fr[0].toUpperCase() + fr.substr(1)) : '');
             name = rName.join(' ');
         }
-        if (model.charAt(model.length - 1) === '/') model = model.slice(0, model.length - 1);
-        if (model.charAt(0) === '/') model = model.slice(1, model.length);
+        model = Resource.prepareModel(model);
 
         let e: string;
         e = <string>(endpoint).toString();
@@ -228,7 +240,10 @@ Instead use nested approach:            /book/:bookid/author/:authorid
         }
         Resource.endpoints[e].models[model] =
             new Rest<T, TA>(Resource.endpoints[e].url
-                + '/' + model, Resource.request, description, name, group);
+                + '/' + model, Resource.request, description, name, group, {
+                    endpoint: e,
+                    path: model
+                });
         return;
     }
     //#endregion
