@@ -457,6 +457,11 @@ export class RestRequest {
             console.warn(`Canno replay first ${method} request from ${meta.endpoint}/${meta.path}`);
             return;
         };
+        if (replay && replay.subject && Array.isArray(replay.subject.observers) &&
+            replay.subject.observers.length == 0) {
+            console.warn(`No observators for ${method} request from ${meta.endpoint}/${meta.path}`);
+            return;
+        }
         const url = replay.data.url;
         const headers = replay.data.headers;
         const body = replay.data.body;
