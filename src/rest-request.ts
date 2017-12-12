@@ -454,7 +454,7 @@ export class RestRequest {
     public replay(method: Http.HttpMethod, meta: { path: string, endpoint: string; }) {
         const replay: ReplayData = this.getSubject(method, meta);
         if (!replay.data) {
-            console.error(`Canno replay empty ${method} request from ${meta.endpoint}/${meta.path}`);
+            console.warn(`Canno replay first ${method} request from ${meta.endpoint}/${meta.path}`);
             return;
         };
         const url = replay.data.url;
