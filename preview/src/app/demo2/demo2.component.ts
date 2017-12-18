@@ -26,24 +26,23 @@ export class Demo2Component extends PreviewBase implements OnDestroy {
     rest.model({
       test: 11
     }).array.get().subscribe(data => {
-      this.users = data as any;
+      this.users = data.body.json as any;
     });
 
     rest2.model({ authorid: 1, bookid: 2 }).get().subscribe(data => {
-      console.log(data);
+      console.log(data.body.json);
     });
 
   }
 
   private replaydata;
-  public replay = {
-    get() {
 
-    }
-  };
 
   handlers: Subscription[] = [];
   users = [];
+  public replay() {
+    rest2.replay('GET');
+  }
 
   public ngOnDestroy() {
     this.handlers.forEach(h => h.unsubscribe());

@@ -1,7 +1,7 @@
 import { diffChars } from 'diff';
 
 import { Log, Level } from 'ng2-logger';
-import { UrlParams } from 'models';
+import { UrlParams } from './models';
 const log = Log.create('params', Level.__NOTHING)
 
 

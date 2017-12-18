@@ -6,7 +6,7 @@ import { Log, Level } from 'ng2-logger';
 import { RestHeaders } from "./rest-headers";
 import * as JSON5 from 'json5';
 import { Rest } from "./rest.class";
-
+import { Cookie } from "./cookie";
 
 const log = Log.create('rest namespace', Level.__NOTHING)
 
@@ -85,16 +85,18 @@ export class ErrorBody extends BaseBody {
     }
 }
 
-export abstract class BaseResponse<T> {
 
+export abstract class BaseResponse<T> {
+    protected static readonly cookies = Cookie.Instance;
+    public get cookies() {
+        return BaseResponse.cookies;
+    }
     constructor(
         responseText?: string,
         public readonly headers?: RestHeaders,
-        public readonly cookies?: Object,
         public readonly statusCode?: HttpCode | number,
         isArray = false
     ) {
-
     }
 }
 
@@ -103,28 +105,25 @@ export class HttpResponse<T> extends BaseResponse<T> {
     constructor(
         responseText?: string,
         headers?: RestHeaders,
-        cookies?: Object,
         statusCode?: HttpCode | number,
         isArray = false
     ) {
-        super(responseText, headers, cookies, statusCode, isArray);
+        super(responseText, headers, statusCode, isArray);
         this.body = new HttpBody(responseText, isArray)
     }
 }
 
 export class HttpResponseError extends BaseResponse<any> {
     private error: ErrorBody;
-    public tryRecconect() {
+    // public tryRecconect() {
 
-    }
+    // }
     constructor(
         responseText?: string,
         headers?: RestHeaders,
-        cookies?: Object,
-        statusCode?: HttpCode | number,
-        subject?: Subject<any>
+        statusCode?: HttpCode | number
     ) {
-        super(responseText, headers, cookies, statusCode);
+        super(responseText, headers, statusCode);
         this.error = new ErrorBody(responseText)
     }
 }
@@ -139,11 +138,10 @@ export class HttpResponseArray<T> extends HttpResponse<T> {
     constructor(
         responseText?: string,
         headers?: RestHeaders,
-        cookies?: Object,
         statusCode?: HttpCode | number,
         isArray = true
     ) {
-        super(responseText, headers, cookies, statusCode, isArray)
+        super(responseText, headers, statusCode, isArray)
     }
 }
 

@@ -132,9 +132,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
     }
     //#endregion
 
-    public static get Cookies() {
-        return Cookie;
-    }
+    public static Cookies = Cookie.Instance;
 
     //#region map
     private static map(endpoint: string, url: string): boolean {

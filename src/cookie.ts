@@ -1,11 +1,22 @@
-export namespace Cookie {
+export class Cookie {
 
-    export function read(name: string) {
+    public static get Instance(): Cookie {
+        if (!Cookie.__instance) {
+            Cookie.__instance = new Cookie();
+        }
+        return Cookie.__instance as any;
+    }
+    private static __instance;
+
+    private constructor() {
+    }
+
+    read(name: string) {
         var result = new RegExp('(?:^|; )' + encodeURIComponent(name) + '=([^;]*)').exec(document.cookie);
         return result ? result[1] : null;
     }
 
-    export function write(name: string, value: string, days?: number) {
+    write(name: string, value: string, days?: number) {
         if (!days) {
             days = 365 * 20;
         }
@@ -18,9 +29,8 @@ export namespace Cookie {
         document.cookie = name + "=" + value + expires + "; path=/";
     }
 
-    export function remove(name: string) {
-        write(name, "", -1);
+    remove(name: string) {
+        this.write(name, "", -1);
     }
 
 }
-

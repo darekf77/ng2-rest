@@ -21,7 +21,6 @@ export class RestRequest {
     public static zone;
 
     private static jobId = 0;
-    private freeSubjects: Subject<any>[] = [];
     private subjectInuUse: { [id: number]: Subject<any> } = {};
 
     private workerActive = false;
@@ -279,12 +278,7 @@ export class RestRequest {
 
         // error no internet
         if (res && res.error) {
-            this.subjectInuUse[jobid].error(
-                new HttpResponseError(
-                    res.error, undefined, undefined,
-                    res.code, this.subjectInuUse[jobid]))
-            // this.subjectInuUse[jobid].observers.length = 0;
-            this.freeSubjects.push(this.subjectInuUse[jobid]);
+            this.subjectInuUse[jobid].error(new HttpResponseError(res.error, undefined, res.code))
             return;
         }
 
@@ -292,10 +286,9 @@ export class RestRequest {
         if (res && !res.code) {
             let headers = new RestHeaders(res.headers, true);
             this.subjectInuUse[jobid].next(isArray ?
-                new HttpResponseArray(res.data, headers, undefined, res.code, isArray) :
-                new HttpResponse(res.data, headers, undefined, res.code)
+                new HttpResponseArray(res.data, headers, res.code, isArray) :
+                new HttpResponse(res.data, headers, res.code)
             )
-            this.freeSubjects.push(this.subjectInuUse[jobid]);
             return;
         }
 
@@ -303,17 +296,15 @@ export class RestRequest {
         if (res && res.code >= 200 && res.code < 300 && !res.error) {
             let headers = new RestHeaders(res.headers, true);
             this.subjectInuUse[jobid].next(isArray ?
-                new HttpResponseArray(res.data, headers, undefined, res.code, isArray) :
-                new HttpResponse(res.data, headers, undefined, res.code)
+                new HttpResponseArray(res.data, headers, res.code, isArray) :
+                new HttpResponse(res.data, headers, res.code)
             )
-            this.freeSubjects.push(this.subjectInuUse[jobid]);
             return;
         }
 
-
+        // normal error
         let headers = new RestHeaders(res.headers, true);
-        this.subjectInuUse[jobid].error(new HttpResponseError(res.data, headers, undefined, res.code))
-        this.freeSubjects.push(this.subjectInuUse[jobid]);
+        this.subjectInuUse[jobid].error(new HttpResponseError(res.data, headers, res.code))
     }
 
 
@@ -373,7 +364,7 @@ export class RestRequest {
 
     private metaReq(method: HttpMethod, url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }, isArray: boolean): Observable<any> {
         const replay: ReplayData = this.getSubject(method, meta);
-        replay.data = { url, body, headers };
+        replay.data = { url, body, headers, isArray };
         setTimeout(() => this.req(url, method, headers, body, replay.id, isArray))
         return replay.subject.asObservable();
     }
