@@ -6,13 +6,11 @@ import { Log, Level } from 'ng2-logger';
 const log = Log.create('rest.class', Level.__NOTHING)
 import * as JSON5 from 'json5';
 // local
-import { Rest as RestModule } from './rest';
-import { UrlNestedParams } from './nested-params';
 import { Docs } from './docs';
-import { Http as HttpModule } from './http';
+import { HttpMethod, HttpResponse, HttpResponseArray, FnMethodsHttp, UrlParams, Ng2RestMethods } from './models';
+import { getRestParams, getParamsUrl } from "./params";
 import { RestRequest } from "./rest-request";
 import { RestHeaders } from "./rest-headers";
-import { Http } from '../index';
 //#endregion
 
 export const DEFAULT_HEADERS = {
@@ -20,7 +18,7 @@ export const DEFAULT_HEADERS = {
     'Accept': 'application/json'
 };
 
-export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
+export class Rest<T, TA = T[]> implements FnMethodsHttp<T, TA> {
 
     //#region  private fields
     public static docServerUrl: string;
@@ -46,7 +44,7 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
         if (endpoint === undefined) {
             this.restQueryParams = undefined;
         } else {
-            this.restQueryParams = UrlNestedParams.getRestParams(endpoint, this.__meta_endpoint);
+            this.restQueryParams = getRestParams(endpoint, this.__meta_endpoint);
         }
 
     }
@@ -71,7 +69,7 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
     }
 
     private creatUrl(params: any, doNotSerializeParams: boolean = false) {
-        return `${this.endpoint}${RestModule.getParamsUrl(params, doNotSerializeParams)}`;
+        return `${this.endpoint}${getParamsUrl(params, doNotSerializeParams)}`;
     }
 
     //#endregion
@@ -139,9 +137,9 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
     //#endregion
 
     //#region  req
-    private req(method: HttpModule.HttpMethod,
+    private req(method: HttpMethod,
         item: T,
-        params?: RestModule.UrlParams[],
+        params?: UrlParams[],
         doNotSerializeParams: boolean = false) {
 
         const modelUrl = this.creatUrl(params, doNotSerializeParams);
@@ -167,6 +165,19 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
                         urlFull: modelUrl
                     });
                     return r;
+                    // return new HttpResponseArray<any>(
+                    //     body: {
+                    //         json:r,
+                    //         text: res.text()
+                    //     }
+                    // );
+                    // return <HttpResponseArray<any>>{
+                    //     body: {
+                    //         json:r,
+                    //         text: res.text()
+                    //     },
+                    //     headers: 
+                    // };  
                 }
                 return {};
             });
@@ -176,47 +187,47 @@ export class Rest<T, TA = T[]> implements RestModule.FnMethodsHttp<T, TA> {
     //#region http methods
 
     //#region replay
-    replay(method: Http.HttpMethod) {
+    replay(method: HttpMethod) {
         this.request.replay(method, this.meta);
     }
 
     //#endregion
 
-    array: RestModule.Ng2RestMethods<TA> = {
-        get: (params: RestModule.UrlParams[] = undefined, doNotSerializeParams?: boolean): Observable<TA> => {
+    array = {
+        get: (params: UrlParams[] = undefined, doNotSerializeParams?: boolean): Observable<HttpResponseArray<TA>> => {
             return this.req('GET', undefined, params, doNotSerializeParams) as any
         },
-        post: (items: TA, params?: RestModule.UrlParams[], doNotSerializeParams?: boolean): Observable<TA> => {
-            return this.req('POST', items as any, params, doNotSerializeParams) as any;
+        post: (item: TA, params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponseArray<TA>> => {
+            return this.req('POST', item as any, params, doNotSerializeParams) as any;
         },
-        put: (items: TA, params?: RestModule.UrlParams[], doNotSerializeParams?: boolean): Observable<TA> => {
-            return this.req('PUT', items as any, params, doNotSerializeParams) as any;
+        put: (item: TA, params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponseArray<TA>> => {
+            return this.req('PUT', item as any, params, doNotSerializeParams) as any;
         },
-        delete: (params?: RestModule.UrlParams[], doNotSerializeParams?: boolean): Observable<TA> => {
+        delete: (params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponseArray<TA>> => {
             return this.req('DELETE', undefined, params, doNotSerializeParams) as any;
         },
-        jsonp: (params?: RestModule.UrlParams[], doNotSerializeParams?: boolean): Observable<TA> => {
+        jsonp: (params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponseArray<TA>> => {
             return this.req('JSONP', undefined, params, doNotSerializeParams) as any;
         }
     }
 
-    get(params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false): Observable<T> {
+    get(params?: UrlParams[], doNotSerializeParams: boolean = false): Observable<HttpResponse<T>> {
         return this.req('GET', undefined, params, doNotSerializeParams) as any;
     }
 
-    post(item: T, params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false): Observable<T> {
+    post(item: T, params?: UrlParams[], doNotSerializeParams: boolean = false): Observable<HttpResponse<T>> {
         return this.req('POST', item, params, doNotSerializeParams);
     }
 
-    put(item: T, params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: Subject<T> = undefined): Observable<T> {
+    put(item: T, params?: UrlParams[], doNotSerializeParams: boolean = false): Observable<HttpResponse<T>> {
         return this.req('PUT', item, params, doNotSerializeParams);
     }
 
-    delete(params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false, _sub: Subject<T> = undefined): Observable<T> {
+    delete(params?: UrlParams[], doNotSerializeParams: boolean = false): Observable<HttpResponse<T>> {
         return this.req('DELETE', undefined, params, doNotSerializeParams);
     }
 
-    jsonp(params?: RestModule.UrlParams[], doNotSerializeParams: boolean = false): Observable<T> {
+    jsonp(params?: UrlParams[], doNotSerializeParams: boolean = false): Observable<HttpResponse<T>> {
         return this.req('JSONP', undefined, params, doNotSerializeParams);
     }
     //#endregion

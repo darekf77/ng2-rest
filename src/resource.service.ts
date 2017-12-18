@@ -9,18 +9,15 @@ import 'rxjs/add/operator/toPromise';
 import { Log, Level } from 'ng2-logger';
 const log = Log.create('resouce-service', Level.__NOTHING)
 
-import { UrlNestedParams } from './nested-params';
 import { Rest } from './rest.class';
 import { RestRequest } from "./rest-request";
 import { RestHeaders } from "./rest-headers";
 import { Cookie } from "./cookie";
-import { Http } from "./http";
+import { ResourceModel, HttpMethod } from "./models";
+import { interpolateParamsToUrl, isValid, containsModels, getModels } from "./params";
 //#endregion
 
-export interface ResourceModel<A, TA> {
-    model: (m?: Object) => Rest<A, TA>,
-    replay: (method: Http.HttpMethod) => void;
-}
+
 
 export class Resource<E, T, TA> {
 
@@ -54,9 +51,9 @@ export class Resource<E, T, TA> {
         for (let p in allModels) {
             if (allModels.hasOwnProperty(p)) {
                 let m = allModels[p];
-                if (UrlNestedParams.isValid(p)) {
-                    let urlModels = UrlNestedParams.getModels(p);
-                    if (UrlNestedParams.containsModels(model, urlModels)) {
+                if (isValid(p)) {
+                    let urlModels = getModels(p);
+                    if (containsModels(model, urlModels)) {
                         model = p;
                         break;
                     }
@@ -101,9 +98,9 @@ Instead use nested approach:            /book/:bookid/author/:authorid
         return {
             model: (params?: Object) => Resource.instance.api(
                 e,
-                UrlNestedParams.interpolateParamsToUrl(params, model)
+                interpolateParamsToUrl(params, model)
             ),
-            replay: (method: Http.HttpMethod) => {
+            replay: (method: HttpMethod) => {
                 Resource.getModel(e, model).replay(method);
             }
         }
@@ -290,3 +287,14 @@ Instead use nested approach:            /book/:bookid/author/:authorid
 
 
 }
+
+
+const c = Resource.create<{ name: string; }>('asdasd', 'adasd');
+
+c.model().get().subscribe(d => {
+    d.body.json.
+})
+
+c.model().array.post([]).subscribe(d => {
+    d.body.json.
+})

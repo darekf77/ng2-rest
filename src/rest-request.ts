@@ -1,37 +1,19 @@
-import * as JSON5 from 'json5';
-
-
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 
-import { Http } from "./http";
+import {
+    HttpMethod, HttpCode, HttpResponse, HttpResponseArray, HttpResponseError,
+    MockRequest, MockResponse, ReqParams, ReplayData
+} from "./models";
 import { RestHeaders } from "./rest-headers";
 
 const jobIDkey = 'jobID'
 
 
-type ReplayData = { subject: Subject<any>, data: { url: string, body: string, headers: RestHeaders }, id: number; };
-type ReqParams = { url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any, jobid: number };
+
 
 //#region mock request
-export interface MockRequest<T> {
-    data: any;
-    params: Object;
-    restParams?: Object;
-    body: Object;
-    method: Http.HttpMethod;
-}
-//#endregion
-
-//#region mock repos
-export interface MockResponse {
-    data?: any;
-    code?: Http.HttpCode;
-    error?: string;
-    headers?: RestHeaders;
-    jobid?: number;
-}
 //#endregion
 
 export class RestRequest {
@@ -207,7 +189,7 @@ export class RestRequest {
 
             var firstTime = true;
 
-            function request(url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any, jobid?: number): MockResponse {
+            function request(url: string, method: HttpMethod, headers?: RestHeaders, body?: any, jobid?: number, isArray = false): MockResponse {
                 var representationOfDesiredState = body;
                 var client = new XMLHttpRequest();
                 try {
@@ -225,15 +207,17 @@ export class RestRequest {
                     var h = eval('RestHeaders.fromResponseHeaderString(client.getAllResponseHeaders())');
                     return {
                         data: client.responseText,
-                        code: <Http.HttpCode>client.status,
+                        code: <HttpCode>client.status,
                         headers: h,
-                        jobid
+                        jobid,
+                        isArray
                     };
                 } catch (error) {
                     return {
                         data: client.responseText,
                         error: typeof error === 'object' ? JSON.stringify(error) : error,
-                        jobid
+                        jobid,
+                        isArray
                     };
                 }
 
@@ -256,7 +240,7 @@ export class RestRequest {
                 let data: ReqParams = e.data;
                 if (data) {
                     // let res = request(data.url, data.method, eval('new RestHeaders(data.headers)') , data.body);
-                    let res = request(data.url, data.method, data.headers as any, data.body, data.jobid);
+                    let res = request(data.url, data.method, data.headers as any, data.body, data.jobid, data.isArray);
                     res['method'] = data.method;
                     self.postMessage(res, undefined)
                 }
@@ -293,23 +277,25 @@ export class RestRequest {
             // console.log('inside zone!',RestRequest.zone)
             if (RestRequest.zone) {
                 RestRequest.zone.run(() => {
-                    if (e && e.data) tmp.handlerResult(e.data, e.data['method'], e.data.jobid);
+                    if (e && e.data) tmp.handlerResult(e.data, e.data['method'], e.data.jobid, e.data.isArray);
                 })
             } else {
-                if (e && e.data) tmp.handlerResult(e.data, e.data['method'], e.data.jobid);
+                if (e && e.data) tmp.handlerResult(e.data, e.data['method'], e.data.jobid, e.data.isArray);
             }
 
         }, false);
 
     }
 
-    private handlerResult(res: MockResponse, method: Http.HttpMethod, jobid?: number) {
+    private handlerResult(res: MockResponse, method: HttpMethod, jobid?: number, isArray) {
 
         // error no internet
         if (res && res.error) {
-            this.subjectInuUse[jobid].error({
-                error: JSON5.parse(res.error)
-            })
+            let headers = new RestHeaders(res.headers, true);
+            this.subjectInuUse[jobid].error(
+                new HttpResponseError(
+                    res.error, headers, undefined,
+                    res.code, this.subjectInuUse[jobid]))
             // this.subjectInuUse[jobid].observers.length = 0;
             this.freeSubjects.push(this.subjectInuUse[jobid]);
             return;
@@ -317,12 +303,11 @@ export class RestRequest {
 
         // jsonp - no http code case
         if (res && !res.code) {
-            this.subjectInuUse[jobid].next({
-                json: () => (typeof res.data === 'string') ? JSON5.parse(res.data) : res.data,
-                text: () => res.data,
-                headers: new RestHeaders(res.headers, true)
-            })
-            // this.subjectInuUse[jobid].observers.length = 0;
+            let headers = new RestHeaders(res.headers, true);
+            this.subjectInuUse[jobid].next(isArray ?
+                new HttpResponseArray(res.data, headers, undefined, res.code, isArray) :
+                new HttpResponse(res.data, headers, undefined, res.code)
+            )
             this.freeSubjects.push(this.subjectInuUse[jobid]);
             return;
         }
@@ -330,43 +315,36 @@ export class RestRequest {
         // normal request case
         if (res && res.code >= 200 && res.code < 300 && !res.error) {
             let headers = new RestHeaders(res.headers, true);
-            this.subjectInuUse[jobid].next({
-                json: () => JSON5.parse(res.data),
-                text: () => res.data,
-                headers
-            })
+            this.subjectInuUse[jobid].next(isArray ?
+                new HttpResponseArray(res.data, headers, undefined, res.code, isArray) :
+                new HttpResponse(res.data, headers, undefined, res.code)
+            )
             // this.subjectInuUse[jobid].observers.length = 0;
             this.freeSubjects.push(this.subjectInuUse[jobid]);
             return;
         }
 
-        // error bad request  
-        let err = res.data;
-        try {
-            err = JSON5.parse(err)
-        } catch (e) { }
 
-        this.subjectInuUse[jobid].error({
-            error: err
-        })
+        let headers = new RestHeaders(res.headers, true);
+        this.subjectInuUse[jobid].error(new HttpResponseError(res.data, headers, undefined, res.code))
 
         // this.subjectInuUse[jobid].observers.length = 0;
         this.freeSubjects.push(this.subjectInuUse[jobid]);
     }
 
 
-    private req(url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any, jobid?: number) {
+    private req(url: string, method: HttpMethod, headers?: RestHeaders, body?: any, jobid?: number, isArray = false) {
 
         if (this.workerActive) {
             this.worker.postMessage({ url, method, headers, body, jobid });
         } else {
             let res = this.request(url, method, headers, body);
-            this.handlerResult(res, method, jobid);
+            this.handlerResult(res, method, jobid, isArray);
         }
 
     }
 
-    private request(url: string, method: Http.HttpMethod, headers?: RestHeaders, body?: any): MockResponse {
+    private request(url: string, method: HttpMethod, headers?: RestHeaders, body?: any, isArray = false): MockResponse {
         var representationOfDesiredState = body;
         var client = new XMLHttpRequest();
 
@@ -377,14 +355,15 @@ export class RestRequest {
         return {
             data: client.responseText,
             error: client.statusText,
-            code: <Http.HttpCode>client.status,
-            headers: RestHeaders.fromResponseHeaderString(client.getAllResponseHeaders())
+            code: <HttpCode>client.status,
+            headers: RestHeaders.fromResponseHeaderString(client.getAllResponseHeaders()),
+            isArray
         };
 
     }
 
 
-    private getSubject(method: Http.HttpMethod, meta: { path: string, endpoint: string; }): ReplayData {
+    private getSubject(method: HttpMethod, meta: { path: string, endpoint: string; }): ReplayData {
         if (!this.replaySubjects[meta.endpoint]) this.replaySubjects[meta.endpoint] = {};
         if (!this.replaySubjects[meta.endpoint][meta.path]) this.replaySubjects[meta.endpoint][meta.path] = {};
         if (!this.replaySubjects[meta.endpoint][meta.path][method]) {
@@ -408,30 +387,30 @@ export class RestRequest {
 
     //#region http methods
 
-    private metaReq(method: Http.HttpMethod, url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }): Observable<any> {
+    private metaReq(method: HttpMethod, url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }, isArray: boolean): Observable<any> {
         const replay: ReplayData = this.getSubject(method, meta);
         replay.data = { url, body, headers };
         setTimeout(() => this.req(url, method, headers, body, replay.id))
         return replay.subject.asObservable();
     }
 
-    get(url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }): Observable<any> {
-        return this.metaReq('GET', url, body, headers, meta);
+    get(url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }, isArray: boolean): Observable<any> {
+        return this.metaReq('GET', url, body, headers, meta, isArray);
     }
 
-    delete(url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }): Observable<any> {
-        return this.metaReq('DELETE', url, body, headers, meta);
+    delete(url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }, isArray: boolean): Observable<any> {
+        return this.metaReq('DELETE', url, body, headers, meta, isArray);
     }
 
-    post(url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }): Observable<any> {
-        return this.metaReq('POST', url, body, headers, meta);
+    post(url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }, isArray: boolean): Observable<any> {
+        return this.metaReq('POST', url, body, headers, meta, isArray);
     }
 
-    put(url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }): Observable<any> {
-        return this.metaReq('PUT', url, body, headers, meta);
+    put(url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }, isArray: boolean): Observable<any> {
+        return this.metaReq('PUT', url, body, headers, meta, isArray);
     }
 
-    jsonp(url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }): Observable<any> {
+    jsonp(url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }, isArray: boolean): Observable<any> {
         const replay: ReplayData = this.getSubject('JSONP', meta);
         setTimeout(() => {
             if (url.endsWith('/')) url = url.slice(0, url.length - 1)
@@ -439,8 +418,8 @@ export class RestRequest {
             let callbackMethodName = "cb_" + num;
             window[callbackMethodName] = (data) => {
                 this.handlerResult({
-                    data
-                }, 'JSONP', replay.id)
+                    data, isArray
+                }, 'JSONP', replay.id, isArray)
             }
             let sc = document.createElement('script');
             sc.src = `${url}?callback=${callbackMethodName}`;
@@ -451,7 +430,7 @@ export class RestRequest {
     }
     //#endregion
     private replaySubjects = {};
-    public replay(method: Http.HttpMethod, meta: { path: string, endpoint: string; }) {
+    public replay(method: HttpMethod, meta: { path: string, endpoint: string; }) {
         const replay: ReplayData = this.getSubject(method, meta);
         if (!replay.data) {
             console.warn(`Canno replay first ${method} request from ${meta.endpoint}/${meta.path}`);

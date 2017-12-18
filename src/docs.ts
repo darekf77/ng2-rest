@@ -1,4 +1,4 @@
-import { Http } from './http';
+import { HttpCode, HttpMethod } from './models';
 
 export namespace Docs {
 
@@ -16,8 +16,8 @@ export namespace Docs {
         urlParams: string;
         restQueryParams: string;
         url: string;
-        status: Http.HttpCode;
-        method: Http.HttpMethod;
+        status: HttpCode;
+        method: HttpMethod;
         urlFull: string;
     }
 
