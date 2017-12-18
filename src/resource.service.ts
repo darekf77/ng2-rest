@@ -77,7 +77,7 @@ export class Resource<E, T, TA> {
     //#endregion
 
     //#region create
-    public static create<A, TA = A[]>(e: string, model?: string): ResourceModel<A, TA> {
+    public static create<A, TA = A[]>(e: string, model?: string ): ResourceModel<A, TA> {
 
         const badRestRegEX = new RegExp('((\/:)[a-z]+)+', 'g');
         const matchArr = model.match(badRestRegEX) || [];
@@ -135,42 +135,6 @@ Instead use nested approach:            /book/:bookid/author/:authorid
     public static get Cookies() {
         return Cookie;
     }
-
-    //#region docs server
-    /**
-     * This funcion only works one time per tab in browse. 
-     * It means that if e2e tests needs only one browse tab
-     * which is refreshed constantly and it doesn't make sens to
-     * recreate server every time. In conclusion curent function
-     * state is remembered in sesssion storage. 
-     *  
-     * @static
-     * @param {string} url to ng2-rest  https://github.com/darekf77/ng2-rest
-     * @param {string} Optional: Title for docs
-     * @param {string} Optional: Force recreate docs every time when you are 
-     * using this function 
-     * 
-     * @memberOf Resource
-     */
-    public static setUrlToDocsServerAndRecreateIt(url: string, docsTitle: string = undefined,
-        forceRecreate: boolean = false) {
-        if (docsTitle) Rest.docsTitle = docsTitle;
-        Rest.docServerUrl = sessionStorage.getItem('url');
-        log.d('Rest.docServerUrl from session storage', Rest.docServerUrl);
-
-        if (forceRecreate ||
-            Rest.docServerUrl === undefined ||
-            Rest.docServerUrl === null ||
-            Rest.docServerUrl.trim() === '') {
-
-            Rest.docServerUrl = url;
-            sessionStorage.setItem('url', url);
-            Rest.restartServerRequest = true;
-            log.i('Recreate docs server request');
-        }
-
-    }
-    //#endregion
 
     //#region map
     private static map(endpoint: string, url: string): boolean {
@@ -237,7 +201,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
         }
         Resource.endpoints[e].models[model] =
             new Rest<T, TA>(Resource.endpoints[e].url
-                + '/' + model, Resource.request, description, name, group, {
+                + '/' + model, Resource.request, {
                     endpoint: e,
                     path: model
                 });
@@ -253,7 +217,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
      * @param {string} model
      * @returns {Rest<T, TA>}
      */
-    private api(endpoint: E, model: string, usecase?: string): Rest<T, TA> {
+    private api(endpoint: E, model: string): Rest<T, TA> {
 
         if (model.charAt(0) === '/') model = model.slice(1, model.length);
         let e = <string>(endpoint).toString();
@@ -270,7 +234,6 @@ Instead use nested approach:            /book/:bookid/author/:authorid
         }
 
         let res: Rest<T, TA> = Resource.endpoints[<string>(endpoint).toString()].models[model];
-        res.__usecase_desc = usecase;
 
         if (orgModel !== model) {
             let baseUrl = Resource.endpoints[<string>(endpoint).toString()].url;
@@ -289,12 +252,12 @@ Instead use nested approach:            /book/:bookid/author/:authorid
 }
 
 
-const c = Resource.create<{ name: string; }>('asdasd', 'adasd');
+// const c = Resource.create<{ name: string; }>('asdasd', 'adasd');
 
-c.model().get().subscribe(d => {
-    d.body.json.
-})
+// c.model().get().subscribe(d => {
+//     d.body.json.
+// });
 
-c.model().array.post([]).subscribe(d => {
-    d.body.json.
-})
+// c.model().array.post([]).subscribe(d => {
+//     d.body.json.
+// });

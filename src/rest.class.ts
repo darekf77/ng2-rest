@@ -6,7 +6,6 @@ import { Log, Level } from 'ng2-logger';
 const log = Log.create('rest.class', Level.__NOTHING)
 import * as JSON5 from 'json5';
 // local
-import { Docs } from './docs';
 import { HttpMethod, HttpResponse, HttpResponseArray, FnMethodsHttp, UrlParams, Ng2RestMethods } from './models';
 import { getRestParams, getParamsUrl } from "./params";
 import { RestRequest } from "./rest-request";
@@ -21,14 +20,8 @@ export const DEFAULT_HEADERS = {
 export class Rest<T, TA = T[]> implements FnMethodsHttp<T, TA> {
 
     //#region  private fields
-    public static docServerUrl: string;
-    public static docsTitle: string;
     public static headers: RestHeaders = new RestHeaders();
     public static headersResponse: RestHeaders = new RestHeaders();
-
-    public __usecase_desc;
-    public static waitingForDocsServer: boolean = false;
-    public static restartServerRequest: boolean = false;
 
     private __meta_endpoint: string;
     private _endpointRest: string;
@@ -56,18 +49,6 @@ export class Rest<T, TA = T[]> implements FnMethodsHttp<T, TA> {
         return Rest.headers.toJSON();
     }
 
-    public static waitTimeMs: number = 1000;
-    /**
-     * App is waiting unit get response from server
-     * 
-     * @returns
-     * 
-     * @memberOf Rest
-     */
-    private appIsWaiting() {
-        return Rest.waitingForDocsServer;
-    }
-
     private creatUrl(params: any, doNotSerializeParams: boolean = false) {
         return `${this.endpoint}${getParamsUrl(params, doNotSerializeParams)}`;
     }
@@ -78,9 +59,6 @@ export class Rest<T, TA = T[]> implements FnMethodsHttp<T, TA> {
     constructor(
         endpoint: string,
         private request: RestRequest,
-        private description: string,
-        private name: string,
-        private group: string,
         private meta: { path: string, endpoint: string; }
     ) {
         this.__meta_endpoint = endpoint;
@@ -92,47 +70,6 @@ export class Rest<T, TA = T[]> implements FnMethodsHttp<T, TA> {
             }
         }
 
-        if (Rest.restartServerRequest && Rest.docServerUrl && Rest.docServerUrl.trim() !== '') {
-            Rest.restartServerRequest = false;
-
-            let tmpUrl = Rest.docServerUrl.charAt(Rest.docServerUrl.length - 1) === '/' ?
-                Rest.docServerUrl.slice(0, Rest.docServerUrl.length - 1) : Rest.docServerUrl;
-            tmpUrl = Rest.docsTitle ? `${tmpUrl}/api/start/${encodeURIComponent(Rest.docsTitle)}` : `${tmpUrl}/api/start`;
-
-            Rest.waitingForDocsServer = true;
-            request.get(tmpUrl, undefined, Rest.headers, meta).subscribe(() => {
-                Rest.waitingForDocsServer = false;
-                console.info('Docs server restarted');
-            }, (err) => {
-                Rest.waitingForDocsServer = false;
-                console.error(`Problem with restart server on ${tmpUrl}`);
-            });
-        }
-
-    }
-    //#endregion
-
-    //#region  log
-    private log(model: Docs.DocModel) {
-        if (Rest.docServerUrl) {
-
-            model.description = this.description;
-            model.name = this.name;
-            model.group = this.group;
-            model.usecase = this.__usecase_desc;
-            model.url = this.endpoint;
-            // model.form = this.form;
-            model.headers = this.getHeadersJSON();
-            model.restQueryParams = JSON.stringify(this.restQueryParams);
-
-            let url = Rest.docServerUrl.charAt(Rest.docServerUrl.length - 1) === '/' ?
-                Rest.docServerUrl.slice(0, Rest.docServerUrl.length - 1) : Rest.docServerUrl;
-            url = `${url}/api/save`;
-
-            this.request.post(url, JSON.stringify(model), Rest.headers, this.meta).subscribe(() => {
-                log.i('request saved in docs server');
-            });
-        }
     }
     //#endregion
 
@@ -140,47 +77,16 @@ export class Rest<T, TA = T[]> implements FnMethodsHttp<T, TA> {
     private req(method: HttpMethod,
         item: T,
         params?: UrlParams[],
-        doNotSerializeParams: boolean = false) {
+        doNotSerializeParams: boolean = false,
+        isArray: boolean = false
+    ) {
 
         const modelUrl = this.creatUrl(params, doNotSerializeParams);
         const body = item ? JSON.stringify(item) : undefined;
         for (let h in DEFAULT_HEADERS) {
             Rest.headers.set(h, DEFAULT_HEADERS[h]);
         }
-        return this.request[method.toLowerCase()](modelUrl, body, Rest.headers, this.meta)
-            .map(res => {
-                if (res.text() !== '') {
-                    Rest.headersResponse = res.headers;
-                    let r = undefined;
-                    try {
-                        r = res.json()
-                    } catch (error) {
-                        console.warn(error);
-                    }
-                    this.log(<Docs.DocModel>{
-                        urlParams: JSON.stringify(params),
-                        bodySend: body,
-                        bodyRecieve: JSON.stringify(r),
-                        method,
-                        urlFull: modelUrl
-                    });
-                    return r;
-                    // return new HttpResponseArray<any>(
-                    //     body: {
-                    //         json:r,
-                    //         text: res.text()
-                    //     }
-                    // );
-                    // return <HttpResponseArray<any>>{
-                    //     body: {
-                    //         json:r,
-                    //         text: res.text()
-                    //     },
-                    //     headers: 
-                    // };  
-                }
-                return {};
-            });
+        return this.request[method.toLowerCase()](modelUrl, body, Rest.headers, this.meta, isArray);
     }
     //#endregion
 
@@ -190,24 +96,23 @@ export class Rest<T, TA = T[]> implements FnMethodsHttp<T, TA> {
     replay(method: HttpMethod) {
         this.request.replay(method, this.meta);
     }
-
     //#endregion
 
     array = {
         get: (params: UrlParams[] = undefined, doNotSerializeParams?: boolean): Observable<HttpResponseArray<TA>> => {
-            return this.req('GET', undefined, params, doNotSerializeParams) as any
+            return this.req('GET', undefined, params, doNotSerializeParams, true) as any
         },
         post: (item: TA, params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponseArray<TA>> => {
-            return this.req('POST', item as any, params, doNotSerializeParams) as any;
+            return this.req('POST', item as any, params, doNotSerializeParams, true) as any;
         },
         put: (item: TA, params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponseArray<TA>> => {
-            return this.req('PUT', item as any, params, doNotSerializeParams) as any;
+            return this.req('PUT', item as any, params, doNotSerializeParams, true) as any;
         },
         delete: (params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponseArray<TA>> => {
-            return this.req('DELETE', undefined, params, doNotSerializeParams) as any;
+            return this.req('DELETE', undefined, params, doNotSerializeParams, true) as any;
         },
         jsonp: (params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponseArray<TA>> => {
-            return this.req('JSONP', undefined, params, doNotSerializeParams) as any;
+            return this.req('JSONP', undefined, params, doNotSerializeParams, true) as any;
         }
     }
 

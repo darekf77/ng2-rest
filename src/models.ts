@@ -15,7 +15,7 @@ export type HttpCode = 200 | 400 | 404 | 500;
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'JSONP';
 export type MethodWithoutBody<E, T> = (params?: UrlParams[], doNotSerializeParams?: boolean) => Observable<E>
 export type MethodWithBody<E, T> = (item?: T, params?: UrlParams[], doNotSerializeParams?: boolean) => Observable<E>
-export type ReplayData = { subject: Subject<any>, data: { url: string, body: string, headers: RestHeaders }, id: number; };
+export type ReplayData = { subject: Subject<any>, data: { url: string, body: string, headers: RestHeaders, isArray: boolean; }, id: number; };
 export type ReqParams = { url: string, method: HttpMethod, headers?: RestHeaders, body?: any, jobid: number, isArray: boolean };
 
 export interface ResourceModel<A, TA> {
@@ -112,7 +112,7 @@ export class HttpResponse<T> extends BaseResponse<T> {
     }
 }
 
-export class HttpResponseError extends BaseResponse<T> {
+export class HttpResponseError extends BaseResponse<any> {
     private error: ErrorBody;
     public tryRecconect() {
 
