@@ -203,7 +203,6 @@ export class RestRequest {
                         client.setRequestHeader(k, v.join(';'))
                     })
                     client.send(representationOfDesiredState);
-
                     var h = eval('RestHeaders.fromResponseHeaderString(client.getAllResponseHeaders())');
                     return {
                         data: client.responseText,

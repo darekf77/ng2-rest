@@ -120,6 +120,10 @@ export class HttpResponse<T> extends BaseResponse<T> {
         isArray = false,
     ) {
         super(responseText, headers, statusCode, isArray);
+        if (typeof entity === 'string') {
+            const headerWithMapping = headers.get(entity);
+            entity = JSON.parse(headers.getAll(entity).join());
+        }
         this.body = new HttpBody(responseText, isArray, entity)
     }
 }

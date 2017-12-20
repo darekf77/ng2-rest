@@ -10,7 +10,7 @@ import { HttpMethod, HttpResponse, HttpResponseArray, FnMethodsHttp, UrlParams, 
 import { getRestParams, getParamsUrl } from "./params";
 import { RestRequest } from "./rest-request";
 import { RestHeaders } from "./rest-headers";
-import { Mapping } from 'mapping';
+import { Mapping } from './mapping';
 //#endregion
 
 export const DEFAULT_HEADERS = {

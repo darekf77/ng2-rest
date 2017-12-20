@@ -1,10 +1,12 @@
 import * as _ from "lodash";
 
-export function decode(json: Object): Mapping {
+export function decode(json: Object, entities?: Function[]): Mapping {
+    getClassBy.prototype.classes = entities;
     return getMapping(json);
 }
 
 export function encode<T = Function>(json: Object, mapping: Mapping): T {
+
     return setMapping(json, mapping);
 }
 
@@ -22,6 +24,7 @@ function getClassBy(className: string | Function): Function {
 }
 
 function add(o: Object, path: string, mapping: Mapping = {}) {
+    if (!o || Array.isArray(o) || typeof o !== 'object') return;
     if (path !== '_') path = path.replace(/^_./, '');
     const objectClassName = Object.getPrototypeOf(o).constructor.name;
     const resolveClass = getClassBy(objectClassName);
@@ -90,7 +93,10 @@ function setMapping(json: Object, mapping: Mapping = {},
             }
         }
     }
-    if (path === '_') return result;
+    if (path === '_') {
+        if(!result) return json;
+        return result;
+    }
     return _.get(result, realPath);
 }
 
