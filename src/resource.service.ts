@@ -277,9 +277,14 @@ let uu = new User();
 uu.name = 'asdasd';
 let book = new Book();
 book.author = new Author();
+book.title = 'roses';
 book.author.friends = [new User(), new User()]
 book.author.user = new User();
+uu.friend = new Author();
+uu.friend.age = 23;
+uu.friend.user = new User();
 uu.books = [book];
+
 
 // console.log("book is " + Object.getPrototypeOf(book).constructor.name)
 // console.log("user is " + Object.getPrototypeOf(uu).constructor.name)
@@ -295,23 +300,22 @@ function add(o: Object, path: string, mapping: Mapping = {}) {
     if (path !== '_') path = path.replace(/^_./, '');
     const objectClassName = Object.getPrototypeOf(o).constructor.name;
     const resolveClass = getClassBy(objectClassName);
-    if (!mapping[path]) mapping[path] = resolveClass;
+    if (!mapping[path]) mapping[path] = resolveClass.name as any;
 }
 
 function getMapping(c: Object, path = '_', mapping: Mapping = {}, level = 0) {
-    if (++level === 5) return;
+    if (++level === 16) return;
     add(c, path, mapping);
     for (var p in c) {
         if (c.hasOwnProperty(p)) {
             const v = c[p];
-            // if (Array.isArray(v) && v.length > 0) { // reducer as impovement
-            //     v.forEach((elem, i) => {
-            //         // const currentPaht = [`path[${i}]`, p].filter(c => c.trim() != '').join('.');
-            //         const currentPaht = [path, p].filter(c => c.trim() != '').join('.');
-            //         getMapping(elem, currentPaht, mapping, level);
-            //     })
-            // } else
-             if (typeof v === 'object') {
+            if (Array.isArray(v) && v.length > 0) { // reducer as impovement
+                v.forEach((elem, i) => {
+                    // const currentPaht = [`path[${i}]`, p].filter(c => c.trim() != '').join('.');
+                    const currentPaht = [path, p].filter(c => c.trim() != '').join('.');
+                    getMapping(elem, currentPaht, mapping, level);
+                })
+            } else if (typeof v === 'object') {
                 const currentPaht = [path, p].filter(c => c.trim() != '').join('.');
                 add(v, currentPaht, mapping);
                 getMapping(v, currentPaht, mapping, level);
@@ -321,53 +325,62 @@ function getMapping(c: Object, path = '_', mapping: Mapping = {}, level = 0) {
     return mapping;
 }
 
-function set(o: Object, mapping: Mapping = {}, path: string, realPath: string, result: Function) {
-    if (path === '_') {
-        const classTmpl: { new(any?): Function } = mapping[path] as any;
-        return new classTmpl();
-    }
-    const next = _.get(o, realPath);
-    if (!Array.isArray(next)) {
-        if (_.isObject(next)) {
-            const classTmpl: { new(any?): Function } = mapping[path] as any;
-            const res = _.set(result, realPath, new classTmpl());
-            _.forIn(next, (v, k) => res[k] = v);
-        } else {
-            _.set(result, realPath, next);
-        }
-    }
+
+
+
+import * as JSON5 from 'json5';
+
+
+
+function clearPath(path: string) {
+    return path.replace(/\[.\]/g, '.').replace(/\.$/, '').replace(/\.\./g, '.');
 }
 
-function setMapping(c: Object, mapping: Mapping = {}, path = '_', realPath: string = '', level = 0, result: Function = new Function()) {
-    result = set(c, mapping, path, realPath, result);
-    for (var p in c) {
-        if (c.hasOwnProperty(p)) {
-            const v = c[p];
-            if (Array.isArray(v) && v.length > 0) { // reducer as impovement
-                v.forEach((elem, i) => {
-                    const pp = (path === '_' ? '' : path);
-                    const real = `${pp}[${i}]${p}`;
-                    const currentPaht = `${pp}.${p}`;
-                    setMapping(elem, mapping, currentPaht, real, level, result);
-                })
-            } else if (typeof v === 'object') {
-                const currentPaht = [path, p].filter(c => c.trim() != '').join('.');
-                set(v, mapping, currentPaht, currentPaht, result);
-                setMapping(v, mapping, currentPaht, currentPaht, level, result);
+
+function setMapping(json: Object, mapping: Mapping = {},
+    path = '_', realPath: string = '',
+    level = 0, result?: Function) {
+    if (++level === 16) return;
+    const ClassTemplate: { new(any?): Function } = getClassBy(mapping[path] as any) as any;
+    let toInterate: Object;
+    if (ClassTemplate) {
+        if (path === '_') {
+            result = new ClassTemplate();
+            toInterate = json;
+        } else {
+            _.set(result, realPath, new ClassTemplate())
+            toInterate = _.get(json, realPath);
+        }
+    }
+
+    for (let propertyPath in toInterate) {
+        if (toInterate.hasOwnProperty(propertyPath)) {
+            const v = toInterate[propertyPath];
+            const tmpPath = `${path === '_' ? '' : `${realPath}.`}${propertyPath}`;
+            if (_.isArray(v)) {
+                v.forEach((elem, index) => {
+                    const pathArray = `${tmpPath}[${index}]`;
+                    return setMapping(json, mapping, clearPath(pathArray), pathArray, level, result);
+                });
+            } else if (_.isObject(v)) {
+                setMapping(json, mapping, clearPath(tmpPath), tmpPath, level, result);
+            } else {
+                _.set(result, tmpPath, v);
             }
         }
     }
-    return result;
+    if (path === '_') return result;
+    return _.get(result, realPath);
 }
+
 
 const mapFromObjectClasses = getMapping(uu);
 const rrr = JSON.parse(JSON.stringify(uu));
 const remapping = setMapping(rrr, mapFromObjectClasses);
-
-
-console.log(mapFromObjectClasses);
-console.log('remapping', remapping);
-console.log('string', JSON.stringify(mapFromObjectClasses))
+console.log('before', uu)
+console.log('before', uu)
+console.log('mapFromObjectClasses', mapFromObjectClasses);
+console.log('mapFromObjectClasses', JSON.stringify(mapFromObjectClasses));
 
 // console.log(JSON.stringify(uu))
 
