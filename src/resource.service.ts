@@ -13,6 +13,7 @@ import { Rest } from './rest.class';
 import { RestRequest } from "./rest-request";
 import { RestHeaders } from "./rest-headers";
 import { Cookie } from "./cookie";
+import { Mapping } from "./mapping";
 import { ResourceModel, HttpMethod } from "./models";
 import { interpolateParamsToUrl, isValid, containsModels, getModels } from "./params";
 //#endregion
@@ -77,7 +78,7 @@ export class Resource<E, T, TA> {
     //#endregion
 
     //#region create
-    public static create<A, TA = A[]>(e: string, model?: string ): ResourceModel<A, TA> {
+    public static create<A, TA = A[]>(e: string, model?: string, entityClass?: Function, entityClassMapping?: Mapping[]): ResourceModel<A, TA> {
 
         const badRestRegEX = new RegExp('((\/:)[a-z]+)+', 'g');
         const matchArr = model.match(badRestRegEX) || [];
@@ -249,8 +250,125 @@ Instead use nested approach:            /book/:bookid/author/:authorid
 
 }
 
+import * as _ from "lodash";
 
-// const c = Resource.create<{ name: string; }>('asdasd', 'adasd');
+class Author {
+    age: number;
+    user: User;
+}
+
+class Book {
+    title: string;
+    author: Author;
+}
+
+class User {
+    name: string;
+    books: Book[];
+}
+
+// const mapping: Mapping[] = [{
+//     path: 'books', class: Book
+// }]
+
+const c = Resource.create<{ name: string; }>('http://onet.pl', 'adasd', User);
+console.log(c)
+
+let uu = new User();
+uu.name = 'asdasd';
+let book = new Book();
+book.author = new Author();
+book.author.user = new User();
+uu.books = [book];
+
+// console.log("book is " + Object.getPrototypeOf(book).constructor.name)
+// console.log("user is " + Object.getPrototypeOf(uu).constructor.name)
+// console.log("user class is " + Object.getPrototypeOf(User).constructor.name)
+// console.log("boolean class is " + Object.getOwnPropertyNames(true));
+
+
+function getClassBy(className: string): Function {
+    return [User, Book, Author].find(({ name }) => name === className);
+}
+
+function add(o: Object, path: string, mapping: Mapping = {}) {
+    const objectClassName = Object.getPrototypeOf(o).constructor.name;
+    const resolveClass = getClassBy(objectClassName);
+    if (!mapping[path]) mapping[path] = resolveClass;
+}
+
+function getMapping(c: Object, path = '_', mapping: Mapping = {}, level = 0) {
+    if (++level === 4) return;
+    add(c, path, mapping);
+    for (var p in c) {
+        if (c.hasOwnProperty(p)) {
+            const v = c[p];
+            if (Array.isArray(v) && v.length > 0) { // reducer as impovement
+                v.forEach((elem, i) => {
+                    // const currentPaht = [`path[${i}]`, p].filter(c => c.trim() != '').join('.');
+                    const currentPaht = [path, p].filter(c => c.trim() != '').join('.');
+                    getMapping(elem, currentPaht, mapping, level);
+                })
+            } else if (typeof v === 'object') {
+                const currentPaht = [path, p].filter(c => c.trim() != '').join('.');
+                add(v, currentPaht, mapping);
+                getMapping(v, currentPaht, mapping, level);
+            }
+        }
+    }
+    return mapping;
+}
+
+
+function setMap(c: Object, path, classTemplate: { new(any?): Function }) {
+    const p = path.replace('_.', '');
+    const normObj: Object = _.get(c, p);
+    const clasObj = new classTemplate();
+    for (var key in normObj) {
+        if (normObj.hasOwnProperty(key)) {
+            clasObj[key] = normObj[key];
+        }
+    }
+    _.set(c, p, clasObj);
+}
+
+function applyMapping(c: Object, mappings: Mapping = {}) {
+    const classTemplate: { new(any?): Function } = mappings['_'] as any;
+    const result: Function = new classTemplate();
+
+    for (var p in mappings) {
+        if (mappings.hasOwnProperty(p)) {
+            const v = mappings[p];
+            if (Array.isArray(v)) {
+            } else if (typeof v === 'object') {
+                setMap(c, p, v);
+            }
+        }
+    }
+    for (var key in c) {
+        if (c.hasOwnProperty(key)) {
+            result[key] = c[key];
+        }
+    }
+    return result;
+}
+
+
+const mapFromObjectClasses = getMapping(uu);
+const rrr = JSON.parse(JSON.stringify(uu));
+const remapping = applyMapping(rrr, mapFromObjectClasses);
+console.log(mapFromObjectClasses);
+console.log('remapping', remapping);
+console.log('string', JSON.stringify(mapFromObjectClasses))
+
+// console.log(JSON.stringify(uu))
+
+// for (var i in uu) {
+//     if (uu.hasOwnProperty(i)) {
+//         console.log('i', i)
+//         console.log('v', uu[i])
+//     }
+// }
 
 // c.model().get().subscribe(d => {
 //     d.body.json.
