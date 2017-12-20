@@ -7,10 +7,10 @@ import {
     MockRequest, MockResponse, ReqParams, ReplayData
 } from "./models";
 import { RestHeaders } from "./rest-headers";
+import { Mapping, encode } from './mapping';
+import { MetaRequest } from "./models";
 
 const jobIDkey = 'jobID'
-
-
 
 
 //#region mock request
@@ -22,6 +22,7 @@ export class RestRequest {
 
     private static jobId = 0;
     private subjectInuUse: { [id: number]: Subject<any> } = {};
+    private meta: { [id: number]: MetaRequest } = {};
 
     private workerActive = false;
 
@@ -281,13 +282,14 @@ export class RestRequest {
             this.subjectInuUse[jobid].error(new HttpResponseError(res.error, undefined, res.code))
             return;
         }
+        const entity = this.meta[jobid].entity;
 
         // jsonp - no http code case
         if (res && !res.code) {
             let headers = new RestHeaders(res.headers, true);
             this.subjectInuUse[jobid].next(isArray ?
-                new HttpResponseArray(res.data, headers, res.code, isArray) :
-                new HttpResponse(res.data, headers, res.code)
+                new HttpResponseArray(res.data, headers, res.code, entity, isArray) :
+                new HttpResponse(res.data, headers, res.code, entity)
             )
             return;
         }
@@ -296,8 +298,8 @@ export class RestRequest {
         if (res && res.code >= 200 && res.code < 300 && !res.error) {
             let headers = new RestHeaders(res.headers, true);
             this.subjectInuUse[jobid].next(isArray ?
-                new HttpResponseArray(res.data, headers, res.code, isArray) :
-                new HttpResponse(res.data, headers, res.code)
+                new HttpResponseArray(res.data, headers, res.code, entity, isArray) :
+                new HttpResponse(res.data, headers, res.code, entity)
             )
             return;
         }
@@ -338,7 +340,7 @@ export class RestRequest {
     }
 
 
-    private getSubject(method: HttpMethod, meta: { path: string, endpoint: string; }): ReplayData {
+    private getSubject(method: HttpMethod, meta: MetaRequest): ReplayData {
         if (!this.replaySubjects[meta.endpoint]) this.replaySubjects[meta.endpoint] = {};
         if (!this.replaySubjects[meta.endpoint][meta.path]) this.replaySubjects[meta.endpoint][meta.path] = {};
         if (!this.replaySubjects[meta.endpoint][meta.path][method]) {
@@ -355,6 +357,7 @@ export class RestRequest {
         const subject: Subject<any> = replay.subject;
         subject[jobIDkey] = id;
 
+        this.meta[id] = meta;
         this.subjectInuUse[id] = subject;
         return replay;
     }
@@ -362,30 +365,30 @@ export class RestRequest {
 
     //#region http methods
 
-    private metaReq(method: HttpMethod, url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }, isArray: boolean): Observable<any> {
+    private metaReq(method: HttpMethod, url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): Observable<any> {
         const replay: ReplayData = this.getSubject(method, meta);
         replay.data = { url, body, headers, isArray };
         setTimeout(() => this.req(url, method, headers, body, replay.id, isArray))
         return replay.subject.asObservable();
     }
 
-    get(url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }, isArray: boolean): Observable<any> {
+    get(url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): Observable<any> {
         return this.metaReq('GET', url, body, headers, meta, isArray);
     }
 
-    delete(url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }, isArray: boolean): Observable<any> {
+    delete(url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): Observable<any> {
         return this.metaReq('DELETE', url, body, headers, meta, isArray);
     }
 
-    post(url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }, isArray: boolean): Observable<any> {
+    post(url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): Observable<any> {
         return this.metaReq('POST', url, body, headers, meta, isArray);
     }
 
-    put(url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }, isArray: boolean): Observable<any> {
+    put(url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): Observable<any> {
         return this.metaReq('PUT', url, body, headers, meta, isArray);
     }
 
-    jsonp(url: string, body: string, headers: RestHeaders, meta: { path: string, endpoint: string; }, isArray: boolean): Observable<any> {
+    jsonp(url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): Observable<any> {
         const replay: ReplayData = this.getSubject('JSONP', meta);
         setTimeout(() => {
             if (url.endsWith('/')) url = url.slice(0, url.length - 1)
@@ -405,7 +408,7 @@ export class RestRequest {
     }
     //#endregion
     private replaySubjects = {};
-    public replay(method: HttpMethod, meta: { path: string, endpoint: string; }) {
+    public replay(method: HttpMethod, meta: MetaRequest) {
         const replay: ReplayData = this.getSubject(method, meta);
         if (!replay.data) {
             console.warn(`Canno replay first ${method} request from ${meta.endpoint}/${meta.path}`);

@@ -7,10 +7,11 @@ import { RestHeaders } from "./rest-headers";
 import * as JSON5 from 'json5';
 import { Rest } from "./rest.class";
 import { Cookie } from "./cookie";
+import { Mapping, encode, decode, initEntities } from './mapping';
 
 const log = Log.create('rest namespace', Level.__NOTHING)
 
-
+export type MetaRequest = { path: string, endpoint: string; entity: Mapping; }
 export type HttpCode = 200 | 400 | 404 | 500;
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'JSONP';
 export type MethodWithoutBody<E, T> = (params?: UrlParams[], doNotSerializeParams?: boolean) => Observable<E>
@@ -61,10 +62,18 @@ export abstract class BaseBody {
 
 export class HttpBody<T> extends BaseBody {
 
-    constructor(private body: string, private isArray = false) {
+    constructor(private body: string, private isArray = false, private entity: Mapping) {
         super();
     }
     public get json(): T {
+        if (this.entity && typeof this.entity === 'object') {
+            const json = this.toJSON(this.body, this.isArray);
+            if (Array.isArray(json)) {
+                const result = json.map(j => encode<T>(j, this.entity)) as any;
+                return result;
+            }
+            return encode(json, this.entity);
+        }
         return this.toJSON(this.body, this.isArray);
     }
     public get text() {
@@ -88,6 +97,7 @@ export class ErrorBody extends BaseBody {
 
 export abstract class BaseResponse<T> {
     protected static readonly cookies = Cookie.Instance;
+
     public get cookies() {
         return BaseResponse.cookies;
     }
@@ -106,10 +116,11 @@ export class HttpResponse<T> extends BaseResponse<T> {
         responseText?: string,
         headers?: RestHeaders,
         statusCode?: HttpCode | number,
-        isArray = false
+        entity?: Mapping,
+        isArray = false,
     ) {
         super(responseText, headers, statusCode, isArray);
-        this.body = new HttpBody(responseText, isArray)
+        this.body = new HttpBody(responseText, isArray, entity)
     }
 }
 
@@ -139,9 +150,10 @@ export class HttpResponseArray<T> extends HttpResponse<T> {
         responseText?: string,
         headers?: RestHeaders,
         statusCode?: HttpCode | number,
+        entity?: Mapping,
         isArray = true
     ) {
-        super(responseText, headers, statusCode, isArray)
+        super(responseText, headers, statusCode, entity, isArray)
     }
 }
 
@@ -165,3 +177,6 @@ export interface MockResponse {
     jobid?: number;
     isArray: boolean;
 }
+
+
+

@@ -1,67 +1,123 @@
+import * as _ from "lodash";
 
-// import * as _ from "lodash";
+export function decode(json: Object): Mapping {
+    return getMapping(json);
+}
 
-// export abstract class ModelWrap {
-//     constructor(data?: Object, insideModelsMapping?: Mapping[]) {
-
-//         // prepare model
-//         if (Array.isArray(insideModelsMapping) && insideModelsMapping.length > 0 && data != undefined) {
-//             for (var i = 0; i < insideModelsMapping.length; i++) {
-//                 let m = insideModelsMapping[i];
-//                 let o = _.get(data, m.path);
-//                 if (!o) continue;
-//                 if (Array.isArray(o)) {
-//                     for (let k = 0; k < (o as any[]).length; k++) {
-//                         o[k] = new m.class(o[k]);
-//                     }
-//                 } else {
-//                     _.set(data, m.path, new m.class(o))
-//                 }
-//             }
-//         }
-//         this.__insideModelsMapping = insideModelsMapping;
-//         this.__data = data;
-//     }
-//     private __insideModelsMapping?: Mapping[]
-//     private __data: Object;
-//     protected get data() {
-//         return !this.__data ? {} : this.__data;
-//     }
-
-//     public clone() {
-
-//     }
-
-//     public raw() {
-//         let data = JSON.parse(JSON.stringify(this.__data));
-
-//         // prepare raw data
-//         if (Array.isArray(this.__insideModelsMapping) && this.__insideModelsMapping.length > 0 && data != undefined) {
-//             for (var i = 0; i < this.__insideModelsMapping.length; i++) {
-//                 let m = this.__insideModelsMapping[i];
-//                 let o = _.get(data, m.path);
-//                 let oi = _.get(this.__data, m.path);
-//                 // log.i('path', m.path)
-//                 // log.i('class', m.class)
-//                 // log.i('data', data)
-//                 if (!o) continue;
-//                 if (Array.isArray(o)) {
-//                     // log.i('is array')
-//                     for (let k = 0; k < (o as any[]).length; k++) {
-//                         o[k] = (oi[k] as ModelWrap).raw();
-//                     }
-//                 } else {
-//                     // log.i('is object')
-//                     _.set(data, m.path, (oi as ModelWrap).raw());
-//                 }
-//                 // log.i('transformed', data)
-//             }
-//         }
-//         return data;
-//     }
-
-// }
+export function encode<T = Function>(json: Object, mapping: Mapping): T {
+    return setMapping(json, mapping);
+}
 
 export interface Mapping {
     [path: string]: Function;
 }
+export function initEntities(entities: Function[]) {
+    getClassBy.prototype.classes = entities;
+}
+
+function getClassBy(className: string | Function): Function {
+    if (typeof className === 'function') return className;
+    const clases = getClassBy.prototype.classes;
+    return clases.find(({ name }) => name === className);
+}
+
+function add(o: Object, path: string, mapping: Mapping = {}) {
+    if (path !== '_') path = path.replace(/^_./, '');
+    const objectClassName = Object.getPrototypeOf(o).constructor.name;
+    const resolveClass = getClassBy(objectClassName);
+    if (!resolveClass) {
+        console.error(`Cannot resolve class: ${objectClassName} white mapping.`)
+        return;
+    }
+    if (!mapping[path]) mapping[path] = resolveClass.name as any;
+}
+
+function getMapping(c: Object, path = '_', mapping: Mapping = {}, level = 0) {
+    if (++level === 16) return;
+    add(c, path, mapping);
+    for (var p in c) {
+        if (c.hasOwnProperty(p)) {
+            const v = c[p];
+            if (Array.isArray(v) && v.length > 0) { // reducer as impovement
+                v.forEach((elem, i) => {
+                    // const currentPaht = [`path[${i}]`, p].filter(c => c.trim() != '').join('.');
+                    const currentPaht = [path, p].filter(c => c.trim() != '').join('.');
+                    getMapping(elem, currentPaht, mapping, level);
+                })
+            } else if (typeof v === 'object') {
+                const currentPaht = [path, p].filter(c => c.trim() != '').join('.');
+                add(v, currentPaht, mapping);
+                getMapping(v, currentPaht, mapping, level);
+            }
+        }
+    }
+    return mapping;
+}
+
+function clearPath(path: string) {
+    return path.replace(/\[.\]/g, '.').replace(/\.$/, '').replace(/\.\./g, '.');
+}
+
+function setMapping(json: Object, mapping: Mapping = {},
+    path = '_', realPath: string = '',
+    level = 0, result?: Function) {
+    if (++level === 16) return;
+    const ClassTemplate: { new(any?): Function } = getClassBy(mapping[path] as any) as any;
+    let toInterate: Object;
+    if (ClassTemplate) {
+        if (path === '_') {
+            result = new ClassTemplate();
+            toInterate = json;
+        } else {
+            _.set(result, realPath, new ClassTemplate())
+            toInterate = _.get(json, realPath);
+        }
+    }
+
+    for (let propertyPath in toInterate) {
+        if (toInterate.hasOwnProperty(propertyPath)) {
+            const v = toInterate[propertyPath];
+            const tmpPath = `${path === '_' ? '' : `${realPath}.`}${propertyPath}`;
+            if (_.isArray(v)) {
+                v.forEach((elem, index) => {
+                    const pathArray = `${tmpPath}[${index}]`;
+                    return setMapping(json, mapping, clearPath(pathArray), pathArray, level, result);
+                });
+            } else if (_.isObject(v)) {
+                setMapping(json, mapping, clearPath(tmpPath), tmpPath, level, result);
+            } else {
+                _.set(result, tmpPath, v);
+            }
+        }
+    }
+    if (path === '_') return result;
+    return _.get(result, realPath);
+}
+
+
+
+
+
+
+// const c = Resource.create<{ name: string; }>('http://onet.pl', 'adasd', User);
+// console.log(c)
+
+// let uu = new User();
+// uu.name = 'asdasd';
+// let book = new Book();
+// book.author = new Author();
+// book.title = 'roses';
+// book.author.friends = [new User(), new User()]
+// book.author.user = new User();
+// uu.friend = new Author();
+// uu.friend.age = 23;
+// uu.friend.user = new User();
+// uu.books = [book];
+
+
+
+// let mapping = decode(uu);
+// console.log('mapping', mapping)
+// let obj = JSON.parse(JSON.stringify(uu));
+// console.log('before', uu)
+// console.log('after', encode(obj, mapping))

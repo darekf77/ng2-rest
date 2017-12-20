@@ -8,8 +8,28 @@ import { Preview, PreviewBase } from '../base-preview';
 declare const require: any;
 
 import { Subscription } from 'rxjs/Subscription';
-import { Resource } from 'ng2-rest';
-const rest = Resource.create('https://demo9781896.mockable.io', 'users');
+import { Resource, initEntities } from 'ng2-rest';
+
+class Author {
+  age: number;
+  user: User;
+  friends: User[];
+}
+
+class Book {
+  title: string;
+  author: Author;
+}
+
+class User {
+  name: string;
+  friend: Author;
+  books: Book[];
+}
+
+initEntities([Author, Book, User]);
+
+const rest = Resource.create('https://demo9781896.mockable.io', 'users', { '_': User });
 const rest2 = Resource.create('https://demo9781896.mockable.io/', 'author/:authorid/book/:bookid');
 
 
@@ -26,6 +46,7 @@ export class Demo2Component extends PreviewBase implements OnDestroy {
     rest.model({
       test: 11
     }).array.get().subscribe(data => {
+      console.log(data.body.json);
       this.users = data.body.json as any;
     });
 

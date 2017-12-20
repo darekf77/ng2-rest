@@ -10,6 +10,7 @@ import { HttpMethod, HttpResponse, HttpResponseArray, FnMethodsHttp, UrlParams, 
 import { getRestParams, getParamsUrl } from "./params";
 import { RestRequest } from "./rest-request";
 import { RestHeaders } from "./rest-headers";
+import { Mapping } from 'mapping';
 //#endregion
 
 export const DEFAULT_HEADERS = {
@@ -59,7 +60,7 @@ export class Rest<T, TA = T[]> implements FnMethodsHttp<T, TA> {
     constructor(
         endpoint: string,
         private request: RestRequest,
-        private meta: { path: string, endpoint: string; }
+        private meta: { path: string, endpoint: string; entity: Mapping }
     ) {
         this.__meta_endpoint = endpoint;
 
