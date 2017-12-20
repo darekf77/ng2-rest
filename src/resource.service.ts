@@ -255,6 +255,7 @@ import * as _ from "lodash";
 class Author {
     age: number;
     user: User;
+    friends: User[];
 }
 
 class Book {
@@ -264,12 +265,10 @@ class Book {
 
 class User {
     name: string;
+    friend: Author;
     books: Book[];
 }
 
-// const mapping: Mapping[] = [{
-//     path: 'books', class: Book
-// }]
 
 const c = Resource.create<{ name: string; }>('http://onet.pl', 'adasd', User);
 console.log(c)
@@ -278,6 +277,7 @@ let uu = new User();
 uu.name = 'asdasd';
 let book = new Book();
 book.author = new Author();
+book.author.friends = [new User(), new User()]
 book.author.user = new User();
 uu.books = [book];
 
@@ -292,24 +292,26 @@ function getClassBy(className: string): Function {
 }
 
 function add(o: Object, path: string, mapping: Mapping = {}) {
+    if (path !== '_') path = path.replace(/^_./, '');
     const objectClassName = Object.getPrototypeOf(o).constructor.name;
     const resolveClass = getClassBy(objectClassName);
     if (!mapping[path]) mapping[path] = resolveClass;
 }
 
 function getMapping(c: Object, path = '_', mapping: Mapping = {}, level = 0) {
-    if (++level === 4) return;
+    if (++level === 5) return;
     add(c, path, mapping);
     for (var p in c) {
         if (c.hasOwnProperty(p)) {
             const v = c[p];
-            if (Array.isArray(v) && v.length > 0) { // reducer as impovement
-                v.forEach((elem, i) => {
-                    // const currentPaht = [`path[${i}]`, p].filter(c => c.trim() != '').join('.');
-                    const currentPaht = [path, p].filter(c => c.trim() != '').join('.');
-                    getMapping(elem, currentPaht, mapping, level);
-                })
-            } else if (typeof v === 'object') {
+            // if (Array.isArray(v) && v.length > 0) { // reducer as impovement
+            //     v.forEach((elem, i) => {
+            //         // const currentPaht = [`path[${i}]`, p].filter(c => c.trim() != '').join('.');
+            //         const currentPaht = [path, p].filter(c => c.trim() != '').join('.');
+            //         getMapping(elem, currentPaht, mapping, level);
+            //     })
+            // } else
+             if (typeof v === 'object') {
                 const currentPaht = [path, p].filter(c => c.trim() != '').join('.');
                 add(v, currentPaht, mapping);
                 getMapping(v, currentPaht, mapping, level);
@@ -319,44 +321,50 @@ function getMapping(c: Object, path = '_', mapping: Mapping = {}, level = 0) {
     return mapping;
 }
 
-
-function setMap(c: Object, path, classTemplate: { new(any?): Function }) {
-    const p = path.replace('_.', '');
-    const normObj: Object = _.get(c, p);
-    const clasObj = new classTemplate();
-    for (var key in normObj) {
-        if (normObj.hasOwnProperty(key)) {
-            clasObj[key] = normObj[key];
+function set(o: Object, mapping: Mapping = {}, path: string, realPath: string, result: Function) {
+    if (path === '_') {
+        const classTmpl: { new(any?): Function } = mapping[path] as any;
+        return new classTmpl();
+    }
+    const next = _.get(o, realPath);
+    if (!Array.isArray(next)) {
+        if (_.isObject(next)) {
+            const classTmpl: { new(any?): Function } = mapping[path] as any;
+            const res = _.set(result, realPath, new classTmpl());
+            _.forIn(next, (v, k) => res[k] = v);
+        } else {
+            _.set(result, realPath, next);
         }
     }
-    _.set(c, p, clasObj);
 }
 
-function applyMapping(c: Object, mappings: Mapping = {}) {
-    const classTemplate: { new(any?): Function } = mappings['_'] as any;
-    const result: Function = new classTemplate();
-
-    for (var p in mappings) {
-        if (mappings.hasOwnProperty(p)) {
-            const v = mappings[p];
-            if (Array.isArray(v)) {
+function setMapping(c: Object, mapping: Mapping = {}, path = '_', realPath: string = '', level = 0, result: Function = new Function()) {
+    result = set(c, mapping, path, realPath, result);
+    for (var p in c) {
+        if (c.hasOwnProperty(p)) {
+            const v = c[p];
+            if (Array.isArray(v) && v.length > 0) { // reducer as impovement
+                v.forEach((elem, i) => {
+                    const pp = (path === '_' ? '' : path);
+                    const real = `${pp}[${i}]${p}`;
+                    const currentPaht = `${pp}.${p}`;
+                    setMapping(elem, mapping, currentPaht, real, level, result);
+                })
             } else if (typeof v === 'object') {
-                setMap(c, p, v);
+                const currentPaht = [path, p].filter(c => c.trim() != '').join('.');
+                set(v, mapping, currentPaht, currentPaht, result);
+                setMapping(v, mapping, currentPaht, currentPaht, level, result);
             }
-        }
-    }
-    for (var key in c) {
-        if (c.hasOwnProperty(key)) {
-            result[key] = c[key];
         }
     }
     return result;
 }
 
-
 const mapFromObjectClasses = getMapping(uu);
 const rrr = JSON.parse(JSON.stringify(uu));
-const remapping = applyMapping(rrr, mapFromObjectClasses);
+const remapping = setMapping(rrr, mapFromObjectClasses);
+
+
 console.log(mapFromObjectClasses);
 console.log('remapping', remapping);
 console.log('string', JSON.stringify(mapFromObjectClasses))
@@ -377,3 +385,35 @@ console.log('string', JSON.stringify(mapFromObjectClasses))
 // c.model().array.post([]).subscribe(d => {
 //     d.body.json.
 // });
+
+
+// function applyMap(c: Object, mappings: Mapping = {}) {
+//     const m: { class: { new(any?): Function }, path: string; }[] = [];
+//     for (let path in mappings) {
+//         if (mappings.hasOwnProperty(path)) {
+//             m.push({ class: mappings[path] as any, path });
+//         }
+//     }
+//     applyMapping(c, m);
+// }
+
+
+// function applyMapping(obj: Object, mappings: { class: { new(any?): Function }, path: string; }[] = [], result?: Function) {
+//     if (mappings.length === 0) return;
+//     if (!result) {
+//         const map = mappings.find(({ path }) => path === '_');
+//         mappings.splice(mappings.indexOf(map), 1);
+//         result = new map.class();
+//     }
+//     const map = mappings.shift();
+//     const path = map.path.replace(/^_./, '');
+//     const next = _.get(obj, path);
+//     if (Array.isArray(next)) {
+
+//     } else if (_.isObject(next)) {
+//         _.set(result, path, new map.class());
+//     } else {
+//         _.set(result, path, next);
+//     }
+//     return result;
+// }
