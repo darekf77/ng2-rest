@@ -35,6 +35,10 @@ function add(o: Object, path: string, mapping: Mapping = {}) {
 }
 
 function getMapping(c: Object, path = '', mapping: Mapping = {}, level = 0) {
+    if (Array.isArray(c)) {
+        c.forEach(c => getMapping(c, path, mapping, level))
+        return mapping;
+    }
     if (++level === 16) return;
     add(c, path, mapping);
     for (var p in c) {
@@ -93,7 +97,7 @@ function setMapping(json: Object, mapping: Mapping = {},
         }
     }
     if (path === '') {
-        if(!result) return json;
+        if (!result) return json;
         return result;
     }
     return _.get(result, realPath);
