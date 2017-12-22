@@ -25,7 +25,6 @@ function getClassBy(className: string | Function): Function {
 
 function add(o: Object, path: string, mapping: Mapping = {}) {
     if (!o || Array.isArray(o) || typeof o !== 'object') return;
-    if (path !== '_') path = path.replace(/^_./, '');
     const objectClassName = Object.getPrototypeOf(o).constructor.name;
     const resolveClass = getClassBy(objectClassName);
     if (!resolveClass) {
@@ -35,7 +34,7 @@ function add(o: Object, path: string, mapping: Mapping = {}) {
     if (!mapping[path]) mapping[path] = resolveClass.name as any;
 }
 
-function getMapping(c: Object, path = '_', mapping: Mapping = {}, level = 0) {
+function getMapping(c: Object, path = '', mapping: Mapping = {}, level = 0) {
     if (++level === 16) return;
     add(c, path, mapping);
     for (var p in c) {
@@ -62,13 +61,13 @@ function clearPath(path: string) {
 }
 
 function setMapping(json: Object, mapping: Mapping = {},
-    path = '_', realPath: string = '',
+    path = '', realPath: string = '',
     level = 0, result?: Function) {
     if (++level === 16) return;
     const ClassTemplate: { new(any?): Function } = getClassBy(mapping[path] as any) as any;
     let toInterate: Object;
     if (ClassTemplate) {
-        if (path === '_') {
+        if (path === '') {
             result = new ClassTemplate();
             toInterate = json;
         } else {
@@ -80,7 +79,7 @@ function setMapping(json: Object, mapping: Mapping = {},
     for (let propertyPath in toInterate) {
         if (toInterate.hasOwnProperty(propertyPath)) {
             const v = toInterate[propertyPath];
-            const tmpPath = `${path === '_' ? '' : `${realPath}.`}${propertyPath}`;
+            const tmpPath = `${path === '' ? '' : `${realPath}.`}${propertyPath}`;
             if (_.isArray(v)) {
                 v.forEach((elem, index) => {
                     const pathArray = `${tmpPath}[${index}]`;
@@ -93,7 +92,7 @@ function setMapping(json: Object, mapping: Mapping = {},
             }
         }
     }
-    if (path === '_') {
+    if (path === '') {
         if(!result) return json;
         return result;
     }
