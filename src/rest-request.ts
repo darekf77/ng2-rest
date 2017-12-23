@@ -3,7 +3,7 @@ import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 
 import {
-    HttpMethod, HttpCode, HttpResponse, HttpResponseArray, HttpResponseError,
+    HttpMethod, HttpCode, HttpResponse, HttpResponseError,
     MockRequest, MockResponse, ReqParams, ReplayData
 } from "./models";
 import { RestHeaders } from "./rest-headers";
@@ -286,9 +286,8 @@ export class RestRequest {
         // jsonp - no http code case
         if (res && !res.code) {
             let headers = new RestHeaders(res.headers, true);
-            this.subjectInuUse[jobid].next(isArray ?
-                new HttpResponseArray(res.data, headers, res.code, entity, isArray) :
-                new HttpResponse(res.data, headers, res.code, entity)
+            this.subjectInuUse[jobid].next(
+                new HttpResponse(res.data, headers, res.code, entity, isArray)
             )
             return;
         }
@@ -296,9 +295,8 @@ export class RestRequest {
         // normal request case
         if (res && res.code >= 200 && res.code < 300 && !res.error) {
             let headers = new RestHeaders(res.headers, true);
-            this.subjectInuUse[jobid].next(isArray ?
-                new HttpResponseArray(res.data, headers, res.code, entity, isArray) :
-                new HttpResponse(res.data, headers, res.code, entity)
+            this.subjectInuUse[jobid].next(
+                new HttpResponse(res.data, headers, res.code, entity, isArray)
             )
             return;
         }

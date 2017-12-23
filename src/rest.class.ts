@@ -6,7 +6,7 @@ import { Log, Level } from 'ng2-logger';
 const log = Log.create('rest.class', Level.__NOTHING)
 import * as JSON5 from 'json5';
 // local
-import { HttpMethod, HttpResponse, HttpResponseArray, FnMethodsHttp, UrlParams, Ng2RestMethods } from './models';
+import { HttpMethod, HttpResponse, FnMethodsHttp, UrlParams, Ng2RestMethods } from './models';
 import { getRestParams, getParamsUrl } from "./params";
 import { RestRequest } from "./rest-request";
 import { RestHeaders } from "./rest-headers";
@@ -100,19 +100,19 @@ export class Rest<T, TA = T[]> implements FnMethodsHttp<T, TA> {
     //#endregion
 
     array = {
-        get: (params: UrlParams[] = undefined, doNotSerializeParams?: boolean): Observable<HttpResponseArray<TA>> => {
+        get: (params: UrlParams[] = undefined, doNotSerializeParams?: boolean): Observable<HttpResponse<TA>> => {
             return this.req('GET', undefined, params, doNotSerializeParams, true) as any
         },
-        post: (item: TA, params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponseArray<TA>> => {
+        post: (item: TA, params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponse<TA>> => {
             return this.req('POST', item as any, params, doNotSerializeParams, true) as any;
         },
-        put: (item: TA, params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponseArray<TA>> => {
+        put: (item: TA, params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponse<TA>> => {
             return this.req('PUT', item as any, params, doNotSerializeParams, true) as any;
         },
-        delete: (params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponseArray<TA>> => {
+        delete: (params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponse<TA>> => {
             return this.req('DELETE', undefined, params, doNotSerializeParams, true) as any;
         },
-        jsonp: (params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponseArray<TA>> => {
+        jsonp: (params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponse<TA>> => {
             return this.req('JSONP', undefined, params, doNotSerializeParams, true) as any;
         }
     }

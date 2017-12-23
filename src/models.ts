@@ -33,7 +33,7 @@ export interface Ng2RestMethods<E, T> {
 }
 
 export interface FnMethodsHttp<T, TA> extends Ng2RestMethods<HttpResponse<T>, T> {
-    array: Ng2RestMethods<HttpResponseArray<TA>, TA>;
+    array: Ng2RestMethods<HttpResponse<TA>, TA>;
 };
 
 export interface NestedParams {
@@ -112,6 +112,10 @@ export abstract class BaseResponse<T> {
 
 export class HttpResponse<T> extends BaseResponse<T> {
     public readonly body?: HttpBody<T>;
+    // public readonly TOTAL_COUNT_HEADER = 'X-Total-Count'.toLowerCase();
+    // public get totalElements(): number {
+    //     return Number(this.headers.get(this.TOTAL_COUNT_HEADER));
+    // }
     constructor(
         responseText?: string,
         headers?: RestHeaders,
@@ -142,25 +146,6 @@ export class HttpResponseError extends BaseResponse<any> {
         this.error = new ErrorBody(responseText)
     }
 }
-
-
-
-export class HttpResponseArray<T> extends HttpResponse<T> {
-    public readonly TOTAL_COUNT_HEADER = 'X-Total-Count'.toLowerCase();
-    public get totalElements(): number {
-        return Number(this.headers.get(this.TOTAL_COUNT_HEADER));
-    }
-    constructor(
-        responseText?: string,
-        headers?: RestHeaders,
-        statusCode?: HttpCode | number,
-        entity?: Mapping,
-        isArray = true
-    ) {
-        super(responseText, headers, statusCode, entity, isArray)
-    }
-}
-
 
 
 export interface MockRequest<T> {
