@@ -28,7 +28,9 @@ function add(o: Object, path: string, mapping: Mapping = {}) {
     const objectClassName = Object.getPrototypeOf(o).constructor.name;
     const resolveClass = getClassBy(objectClassName);
     if (!resolveClass) {
-        console.error(`Cannot resolve class: ${objectClassName} white mapping.`)
+        if (objectClassName !== 'Object') {
+            console.error(`Cannot resolve class: ${objectClassName} white mapping.`)
+        }
         return;
     }
     if (!mapping[path]) mapping[path] = resolveClass.name as any;
