@@ -1,36 +1,11 @@
-# IDE-s #
-.idea
-
-# Node Files #
 /node_modules
-/bower_components
-npm-debug.log
-copy_crm.sh
+npm-debug.log*
 
-/copy
-/coverage
-/dist
 /.vscode
-/config
 /scripts
-
-# can use belowe becouse issiue
-# https://github.com/angular/angular-cli/issues/3426
-
-/src/**/*.ts
-!/src/**/*.d.ts
-index.ts
-
+/src
 /docs
 /preview
-/typings
+/tests
 
-karma.conf.js
-webpack.config.js
-protractor.conf.js
 tsconfig.json
-tslint.json
-tsconfig.webpack.json
-karma-shim.js
-/src/test
-/src/resource.service.spec.ts

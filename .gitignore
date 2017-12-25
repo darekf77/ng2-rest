@@ -1,29 +1,6 @@
-# IDE-s #
-.idea
-
-.DS_Store
-
-# Node Files #
 /node_modules
-/bower_components
-npm-debug.log
-copy_crm.sh
+npm-debug.log*
 
-/coverage
-
-/copy
-
-/src/**/*.js
-/src/**/*.js.map
-/src/**/*.d.ts
-index.js
-index.js.map
-index.js.d.ts
-
-index.d.ts
-ng2-rest.js.map
-
-/copy
-/typings
-/js
 /dist
+
+tsconfig.json

@@ -1,5 +1,15 @@
 // Place your settings in this file to overwrite default and user settings.
 {
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "index.*": true,
+        "dist": true,
+        "node_modules": true
+    },
     "workbench.colorCustomizations": {
         "activityBar.background": "#3186d4"
     },
@@ -8,14 +18,4 @@
         120
     ],
     "html.format.wrapAttributes": "force-aligned",
-    "typescript.check.workspaceVersion": false,
-    "files.exclude": {
-        "**/*.js": {
-            "when": "$(basename).ts"
-        },
-        // "**/*.d.ts": {
-        //     "when": "$(basename).ts"
-        // },
-        "**/*.map": true
-    }
 }
