@@ -1,7 +1,14 @@
 {
   "name": "ng2-rest",
-  "version": "8.0.3",
+  "version": "8.0.4",
   "license": "MIT",
+  "bundleDependencies": [
+    "diff",
+    "json5",
+    "ng2-logger",
+    "rxjs",
+    "lodash"
+  ],
   "dependencies": {
     "diff": "^3.2.0",
     "json5": "^0.5.1",
