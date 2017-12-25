@@ -1,41 +1,8 @@
 {
   "name": "ng2-rest",
-  "version": "8.0.0",
-  "description": "rest package for angular and react",
-  "main": "index.js",
-  "scripts": {
-    "test": "karma start --auto-watch --no-single-run",
-    "package": "sh scripts/package.sh"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/darekf77/ng2-rest.git"
-  },
-  "keywords": [
-    "rest",
-    "angular",
-    "react",
-    "$resource",
-    "resource",
-    "ng2",
-    "api"
-  ],
-  "author": {
-    "name": "Dariusz Filipiak"
-  },
+  "version": "8.0.1",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/darekf77/ng2-rest/issues"
-  },
-  "homepage": "https://github.com/darekf77/ng2-rest#readme",
   "peerDependencies": {
-    "diff": "3.2.0",
-    "json5": "0.5.1",
-    "lodash": "4.17.4",
-    "ng2-logger": "1.0.3",
-    "rxjs": "5.5.6"
-  },
-  "devDependencies": {
     "diff": "3.2.0",
     "json5": "0.5.1",
     "lodash": "4.17.4",

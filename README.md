@@ -1,5 +1,6 @@
 ## ng2-rest ##
 
+
 Compatible with Angular JS/2/4 and other frameworks
 
 Simple, efficient REST api with **Angular or other frameworks**. 
@@ -56,7 +57,7 @@ class User {
 // you can ommit "<User>" part is you don't wanna see response interface
 // also you can ommit third argument ",User" is you don't wanna
 // map response object to User class objects
-const rest = Resource.create<User>("http://yourbackend.com/api","users/:id", User)
+const rest = Resource.create<User>("http://yourbackend.com/api","users/:id",{'':User} )
 
 class UserComponent {
 
