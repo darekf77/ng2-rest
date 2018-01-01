@@ -72,7 +72,7 @@ export class HttpBody<T> extends BaseBody {
                 const result = json.map(j => encode<T>(j, this.entity)) as any;
                 return result;
             }
-            return encode(json, this.entity);
+            return encode(json, this.entity) as any;
         }
         return this.toJSON(this.body, this.isArray);
     }
@@ -128,7 +128,7 @@ export class HttpResponse<T> extends BaseResponse<T> {
             const headerWithMapping = headers.get(entity);
             entity = JSON.parse(headers.getAll(entity).join());
         }
-        this.body = new HttpBody(responseText, isArray, entity)
+        this.body = new HttpBody(responseText, isArray, entity) as any;
     }
 }
 
