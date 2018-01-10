@@ -47,6 +47,10 @@ export class Resource<E, T, TA> {
     }
 
 
+    public static initAngularNgZone(zone) {
+        RestRequest.zone = zone;
+    }
+
     private checkNestedModels(model: string, allModels: Object) {
         // if (model.indexOf('/') !== -1) { //TODO make this better, becouse now I unecesary checking shit
         for (let p in allModels) {
@@ -118,7 +122,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
     private constructor() {
         setTimeout(() => {
             const zone = this.getZone();
-            RestRequest.zone = zone;
+            if (!RestRequest.zone) RestRequest.zone = zone;
         })
     }
     //#endregion

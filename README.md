@@ -1,12 +1,15 @@
+
 ## ng2-rest ##
 
 
-Compatible with Angular JS/2/4 and other frameworks
+Isomorphic REST framework for Browser and NodeJS apps.
 
-Simple, efficient REST api with **Angular or other frameworks**. 
+Simple, robust, efficient REST api  for typescript frameworks like:
+ **Angular, React, ExpressJS and others**. 
 
-
-Nice way to connect your webapp with RESTfull backend or JSONP api.
+Nice way to:
+- connect your webapp with RESTfull backend or JSONP api 
+- access from NodeJS server third part APIs ( in the same way as in the browser)
 
 [Plunker demo](http://embed.plnkr.co/mFhAiV/)
 
@@ -22,7 +25,8 @@ import { Resource } from 'ng2-rest';
 Resource
 ========
 
-Fit you existing API (not only REST) into new fluent objects with **Resource**  class observables. Use power of **async** in new angular templates;
+Fit you existing API (not only REST) into new fluent objects with **Resource** 
+ class observables. Use power of **async** in new angular templates;
 
 **template.html**  
 ```html
@@ -66,17 +70,16 @@ class UserComponent {
 	 allUsers: () => rest.model()
 		 .array
 		 .get()
+		 .observable // Observable resposne (useful for Angular 2+ html templates)
 		 .map({ body } => body.json)  , // get all users, body.json => User[] 
 
 	 userBy: (id) => rest.model({id})
-		 .get()
+		 .get() // Promise response by default
 		 .map({ body } => body.json) // get user by id,  body.json => User
 
 	 update: async (user:User) =>{
 		 try {
-			rest.model({id:user.id})
-			.put(user)
-			.toPromise()
+			rest.model({id:user.id}).put(user) // Promise response by default
 
 			alert('Update sucess')
 		 } catch(e) {
@@ -115,5 +118,14 @@ If you don't wanna see warning, disable it like this:
 ```ts
 if (environment.production) {
   Resource.enableWarnings = false;
+}
+```
+
+# Angular AOT
+If you are using Angular 2+ and AOT ( Ahead Of Time Compilation ),
+ you need to do this in your **app.component**:
+```ts
+constructor(zone:NgZone) {
+    Resource.initAngularNgZone(zone)
 }
 ```
