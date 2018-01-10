@@ -75,11 +75,11 @@ class UserComponent {
 
 	 userBy: (id) => rest.model({id})
 		 .get() // Promise response by default
-		 .map({ body } => body.json) // get user by id,  body.json => User
+		 .then({ body } => console.log(body.json)) // get user by id,  body.json => User
 
 	 update: async (user:User) =>{
 		 try {
-			rest.model({id:user.id}).put(user) // Promise response by default
+			await rest.model({id:user.id}).put(user) // Promise response by default
 
 			alert('Update sucess')
 		 } catch(e) {
