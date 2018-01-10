@@ -14,8 +14,8 @@ const log = Log.create('rest namespace', Level.__NOTHING)
 export type MetaRequest = { path: string, endpoint: string; entity: Mapping; }
 export type HttpCode = 200 | 400 | 404 | 500;
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'JSONP';
-export type MethodWithoutBody<E, T> = (params?: UrlParams[], doNotSerializeParams?: boolean) => Observable<E>
-export type MethodWithBody<E, T> = (item?: T, params?: UrlParams[], doNotSerializeParams?: boolean) => Observable<E>
+export type MethodWithoutBody<E, T, R =Promise<E>> = (params?: UrlParams[], doNotSerializeParams?: boolean) => R
+export type MethodWithBody<E, T, R =Promise<E>> = (item?: T, params?: UrlParams[], doNotSerializeParams?: boolean) => R
 export type ReplayData = { subject: Subject<any>, data: { url: string, body: string, headers: RestHeaders, isArray: boolean; }, id: number; };
 export type ReqParams = { url: string, method: HttpMethod, headers?: RestHeaders, body?: any, jobid: number, isArray: boolean };
 
@@ -25,7 +25,7 @@ export interface ResourceModel<A, TA> {
 }
 
 export interface Ng2RestMethods<E, T> {
-    get: MethodWithoutBody<E, T>;
+    get: MethodWithoutBody<E, T, Observable<E> & Promise<E>>;
     post: MethodWithBody<E, T>;
     put: MethodWithBody<E, T>;
     delete: MethodWithoutBody<E, T>;
@@ -55,6 +55,8 @@ export abstract class BaseBody {
             } catch (error) {
                 HttpBody.enableWarnings && console.warn(error);
             }
+        } else if (typeof data === 'object') {
+            return data;
         }
         return r as any;
     }

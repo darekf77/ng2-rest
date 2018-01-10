@@ -100,40 +100,40 @@ export class Rest<T, TA = T[]> implements FnMethodsHttp<T, TA> {
     //#endregion
 
     array = {
-        get: (params: UrlParams[] = undefined, doNotSerializeParams?: boolean): Observable<HttpResponse<TA>> => {
+        get: (params: UrlParams[] = undefined, doNotSerializeParams?: boolean): Observable<HttpResponse<TA>> & Promise<HttpResponse<TA>> => {
             return this.req('GET', undefined, params, doNotSerializeParams, true) as any
         },
-        post: (item: TA, params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponse<TA>> => {
+        post: (item: TA, params?: UrlParams[], doNotSerializeParams?: boolean): Promise<HttpResponse<TA>> => {
             return this.req('POST', item as any, params, doNotSerializeParams, true) as any;
         },
-        put: (item: TA, params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponse<TA>> => {
+        put: (item: TA, params?: UrlParams[], doNotSerializeParams?: boolean): Promise<HttpResponse<TA>> => {
             return this.req('PUT', item as any, params, doNotSerializeParams, true) as any;
         },
-        delete: (params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponse<TA>> => {
+        delete: (params?: UrlParams[], doNotSerializeParams?: boolean): Promise<HttpResponse<TA>> => {
             return this.req('DELETE', undefined, params, doNotSerializeParams, true) as any;
         },
-        jsonp: (params?: UrlParams[], doNotSerializeParams?: boolean): Observable<HttpResponse<TA>> => {
+        jsonp: (params?: UrlParams[], doNotSerializeParams?: boolean): Promise<HttpResponse<TA>> => {
             return this.req('JSONP', undefined, params, doNotSerializeParams, true) as any;
         }
     }
 
-    get(params?: UrlParams[], doNotSerializeParams: boolean = false): Observable<HttpResponse<T>> {
+    get(params?: UrlParams[], doNotSerializeParams: boolean = false): Observable<HttpResponse<T>> & Promise<HttpResponse<T>> {
         return this.req('GET', undefined, params, doNotSerializeParams) as any;
     }
 
-    post(item: T, params?: UrlParams[], doNotSerializeParams: boolean = false): Observable<HttpResponse<T>> {
+    post(item: T, params?: UrlParams[], doNotSerializeParams: boolean = false): Promise<HttpResponse<T>> {
         return this.req('POST', item, params, doNotSerializeParams);
     }
 
-    put(item: T, params?: UrlParams[], doNotSerializeParams: boolean = false): Observable<HttpResponse<T>> {
+    put(item: T, params?: UrlParams[], doNotSerializeParams: boolean = false): Promise<HttpResponse<T>> {
         return this.req('PUT', item, params, doNotSerializeParams);
     }
 
-    delete(params?: UrlParams[], doNotSerializeParams: boolean = false): Observable<HttpResponse<T>> {
+    delete(params?: UrlParams[], doNotSerializeParams: boolean = false): Promise<HttpResponse<T>> {
         return this.req('DELETE', undefined, params, doNotSerializeParams);
     }
 
-    jsonp(params?: UrlParams[], doNotSerializeParams: boolean = false): Observable<HttpResponse<T>> {
+    jsonp(params?: UrlParams[], doNotSerializeParams: boolean = false): Promise<HttpResponse<T>> {
         return this.req('JSONP', undefined, params, doNotSerializeParams);
     }
     //#endregion

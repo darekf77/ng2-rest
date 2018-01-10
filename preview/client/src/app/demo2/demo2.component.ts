@@ -29,8 +29,10 @@ class User {
 
 initEntities([Author, Book, User]);
 
+
 const rest = Resource.create('https://demo9781896.mockable.io', 'users', { '_': User });
 const rest2 = Resource.create('https://demo9781896.mockable.io/', 'author/:authorid/book/:bookid');
+const rest3 = Resource.create('http://localhost:3000', 'users');
 
 
 
@@ -47,10 +49,18 @@ export class Demo2Component extends PreviewBase implements OnDestroy {
       test: 11
     }).array.get().subscribe(data => {
       console.log(data.body.json);
+      // console.log(JSON.stringify(data.headers.toJSON()));
       this.users = data.body.json as any;
     });
 
+    rest3.model().array.get().subscribe(data => {
+      console.log(data.body.json);
+      console.log(JSON.stringify(data.headers.toJSON()));
+      // this.users = data.body.json as any;
+    });
+
     rest2.model({ authorid: 1, bookid: 2 }).get().subscribe(data => {
+
       console.log(data.body.json);
     });
 

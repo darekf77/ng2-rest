@@ -1,3 +1,5 @@
+declare var require: any;
+
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
@@ -9,9 +11,14 @@ import {
 import { RestHeaders } from "./rest-headers";
 import { Mapping, encode } from './mapping';
 import { MetaRequest } from "./models";
+import { isBrowser, isNode } from "ng2-logger";
 
 const jobIDkey = 'jobID'
 
+if (isNode) {
+    var URL = require('url');
+    var axios = require('axios');
+}
 
 //#region mock request
 //#endregion
@@ -28,13 +35,13 @@ export class RestRequest {
 
     constructor() {
 
-        if (typeof (Worker) !== "undefined") {
+        if (typeof (Worker) !== "undefined" && isBrowser) {
             this.workerActive = true;
             this.createWorker();
         }
     }
 
-    private static blobURL = URL.createObjectURL(new Blob(['(',
+    private static blobURL = (isBrowser ? window.URL.createObjectURL(new Blob(['(',
 
         function () {
 
@@ -203,6 +210,7 @@ export class RestRequest {
                         client.setRequestHeader(k, v.join(';'))
                     })
                     client.send(representationOfDesiredState);
+                    // console.log(client.getAllResponseHeaders())
                     var h = eval('RestHeaders.fromResponseHeaderString(client.getAllResponseHeaders())');
                     return {
                         data: client.responseText,
@@ -237,7 +245,7 @@ export class RestRequest {
 
         }.toString(),
 
-        ')()'], { type: 'application/javascript' }));
+        ')()'], { type: 'application/javascript' })) : undefined);
 
     private worker: Worker;
     private static _worker: Worker;
@@ -253,7 +261,7 @@ export class RestRequest {
             // let workerFN = require('!raw-loader!awesome-typescript-loader!./rest-headers.ts')
             // console.log('workerFN', workerFN)
             // RestRequest._worker.postMessage(workerFN)
-            URL.revokeObjectURL(RestRequest.blobURL);
+            window.URL.revokeObjectURL(RestRequest.blobURL);
         }
         this.worker = RestRequest._worker;
 
@@ -275,6 +283,9 @@ export class RestRequest {
     }
 
     private handlerResult(res: MockResponse, method: HttpMethod, jobid?: number, isArray?: boolean) {
+        if (isBrowser) {
+            res.headers = new RestHeaders(res.headers, true);
+        } 
 
         // error no internet
         if (res && res.error) {
@@ -285,35 +296,59 @@ export class RestRequest {
 
         // jsonp - no http code case
         if (res && !res.code) {
-            let headers = new RestHeaders(res.headers, true);
             this.subjectInuUse[jobid].next(
-                new HttpResponse(res.data, headers, res.code, entity, isArray)
+                new HttpResponse(res.data, res.headers, res.code, entity, isArray)
             )
             return;
         }
 
         // normal request case
         if (res && res.code >= 200 && res.code < 300 && !res.error) {
-            let headers = new RestHeaders(res.headers, true);
             this.subjectInuUse[jobid].next(
-                new HttpResponse(res.data, headers, res.code, entity, isArray)
+                new HttpResponse(res.data, res.headers, res.code, entity, isArray)
             )
             return;
         }
 
         // normal error
-        let headers = new RestHeaders(res.headers, true);
-        this.subjectInuUse[jobid].error(new HttpResponseError(res.data, headers, res.code))
+        this.subjectInuUse[jobid].error(new HttpResponseError(res.data, res.headers, res.code))
     }
 
 
-    private req(url: string, method: HttpMethod, headers?: RestHeaders, body?: any, jobid?: number, isArray = false) {
-
-        if (this.workerActive) {
-            this.worker.postMessage({ url, method, headers, body, jobid, isArray });
-        } else {
-            let res = this.request(url, method, headers, body);
-            this.handlerResult(res, method, jobid, isArray);
+    private async req(url: string, method: HttpMethod, headers?: RestHeaders, body?: any, jobid?: number, isArray = false) {
+        if (isBrowser) {
+            if (this.workerActive) {
+                this.worker.postMessage({ url, method, headers, body, jobid, isArray });
+            } else {
+                let res = this.request(url, method, headers, body);
+                this.handlerResult(res, method, jobid, isArray);
+            }
+        }
+        if (isNode) {
+            try {
+                const response = await axios({
+                    url,
+                    method,
+                    data: body,
+                    responseType: 'text',
+                    headers: headers.toJSON()
+                })
+                this.handlerResult({
+                    code: response.status as any,
+                    data: JSON.stringify(response.data),
+                    isArray,
+                    jobid,
+                    headers: new RestHeaders(response.headers)
+                }, method, jobid, isArray);
+            } catch (error) {
+                this.handlerResult({
+                    code: error.status as any,
+                    error: error.message,
+                    isArray,
+                    jobid,
+                    headers: new RestHeaders(error.headers)
+                }, method, jobid, isArray);
+            }
         }
 
     }
@@ -366,7 +401,10 @@ export class RestRequest {
         const replay: ReplayData = this.getSubject(method, meta);
         replay.data = { url, body, headers, isArray };
         setTimeout(() => this.req(url, method, headers, body, replay.id, isArray))
-        return replay.subject.asObservable();
+        if (method.toLowerCase() === 'GET'.toLowerCase() && isBrowser) {
+            return replay.subject.asObservable();
+        }
+        return replay.subject.asObservable().take(1).toPromise() as any;
     }
 
     get(url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): Observable<any> {
