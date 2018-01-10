@@ -29,12 +29,13 @@ var UserController = (function () {
         isomorphic_rest_1.GET('/'),
         tslib_1.__metadata("design:type", Function),
         tslib_1.__metadata("design:paramtypes", []),
-        tslib_1.__metadata("design:returntype", Object)
+        tslib_1.__metadata("design:returntype", typeof (_a = typeof isomorphic_rest_1.Response !== "undefined" && isomorphic_rest_1.Response) === "function" && _a || Object)
     ], UserController.prototype, "hello", null);
     UserController = tslib_1.__decorate([
         isomorphic_rest_1.ENDPOINT('/hello')
     ], UserController);
     return UserController;
+    var _a;
 }());
 exports.UserController = UserController;
 var Controllers = [UserController];
