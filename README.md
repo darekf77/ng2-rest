@@ -97,6 +97,8 @@ Specification
 ============
 Example **UrlParams[]** :
  `[ { sort: true },{ filter: 'id,5' }, { filter: 'name,test' } ]` 
+ 
+ 
 | Name | Parameters  | Description |
 | :---: | --- | ---: |
 | **.array.** | get,post,put,delete,jsonp |  for everything, but with arrays |
