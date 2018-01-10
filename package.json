@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "9.0.1",
+  "version": "9.0.3",
   "license": "MIT",
   "bundleDependencies": [
     "diff",
@@ -14,6 +14,23 @@
     "resources": [
       "README.md"
     ]
+  },
+  "bugs": {
+    "url": "https://github.com/darekf77/ng2-rest/issues"
+  },
+  "homepage": "https://github.com/darekf77/ng2-rest#readme",
+  "keywords": [
+    "isomorphic",
+    "logger",
+    "log",
+    "typescript"
+  ],
+  "author": {
+    "name": "Dariusz Filipiak"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/darekf77/ng2-rest.git"
   },
   "dependencies": {
     "diff": "^3.2.0",
