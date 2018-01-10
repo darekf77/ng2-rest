@@ -9,6 +9,12 @@
     "rxjs",
     "lodash"
   ],
+  "tnp": {
+    "type": "isomorphic-lib",
+    "resources": [
+      "README.md"
+    ]
+  },
   "dependencies": {
     "diff": "^3.2.0",
     "json5": "^0.5.1",
