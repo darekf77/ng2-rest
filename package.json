@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "9.0.3",
+  "version": "9.0.4",
   "license": "MIT",
   "bundleDependencies": [
     "diff",
@@ -33,14 +33,15 @@
     "url": "git+https://github.com/darekf77/ng2-rest.git"
   },
   "dependencies": {
+    "@angular/core": "^5.0.5",
+    "@angular/http": "^5.0.5",
+    "@types/diff": "^3.2.2",
+    "@types/lodash": "^4.14.91",
+    "axios": "^0.17.1",
     "diff": "^3.2.0",
     "json5": "^0.5.1",
     "lodash": "^4.17.4",
-    "ng2-logger": "^1.0.3",
-    "rxjs": "^5.5.6",
-    "@types/diff": "^3.2.2",
-    "@types/lodash": "^4.14.91",
-    "@angular/core": "^5.0.5",
-    "@angular/http": "^5.0.5"
+    "ng2-logger": "^2.0.25",
+    "rxjs": "^5.5.6"
   }
 }
