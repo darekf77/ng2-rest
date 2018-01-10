@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "9.0.4",
+  "version": "9.0.5",
   "license": "MIT",
   "bundleDependencies": [
     "diff",
@@ -32,9 +32,16 @@
     "type": "git",
     "url": "git+https://github.com/darekf77/ng2-rest.git"
   },
-  "dependencies": {
+  "devDependencies": {
     "@angular/core": "^5.0.5",
     "@angular/http": "^5.0.5",
+    "@ngtools/webpack": "^1.9.3",
+    "@types/node": "^9.3.0",
+    "isomorphic-region-loader": "0.0.1",
+    "typescript": "^2.6.2",
+    "webpack": "^3.10.0"
+  },
+  "dependencies": {
     "@types/diff": "^3.2.2",
     "@types/lodash": "^4.14.91",
     "axios": "^0.17.1",
