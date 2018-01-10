@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "9.0.0",
+  "version": "9.0.1",
   "license": "MIT",
   "bundleDependencies": [
     "diff",
