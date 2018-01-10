@@ -10,7 +10,7 @@ import {
 } from "./models";
 import { RestHeaders } from "./rest-headers";
 import { Mapping, encode } from './mapping';
-import { MetaRequest } from "./models";
+import { MetaRequest, PromiseObservableMix } from "./models";
 import { isBrowser, isNode } from "ng2-logger";
 import axios from 'axios';
 
@@ -130,33 +130,32 @@ export class RestRequest {
 
     //#region http methods
 
-    private metaReq(method: HttpMethod, url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): Observable<any> {
+    private metaReq(method: HttpMethod, url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): PromiseObservableMix<any> {
         const replay: ReplayData = this.getSubject(method, meta);
         replay.data = { url, body, headers, isArray };
         setTimeout(() => this.req(url, method, headers, body, replay.id, isArray))
-        if (method.toLowerCase() === 'GET'.toLowerCase() && isBrowser) {
-            return replay.subject.asObservable();
-        }
-        return replay.subject.asObservable().take(1).toPromise() as any;
+        const resp: PromiseObservableMix<any> = replay.subject.asObservable().take(1).toPromise() as any;
+        resp.observable = replay.subject.asObservable()
+        return resp;
     }
 
-    get(url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): Observable<any> {
+    get(url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): PromiseObservableMix<any> {
         return this.metaReq('GET', url, body, headers, meta, isArray);
     }
 
-    delete(url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): Observable<any> {
+    delete(url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): PromiseObservableMix<any> {
         return this.metaReq('DELETE', url, body, headers, meta, isArray);
     }
 
-    post(url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): Observable<any> {
+    post(url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): PromiseObservableMix<any> {
         return this.metaReq('POST', url, body, headers, meta, isArray);
     }
 
-    put(url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): Observable<any> {
+    put(url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): PromiseObservableMix<any> {
         return this.metaReq('PUT', url, body, headers, meta, isArray);
     }
 
-    jsonp(url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): Observable<any> {
+    jsonp(url: string, body: string, headers: RestHeaders, meta: MetaRequest, isArray: boolean): PromiseObservableMix<any> {
         const replay: ReplayData = this.getSubject('JSONP', meta);
         setTimeout(() => {
             if (url.endsWith('/')) url = url.slice(0, url.length - 1)
@@ -172,7 +171,10 @@ export class RestRequest {
             document.body.appendChild(sc);
             document.body.removeChild(sc);
         })
-        return replay.subject.asObservable();
+        // return replay.subject.asObservable();
+        const resp: PromiseObservableMix<any> = replay.subject.asObservable().take(1).toPromise() as any;
+        resp.observable = replay.subject.asObservable()
+        return resp;
     }
     //#endregion
     private replaySubjects = {};

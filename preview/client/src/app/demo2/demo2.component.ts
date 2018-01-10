@@ -47,19 +47,25 @@ export class Demo2Component extends PreviewBase implements OnDestroy {
 
     rest.model({
       test: 11
-    }).array.get().subscribe(data => {
+    }).array.get().observable.subscribe(data => {
       console.log(data.body.json);
       // console.log(JSON.stringify(data.headers.toJSON()));
       this.users = data.body.json as any;
     });
 
-    rest3.model().array.get().subscribe(data => {
+    rest3.model().array.get().observable.subscribe(data => {
       console.log(data.body.json);
       console.log(JSON.stringify(data.headers.toJSON()));
       // this.users = data.body.json as any;
     });
 
-    rest2.model({ authorid: 1, bookid: 2 }).get().subscribe(data => {
+    rest3.model().array.get().then(data => {
+      console.log(data.body.json);
+      console.log(JSON.stringify(data.headers.toJSON()));
+      // this.users = data.body.json as any;
+    });
+
+    rest2.model({ authorid: 1, bookid: 2 }).get().observable.subscribe(data => {
 
       console.log(data.body.json);
     });
