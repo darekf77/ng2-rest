@@ -18,7 +18,12 @@ export function initEntities(entities: Function[]) {
 }
 
 function getClassBy(className: string | Function): Function {
-    if (typeof className === 'function') return className;
+    if (typeof className === 'function') {
+        return className;
+    }
+    if(className === 'Date') {
+        return Date;
+    }
     const clases = getClassBy.prototype.classes;
     return clases.find(({ name }) => name === className);
 }
