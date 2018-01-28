@@ -6,7 +6,7 @@ import 'rxjs/add/operator/map';
 
 import {
     HttpMethod, HttpCode, HttpResponse, HttpResponseError,
-    MockRequest, MockResponse, ReqParams, ReplayData
+    MockResponse, ReqParams, ReplayData
 } from "./models";
 import { RestHeaders } from "./rest-headers";
 import { Mapping, encode } from './mapping';
@@ -27,35 +27,24 @@ export class RestRequest {
     private meta: { [id: number]: MetaRequest } = {};
 
     private handlerResult(res: MockResponse, method: HttpMethod, jobid?: number, isArray?: boolean) {
+        if (typeof res !== 'object') throw new Error('[ng2-rest] No resposnse for request. ')
+
         if (isBrowser) {
             res.headers = new RestHeaders(res.headers, true);
         }
 
         // error no internet
-        if (res && res.error) {
-            this.subjectInuUse[jobid].error(new HttpResponseError(res.error, undefined, res.code))
+        if (res.error) {
+            this.subjectInuUse[jobid].error(new HttpResponseError(res.error, res.data, res.headers, res.code))
             return;
         }
         const entity = this.meta[jobid].entity;
 
-        // jsonp - no http code case
-        if (res && !res.code) {
-            this.subjectInuUse[jobid].next(
-                new HttpResponse(res.data, res.headers, res.code, entity, isArray)
-            )
-            return;
-        }
-
         // normal request case
-        if (res && res.code >= 200 && res.code < 300 && !res.error) {
-            this.subjectInuUse[jobid].next(
-                new HttpResponse(res.data, res.headers, res.code, entity, isArray)
-            )
-            return;
-        }
-
-        // normal error
-        this.subjectInuUse[jobid].error(new HttpResponseError(res.data, res.headers, res.code))
+        this.subjectInuUse[jobid].next(
+            new HttpResponse(res.data, res.headers, res.code, entity, isArray)
+        )
+        return;
     }
 
 
@@ -76,34 +65,17 @@ export class RestRequest {
                 headers: new RestHeaders(response.headers)
             }, method, jobid, isArray);
         } catch (error) {
+
             this.handlerResult({
-                code: error.status as any,
-                error: error.message,
+                code: error.response.status as any,
+                error: `[${error.response.statusText}]: ${error.message}`,
+                data: JSON.stringify(error.response.data),
                 isArray,
                 jobid,
-                headers: new RestHeaders(error.headers)
+                headers: new RestHeaders(error.response.headers)
             }, method, jobid, isArray);
         }
     }
-
-    private request(url: string, method: HttpMethod, headers?: RestHeaders, body?: any, isArray = false): MockResponse {
-        var representationOfDesiredState = body;
-        var client = new XMLHttpRequest();
-
-        client.addEventListener
-        client.open(method, url, false);
-        client.send(representationOfDesiredState);
-
-        return {
-            data: client.responseText,
-            error: client.statusText,
-            code: <HttpCode>client.status,
-            headers: RestHeaders.fromResponseHeaderString(client.getAllResponseHeaders()),
-            isArray
-        };
-
-    }
-
 
     private getSubject(method: HttpMethod, meta: MetaRequest): ReplayData {
         if (!this.replaySubjects[meta.endpoint]) this.replaySubjects[meta.endpoint] = {};

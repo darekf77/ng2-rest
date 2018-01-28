@@ -11,7 +11,9 @@ export async function start() {
     const app = express()
     app.use(cors())
 
-    app.get('/users', (req, res) => res.json([{"name":"Bob from mockable.io","id":1},{"name":"Alice from mockable.io","id":2}]))
+    app.get('/users', (req, res) => {
+        res.json([{ "name": "Bob from mockable.io", "id": 1 }, { "name": "Alice from mockable.io", "id": 2 }])
+    })
 
     app.listen(port, async () => {
         console.log('Example app listening on port 3000!')

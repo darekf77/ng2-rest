@@ -54,7 +54,7 @@ export abstract class BaseBody {
         let r = isJSONArray ? [] : {};
         if (typeof data === 'string') {
             try {
-                r = JSON5.parse(data);
+                r = JSON.parse(data);
             } catch (error) {
                 HttpBody.enableWarnings && console.warn(error);
             }
@@ -138,31 +138,21 @@ export class HttpResponse<T> extends BaseResponse<T> {
 }
 
 export class HttpResponseError extends BaseResponse<any> {
-    private error: ErrorBody;
+    private body: ErrorBody;
     // public tryRecconect() {
 
     // }
     constructor(
+        public message: string,
         responseText?: string,
         headers?: RestHeaders,
-        statusCode?: HttpCode | number
+        statusCode?: HttpCode | number        
     ) {
         super(responseText, headers, statusCode);
-        this.error = new ErrorBody(responseText)
+        this.body = new ErrorBody(responseText)
     }
 }
 
-
-export interface MockRequest<T> {
-    data: any;
-    params: Object;
-    restParams?: Object;
-    body: Object;
-    method: HttpMethod;
-}
-//#endregion
-
-//#region mock repos
 export interface MockResponse {
     data?: any;
     code?: HttpCode;
@@ -171,6 +161,4 @@ export interface MockResponse {
     jobid?: number;
     isArray: boolean;
 }
-
-
 

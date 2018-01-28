@@ -51,6 +51,8 @@ export class Demo2Component extends PreviewBase implements OnDestroy {
       console.log(data.body.json);
       // console.log(JSON.stringify(data.headers.toJSON()));
       this.users = data.body.json as any;
+    }, err => {
+      console.log(err)
     });
 
     rest3.model().array.get().observable.subscribe(data => {
@@ -63,6 +65,8 @@ export class Demo2Component extends PreviewBase implements OnDestroy {
       console.log(data.body.json);
       console.log(JSON.stringify(data.headers.toJSON()));
       // this.users = data.body.json as any;
+    }, err => {
+      console.log(err)
     });
 
     rest2.model({ authorid: 1, bookid: 2 }).get().observable.subscribe(data => {
