@@ -4,7 +4,6 @@ import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import { Log, Level } from 'ng2-logger';
 import { RestHeaders } from "./rest-headers";
-import * as JSON5 from 'json5';
 import { Rest } from "./rest.class";
 import { Cookie } from "./cookie";
 import { Mapping, encode, decode, initEntities } from './mapping';
@@ -49,15 +48,12 @@ export interface UrlParams {
 }[];
 
 export abstract class BaseBody {
-    public static enableWarnings = true;
     protected toJSON(data, isJSONArray = false) {
         let r = isJSONArray ? [] : {};
         if (typeof data === 'string') {
             try {
                 r = JSON.parse(data);
-            } catch (error) {
-                HttpBody.enableWarnings && console.warn(error);
-            }
+            } catch { }
         } else if (typeof data === 'object') {
             return data;
         }
@@ -146,7 +142,7 @@ export class HttpResponseError extends BaseResponse<any> {
         public message: string,
         responseText?: string,
         headers?: RestHeaders,
-        statusCode?: HttpCode | number        
+        statusCode?: HttpCode | number
     ) {
         super(responseText, headers, statusCode);
         this.body = new ErrorBody(responseText)

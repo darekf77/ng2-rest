@@ -4,7 +4,6 @@ import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import { Log, Level } from 'ng2-logger';
 const log = Log.create('rest.class', Level.__NOTHING)
-import * as JSON5 from 'json5';
 // local
 import { HttpMethod, HttpResponse, FnMethodsHttp, PromiseObservableMix, UrlParams, Ng2RestMethods } from './models';
 import { getRestParams, getParamsUrl } from "./params";
