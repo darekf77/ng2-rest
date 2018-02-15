@@ -12,8 +12,6 @@
     "circular-json": "^0.5.1",
     "cors": "^2.8.4",
     "express": "^4.16.2",
-    "isomorphic-region-loader": "0.0.1",
-    "isomorphic-rest": "^0.0.8",
     "lodash": "^4.17.4",
     "on-build-webpack": "^0.1.0",
     "reflect-metadata": "^0.1.10",
