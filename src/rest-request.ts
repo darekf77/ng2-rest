@@ -79,14 +79,16 @@ export class RestRequest {
     }
 
     private getSubject(method: HttpMethod, meta: MetaRequest): ReplayData {
-        if (!this.replaySubjects[meta.endpoint]) this.replaySubjects[meta.endpoint] = {};
-        if (!this.replaySubjects[meta.endpoint][meta.path]) this.replaySubjects[meta.endpoint][meta.path] = {};
-        if (!this.replaySubjects[meta.endpoint][meta.path][method]) {
-            this.replaySubjects[meta.endpoint][meta.path][method] = <ReplayData>{
-                subject: new Subject(),
-                data: undefined,
-            };
-        }
+        // if (!this.replaySubjects[meta.endpoint]) 
+        this.replaySubjects[meta.endpoint] = {};
+        // if (!this.replaySubjects[meta.endpoint][meta.path]) 
+        this.replaySubjects[meta.endpoint][meta.path] = {};
+        // if (!this.replaySubjects[meta.endpoint][meta.path][method]) {
+        this.replaySubjects[meta.endpoint][meta.path][method] = <ReplayData>{
+            subject: new Subject(),
+            data: undefined,
+        };
+        // }
         const replay: ReplayData = this.replaySubjects[meta.endpoint][meta.path][method];
 
         const id: number = RestRequest.jobId++;

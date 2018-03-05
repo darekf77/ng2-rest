@@ -1,16 +1,26 @@
 // Place your settings in this file to overwrite default and user settings.
 {
     "files.exclude": {
-        "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
-        "**/CVS": true,
-        "**/.DS_Store": true,
-        "index.*": true,
-        "client.*": true,
-        "dist": true,
-        "bundle": true,
-        "node_modules": true
+        // "**/.git": true,
+        // "**/.svn": true,
+        // "**/.hg": true,
+        // "**/CVS": true,
+        // "**/.DS_Store": true,
+        // "index.*": true,
+        // "client.*": true,
+        // "browser.*": true,
+        // "backend.*": true,
+        // "dist": true,
+        // "bundle": true,
+        // "tmp-src": true,
+        // ".gitignore": true,
+        // ".npmignore": true,
+        // ".npmrc": true,
+        // "tsconfig.*": true,
+        // ".editorconfig": true,
+        // "node_modules": true,
+        // "tslint.*": true,
+        // "browser": true
     },
     "workbench.colorCustomizations": {
         "activityBar.background": "#3186d4"

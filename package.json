@@ -2,6 +2,9 @@
   "name": "ng2-rest",
   "version": "9.0.10",
   "license": "MIT",
+  "scripts": {
+    "build:watch": "npm-run watch \"morphi build\" src"
+  },
   "bundleDependencies": [
     "diff",
     "json5",

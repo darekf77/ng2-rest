@@ -53,7 +53,7 @@ export abstract class BaseBody {
         if (typeof data === 'string') {
             try {
                 r = JSON.parse(data);
-            } catch { }
+            } catch(e) { }
         } else if (typeof data === 'object') {
             return data;
         }
