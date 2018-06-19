@@ -7,12 +7,18 @@ import { RestHeaders } from "./rest-headers";
 import { Rest } from "./rest.class";
 import { Cookie } from "./cookie";
 import { Mapping, encode, decode, initEntities } from './mapping';
+//#region @backend
+import { RequestHandler } from "express";
+//#endregion
 
 const log = Log.create('rest namespace', Level.__NOTHING)
+
+export const CLASS_META_CONFIG = '$$rest_config';
 
 export type MetaRequest = { path: string, endpoint: string; entity: Mapping; }
 export type HttpCode = 200 | 400 | 404 | 500;
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'JSONP';
+export type ParamType = 'Path' | 'Query' | 'Cookie' | 'Header' | 'Body';
 
 export type PromiseObservableMix<T> = Promise<T> & { observable: Observable<T>; }
 
@@ -33,6 +39,7 @@ export interface Ng2RestMethods<E, T> {
     delete: MethodWithoutBody<E, T>;
     jsonp: MethodWithoutBody<E, T>;
 }
+
 
 export interface FnMethodsHttp<T, TA> extends Ng2RestMethods<HttpResponse<T>, T> {
     array: Ng2RestMethods<HttpResponse<TA>, TA>;
@@ -158,3 +165,33 @@ export interface MockResponse {
     isArray: boolean;
 }
 
+
+export class ParamConfig {
+  name: string;
+  paramType: ParamType;
+  index: number;
+  defaultType: any;
+  expireInSeconds?: number;
+}
+
+export class MethodConfig {
+  name: string;
+  path: string;
+  descriptor: PropertyDescriptor;
+  type: HttpMethod;
+  realtimeUpdate: boolean;
+  //#region @backend
+  requestHandler: RequestHandler;
+  //#endregion
+  parameters: { [paramName: string]: ParamConfig } = {};
+}
+
+
+export class ClassConfig {
+  singleton: Object = {};
+  injections: { getter: Function, propertyName: string; }[] = [];
+  basePath: string;
+  name: string;
+  className: string;
+  methods: { [methodName: string]: MethodConfig } = {};
+}

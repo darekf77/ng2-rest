@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "9.0.11",
+  "version": "9.1.0",
   "license": "MIT",
   "scripts": {
     "build:watch": "npm-run watch \"morphi build\" src"
@@ -39,7 +39,9 @@
     "@angular/core": "^5.0.5",
     "@angular/http": "^5.0.5",
     "@ngtools/webpack": "^1.9.3",
+    "@types/express": "^4.16.0",
     "@types/node": "^9.3.0",
+    "express": "^4.16.3",
     "isomorphic-region-loader": "^0.0.3",
     "typescript": "^2.6.2",
     "webpack": "^3.10.0"
@@ -51,7 +53,7 @@
     "diff": "^3.2.0",
     "json5": "^0.5.1",
     "lodash": "^4.17.4",
-    "ng2-logger": "^2.0.34",
+    "ng2-logger": "^2.0.35",
     "rxjs": "^5.5.6"
   }
 }

@@ -1,18 +1,17 @@
 {
-    "extends": "../tsconfig.json",
-    "compilerOptions": {
-        "rootDir": "./"
-    },
-    "include": [
-        "./**/*"
-    ],
-    "exclude": [
-        "src",
-        "node_modules",
-        "preview",
-        "docs",
-        "dist",
-        "bundle",
-        "tests"
-    ]
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./"
+  },
+  "include": [
+    "./**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "preview",
+    "docs",
+    "dist",
+    "bundle",
+    "tests"
+  ]
 }
