@@ -41,13 +41,13 @@ export function getClassConfig(target: Function, configs: ClassConfig[] = []): C
 const NAME_CACHE = '$$fn_name_cache'
 
 export function getClassName(entityOrController: Function) {
-  if(!getClassName.prototype[NAME_CACHE]) {
+  if (!getClassName.prototype[NAME_CACHE]) {
     getClassName.prototype[NAME_CACHE] = {};
   }
   if (getClassName.prototype[NAME_CACHE][entityOrController.name]) {
     return getClassName.prototype[NAME_CACHE][entityOrController.name];
   }
-  const configs = getClassConfig(entityOrController.constructor);
+  const configs = getClassConfig(entityOrController);
   const c = configs[0];
   if (c.className) {
     getClassName.prototype[NAME_CACHE][entityOrController.name] = c.className;
@@ -64,7 +64,12 @@ function getClassBy(className: string | Function): Function {
     return Date;
   }
   const clases = getClassBy.prototype.classes;
-  return clases.find((c) => getClassName(c) === className);
+  // console.log('clases', clases)
+  return clases.find((c) => {
+    const mangledName = getClassName(c);
+    // console.log('mangledName', mangledName)
+    return (mangledName === className)
+  });
 }
 
 function add(o: Object, path: string, mapping: Mapping = {}) {
@@ -73,7 +78,7 @@ function add(o: Object, path: string, mapping: Mapping = {}) {
   const resolveClass = getClassBy(objectClassName);
   if (!resolveClass) {
     if (objectClassName !== 'Object') {
-      console.error(`Cannot resolve class: ${objectClassName} white mapping.`)
+      console.error(`Cannot resolve class: ${objectClassName} while mapping.`)
     }
     return;
   }
