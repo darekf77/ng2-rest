@@ -27,7 +27,7 @@ export function getClassConfig(target: Function, configs: ClassConfig[] = []): C
     c = target.prototype[meta];
   } else {
     c = new ClassConfig();
-    c.name = target.name;
+    c.className = target.name;
     target.prototype[meta] = c;
   }
   configs.push(c);
