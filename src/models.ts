@@ -167,7 +167,7 @@ export interface MockResponse {
 
 
 export class ParamConfig {
-  name: string;
+  paramName: string;
   paramType: ParamType;
   index: number;
   defaultType: any;
@@ -175,7 +175,7 @@ export class ParamConfig {
 }
 
 export class MethodConfig {
-  name: string;
+  methodName: string;
   path: string;
   descriptor: PropertyDescriptor;
   type: HttpMethod;
@@ -191,7 +191,6 @@ export class ClassConfig {
   singleton: Object = {};
   injections: { getter: Function, propertyName: string; }[] = [];
   basePath: string;
-  name: string;
   className: string;
   methods: { [methodName: string]: MethodConfig } = {};
 }
