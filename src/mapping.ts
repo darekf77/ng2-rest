@@ -1,8 +1,7 @@
 import * as _ from "lodash";
-import { ClassConfig, CLASS_META_CONFIG } from './models';
+import { getClassName, getClassBy } from './classname';
 
-export function decode(json: Object, entities?: Function[]): Mapping {
-  getClassBy.prototype.classes = entities;
+export function decode(json: Object): Mapping {
   return getMapping(json);
 }
 
@@ -14,67 +13,11 @@ export function encode<T = Function>(json: Object, mapping: Mapping): T {
 export interface Mapping {
   [path: string]: Function;
 }
-export function initEntities(entities: Function[]) {
-  getClassBy.prototype.classes = entities;
-}
 
-
-export function getClassConfig(target: Function, configs: ClassConfig[] = []): ClassConfig[] {
-  const meta = CLASS_META_CONFIG + target.name;
-  // if (!target.prototype[meta]) target.prototype[meta] = {};
-  let c: ClassConfig;
-  if (target.prototype[meta]) {
-    c = target.prototype[meta];
-  } else {
-    c = new ClassConfig();
-    c.className = target.name;
-    target.prototype[meta] = c;
-  }
-  configs.push(c);
-  const proto = Object.getPrototypeOf(target)
-  if (proto.name && proto.name !== target.name) {
-    getClassConfig(proto, configs)
-  }
-  return configs;
-}
-
-const NAME_CACHE = '$$fn_name_cache'
-
-export function getClassName(entityOrController: Function) {
-  if (!getClassName.prototype[NAME_CACHE]) {
-    getClassName.prototype[NAME_CACHE] = {};
-  }
-  if (getClassName.prototype[NAME_CACHE][entityOrController.name]) {
-    return getClassName.prototype[NAME_CACHE][entityOrController.name];
-  }
-  const configs = getClassConfig(entityOrController);
-  const c = configs[0];
-  if (c.className) {
-    getClassName.prototype[NAME_CACHE][entityOrController.name] = c.className;
-    return c.className
-  }
-  return entityOrController.name;
-}
-
-function getClassBy(className: string | Function): Function {
-  if (typeof className === 'function') {
-    return className;
-  }
-  if (className === 'Date') {
-    return Date;
-  }
-  const clases = getClassBy.prototype.classes;
-  // console.log('clases', clases)
-  return clases.find((c) => {
-    const mangledName = getClassName(c);
-    // console.log('mangledName', mangledName)
-    return (mangledName === className)
-  });
-}
 
 function add(o: Object, path: string, mapping: Mapping = {}) {
   if (!o || Array.isArray(o) || typeof o !== 'object') return;
-  const objectClassName = Object.getPrototypeOf(o).constructor.name;
+  const objectClassName = getClassName(Object.getPrototypeOf(o).constructor);
   const resolveClass = getClassBy(objectClassName);
   if (!resolveClass) {
     if (objectClassName !== 'Object') {
@@ -82,7 +25,7 @@ function add(o: Object, path: string, mapping: Mapping = {}) {
     }
     return;
   }
-  if (!mapping[path]) mapping[path] = resolveClass.name as any;
+  if (!mapping[path]) mapping[path] = getClassName(resolveClass) as any;;
 }
 
 function getMapping(c: Object, path = '', mapping: Mapping = {}, level = 0) {

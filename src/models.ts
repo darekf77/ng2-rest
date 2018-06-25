@@ -6,7 +6,7 @@ import { Log, Level } from 'ng2-logger';
 import { RestHeaders } from "./rest-headers";
 import { Rest } from "./rest.class";
 import { Cookie } from "./cookie";
-import { Mapping, encode, decode, initEntities } from './mapping';
+import { Mapping, encode } from './mapping';
 //#region @backend
 import { RequestHandler } from "express";
 //#endregion
@@ -60,7 +60,7 @@ export abstract class BaseBody {
         if (typeof data === 'string') {
             try {
                 r = JSON.parse(data);
-            } catch(e) { }
+            } catch (e) { }
         } else if (typeof data === 'object') {
             return data;
         }
@@ -167,30 +167,30 @@ export interface MockResponse {
 
 
 export class ParamConfig {
-  paramName: string;
-  paramType: ParamType;
-  index: number;
-  defaultType: any;
-  expireInSeconds?: number;
+    paramName: string;
+    paramType: ParamType;
+    index: number;
+    defaultType: any;
+    expireInSeconds?: number;
 }
 
 export class MethodConfig {
-  methodName: string;
-  path: string;
-  descriptor: PropertyDescriptor;
-  type: HttpMethod;
-  realtimeUpdate: boolean;
-  //#region @backend
-  requestHandler: RequestHandler;
-  //#endregion
-  parameters: { [paramName: string]: ParamConfig } = {};
+    methodName: string;
+    path: string;
+    descriptor: PropertyDescriptor;
+    type: HttpMethod;
+    realtimeUpdate: boolean;
+    //#region @backend
+    requestHandler: RequestHandler;
+    //#endregion
+    parameters: { [paramName: string]: ParamConfig } = {};
 }
 
 
 export class ClassConfig {
-  singleton: Object = {};
-  injections: { getter: Function, propertyName: string; }[] = [];
-  basePath: string;
-  className: string;
-  methods: { [methodName: string]: MethodConfig } = {};
+    singleton: Object = {};
+    injections: { getter: Function, propertyName: string; }[] = [];
+    basePath: string;
+    classReference: Function;
+    methods: { [methodName: string]: MethodConfig } = {};
 }
