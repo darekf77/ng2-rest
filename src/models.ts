@@ -190,7 +190,9 @@ export class MethodConfig {
 export class ClassConfig {
     singleton: Object = {};
     injections: { getter: Function, propertyName: string; }[] = [];
-    basePath: string;
+    calculatedPath: string;
+    path:string;
+
     classReference: Function;
     methods: { [methodName: string]: MethodConfig } = {};
 }
