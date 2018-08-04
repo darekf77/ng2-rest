@@ -1,6 +1,6 @@
 import { CLASS_META_CONFIG, ClassConfig } from './models';
 
-const CLASSNAMEKEY = '$$className'
+const CLASSNAMEKEY = Symbol()
 CLASSNAME.prototype.classes = [];
 
 export function getClassConfig(target: Function, configs: ClassConfig[] = []): ClassConfig[] {
@@ -53,9 +53,9 @@ export function getClassName(target: Function, production = false) {
         throw `(PRODUCTION MODE ERROR)
             Please use decoartor @CLASSNAME for each entity or controller
             This is preventing class name problem in minified code.
-            
+
             import { CLASSNAME } from 'morphi/browser';
-            
+
             @CLASSNAME('ExampleClass')
             class ExampleClass {
               ...
