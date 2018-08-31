@@ -1,13 +1,41 @@
 import * as _ from "lodash";
 import { getClassName, getClassBy } from './classname';
+import { SYMBOL } from './symbols';
 
 export function decode(json: Object): Mapping {
+
   return getMapping(json);
 }
 
 export function encode<T = Function>(json: Object, mapping: Mapping): T {
 
   return setMapping(json, mapping);
+}
+
+
+export function getDefaultMappingModel(target) {
+  return ({
+    '': target
+  })
+}
+
+export function getModelsMapping(entity: Function, returnDefaultIfNotAwailable = false): Mapping {
+  if (_.isUndefined(entity)) {
+    return;
+  }
+  if (!_.isFunction(entity)) {
+    return;
+  }
+  if (_.isObject(entity[SYMBOL.MODELS_MAPPING])) {
+    return entity[SYMBOL.MODELS_MAPPING]
+  }
+  if (entity.prototype && _.isObject(entity.prototype[SYMBOL.MODELS_MAPPING])) {
+    return entity.prototype[SYMBOL.MODELS_MAPPING]
+  }
+
+  if (returnDefaultIfNotAwailable) {
+    return getDefaultMappingModel(entity);
+  }
 }
 
 export interface Mapping {
@@ -28,6 +56,13 @@ function add(o: Object, path: string, mapping: Mapping = {}) {
   if (!mapping[path]) mapping[path] = getClassName(resolveClass) as any;;
 }
 
+/**
+ * USE ONLY IN DEVELOPMENT
+ * @param c
+ * @param path
+ * @param mapping
+ * @param level
+ */
 function getMapping(c: Object, path = '', mapping: Mapping = {}, level = 0) {
   if (Array.isArray(c)) {
     c.forEach(c => getMapping(c, path, mapping, level))
