@@ -1,7 +1,12 @@
 import * as _ from 'lodash';
 import { SYMBOL } from './symbols';
 
-export class Describer {
+export function describeClassProperites(targetClass: Function, includeId = true) {
+  let res = Describer.describeByDefaultModel(targetClass);
+  return (includeId && !res.includes('id') ? ['id'] : []).concat(Describer.describeByDefaultModel(targetClass));
+}
+
+class Describer {
   private static FRegEx = new RegExp(/(?:this\.)(.+?(?= ))/g);
 
 
@@ -53,5 +58,5 @@ export function getEntityFieldsProperties(target: Function): string[] {
         .forEach(key => res[key] = null);
     }
   }
-  return Object.keys(res);
+  return Object.keys(res).filter(f => !!f);
 }

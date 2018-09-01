@@ -2,7 +2,8 @@ import * as _ from "lodash";
 import { getClassName, getClassBy } from './classname';
 import { SYMBOL } from './symbols';
 import { getClassFromObject, walkObject } from './helpers';
-import { Describer } from './describe-class';
+import { describeClassProperites } from './describe-class';
+import { isNode } from 'ng2-logger';
 
 export interface MapingDecodeOptions {
   fromDecorator?: boolean;
@@ -25,7 +26,7 @@ export function encode<T = Function>(json: Object, mapping: Mapping): T {
 
 export function getDefaultMappingModel(target) {
   return ({
-    '': target
+    '': getClassName(target)
   })
 }
 
@@ -64,7 +65,7 @@ export function getModelsMapping(entity: Function): Mapping {
   return getDefaultMappingModel(entity);
 }
 
-export interface Mapping {
+export interface Mapping<T=string> {
   [path: string]: Function | string;
 }
 
@@ -167,12 +168,6 @@ function setMapping(json: Object, mapping: Mapping = {},
 
 
 
-export type ModelsMappingObject<T> = {
-  /**
-   * Inside models types
-   */
-  [propName in keyof T]?: Function;
-};
 
 export type ModelValue<T> = {
   /**
@@ -184,21 +179,47 @@ export type ModelValue<T> = {
 
 export function DefaultModelWithMapping<T=Object>(
   defaultModelValues: ModelValue<T>,
-  mapping?: ModelsMappingObject<T>
+  mapping?: Mapping<T>
 ) {
   return function (target: Function) {
+
+
 
     if (!target[SYMBOL.MODELS_MAPPING]) {
       target[SYMBOL.MODELS_MAPPING] = getDefaultMappingModel(target);
     }
     _.merge(target[SYMBOL.MODELS_MAPPING], mapping);
+    Object.keys(target[SYMBOL.MODELS_MAPPING])
+      .forEach(key => {
+        const v = target[SYMBOL.MODELS_MAPPING][key];
+        if (_.isUndefined(v)) {
+          throw `
+
+
+          Class: ${target.name}
+          Bad mapping value for key: ${key} is ${v}
+
+
+          `;
+          //#region @backend
+          if (isNode) {
+            process.exit(0)
+          }
+          //#endregion
+        }
+        // else if (_.isString(v)) {
+        //   const res = getClassBy(v);
+        //   target[SYMBOL.MODELS_MAPPING][key] = res;
+        //   console.log(`resolved class from ${v}`, res)
+        // }
+      });
 
     // console.info(`IAM IN DefaultModel, taget: ${target && target.name}`)
     // console.info('defaultModelValues:', defaultModelValues)
     // console.info('mapping', mapping)
     if (_.isObject(defaultModelValues)) {
       const toMerge = {};
-      const describedTarget = Describer.describeByDefaultModel(target)
+      const describedTarget = describeClassProperites(target)
       // console.log(`describedTarget: ${describedTarget} for ${target.name}`)
       describedTarget.forEach(propDefInConstr => {
         if (defaultModelValues[propDefInConstr]) {
