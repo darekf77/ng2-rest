@@ -1,9 +1,19 @@
 import * as _ from "lodash";
 import { getClassName, getClassBy } from './classname';
 import { SYMBOL } from './symbols';
+import { getClassFromObject, walkObject } from './helpers';
+import { Describer } from './describe-class';
 
-export function decode(json: Object): Mapping {
+export interface MapingDecodeOptions {
+  fromDecorator?: boolean;
+  productionMode?: boolean;
+}
 
+export function decode(json: Object, options?: MapingDecodeOptions): Mapping {
+  const { fromDecorator = false, productionMode = false } = options;
+  if (fromDecorator) {
+    return decodeFromDecorator(json, productionMode)
+  }
   return getMapping(json);
 }
 
@@ -19,7 +29,26 @@ export function getDefaultMappingModel(target) {
   })
 }
 
-export function getModelsMapping(entity: Function, returnDefaultIfNotAwailable = false): Mapping {
+/**
+ * Change function to thier names
+ * @param json instace of class
+ * @param production
+ */
+function decodeFromDecorator(json: Object, production = false): Mapping {
+  const entityClass = getClassFromObject(json);
+  const mappings = getModelsMapping(entityClass);
+  if (mappings) {
+    Object.keys(mappings).forEach(key => {
+      const classFn = mappings[key] as Function;
+      if (_.isFunction(classFn)) {
+        mappings[key] = getClassName(classFn, production);
+      }
+    })
+  }
+  return mappings as any;
+}
+
+export function getModelsMapping(entity: Function): Mapping {
   if (_.isUndefined(entity)) {
     return;
   }
@@ -32,14 +61,11 @@ export function getModelsMapping(entity: Function, returnDefaultIfNotAwailable =
   if (entity.prototype && _.isObject(entity.prototype[SYMBOL.MODELS_MAPPING])) {
     return entity.prototype[SYMBOL.MODELS_MAPPING]
   }
-
-  if (returnDefaultIfNotAwailable) {
-    return getDefaultMappingModel(entity);
-  }
+  return getDefaultMappingModel(entity);
 }
 
 export interface Mapping {
-  [path: string]: Function;
+  [path: string]: Function | string;
 }
 
 
@@ -96,6 +122,13 @@ function clearPath(path: string) {
 function setMapping(json: Object, mapping: Mapping = {},
   path = '', realPath: string = '',
   level = 0, result?: Function) {
+  if (typeof mapping === 'string') {
+    throw `
+    Mapping object can't be string.
+    Please use:
+     setMapping( json, JSON.parse(mapping) )
+    `
+  }
   if (++level === 16) return;
   const ClassTemplate: { new(any?): Function } = getClassBy(mapping[path] as any) as any;
   let toInterate: Object;
@@ -133,6 +166,62 @@ function setMapping(json: Object, mapping: Mapping = {},
 }
 
 
+
+export type ModelsMappingObject<T> = {
+  /**
+   * Inside models types
+   */
+  [propName in keyof T]?: Function;
+};
+
+export type ModelValue<T> = {
+  /**
+   * Inside models types
+   */
+  [propName in keyof T]?: T[propName];
+};
+
+
+export function DefaultModelWithMapping<T=Object>(
+  defaultModelValues: ModelValue<T>,
+  mapping?: ModelsMappingObject<T>
+) {
+  return function (target: Function) {
+
+    if (!target[SYMBOL.MODELS_MAPPING]) {
+      target[SYMBOL.MODELS_MAPPING] = getDefaultMappingModel(target);
+    }
+    _.merge(target[SYMBOL.MODELS_MAPPING], mapping);
+
+    // console.info(`IAM IN DefaultModel, taget: ${target && target.name}`)
+    // console.info('defaultModelValues:', defaultModelValues)
+    // console.info('mapping', mapping)
+    if (_.isObject(defaultModelValues)) {
+      const toMerge = {};
+      const describedTarget = Describer.describeByDefaultModel(target)
+      // console.log(`describedTarget: ${describedTarget} for ${target.name}`)
+      describedTarget.forEach(propDefInConstr => {
+        if (defaultModelValues[propDefInConstr]) {
+          console.warn(`
+
+          WARING: default value for property: "${propDefInConstr}"
+          in class "${target.name}" already defined as typescript
+          default class proprty value.
+
+          `)
+        } else {
+          toMerge[propDefInConstr] = null; // TODO from toString I can't know that
+        }
+      });
+
+      // console.log(`merge "${JSON.stringify(target.prototype)}" with "${JSON.stringify(defaultModelValues)}"`)
+
+      target[SYMBOL.DEFAULT_MODEL] = _.merge(toMerge, defaultModelValues);
+      _.merge(target.prototype, target[SYMBOL.DEFAULT_MODEL])
+      // console.log(`DEFAULT VALUE MERGE for ${target.name}`)
+    }
+  }
+}
 
 
 
