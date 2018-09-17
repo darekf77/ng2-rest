@@ -22,15 +22,32 @@ export class AppComponent {
       })
     });
 
+    function subsciberBuild(namespace, buildId) {
+      namespace.emit('roomSubscribe', `build${buildId}`)
+      namespace.on(`updatebuild${buildId}`, (msg) => {
+        console.log(`build ${buildId} updated `, msg)
+      })
+    }
+
+    function unsubscribeBuild(namespace, buildId) {
+      namespace.emit('roomUnsubscribe', `build${buildId}`)
+      namespace.on(`unsubscribedRoom`, (msg) => {
+        console.log(`unsubscribed from room ${buildId} `, msg)
+      })
+    }
 
     const testowa = io('http://localhost:3000/testowa')
     testowa.on('connect', () => {
       console.log('conented to namespace /testowa')
 
-      testowa.emit('room', 'build')
-      testowa.on('hello', (msg) => {
-        console.log(`room message from namespace /testowa `, msg)
-      })
+      subsciberBuild(testowa, 12)
+
+      subsciberBuild(testowa, 13)
+
+      setTimeout(() => {
+        unsubscribeBuild(testowa, 12)
+        unsubscribeBuild(testowa, 13)
+      }, 4000)
 
     });
 

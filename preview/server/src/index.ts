@@ -31,16 +31,28 @@ export async function start() {
   })
 
 
+  function notifyBUild(buildId) {
+    testowa.in(`build${buildId}`).emit(`updatebuild${buildId}`, `updated buld ${buildId} !`)
+  }
+
   const testowa = global.of('/testowa')
   testowa.on('connection', (clientSocket) => {
     console.log('connection from client namespace /testowa')
 
-    clientSocket.on('room', room => {
+    clientSocket.on('roomSubscribe', room => {
       console.log(`Joining room ${room} in namespace /testowa `)
       clientSocket.join(room);
-      testowa.in(room).emit('hello', 'heelo testowa!')
-
     })
+
+    clientSocket.on('roomUnsubscribe', room => {
+      console.log(`Leaving room ${room} in namespace /testowa `)
+      clientSocket.leave(room);
+    })
+
+    setTimeout(() => {
+      notifyBUild(12)
+      notifyBUild(13)
+    }, 2000)
 
     clientSocket.on('disconnect', () => {
       console.log('client disconnected from /testowa')
