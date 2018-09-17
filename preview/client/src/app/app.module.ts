@@ -26,10 +26,12 @@ import {
 import { AppComponent } from './app.component';
 
 import { Demo2Component } from './demo2';
+import { SocketsComponent } from './sockets/sockets.component';
 
 
 export const ROUTES: Routes = [
-  { path: '', redirectTo: 'demo2', pathMatch: 'full' },
+  { path: '', redirectTo: 'sockets', pathMatch: 'full' },
+  { path: 'sockets', component: SocketsComponent }
   { path: 'demo2', component: Demo2Component },
   { path: '**', component: NoContentComponent },
 ];
@@ -39,6 +41,7 @@ export const ROUTES: Routes = [
     AppComponent,
     NoContentComponent,
     Demo2Component,
+    SocketsComponent,
     HighlightCodeDirective
   ],
   imports: [

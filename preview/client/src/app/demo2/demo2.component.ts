@@ -8,26 +8,29 @@ import { Preview, PreviewBase } from '../base-preview';
 declare const require: any;
 
 import { Subscription } from 'rxjs/Subscription';
-import { Resource, initEntities } from 'ng2-rest';
+import { Resource, CLASSNAME } from 'ng2-rest';
 
+@CLASSNAME('Author')
 class Author {
   age: number;
   user: User;
   friends: User[];
 }
 
+@CLASSNAME('Book')
 class Book {
   title: string;
   author: Author;
 }
 
+@CLASSNAME('User')
 class User {
   name: string;
   friend: Author;
   books: Book[];
 }
 
-initEntities([Author, Book, User]);
+// initEntities([Author, Book, User]);
 
 
 const rest = Resource.create('https://demo9781896.mockable.io', 'users', { '_': User });
