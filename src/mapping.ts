@@ -20,6 +20,11 @@ export function decode(json: Object, options?: MapingDecodeOptions): Mapping {
 
 export function encode<T = Function>(json: Object, mapping: Mapping): T {
 
+  if (mapping['']) {
+    const decoratorMapping = getModelsMapping(getClassBy(mapping['']));
+    mapping = _.merge(mapping, decoratorMapping)
+  }
+
   return setMapping(json, mapping);
 }
 
