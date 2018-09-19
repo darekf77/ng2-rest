@@ -19,13 +19,16 @@ export function decode(json: Object, options?: MapingDecodeOptions): Mapping {
 }
 
 export function encode<T = Function>(json: Object, mapping: Mapping): T {
-
+  if (_.isString(json) || _.isBoolean(json) || _.isNumber(json)) {
+    return json as any;
+  }
+  const tJson = _.cloneDeep(json);
   if (mapping['']) {
     const decoratorMapping = getModelsMapping(getClassBy(mapping['']));
     mapping = _.merge(mapping, decoratorMapping)
   }
 
-  return setMapping(json, mapping);
+  return _.merge(setMapping(json, mapping), tJson);
 }
 
 
