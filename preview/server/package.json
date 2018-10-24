@@ -18,7 +18,7 @@
     "cors": "^2.8.4",
     "express": "^4.16.2",
     "lodash": "^4.17.4",
-    "ng2-rest": "9.1.12",
+    "ng2-rest": "9.1.13",
     "on-build-webpack": "^0.1.0",
     "reflect-metadata": "^0.1.10",
     "socket.io": "^2.1.1",

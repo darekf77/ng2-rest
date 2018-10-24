@@ -11,6 +11,9 @@ export interface MapingDecodeOptions {
 }
 
 export function decode(json: Object, options?: MapingDecodeOptions): Mapping {
+  if (_.isUndefined(json)) {
+    return undefined;
+  }
   const { fromDecorator = false, productionMode = false } = options;
   if (fromDecorator) {
     return decodeFromDecorator(json, productionMode)
