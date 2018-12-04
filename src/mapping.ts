@@ -210,13 +210,8 @@ export function DefaultModelWithMapping<T=Object>(
           Class: ${target.name}
           Bad mapping value for key: ${key} is ${v}
 
-
           `;
-          // //#region @backend
-          // if (isNode) {
-          //   process.exit(0)
-          // }
-          // //#endregion
+
         }
         // else if (_.isString(v)) {
         //   const res = getClassBy(v);
