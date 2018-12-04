@@ -212,11 +212,11 @@ export function DefaultModelWithMapping<T=Object>(
 
 
           `;
-          //#region @backend
-          if (isNode) {
-            process.exit(0)
-          }
-          //#endregion
+          // //#region @backend
+          // if (isNode) {
+          //   process.exit(0)
+          // }
+          // //#endregion
         }
         // else if (_.isString(v)) {
         //   const res = getClassBy(v);
