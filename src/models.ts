@@ -85,7 +85,7 @@ export class HttpBody<T> extends BaseBody {
         return this.toJSON(this.body, this.isArray);
     }
     public get text() {
-        return this.body;
+        return this.body.replace(/^\"/, '').replace(/\"$/, '')
     }
 }
 
