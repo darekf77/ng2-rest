@@ -231,7 +231,7 @@ export function DefaultModelWithMapping<T=Object>(
         if (defaultModelValues[propDefInConstr]) {
           console.warn(`
 
-          WARING: default value for property: "${propDefInConstr}"
+          CONFLICT: default value for property: "${propDefInConstr}"
           in class "${target.name}" already defined as typescript
           default class proprty value.
 
