@@ -1,33 +1,62 @@
-
-import { isNode, isBrowser } from 'ng2-logger';
-
-//#region @backend
-import * as http from 'http';
-//#endregion
+import { Morphi } from 'morphi'
 
 
-export default function () {
+@Morphi.Controller()
+class TestController {
 
-  //#region @backend
-  if (isNode) {
-
-    http.createServer(function (request, response) {
-      response.writeHead(200, {
-        'Content-Type': 'text/plain'
-      });
-      response.write('Simple Simple Fun')
-      response.end();
-    })
-      .listen(5000, () => {
-        console.log('server is listening')
-      });
+  @Morphi.Http.GET()
+  hello(@Morphi.Http.Param.Query('config') config?: any): Morphi.Response<string> {
+    //#region @backendFunc
+    return async () => {
+      return 'this is cool haha !'
+    }
+    //#endregion
   }
-  //#endregion
 
 }
 
-if (isBrowser) {
+const host = 'http://localhost:3000'
+const controllers: Morphi.Base.Controller<any>[] = [TestController as any];
 
-  console.log('heloo in the app!!!')
+const start = async () => {
 
+  //#region @backend
+  const config = {
+    type: "sqlite",
+    database: 'tmp-db.sqlite',
+    synchronize: true,
+    dropSchema: true,
+    logging: false
+  } as any;
+  //#endregion
+
+  Morphi.init({
+    host,
+    controllers,
+    //#region @backend
+    config
+    //#endregion
+  })
+
+
+
+}
+
+
+export default start;
+
+
+if (Morphi.IsBrowser) {
+
+  (async () => {
+    start()
+    const body: HTMLElement = document.getElementsByTagName('body')[0];
+    let test = new TestController()
+    test.hello({ siema: 'siema' }).received.observable.subscribe(dataFromBackend => {
+      body.innerHTML = `<h1>${dataFromBackend.body.text}</h1>`;
+    });
+
+    const helloData = await test.hello().received
+    console.log('Realtime hsould not be inited', helloData.body.text)
+  })()
 }
