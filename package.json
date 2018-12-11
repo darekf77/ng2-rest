@@ -4,13 +4,6 @@
   "scripts": {
     "build:watch": "npm-run watch \"morphi build\" src"
   },
-  "bundleDependencies": [
-    "diff",
-    "json5",
-    "ng2-logger",
-    "rxjs",
-    "lodash"
-  ],
   "tnp": {
     "type": "isomorphic-lib",
     "resources": [
@@ -22,6 +15,14 @@
         "axios": "^0.17.1",
         "diff": "^3.2.0"
       },
+      "includeAsDev": [
+        "morphi",
+        "webpack",
+        "webpack-dev-server",
+        "html-webpack-plugin",
+        "ts-loader",
+        "babel.*"
+      ],
       "includeOnly": [
         "@types/diff",
         "diff",
@@ -49,5 +50,44 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/darekf77/ng2-rest.git"
-  }
+  },
+  "devDependencies": {
+    "@ngtools/webpack": "^1.9.3",
+    "@types/node": "9.3.0",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.1.1",
+    "babel-plugin-syntax-dynamic-import": "^6.18.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-es2015": "^6.24.1",
+    "copy-webpack-plugin": "^4.1.1",
+    "exports-loader": "^0.6.3",
+    "friendly-errors-webpack-plugin": "^1.6.1",
+    "html-webpack-plugin": "^2.29.0",
+    "morphi": "1.0.78",
+    "ngc-webpack": "^4.1.2",
+    "reflect-metadata": "^0.1.10",
+    "ts-loader": "^2.3.1",
+    "ts-node": "^7.0.1",
+    "tslib": "^1.8.1",
+    "tslint": "^5.9.1",
+    "typescript": "2.6.2",
+    "uglifyjs-webpack-plugin": "~1.1.2",
+    "webpack": "3.10.0",
+    "webpack-dev-server": "~2.9.3"
+  },
+  "dependencies": {
+    "@types/diff": "^3.2.2",
+    "@types/lodash": "4.14.92",
+    "axios": "^0.17.1",
+    "diff": "^3.2.0",
+    "json5": "^0.5.1",
+    "lodash": "^4.17.4",
+    "ng2-logger": "2.0.44"
+  },
+  "engines": {
+    "node": ">=9.2.0",
+    "npm": ">=5.6.0"
+  },
+  "license": "MIT"
 }
