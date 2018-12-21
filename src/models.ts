@@ -7,6 +7,7 @@ import { RestHeaders } from "./rest-headers";
 import { Rest } from "./rest.class";
 import { Cookie } from "./cookie";
 import { Mapping, encode } from './mapping';
+import { AxiosResponse } from 'axios';
 //#region @backend
 import { RequestHandler } from "express";
 //#endregion
@@ -28,171 +29,186 @@ export type ReplayData = { subject: Subject<any>, data: { url: string, body: str
 export type ReqParams = { url: string, method: HttpMethod, headers?: RestHeaders, body?: any, jobid: number, isArray: boolean };
 
 export interface ResourceModel<A, TA> {
-    model: (pathModels?: Object, responseObjectType?: Function) => Rest<A, TA>,
-    replay: (method: HttpMethod) => void;
+  model: (pathModels?: Object, responseObjectType?: Function) => Rest<A, TA>,
+  replay: (method: HttpMethod) => void;
 }
 
 export interface Ng2RestMethods<E, T> {
-    get: MethodWithoutBody<E, T>;
-    post: MethodWithBody<E, T>;
-    put: MethodWithBody<E, T>;
-    delete: MethodWithoutBody<E, T>;
-    jsonp: MethodWithoutBody<E, T>;
+  get: MethodWithoutBody<E, T>;
+  post: MethodWithBody<E, T>;
+  put: MethodWithBody<E, T>;
+  delete: MethodWithoutBody<E, T>;
+  jsonp: MethodWithoutBody<E, T>;
 }
 
+export type MockController = (
+  url: string,
+  method: HttpMethod,
+  headers?: RestHeaders,
+  body?: any
+  ) => MockResponse;
+
+export type MockHttp = (MockResponse | MockController);
 
 export interface FnMethodsHttp<T, TA> extends Ng2RestMethods<HttpResponse<T>, T> {
-    array: Ng2RestMethods<HttpResponse<TA>, TA>;
+  array: Ng2RestMethods<HttpResponse<TA>, TA>;
 };
 
+export interface FnMethodsHttpWithMock<T, TA> extends Ng2RestMethods<HttpResponse<T>, T> {
+  array: Ng2RestMethods<HttpResponse<TA>, TA>;
+  mock(mock: MockHttp, code: HttpCode): FnMethodsHttp<T, TA>;
+};
+
+
+
 export interface NestedParams {
-    [params: string]: string;
+  [params: string]: string;
 }
 
 export interface UrlParams {
-    [urlModelName: string]: string | number | boolean | RegExp | Object;
-    regex?: RegExp;
+  [urlModelName: string]: string | number | boolean | RegExp | Object;
+  regex?: RegExp;
 }[];
 
 export abstract class BaseBody {
-    protected toJSON(data, isJSONArray = false) {
-        let r = isJSONArray ? [] : {};
-        if (typeof data === 'string') {
-            try {
-                r = JSON.parse(data);
-            } catch (e) { }
-        } else if (typeof data === 'object') {
-            return data;
-        }
-        return r as any;
+  protected toJSON(data, isJSONArray = false) {
+    let r = isJSONArray ? [] : {};
+    if (typeof data === 'string') {
+      try {
+        r = JSON.parse(data);
+      } catch (e) { }
+    } else if (typeof data === 'object') {
+      return data;
     }
+    return r as any;
+  }
 }
 
 export class HttpBody<T> extends BaseBody {
 
-    constructor(private body: string, private isArray = false, private entity: Mapping) {
-        super();
+  constructor(private body: string, private isArray = false, private entity: Mapping) {
+    super();
+  }
+  public get json(): T {
+    if (this.entity && typeof this.entity === 'object') {
+      const json = this.toJSON(this.body, this.isArray);
+      if (Array.isArray(json)) {
+        const result = json.map(j => encode<T>(j, this.entity)) as any;
+        return result;
+      }
+      return encode(json, this.entity) as any;
     }
-    public get json(): T {
-        if (this.entity && typeof this.entity === 'object') {
-            const json = this.toJSON(this.body, this.isArray);
-            if (Array.isArray(json)) {
-                const result = json.map(j => encode<T>(j, this.entity)) as any;
-                return result;
-            }
-            return encode(json, this.entity) as any;
-        }
-        return this.toJSON(this.body, this.isArray);
-    }
-    public get text() {
-        return this.body.replace(/^\"/, '').replace(/\"$/, '')
-    }
+    return this.toJSON(this.body, this.isArray);
+  }
+  public get text() {
+    return this.body.replace(/^\"/, '').replace(/\"$/, '')
+  }
 }
 
 export class ErrorBody extends BaseBody {
-    constructor(private data) {
-        super();
-    }
+  constructor(private data) {
+    super();
+  }
 
-    public get json(): Object {
-        return this.toJSON(this.data);
-    }
-    public get text() {
-        return this.data
-    }
+  public get json(): Object {
+    return this.toJSON(this.data);
+  }
+  public get text() {
+    return this.data
+  }
 }
 
 
 export abstract class BaseResponse<T> {
-    protected static readonly cookies = Cookie.Instance;
+  protected static readonly cookies = Cookie.Instance;
 
-    public get cookies() {
-        return BaseResponse.cookies;
-    }
-    constructor(
-        responseText?: string,
-        public readonly headers?: RestHeaders,
-        public readonly statusCode?: HttpCode | number,
-        isArray = false
-    ) {
-    }
+  public get cookies() {
+    return BaseResponse.cookies;
+  }
+  constructor(
+    responseText?: string,
+    public readonly headers?: RestHeaders,
+    public readonly statusCode?: HttpCode | number,
+    isArray = false
+  ) {
+  }
 }
 
 export class HttpResponse<T> extends BaseResponse<T> {
-    public readonly body?: HttpBody<T>;
-    // public readonly TOTAL_COUNT_HEADER = 'X-Total-Count'.toLowerCase();
-    // public get totalElements(): number {
-    //     return Number(this.headers.get(this.TOTAL_COUNT_HEADER));
-    // }
-    constructor(
-        responseText?: string,
-        headers?: RestHeaders,
-        statusCode?: HttpCode | number,
-        entity?: Mapping,
-        isArray = false,
-    ) {
-        super(responseText, headers, statusCode, isArray);
-        if (typeof entity === 'string') {
-            const headerWithMapping = headers.get(entity);
-            entity = JSON.parse(headers.getAll(entity).join());
-        }
-        this.body = new HttpBody(responseText, isArray, entity) as any;
+  public readonly body?: HttpBody<T>;
+  // public readonly TOTAL_COUNT_HEADER = 'X-Total-Count'.toLowerCase();
+  // public get totalElements(): number {
+  //     return Number(this.headers.get(this.TOTAL_COUNT_HEADER));
+  // }
+  constructor(
+    responseText?: string,
+    headers?: RestHeaders,
+    statusCode?: HttpCode | number,
+    entity?: Mapping,
+    isArray = false,
+  ) {
+    super(responseText, headers, statusCode, isArray);
+    if (typeof entity === 'string') {
+      const headerWithMapping = headers.get(entity);
+      entity = JSON.parse(headers.getAll(entity).join());
     }
+    this.body = new HttpBody(responseText, isArray, entity) as any;
+  }
 }
 
 export class HttpResponseError extends BaseResponse<any> {
-    private body: ErrorBody;
-    // public tryRecconect() {
+  private body: ErrorBody;
+  // public tryRecconect() {
 
-    // }
-    constructor(
-        public message: string,
-        responseText?: string,
-        headers?: RestHeaders,
-        statusCode?: HttpCode | number
-    ) {
-        super(responseText, headers, statusCode);
-        this.body = new ErrorBody(responseText)
-    }
+  // }
+  constructor(
+    public message: string,
+    responseText?: string,
+    headers?: RestHeaders,
+    statusCode?: HttpCode | number
+  ) {
+    super(responseText, headers, statusCode);
+    this.body = new ErrorBody(responseText)
+  }
 }
 
 export interface MockResponse {
-    data?: any;
-    code?: HttpCode;
-    error?: string;
-    headers?: RestHeaders;
-    jobid?: number;
-    isArray: boolean;
+  data?: any;
+  code?: HttpCode;
+  error?: string;
+  headers?: RestHeaders;
+  jobid?: number;
+  isArray: boolean;
 }
 
 
 export class ParamConfig {
-    paramName: string;
-    paramType: ParamType;
-    index: number;
-    defaultType: any;
-    expireInSeconds?: number;
+  paramName: string;
+  paramType: ParamType;
+  index: number;
+  defaultType: any;
+  expireInSeconds?: number;
 }
 
 export class MethodConfig {
-    methodName: string;
-    path: string;
-    descriptor: PropertyDescriptor;
-    type: HttpMethod;
-    realtimeUpdate: boolean;
-    //#region @backend
-    requestHandler: RequestHandler;
-    //#endregion
-    parameters: { [paramName: string]: ParamConfig } = {};
+  methodName: string;
+  path: string;
+  descriptor: PropertyDescriptor;
+  type: HttpMethod;
+  realtimeUpdate: boolean;
+  //#region @backend
+  requestHandler: RequestHandler;
+  //#endregion
+  parameters: { [paramName: string]: ParamConfig } = {};
 }
 
 
 export class ClassConfig {
-    singleton: Object = {};
-    injections: { getter: Function, propertyName: string; }[] = [];
-    calculatedPath: string;
-    path:string;
+  singleton: Object = {};
+  injections: { getter: Function, propertyName: string; }[] = [];
+  calculatedPath: string;
+  path: string;
 
-    classReference: Function;
-    methods: { [methodName: string]: MethodConfig } = {};
+  classReference: Function;
+  methods: { [methodName: string]: MethodConfig } = {};
 }

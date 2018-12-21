@@ -73,12 +73,17 @@ export function getModelsMapping(entity: Function): Mapping {
   if (entity.prototype && _.isObject(entity.prototype[SYMBOL.MODELS_MAPPING])) {
     return entity.prototype[SYMBOL.MODELS_MAPPING]
   }
-  return getDefaultMappingModel(entity);
+  return getDefaultMappingModel(entity) as any;
 }
 
-export interface Mapping<T=string> {
-  [path: string]: Function | string;
-}
+export type Mapping<T={}> = {
+  [P in keyof T]?: string | Function | string[];
+};
+
+
+// export interface Mapping<T=string> {
+//   [path: string]: Function | string;
+// }
 
 
 function add(o: Object, path: string, mapping: Mapping = {}) {

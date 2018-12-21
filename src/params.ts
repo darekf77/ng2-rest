@@ -18,7 +18,7 @@ export function isValid(pattern: string) {
 
 export function check(url: string, pattern: string): boolean {
   if (!checkValidUrl(url)) {
-    console.error(`Incorrect url: ${url}`);
+    console.error(`[ng2-rest] Incorrect url: ${url}`);
     return false;
   }
   if (url.charAt(url.length - 1) === '/') url = url.slice(0, url.length - 2);

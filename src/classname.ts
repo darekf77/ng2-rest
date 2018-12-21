@@ -71,6 +71,18 @@ export function getClassName(target: Function, production = false) {
 
 export function getClassBy(className: string | Function): Function {
   let res;
+  if (Array.isArray(className)) {
+    if (className.length) {
+      throw `Mapping error... please use proper class names:
+{
+  propertyObject: 'MyClassName',
+  propertyWithArray: ['MyClassName']
+}
+
+      `
+    }
+    className = className[0]
+  }
   if (typeof className === 'function') { // TODO QUICK_FIX
     res = className;
   }
