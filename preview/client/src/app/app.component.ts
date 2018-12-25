@@ -12,7 +12,7 @@ export class AppComponent {
 
   constructor() {
 
-    const global = io('http://localhost:3000')
+    const global = io('http://localhost:3000');
 
     global.on('connect', () => {
       console.log('conented to namespace /')

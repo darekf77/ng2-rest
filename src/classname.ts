@@ -1,100 +1,105 @@
 import * as _ from 'lodash';
-import { CLASS_META_CONFIG, ClassConfig } from './models';
+import { Models } from './models';
+import { SYMBOL } from './symbols';
 
-const CLASSNAMEKEY = Symbol()
-CLASSNAME.prototype.classes = [];
 
-export function getClassConfig(target: Function, configs: ClassConfig[] = []): ClassConfig[] {
-  const meta = CLASS_META_CONFIG + target.name;
-  // if (!target.prototype[meta]) target.prototype[meta] = {};
-  let c: ClassConfig;
-  if (target.prototype[meta]) {
-    c = target.prototype[meta];
-  } else {
-    c = new ClassConfig();
-    c.classReference = target;
-    target.prototype[meta] = c;
+export namespace CLASSNAME {
+
+  CLASSNAME.prototype.classes = [];
+
+  export function getClassConfig(target: Function, configs: Models.ClassConfig[] = []): Models.ClassConfig[] {
+    const meta = SYMBOL.CLASS_META_CONFIG + target.name;
+    // if (!target.prototype[meta]) target.prototype[meta] = {};
+    let c: Models.ClassConfig;
+    if (target.prototype[meta]) {
+      c = target.prototype[meta];
+    } else {
+      c = new Models.ClassConfig();
+      c.classReference = target;
+      target.prototype[meta] = c;
+    }
+    configs.push(c);
+    const proto = Object.getPrototypeOf(target)
+    if (proto.name && proto.name !== target.name) {
+      getClassConfig(proto, configs)
+    }
+    return configs;
   }
-  configs.push(c);
-  const proto = Object.getPrototypeOf(target)
-  if (proto.name && proto.name !== target.name) {
-    getClassConfig(proto, configs)
+
+
+
+  /**
+   * PLEASE PROVIDE NAME AS TYPED STRING, NOT VARIABLE
+   * Decorator requred for production mode
+   * @param name Name of class
+   */
+  export function CLASSNAME(className: string) {
+
+    return function (target: Function) {
+      // console.log(`CLASSNAME Inited ${className}`)
+      if (target.prototype) {
+        target.prototype[SYMBOL.CLASSNAMEKEY] = className
+      }
+
+      CLASSNAME.prototype.classes.push({
+        className,
+        target
+      })
+    } as any;
   }
-  return configs;
-}
 
-
-
-/**
- * PLEASE PROVIDE NAME AS TYPED STRING, NOT VARIABLE
- * Decorator requred for production mode
- * @param name Name of class
- */
-export function CLASSNAME(className: string) {
-
-  return function (target: Function) {
-    // console.log(`CLASSNAME Inited ${className}`)
-    if (target.prototype) {
-      target.prototype[CLASSNAMEKEY] = className
+  export function getClassName(target: Function, production = false) {
+    if (_.isString(target)) {
+      return target;
     }
 
-    CLASSNAME.prototype.classes.push({
-      className,
-      target
-    })
-  } as any;
-}
-
-export function getClassName(target: Function, production = false) {
-  if (_.isString(target)) {
-    return target;
-  }
-
-  if (target.prototype && target.prototype[CLASSNAMEKEY]) {
-    return target.prototype[CLASSNAMEKEY];
-  }
-  if (production) {
-    throw `(PRODUCTION MODE ERROR)
-            Please use decoartor @CLASSNAME for each entity or controller
-            This is preventing class name problem in minified code.
-
-            import { CLASSNAME } from 'morphi/browser';
-
-            @CLASSNAME('ExampleClass')
-            class ExampleClass {
-              ...
-            }
-            `
-  }
-  return target.name;
-}
-
-export function getClassBy(className: string | Function): Function {
-  let res;
-  if (Array.isArray(className)) {
-    if (className.length) {
-      throw `Mapping error... please use proper class names:
-{
-  propertyObject: 'MyClassName',
-  propertyWithArray: ['MyClassName']
-}
-
-      `
+    if (target.prototype && target.prototype[SYMBOL.CLASSNAMEKEY]) {
+      return target.prototype[SYMBOL.CLASSNAMEKEY];
     }
-    className = className[0]
-  }
-  if (typeof className === 'function') { // TODO QUICK_FIX
-    res = className;
-  }
-  if (className === 'Date') {
-    res = Date;
+    if (production) {
+      throw `(PRODUCTION MODE ERROR)
+              Please use decoartor @CLASSNAME for each entity or controller
+              This is preventing class name problem in minified code.
+
+              import { CLASSNAME } from 'morphi/browser';
+
+              @CLASSNAME('ExampleClass')
+              class ExampleClass {
+                ...
+              }
+              `
+    }
+    return target.name;
   }
 
-  let c = CLASSNAME.prototype.classes.find(c => c.className === className);
-
-  if (c) {
-    res = c.target;
+  export function getClassBy(className: string | Function): Function {
+    let res;
+    if (Array.isArray(className)) {
+      if (className.length) {
+        throw `Mapping error... please use proper class names:
+  {
+    propertyObject: 'MyClassName',
+    propertyWithArray: ['MyClassName']
   }
-  // console.log(`getClassBy "${className} return \n\n ${res} \n\n`)
-  return res;
+
+        `
+      }
+      className = className[0]
+    }
+    if (typeof className === 'function') { // TODO QUICK_FIX
+      res = className;
+    }
+    if (className === 'Date') {
+      res = Date;
+    }
+
+    let c = CLASSNAME.prototype.classes.find(c => c.className === className);
+
+    if (c) {
+      res = c.target;
+    }
+    // console.log(`getClassBy "${className} return \n\n ${res} \n\n`)
+    return res;
+  }
+
 }

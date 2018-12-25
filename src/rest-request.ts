@@ -4,14 +4,10 @@ import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 
-import {
-  HttpMethod, HttpCode, HttpResponse, HttpResponseError,
-  MockResponse, ReqParams, ReplayData, MockHttp
-} from "./models";
+import { Models } from "./models";
 import { RestHeaders } from "./rest-headers";
-import { Mapping, encode } from './mapping';
-import { MetaRequest, PromiseObservableMix } from "./models";
-import { isBrowser, isNode } from "ng2-logger";
+
+import { Helpers } from "ng2-logger";
 import axios, { AxiosResponse } from 'axios';
 
 const jobIDkey = 'jobID'
@@ -24,25 +20,25 @@ export class RestRequest {
   public static zone;
   private static jobId = 0;
   private subjectInuUse: { [id: number]: Subject<any> } = {};
-  private meta: { [id: number]: MetaRequest } = {};
+  private meta: { [id: number]: Models.MetaRequest } = {};
 
-  private handlerResult(res: MockResponse, method: HttpMethod, jobid?: number, isArray?: boolean) {
+  private handlerResult(res: Models.MockResponse, method: Models.HttpMethod, jobid?: number, isArray?: boolean) {
     if (typeof res !== 'object') throw new Error('[ng2-rest] No resposnse for request. ')
 
-    if (isBrowser) {
+    if (Helpers.isBrowser) {
       res.headers = new RestHeaders(res.headers, true);
     }
 
     // error no internet
     if (res.error) {
-      this.subjectInuUse[jobid].error(new HttpResponseError(res.error, res.data, res.headers, res.code))
+      this.subjectInuUse[jobid].error(new Models.HttpResponseError(res.error, res.data, res.headers, res.code))
       return;
     }
     const entity = this.meta[jobid].entity;
 
     // normal request case
     this.subjectInuUse[jobid].next(
-      new HttpResponse(res.data, res.headers, res.code, entity, isArray)
+      new Models.HttpResponse(res.data, res.headers, res.code, entity, isArray)
     )
     return;
   }
@@ -50,12 +46,12 @@ export class RestRequest {
 
   private async req(
     url: string,
-    method: HttpMethod,
+    method: Models.HttpMethod,
     headers?: RestHeaders,
     body?: any,
     jobid?: number,
     isArray = false,
-    mockHttp?: MockHttp
+    mockHttp?: Models.MockHttp
   ) {
     var response: AxiosResponse<any>;
     if (mockHttp) {
@@ -114,18 +110,18 @@ export class RestRequest {
     }
   }
 
-  private getSubject(method: HttpMethod, meta: MetaRequest): ReplayData {
+  private getSubject(method: Models.HttpMethod, meta: Models.MetaRequest): Models.ReplayData {
     // if (!this.replaySubjects[meta.endpoint])
     this.replaySubjects[meta.endpoint] = {};
     // if (!this.replaySubjects[meta.endpoint][meta.path])
     this.replaySubjects[meta.endpoint][meta.path] = {};
     // if (!this.replaySubjects[meta.endpoint][meta.path][method]) {
-    this.replaySubjects[meta.endpoint][meta.path][method] = <ReplayData>{
+    this.replaySubjects[meta.endpoint][meta.path][method] = <Models.ReplayData>{
       subject: new Subject(),
       data: undefined,
     };
     // }
-    const replay: ReplayData = this.replaySubjects[meta.endpoint][meta.path][method];
+    const replay: Models.ReplayData = this.replaySubjects[meta.endpoint][meta.path][method];
 
     const id: number = RestRequest.jobId++;
     replay.id = id;
@@ -142,18 +138,18 @@ export class RestRequest {
   //#region http methods
 
   private metaReq(
-    method: HttpMethod,
+    method: Models.HttpMethod,
     url: string,
     body: string,
     headers: RestHeaders,
-    meta: MetaRequest,
+    meta: Models.MetaRequest,
     isArray: boolean,
-    mockHttp: MockHttp): PromiseObservableMix<any> {
+    mockHttp: Models.MockHttp): Models.PromiseObservableMix<any> {
 
-    const replay: ReplayData = this.getSubject(method, meta);
+    const replay: Models.ReplayData = this.getSubject(method, meta);
     replay.data = { url, body, headers, isArray };
     setTimeout(() => this.req(url, method, headers, body, replay.id, isArray, mockHttp))
-    const resp: PromiseObservableMix<any> = replay.subject.asObservable().take(1).toPromise() as any;
+    const resp: Models.PromiseObservableMix<any> = replay.subject.asObservable().take(1).toPromise() as any;
     resp.observable = replay.subject.asObservable()
     return resp;
   }
@@ -162,54 +158,75 @@ export class RestRequest {
     url: string,
     body: string,
     headers: RestHeaders,
-    meta: MetaRequest,
-    isArray: boolean, mockHttp: MockHttp
-  ): PromiseObservableMix<any> {
-    return this.metaReq('GET', url, body, headers, meta, isArray, mockHttp);
+    meta: Models.MetaRequest,
+    isArray: boolean, mockHttp: Models.MockHttp
+  ): Models.PromiseObservableMix<any> {
+    return this.metaReq('get', url, body, headers, meta, isArray, mockHttp);
+  }
+
+  head(
+    url: string,
+    body: string,
+    headers: RestHeaders,
+    meta: Models.MetaRequest,
+    isArray: boolean, mockHttp: Models.MockHttp
+  ): Models.PromiseObservableMix<any> {
+    return this.metaReq('head', url, body, headers, meta, isArray, mockHttp);
   }
 
   delete(
     url: string,
     body: string,
     headers: RestHeaders,
-    meta: MetaRequest,
+    meta: Models.MetaRequest,
     isArray: boolean,
-    mockHttp: MockHttp): PromiseObservableMix<any> {
-    return this.metaReq('DELETE', url, body, headers, meta, isArray, mockHttp);
+    mockHttp: Models.MockHttp): Models.PromiseObservableMix<any> {
+    return this.metaReq('delete', url, body, headers, meta, isArray, mockHttp);
   }
 
   post(
     url: string,
     body: string,
     headers: RestHeaders,
-    meta: MetaRequest,
+    meta: Models.MetaRequest,
     isArray: boolean,
-    mockHttp: MockHttp
-  ): PromiseObservableMix<any> {
-    return this.metaReq('POST', url, body, headers, meta, isArray, mockHttp);
+    mockHttp: Models.MockHttp
+  ): Models.PromiseObservableMix<any> {
+    return this.metaReq('post', url, body, headers, meta, isArray, mockHttp);
   }
 
   put(
     url: string,
     body: string,
     headers: RestHeaders,
-    meta: MetaRequest,
+    meta: Models.MetaRequest,
     isArray: boolean,
-    mockHttp: MockHttp
-  ): PromiseObservableMix<any> {
-    return this.metaReq('PUT', url, body, headers, meta, isArray, mockHttp);
+    mockHttp: Models.MockHttp
+  ): Models.PromiseObservableMix<any> {
+    return this.metaReq('put', url, body, headers, meta, isArray, mockHttp);
+  }
+
+  patch(
+    url: string,
+    body: string,
+    headers: RestHeaders,
+    meta: Models.MetaRequest,
+    isArray: boolean,
+    mockHttp: Models.MockHttp
+  ): Models.PromiseObservableMix<any> {
+    return this.metaReq('patch', url, body, headers, meta, isArray, mockHttp);
   }
 
   jsonp(
     url: string,
     body: string,
     headers: RestHeaders,
-    meta: MetaRequest,
+    meta: Models.MetaRequest,
     isArray: boolean,
-    mockHttp: MockHttp
-  ): PromiseObservableMix<any> {
+    mockHttp: Models.MockHttp
+  ): Models.PromiseObservableMix<any> {
 
-    const replay: ReplayData = this.getSubject('JSONP', meta);
+    const replay: Models.ReplayData = this.getSubject('jsonp', meta);
     setTimeout(() => {
       if (url.endsWith('/')) url = url.slice(0, url.length - 1)
       let num = Math.round(10000 * Math.random());
@@ -217,7 +234,7 @@ export class RestRequest {
       window[callbackMethodName] = (data) => {
         this.handlerResult({
           data, isArray
-        }, 'JSONP', replay.id, isArray)
+        }, 'jsonp', replay.id, isArray)
       }
       let sc = document.createElement('script');
       sc.src = `${url}?callback=${callbackMethodName}`;
@@ -225,14 +242,14 @@ export class RestRequest {
       document.body.removeChild(sc);
     })
     // return replay.subject.asObservable();
-    const resp: PromiseObservableMix<any> = replay.subject.asObservable().take(1).toPromise() as any;
+    const resp: Models.PromiseObservableMix<any> = replay.subject.asObservable().take(1).toPromise() as any;
     resp.observable = replay.subject.asObservable()
     return resp;
   }
   //#endregion
   private replaySubjects = {};
-  public replay(method: HttpMethod, meta: MetaRequest) {
-    const replay: ReplayData = this.getSubject(method, meta);
+  public replay(method: Models.HttpMethod, meta: Models.MetaRequest) {
+    const replay: Models.ReplayData = this.getSubject(method, meta);
     if (!replay.data) {
       console.warn(`Canno replay first ${method} request from ${meta.endpoint}/${meta.path}`);
       return;

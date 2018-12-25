@@ -6,4 +6,3 @@ export * from './rest.class';
 export * from './rest-headers';
 export * from './symbols';
 export * from './helpers';
-export * from './describe-class';

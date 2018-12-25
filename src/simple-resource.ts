@@ -11,21 +11,22 @@ import 'rxjs/add/operator/toPromise';
 
 import { Rest } from "./rest.class";
 import { RestHeaders } from './rest-headers';
-import { UrlParams, ResourceModel } from './models';
+import { Models } from './models';
 import { Resource } from './resource.service';
 
 
 
-export interface RestPromises<A, TA, QP extends UrlParams> {
-  get: (queryParams?: QP) => Observable<A>;
-  patch: (item?: A, queryParams?: QP) => Observable<A>;
-  query: (queryParams?: QP) => Observable<TA>;
-  save: (item?: A, queryParams?: QP) => Observable<A>;
-  update: (item?: A, queryParams?: QP) => Observable<A>;
-  remove: (queryParams?: QP) => Observable<A | any>;
+export interface RestPromises<A, TA, QP extends Models.UrlParams> {
+  get: (queryParams?: QP) => Observable<Models.HttpResponse<A>>;
+  head: (queryParams?: QP) => Observable<Models.HttpResponse<A>>;
+  query: (queryParams?: QP) => Observable<Models.HttpResponse<TA>>;
+  put: (item?: A, queryParams?: QP) => Observable<Models.HttpResponse<A>>;
+  patch: (item?: A, queryParams?: QP) => Observable<Models.HttpResponse<A>>;
+  post: (item?: A, queryParams?: QP) => Observable<Models.HttpResponse<A>>;
+  delete: (queryParams?: QP) => Observable<Models.HttpResponse<A> | any>;
 }
 
-export interface Model<A, TA, RP extends Object, QP extends UrlParams> {
+export interface Model<A, TA, RP extends Object, QP extends Models.UrlParams> {
   (restParams?: RP): RestPromises<A, TA, QP>;
 }
 
@@ -44,11 +45,11 @@ export interface Model<A, TA, RP extends Object, QP extends UrlParams> {
  * @template RP rest url parameters type
  * @template QP query parameter type
  */
-class ExtendedResource<E, A, TA, RP extends Object, QP extends UrlParams>  {
+class ExtendedResource<E, A, TA, RP extends Object, QP extends Models.UrlParams>  {
   public static doNotSerializeQueryParams = false;
   public static handlers: Subscription[] = [];
 
-  rest: ResourceModel<A, TA>;
+  rest: Models.ResourceModel<A, TA>;
 
   /**
    * Get model by rest params
@@ -82,6 +83,18 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends UrlParams>  {
 
       },
 
+      head: (queryPrams?: QP) => {
+        return Observable.create((observer: Observer<A>) => {
+          ExtendedResource.handlers.push(this.rest.model(restParams)
+            .head([queryPrams], ExtendedResource.doNotSerializeQueryParams)
+            .observable
+            .subscribe(
+              data => observer.next(data.body.json),
+              err => observer.error(err),
+              () => observer.complete()))
+        })
+      },
+
       query: (queryPrams?: QP) => {
         return Observable.create((observer: Observer<TA>) => {
           ExtendedResource.handlers.push(this.rest.model(restParams).
@@ -96,7 +109,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends UrlParams>  {
       },
 
 
-      save: (item: A, queryParams?: QP) => {
+      post: (item: A, queryParams?: QP) => {
         return Observable.create((observer: Observer<A>) => {
           ExtendedResource.handlers.push(this.rest.model(restParams)
             .post(item, [queryParams], ExtendedResource.doNotSerializeQueryParams)
@@ -110,7 +123,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends UrlParams>  {
       },
 
 
-      update: (item: A, queryParams?: QP) => {
+      put: (item: A, queryParams?: QP) => {
         return Observable.create((observer: Observer<A>) => {
           ExtendedResource.handlers.push(this.rest.model(restParams)
             .put(item, [queryParams], ExtendedResource.doNotSerializeQueryParams)
@@ -124,7 +137,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends UrlParams>  {
       },
 
 
-      remove: (queryPrams?: QP) => {
+      delete: (queryPrams?: QP) => {
         return Observable.create((observer: Observer<A>) => {
           ExtendedResource.handlers.push(this.rest.model(restParams)
             .delete([queryPrams], ExtendedResource.doNotSerializeQueryParams)
@@ -162,7 +175,7 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends UrlParams>  {
  * @template QP query parameters type
  */
 export class SimpleResource<A, TA> {
-  model: Model<A, TA, Object, UrlParams>;
+  model: Model<A, TA, Object, Models.UrlParams>;
 
 
   private static _isSetQueryParamsSerialization = false;
@@ -185,7 +198,7 @@ export class SimpleResource<A, TA> {
   }
 
   constructor(endpoint: string, model: string) {
-    let rest = new ExtendedResource<string, A, TA, Object, UrlParams>(endpoint, model);
+    let rest = new ExtendedResource<string, A, TA, Object, Models.UrlParams>(endpoint, model);
     this.model = rest.model;
   }
 

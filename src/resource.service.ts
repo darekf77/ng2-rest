@@ -13,8 +13,8 @@ import { Rest } from './rest.class';
 import { RestRequest } from "./rest-request";
 import { RestHeaders } from "./rest-headers";
 import { Cookie } from "./cookie";
-import { Mapping, decode, encode } from "./mapping";
-import { ResourceModel, HttpMethod, HttpResponse } from "./models";
+import { Mapping } from "./mapping";
+import { Models } from "./models";
 import { interpolateParamsToUrl, isValid, containsModels, getModels } from "./params";
 //#endregion
 
@@ -83,7 +83,7 @@ export class Resource<E, T, TA> {
 
 
   //#region create
-  public static create<A, TA = A[]>(e: string, model?: string, entityMapping?: Mapping): ResourceModel<A, TA> {
+  public static create<A, TA = A[]>(e: string, model?: string, entityMapping?: Mapping.Mapping): Models.ResourceModel<A, TA> {
     const badRestRegEX = new RegExp('((\/:)[a-z]+)+', 'g');
     const matchArr = model.match(badRestRegEX) || [];
     const badModelsNextToEachOther = matchArr.join();
@@ -105,7 +105,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
         e,
         interpolateParamsToUrl(params, model)
       ),
-      replay: (method: HttpMethod) => {
+      replay: (method: Models.HttpMethod) => {
         Resource.getModel(e, model).replay(method);
       }
     }
@@ -180,7 +180,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
    * @param {string} model
    * @returns {boolean}
    */
-  private add(endpoint: E, model: string, entity: Mapping) {
+  private add(endpoint: E, model: string, entity: Mapping.Mapping) {
     log.i(`I am maping ${model} on ${<any>endpoint}`);
     model = Resource.prepareModel(model);
 

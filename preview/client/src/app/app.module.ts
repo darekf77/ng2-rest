@@ -31,7 +31,7 @@ import { SocketsComponent } from './sockets/sockets.component';
 
 export const ROUTES: Routes = [
   { path: '', redirectTo: 'sockets', pathMatch: 'full' },
-  { path: 'sockets', component: SocketsComponent }
+  { path: 'sockets', component: SocketsComponent },
   { path: 'demo2', component: Demo2Component },
   { path: '**', component: NoContentComponent },
 ];

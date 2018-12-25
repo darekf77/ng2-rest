@@ -4,7 +4,7 @@ import { expect, use } from 'chai'
 import sinon from "ts-sinon";
 // import { BrowserDB } from '../browser-db/browser-db';
 
-import { DefaultModelWithMapping } from '../mapping'
+import { Mapping } from '../mapping'
 
 describe('sinon default model conflict', () => {
 
@@ -21,7 +21,7 @@ describe('sinon default model conflict', () => {
 
     const testName = 'testname'
 
-    @DefaultModelWithMapping<Test1>({
+    @Mapping.DefaultModelWithMapping<Test1>({
       name: testName,
       age: 44
     }, {

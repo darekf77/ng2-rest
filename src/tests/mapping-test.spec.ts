@@ -5,14 +5,14 @@ import { expect, use } from 'chai'
 import sinon from "ts-sinon";
 // import { BrowserDB } from '../browser-db/browser-db';
 
-import { DefaultModelWithMapping, getModelsMapping } from '../mapping'
+import { Mapping } from '../mapping'
 import { encode } from 'punycode';
 
 const testName = 'testname'
 
 
 
-@DefaultModelWithMapping<Test1>({
+@Mapping.DefaultModelWithMapping<Test1>({
   name: testName,
   age: 44,
   isHuman: false
@@ -31,7 +31,7 @@ class Test1 {
 
 
 
-@DefaultModelWithMapping<Test2>({
+@Mapping.DefaultModelWithMapping<Test2>({
 
 },
   {
@@ -49,12 +49,12 @@ describe('mapping, default model', () => {
 
 
   it('Should generate proper mapping object', () => {
-    const mapping = getModelsMapping(Test2);
+    const mapping = Mapping.getModelsMapping(Test2);
     expect(mapping).to.deep.eq({ '': 'Test2', tests: ['Test1'] });
   });
 
   it('Should generate proper mapping object', () => {
-    const mapping = getModelsMapping(Test1);
+    const mapping = Mapping.getModelsMapping(Test1);
     expect(mapping).to.deep.eq({ '': 'Test1', parent: 'Test2' });
   });
 

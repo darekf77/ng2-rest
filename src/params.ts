@@ -1,15 +1,12 @@
 import { diffChars } from 'diff';
 import * as _ from 'lodash';
 import { Log, Level } from 'ng2-logger';
-import { UrlParams } from './models';
+import { Models } from './models';
+import { Helpers } from './helpers';
 
 const log = Log.create('ng2-rest params', Level.__NOTHING)
 
 
-export function checkValidUrl(url: string): boolean {
-  let regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
-  return regex.test(url);
-}
 
 /** check if string is a valid pattern */
 export function isValid(pattern: string) {
@@ -17,7 +14,7 @@ export function isValid(pattern: string) {
 }
 
 export function check(url: string, pattern: string): boolean {
-  if (!checkValidUrl(url)) {
+  if (!Helpers.checkValidUrl(url)) {
     console.error(`[ng2-rest] Incorrect url: ${url}`);
     return false;
   }
@@ -261,7 +258,7 @@ export function decodeUrl(url: string): Object {
  * @param {UrlParams[]} params
  * @returns {string}
  */
-export function getParamsUrl(params: UrlParams[], doNotSerialize: boolean = false): string {
+export function getParamsUrl(params: Models.UrlParams[], doNotSerialize: boolean = false): string {
   let urlparts: string[] = [];
   if (!params) return '';
   if (!(params instanceof Array)) return '';

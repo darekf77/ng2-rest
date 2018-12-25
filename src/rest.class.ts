@@ -5,12 +5,11 @@ import 'rxjs/add/operator/map';
 import { Log, Level } from 'ng2-logger';
 const log = Log.create('rest.class', Level.__NOTHING)
 // local
-import { HttpMethod, HttpResponse, FnMethodsHttp, PromiseObservableMix, UrlParams, Ng2RestMethods, HttpResponseError, MockController, FnMethodsHttpWithMock, MockHttp } from './models';
+import { Models } from './models';
 import { getRestParams, getParamsUrl } from "./params";
 import { RestRequest } from "./rest-request";
 import { RestHeaders } from "./rest-headers";
 import { Mapping } from './mapping';
-import { HttpCode, MockResponse } from './models';
 //#endregion
 
 export const DEFAULT_HEADERS = {
@@ -18,10 +17,10 @@ export const DEFAULT_HEADERS = {
   'Accept': 'application/json'
 };
 
-export class Rest<T, TA = T[]> implements FnMethodsHttpWithMock<T, TA> {
+export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
 
-  private mockHttp: MockHttp;
-  mock(mock: MockHttp): FnMethodsHttp<T, TA> {
+  private mockHttp: Models.MockHttp;
+  mock(mock: Models.MockHttp): Models.FnMethodsHttp<T, TA> {
     if ((typeof mock === 'function') || (typeof mock === 'object')) {
       this.mockHttp = mock;
     } else {
@@ -76,7 +75,7 @@ export class Rest<T, TA = T[]> implements FnMethodsHttpWithMock<T, TA> {
   constructor(
     endpoint: string,
     private request: RestRequest,
-    private meta: { path: string, endpoint: string; entity: Mapping }
+    private meta: { path: string, endpoint: string; entity: Mapping.Mapping }
   ) {
     this.__meta_endpoint = endpoint;
 
@@ -91,9 +90,9 @@ export class Rest<T, TA = T[]> implements FnMethodsHttpWithMock<T, TA> {
   //#endregion
 
   //#region  req
-  private req(method: HttpMethod,
+  private req(method: Models.HttpMethod,
     item: T,
-    params?: UrlParams[],
+    params?: Models.UrlParams[],
     doNotSerializeParams: boolean = false,
     isArray: boolean = false
   ) {
@@ -112,47 +111,61 @@ export class Rest<T, TA = T[]> implements FnMethodsHttpWithMock<T, TA> {
   //#region http methods
 
   //#region replay
-  replay(method: HttpMethod) {
+  replay(method: Models.HttpMethod) {
     this.request.replay(method, this.meta);
   }
   //#endregion
 
   array = {
-    get: (params: UrlParams[] = undefined, doNotSerializeParams?: boolean): PromiseObservableMix<HttpResponse<TA>> => {
-      return this.req('GET', undefined, params, doNotSerializeParams, true) as any
+    get: (params: Models.UrlParams[] = undefined, doNotSerializeParams?: boolean): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
+      return this.req('get', undefined, params, doNotSerializeParams, true) as any
     },
-    post: (item: TA, params?: UrlParams[], doNotSerializeParams?: boolean): PromiseObservableMix<HttpResponse<TA>> => {
-      return this.req('POST', item as any, params, doNotSerializeParams, true) as any;
+    head: (params: Models.UrlParams[] = undefined, doNotSerializeParams?: boolean): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
+      return this.req('head', undefined, params, doNotSerializeParams, true) as any
     },
-    put: (item: TA, params?: UrlParams[], doNotSerializeParams?: boolean): PromiseObservableMix<HttpResponse<TA>> => {
-      return this.req('PUT', item as any, params, doNotSerializeParams, true) as any;
+    post: (item: TA, params?: Models.UrlParams[], doNotSerializeParams?: boolean): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
+      return this.req('post', item as any, params, doNotSerializeParams, true) as any;
     },
-    delete: (params?: UrlParams[], doNotSerializeParams?: boolean): PromiseObservableMix<HttpResponse<TA>> => {
-      return this.req('DELETE', undefined, params, doNotSerializeParams, true) as any;
+    put: (item: TA, params?: Models.UrlParams[], doNotSerializeParams?: boolean): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
+      return this.req('put', item as any, params, doNotSerializeParams, true) as any;
     },
-    jsonp: (params?: UrlParams[], doNotSerializeParams?: boolean): PromiseObservableMix<HttpResponse<TA>> => {
-      return this.req('JSONP', undefined, params, doNotSerializeParams, true) as any;
+    patch: (item: TA, params?: Models.UrlParams[], doNotSerializeParams?: boolean): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
+      return this.req('patch', item as any, params, doNotSerializeParams, true) as any;
+    },
+    delete: (params?: Models.UrlParams[], doNotSerializeParams?: boolean): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
+      return this.req('delete', undefined, params, doNotSerializeParams, true) as any;
+    },
+    jsonp: (params?: Models.UrlParams[], doNotSerializeParams?: boolean): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
+      return this.req('jsonp', undefined, params, doNotSerializeParams, true) as any;
     }
   }
 
-  get(params?: UrlParams[], doNotSerializeParams: boolean = false): PromiseObservableMix<HttpResponse<T>> {
-    return this.req('GET', undefined, params, doNotSerializeParams) as any;
+  get(params?: Models.UrlParams[], doNotSerializeParams: boolean = false): Models.PromiseObservableMix<Models.HttpResponse<T>> {
+    return this.req('get', undefined, params, doNotSerializeParams) as any;
   }
 
-  post(item: T, params?: UrlParams[], doNotSerializeParams: boolean = false): PromiseObservableMix<HttpResponse<T>> {
-    return this.req('POST', item, params, doNotSerializeParams);
+  head(params?: Models.UrlParams[], doNotSerializeParams: boolean = false): Models.PromiseObservableMix<Models.HttpResponse<T>> {
+    return this.req('head', undefined, params, doNotSerializeParams) as any;
   }
 
-  put(item: T, params?: UrlParams[], doNotSerializeParams: boolean = false): PromiseObservableMix<HttpResponse<T>> {
-    return this.req('PUT', item, params, doNotSerializeParams);
+  post(item: T, params?: Models.UrlParams[], doNotSerializeParams: boolean = false): Models.PromiseObservableMix<Models.HttpResponse<T>> {
+    return this.req('post', item, params, doNotSerializeParams);
   }
 
-  delete(params?: UrlParams[], doNotSerializeParams: boolean = false): PromiseObservableMix<HttpResponse<T>> {
-    return this.req('DELETE', undefined, params, doNotSerializeParams);
+  put(item: T, params?: Models.UrlParams[], doNotSerializeParams: boolean = false): Models.PromiseObservableMix<Models.HttpResponse<T>> {
+    return this.req('put', item, params, doNotSerializeParams);
   }
 
-  jsonp(params?: UrlParams[], doNotSerializeParams: boolean = false): PromiseObservableMix<HttpResponse<T>> {
-    return this.req('JSONP', undefined, params, doNotSerializeParams);
+  patch(item: T, params?: Models.UrlParams[], doNotSerializeParams: boolean = false): Models.PromiseObservableMix<Models.HttpResponse<T>> {
+    return this.req('patch', item, params, doNotSerializeParams);
+  }
+
+  delete(params?: Models.UrlParams[], doNotSerializeParams: boolean = false): Models.PromiseObservableMix<Models.HttpResponse<T>> {
+    return this.req('delete', undefined, params, doNotSerializeParams);
+  }
+
+  jsonp(params?: Models.UrlParams[], doNotSerializeParams: boolean = false): Models.PromiseObservableMix<Models.HttpResponse<T>> {
+    return this.req('jsonp', undefined, params, doNotSerializeParams);
   }
   //#endregion
 

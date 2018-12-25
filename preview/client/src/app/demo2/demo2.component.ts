@@ -10,20 +10,20 @@ declare const require: any;
 import { Subscription } from 'rxjs/Subscription';
 import { Resource, CLASSNAME } from 'ng2-rest';
 
-@CLASSNAME('Author')
+@CLASSNAME.CLASSNAME('Author')
 class Author {
   age: number;
   user: User;
   friends: User[];
 }
 
-@CLASSNAME('Book')
+@CLASSNAME.CLASSNAME('Book')
 class Book {
   title: string;
   author: Author;
 }
 
-@CLASSNAME('User')
+@CLASSNAME.CLASSNAME('User')
 class User {
   name: string;
   friend: Author;
@@ -55,7 +55,7 @@ export class Demo2Component extends PreviewBase implements OnDestroy {
       // console.log(JSON.stringify(data.headers.toJSON()));
       this.users = data.body.json as any;
     }, err => {
-      console.log(err)
+      console.log(err);
     });
 
     rest3.model().array.get().observable.subscribe(data => {
@@ -69,7 +69,7 @@ export class Demo2Component extends PreviewBase implements OnDestroy {
       console.log(JSON.stringify(data.headers.toJSON()));
       // this.users = data.body.json as any;
     }, err => {
-      console.log(err)
+      console.log(err);
     });
 
     rest2.model({ authorid: 1, bookid: 2 }).get().observable.subscribe(data => {
@@ -85,7 +85,7 @@ export class Demo2Component extends PreviewBase implements OnDestroy {
   handlers: Subscription[] = [];
   users = [];
   public replay() {
-    rest2.replay('GET');
+    rest2.replay('get');
   }
 
   public ngOnDestroy() {
