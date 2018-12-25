@@ -3,6 +3,8 @@ declare var require: any;
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/takeUntil';
+import 'rxjs/add/operator/take';
 
 import { Models } from "./models";
 import { RestHeaders } from "./rest-headers";
