@@ -96,17 +96,16 @@ export class RestRequest {
         jobid,
         headers: (response.headers instanceof RestHeaders) ? response.headers : new RestHeaders(response.headers)
       }, method, jobid, isArray);
-    } catch (e) {
-      const error = (e && e.response) ? `[${e.response.statusText}]: ` : '';
-
+    } catch (catchedError) {
+      const error = (catchedError && catchedError.response) ? `[${catchedError.response.statusText}]: ` : '';
       this.handlerResult({
-        code: (e && e.response) ? e.response.status as any : undefined,
-        error: `${error}${e.message}`,
-        data: (e && e.response) ? JSON.stringify(e.response.data) : undefined,
+        code: (catchedError && catchedError.response) ? catchedError.response.status as any : undefined,
+        error: `${error}${catchedError.message}`,
+        data: (catchedError && catchedError.response) ? JSON.stringify(catchedError.response.data) : undefined,
         isArray,
         jobid,
-        headers: (e && e.response) ?
-          ((response.headers instanceof RestHeaders) ? e.response.headers : new RestHeaders(e.response.headers))
+        headers: (catchedError && catchedError.response) ?
+          ((catchedError.response.headers instanceof RestHeaders) ? catchedError.response.headers : new RestHeaders(catchedError.response.headers))
           : undefined
       }, method, jobid, isArray);
     }
