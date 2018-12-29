@@ -5,12 +5,38 @@ import { describeFromClassStringify, describeByDefaultModelsAndMapping } from '.
 import { CLASSNAME } from './classname'
 import { Models } from './models';
 import { Mapping } from './mapping';
+import { JSON10 } from './json10';
 
 export class Helpers extends HelpersLogger {
+
+  static walkObject(obj: Object, callBackFn: (lodashPath: string, isPrefixed: boolean) => void, lodashPath = '') {
+
+    // console.log('lodashpath', lodashPath)
+    callBackFn(lodashPath, lodashPath.startsWith('$'))
+    if (Array.isArray(obj)) {
+      obj.forEach((o, i) => {
+        this.walkObject(o, callBackFn, `${lodashPath}[${i}]`)
+      })
+
+    } else if (_.isObject(obj)) {
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          const e = obj[key];
+          this.walkObject(e, callBackFn, `${(lodashPath === '') ? '' : `${lodashPath}.`}${key}`)
+        }
+      }
+    }
+  }
+
+  static JSON = JSON10;
 
   static get Class() {
     const self = this;
     return {
+
+      getBy(className: string | Function) {
+        return CLASSNAME.getClassBy(className);
+      },
       getFromObject(o: Object) {
         const p = Object.getPrototypeOf(o)
         return p && p.constructor;
@@ -46,26 +72,6 @@ export class Helpers extends HelpersLogger {
       }
     }
   }
-
-  static walkObject(obj: Object, callBackFn: (lodashPath: string, isPrefixed: boolean) => void, lodashPath = '') {
-    lodashPath = (lodashPath === '') ? `` : `${lodashPath}.`;
-    Object.keys(obj).forEach(key => {
-      const contactedPath = `${lodashPath}${key}`
-      callBackFn(contactedPath, key.startsWith('$'))
-      const v = obj[key];
-      const isObject = _.isObject(v)
-      const isArray = _.isArray(v)
-      if (isObject) {
-        this.walkObject(v, callBackFn, contactedPath)
-      } else if (isArray) {
-        (v as Array<any>).forEach((elem, i) => {
-          this.walkObject(elem, callBackFn, `${lodashPath}${key}[${i}]`)
-        })
-      }
-    })
-  }
-
-
 
   static checkValidUrl(url: string): boolean {
     let regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;

@@ -10,6 +10,7 @@ import { getRestParams, getParamsUrl } from "./params";
 import { RestRequest } from "./rest-request";
 import { RestHeaders } from "./rest-headers";
 import { Mapping } from './mapping';
+import { Circ } from './json10';
 //#endregion
 
 export const DEFAULT_HEADERS = {
@@ -75,7 +76,7 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   constructor(
     endpoint: string,
     private request: RestRequest,
-    private meta: { path: string, endpoint: string; entity: Mapping.Mapping }
+    private meta: { path: string, endpoint: string; entity: Mapping.Mapping, circular: Circ[] }
   ) {
     this.__meta_endpoint = endpoint;
 

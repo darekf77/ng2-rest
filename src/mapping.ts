@@ -2,6 +2,7 @@ import * as _ from "lodash";
 import { CLASSNAME } from './classname';
 import { SYMBOL } from './symbols';
 import { Helpers } from './helpers';
+import { Circ, JSON10 } from './json10';
 
 
 export namespace Mapping {
@@ -23,7 +24,7 @@ export namespace Mapping {
     return getMapping(json);
   }
 
-  export function encode<T = Function>(json: Object, mapping: Mapping): T {
+  export function encode<T = Function>(json: Object, mapping: Mapping, circular: Circ[] = []): T {
     if (_.isString(json) || _.isBoolean(json) || _.isNumber(json)) {
       return json as any;
     }
@@ -33,7 +34,11 @@ export namespace Mapping {
       mapping = _.merge(mapping, decoratorMapping)
     }
 
-    return _.merge(setMapping(json, mapping), tJson);
+    let res = _.merge(setMapping(json, mapping, circular), tJson);
+    if (circular && _.isArray(circular) && circular.length > 0) {
+      res = JSON10.parse(JSON10.stringify(res), circular)
+    }
+    return res;
   }
 
 
@@ -139,8 +144,10 @@ export namespace Mapping {
   }
 
   function setMapping(json: Object, mapping: Mapping = {},
+    circular: Circ[] = [],
     path = '', realPath: string = '',
-    level = 0, result?: Function) {
+    level = 0, result?: Function
+  ) {
     if (typeof mapping === 'string') {
       throw `
       Mapping object can't be string.
@@ -156,7 +163,9 @@ export namespace Mapping {
         result = new ClassTemplate();
         toInterate = json;
       } else {
-        _.set(result, realPath, new ClassTemplate())
+        if (_.isObject(result)) {
+          _.set(result, realPath, new ClassTemplate())
+        }
         toInterate = _.get(json, realPath);
       }
     }
@@ -168,12 +177,14 @@ export namespace Mapping {
         if (_.isArray(v)) {
           v.forEach((elem, index) => {
             const pathArray = `${tmpPath}[${index}]`;
-            return setMapping(json, mapping, clearPath(pathArray), pathArray, level, result);
+            return setMapping(json, mapping, circular, clearPath(pathArray), pathArray, level, result);
           });
         } else if (_.isObject(v)) {
-          setMapping(json, mapping, clearPath(tmpPath), tmpPath, level, result);
+          setMapping(json, mapping, circular, clearPath(tmpPath), tmpPath, level, result);
         } else {
-          _.set(result, tmpPath, v);
+          if (_.isObject(result)) {
+            _.set(result, tmpPath, v);
+          }
         }
       }
     }

@@ -1,3 +1,6 @@
+//#region @backend
+import { RequestHandler } from "express";
+//#endregion
 
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
@@ -8,9 +11,8 @@ import { Rest } from "./rest.class";
 import { Cookie } from "./cookie";
 import { Mapping } from './mapping';
 import { AxiosResponse } from 'axios';
-//#region @backend
-import { RequestHandler } from "express";
-//#endregion
+import { Circ, JSON10 } from './json10';
+
 
 const log = Log.create('rest namespace', Level.__NOTHING)
 
@@ -18,7 +20,7 @@ const log = Log.create('rest namespace', Level.__NOTHING)
 export namespace Models {
 
 
-  export type MetaRequest = { path: string, endpoint: string; entity: Mapping.Mapping; }
+  export type MetaRequest = { path: string, endpoint: string; entity: Mapping.Mapping; circular: Circ[] }
   export type HttpCode = 200 | 400 | 401 | 404 | 500;
   export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 'jsonp';
 
@@ -91,19 +93,30 @@ export namespace Models {
 
   export class HttpBody<T> extends BaseBody {
 
-    constructor(private body: string, private isArray = false, private entity: Mapping.Mapping) {
+    constructor(private body: string, private isArray = false,
+      private entity: Mapping.Mapping,
+      private circular: Circ[]
+    ) {
       super();
     }
+
     public get json(): T {
+
       if (this.entity && typeof this.entity === 'object') {
         const json = this.toJSON(this.body, this.isArray);
         if (Array.isArray(json)) {
-          const result = json.map(j => Mapping.encode<T>(j, this.entity)) as any;
+          const result = json.map(j => Mapping.encode<T>(j, this.entity, this.circular)) as any;
           return result;
+        } else {
+
         }
-        return Mapping.encode(json, this.entity) as any;
+        return Mapping.encode(json, this.entity, this.circular) as any;
       }
-      return this.toJSON(this.body, this.isArray);
+      let res = this.toJSON(this.body, this.isArray);
+      if (this.circular && Array.isArray(this.circular)) {
+        res = JSON10.parse(JSON.stringify(res), this.circular)
+      }
+      return res;
     }
     public get text() {
       return this.body.replace(/^\"/, '').replace(/\"$/, '')
@@ -150,14 +163,19 @@ export namespace Models {
       headers?: RestHeaders,
       statusCode?: HttpCode | number,
       entity?: Mapping.Mapping,
+      circular?: Circ[],
       isArray = false,
     ) {
       super(responseText, headers, statusCode, isArray);
       if (typeof entity === 'string') {
-        const headerWithMapping = headers.get(entity);
+        // const headerWithMapping = headers.get(entity);
         entity = JSON.parse(headers.getAll(entity).join());
       }
-      this.body = new HttpBody(responseText, isArray, entity) as any;
+      if (typeof circular === 'string') {
+        // const headerWithMapping = headers.get(circular);
+        circular = JSON.parse(headers.getAll(circular).join());
+      }
+      this.body = new HttpBody(responseText, isArray, entity, circular) as any;
     }
   }
 

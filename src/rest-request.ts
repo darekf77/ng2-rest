@@ -37,10 +37,11 @@ export class RestRequest {
       return;
     }
     const entity = this.meta[jobid].entity;
+    const circular = this.meta[jobid].circular
 
     // normal request case
     this.subjectInuUse[jobid].next(
-      new Models.HttpResponse(res.data, res.headers, res.code, entity, isArray)
+      new Models.HttpResponse(res.data, res.headers, res.code, entity, circular, isArray)
     )
     return;
   }

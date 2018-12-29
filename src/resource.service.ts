@@ -16,6 +16,7 @@ import { Cookie } from "./cookie";
 import { Mapping } from "./mapping";
 import { Models } from "./models";
 import { interpolateParamsToUrl, isValid, containsModels, getModels } from "./params";
+import { Circ } from './json10';
 //#endregion
 
 
@@ -83,7 +84,7 @@ export class Resource<E, T, TA> {
 
 
   //#region create
-  public static create<A, TA = A[]>(e: string, model?: string, entityMapping?: Mapping.Mapping): Models.ResourceModel<A, TA> {
+  public static create<A, TA = A[]>(e: string, model?: string, entityMapping?: Mapping.Mapping, circular?: Circ[]): Models.ResourceModel<A, TA> {
     const badRestRegEX = new RegExp('((\/:)[a-z]+)+', 'g');
     const matchArr = model.match(badRestRegEX) || [];
     const badModelsNextToEachOther = matchArr.join();
@@ -98,7 +99,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
             `)
     };
     Resource.map(e, e);
-    Resource.instance.add(e, model ? model : '', entityMapping);
+    Resource.instance.add(e, model ? model : '', entityMapping, circular);
     // if (model.charAt(model.length - 1) !== '/') model = `${model}/`;
     return {
       model: (params?: Object) => Resource.instance.api(
@@ -180,7 +181,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
    * @param {string} model
    * @returns {boolean}
    */
-  private add(endpoint: E, model: string, entity: Mapping.Mapping) {
+  private add(endpoint: E, model: string, entity: Mapping.Mapping,circular?: Circ[]) {
     log.i(`I am maping ${model} on ${<any>endpoint}`);
     model = Resource.prepareModel(model);
 
@@ -201,7 +202,8 @@ Instead use nested approach:            /book/:bookid/author/:authorid
         + '/' + model, Resource.request, {
           endpoint: e,
           path: model,
-          entity
+          entity,
+          circular
         });
     return;
   }
