@@ -66,7 +66,11 @@ export class JSON10 {
           let context = _.get(json, contetPath)
           let cname = Helpers.Class.getBy(Helpers.Class.getFromObject(_.get(anyJSON, lodahPath)))
           if (_.isObject(context)) {
-            context[property] = _.merge(new (cname as any)(), o);
+            if( _.isFunction(cname)) {
+              context[property] = _.merge(new (cname as any)(), o);
+            } else {
+              context[property] = _.cloneDeep(o);
+            }
           }
         }
       }

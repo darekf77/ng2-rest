@@ -104,12 +104,6 @@ export namespace Models {
 
       if (this.entity && typeof this.entity === 'object') {
         const json = this.toJSON(this.body, this.isArray);
-        if (Array.isArray(json)) {
-          const result = json.map(j => Mapping.encode<T>(j, this.entity, this.circular)) as any;
-          return result;
-        } else {
-
-        }
         return Mapping.encode(json, this.entity, this.circular) as any;
       }
       let res = this.toJSON(this.body, this.isArray);

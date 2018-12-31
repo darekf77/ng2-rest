@@ -28,16 +28,13 @@ export namespace Mapping {
     if (_.isString(json) || _.isBoolean(json) || _.isNumber(json)) {
       return json as any;
     }
-    const tJson = _.cloneDeep(json);
+
     if (mapping['']) {
       const decoratorMapping = getModelsMapping(CLASSNAME.getClassBy(mapping['']));
       mapping = _.merge(mapping, decoratorMapping)
     }
 
-    let res = _.merge(setMapping(json, mapping, circular), tJson);
-    if (circular && _.isArray(circular) && circular.length > 0) {
-      res = JSON10.parse(JSON10.stringify(res), circular)
-    }
+    let res = _.merge(setMapping(json, mapping), JSON10.parse(JSON10.stringify(json), circular));
     return res;
   }
 
@@ -144,10 +141,16 @@ export namespace Mapping {
   }
 
   function setMapping(json: Object, mapping: Mapping = {},
-    circular: Circ[] = [],
+    // circular: Circ[] = [],
     path = '', realPath: string = '',
     level = 0, result?: Function
   ) {
+    if (Array.isArray(json)) {
+      return json.map(j => {
+        return setMapping(j, mapping)
+      })
+    }
+
     if (typeof mapping === 'string') {
       throw `
       Mapping object can't be string.
@@ -177,10 +180,10 @@ export namespace Mapping {
         if (_.isArray(v)) {
           v.forEach((elem, index) => {
             const pathArray = `${tmpPath}[${index}]`;
-            return setMapping(json, mapping, circular, clearPath(pathArray), pathArray, level, result);
+            return setMapping(json, mapping,/*  circular, */ clearPath(pathArray), pathArray, level, result);
           });
         } else if (_.isObject(v)) {
-          setMapping(json, mapping, circular, clearPath(tmpPath), tmpPath, level, result);
+          setMapping(json, mapping,/*  circular,  */clearPath(tmpPath), tmpPath, level, result);
         } else {
           if (_.isObject(result)) {
             _.set(result, tmpPath, v);

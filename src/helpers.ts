@@ -38,6 +38,9 @@ export class Helpers extends HelpersLogger {
         return CLASSNAME.getClassBy(className);
       },
       getFromObject(o: Object) {
+        if (_.isUndefined(o) || _.isNull(o)) {
+          return;
+        }
         const p = Object.getPrototypeOf(o)
         return p && p.constructor;
       },
