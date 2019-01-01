@@ -96,7 +96,9 @@ export namespace Mapping {
     const resolveClass = CLASSNAME.getClassBy(objectClassName);
     if (!resolveClass) {
       if (objectClassName !== 'Object') {
-        console.error(`Cannot resolve class: ${objectClassName} while mapping.`)
+        if (Helpers.isBrowser) {
+          console.error(`Cannot resolve class: ${objectClassName} while mapping.`)
+        }
       }
       return;
     }

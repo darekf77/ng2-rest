@@ -221,6 +221,7 @@ export namespace Models {
 
 
   export class ClassConfig {
+    browserTransformFn?: (entity: any) => any;
     singleton: Object = {};
     injections: { getter: Function, propertyName: string; }[] = [];
     calculatedPath: string;
