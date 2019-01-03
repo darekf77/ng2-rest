@@ -1,6 +1,3 @@
-//#region @backend
-import { RequestHandler } from "express";
-//#endregion
 
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
@@ -11,31 +8,35 @@ import { Rest } from "./rest.class";
 import { Cookie } from "./cookie";
 import { Mapping } from './mapping';
 import { AxiosResponse } from 'axios';
-import { Circ, JSON10 } from './json10';
-
+import { Models as HelpersModels } from 'typescript-class-helpers/models'
+import { JSON10, Circ } from 'json10';
 
 const log = Log.create('rest namespace', Level.__NOTHING)
 
 
 export namespace Models {
 
+  export import HttpMethod = HelpersModels.HttpMethod;
+  export import ParamType = HelpersModels.ParamType;
+
+  export import MethodConfig = HelpersModels.MethodConfig;
+  export import ClassConfig = HelpersModels.ClassConfig;
+  export import ParamConfig = HelpersModels.ParamConfig
+
 
   export type MetaRequest = { path: string, endpoint: string; entity: Mapping.Mapping; circular: Circ[] }
   export type HttpCode = 200 | 400 | 401 | 404 | 500;
-  export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 'jsonp';
-
-  export type ParamType = 'Path' | 'Query' | 'Cookie' | 'Header' | 'Body';
 
   export type PromiseObservableMix<T> = Promise<T> & { observable: Observable<T>; }
 
   export type MethodWithoutBody<E, T, R =PromiseObservableMix<E>> = (params?: UrlParams[], doNotSerializeParams?: boolean) => R
   export type MethodWithBody<E, T, R =PromiseObservableMix<E>> = (item?: T, params?: UrlParams[], doNotSerializeParams?: boolean) => R
   export type ReplayData = { subject: Subject<any>, data: { url: string, body: string, headers: RestHeaders, isArray: boolean; }, id: number; };
-  export type ReqParams = { url: string, method: HttpMethod, headers?: RestHeaders, body?: any, jobid: number, isArray: boolean };
+  export type ReqParams = { url: string, method: HelpersModels.HttpMethod, headers?: RestHeaders, body?: any, jobid: number, isArray: boolean };
 
   export interface ResourceModel<A, TA> {
     model: (pathModels?: Object, responseObjectType?: Function) => Rest<A, TA>,
-    replay: (method: HttpMethod) => void;
+    replay: (method: HelpersModels.HttpMethod) => void;
   }
 
   export interface Ng2RestMethods<E, T> {
@@ -50,7 +51,7 @@ export namespace Models {
 
   export type MockController = (
     url: string,
-    method: HttpMethod,
+    method: HelpersModels.HttpMethod,
     headers?: RestHeaders,
     body?: any
   ) => MockResponse;
@@ -199,37 +200,6 @@ export namespace Models {
   }
 
 
-  export class ParamConfig {
-    paramName: string;
-    paramType: ParamType;
-    index: number;
-    defaultType: any;
-    expireInSeconds?: number;
-  }
-
-  export class MethodConfig {
-    methodName: string;
-    path: string;
-    descriptor: PropertyDescriptor;
-    type: HttpMethod;
-    realtimeUpdate: boolean;
-    //#region @backend
-    requestHandler: RequestHandler;
-    //#endregion
-    parameters: { [paramName: string]: ParamConfig } = {};
-  }
-
-
-  export class ClassConfig {
-    browserTransformFn?: (entity: any) => any;
-    singleton: Object = {};
-    injections: { getter: Function, propertyName: string; }[] = [];
-    calculatedPath: string;
-    path: string;
-
-    classReference: Function;
-    methods: { [methodName: string]: MethodConfig } = {};
-  }
 
 
 }

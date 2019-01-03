@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { SYMBOL } from './symbols';
+import { SYMBOL } from 'typescript-class-helpers/symbols';
 
 
 

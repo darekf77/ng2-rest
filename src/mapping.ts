@@ -1,8 +1,8 @@
 import * as _ from "lodash";
-import { CLASSNAME } from './classname';
-import { SYMBOL } from './symbols';
+import { CLASSNAME } from 'typescript-class-helpers/classname';
+import { SYMBOL } from 'typescript-class-helpers/symbols';
 import { Helpers } from './helpers';
-import { Circ, JSON10 } from './json10';
+import { Circ, JSON10 } from 'json10';
 
 
 export namespace Mapping {

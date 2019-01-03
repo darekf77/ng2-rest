@@ -16,7 +16,7 @@ import { Cookie } from "./cookie";
 import { Mapping } from "./mapping";
 import { Models } from "./models";
 import { interpolateParamsToUrl, isValid, containsModels, getModels } from "./params";
-import { Circ } from './json10';
+import { Circ } from 'json10';
 //#endregion
 
 

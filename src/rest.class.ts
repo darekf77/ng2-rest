@@ -10,7 +10,7 @@ import { getRestParams, getParamsUrl } from "./params";
 import { RestRequest } from "./rest-request";
 import { RestHeaders } from "./rest-headers";
 import { Mapping } from './mapping';
-import { Circ } from './json10';
+import { Circ } from 'json10';
 //#endregion
 
 export const DEFAULT_HEADERS = {
