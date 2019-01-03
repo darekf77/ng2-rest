@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "9.2.6",
+  "version": "9.2.7",
   "scripts": {
     "build:watch": "npm-run watch \"morphi build\" src"
   },
