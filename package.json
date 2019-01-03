@@ -35,7 +35,10 @@
         "lodash",
         "@types/lodash",
         "ng2-logger",
-        "json5"
+        "json5",
+        "lodash-walk-object",
+        "typescript-class-helpers",
+        "json10"
       ]
     }
   },
