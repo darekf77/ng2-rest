@@ -8,20 +8,18 @@ import { Circ, JSON10 } from 'json10';
 export namespace Mapping {
 
 
-  export interface MapingDecodeOptions {
-    fromDecorator?: boolean;
-    productionMode?: boolean;
-  }
-
-  export function decode(json: Object, options?: MapingDecodeOptions): Mapping {
+  export function decode(json: Object, autodetect = false): Mapping {
     if (_.isUndefined(json)) {
       return undefined;
     }
-    const { fromDecorator = false, productionMode = false } = options;
-    if (fromDecorator) {
-      return decodeFromDecorator(json, productionMode)
+
+    let mapping = decodeFromDecorator(_.isArray(json) ? _.first(json) : json, !autodetect)
+
+    if (autodetect) {
+      mapping = _.merge(getMapping(json), mapping);
     }
-    return getMapping(json);
+
+    return mapping;
   }
 
   export function encode<T = Function>(json: Object, mapping: Mapping, circular: Circ[] = []): T {
