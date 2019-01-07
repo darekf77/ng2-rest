@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import { describe } from 'mocha'
 import { expect, use } from 'chai'
-import sinon from "ts-sinon";
+
 // import { BrowserDB } from '../browser-db/browser-db';
 
 import { Mapping } from '../mapping'

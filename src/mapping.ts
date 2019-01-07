@@ -3,6 +3,7 @@ import { CLASSNAME } from 'typescript-class-helpers/classname';
 import { SYMBOL } from 'typescript-class-helpers/symbols';
 import { Helpers } from './helpers';
 import { Circ, JSON10 } from 'json10';
+import { CLASS } from 'typescript-class-helpers';
 
 
 export namespace Mapping {
@@ -37,12 +38,6 @@ export namespace Mapping {
   }
 
 
-  export function getDefaultMappingModel(target) {
-    return ({
-      '': CLASSNAME.getClassName(target)
-    })
-  }
-
   /**
    * Change function to thier names
    * @param json instace of class
@@ -75,7 +70,9 @@ export namespace Mapping {
     if (entity.prototype && _.isObject(entity.prototype[SYMBOL.MODELS_MAPPING])) {
       return entity.prototype[SYMBOL.MODELS_MAPPING]
     }
-    return getDefaultMappingModel(entity) as any;
+    return {
+      '': CLASSNAME.getClassName(entity)
+    }
   }
 
   export type Mapping<T={}> = {
@@ -136,66 +133,34 @@ export namespace Mapping {
     return mapping;
   }
 
-  function clearPath(path: string) {
-    return path.replace(/\[.\]/g, '.').replace(/\.$/, '').replace(/\.\./g, '.');
-  }
 
-  function setMapping(json: Object, mapping: Mapping = {},
-    // circular: Circ[] = [],
-    path = '', realPath: string = '',
-    level = 0, result?: Function
-  ) {
+  function setMapping(json: Object, mapping: Mapping = {}) {
+    // console.log('mapping', mapping)
     if (Array.isArray(json)) {
       return json.map(j => {
         return setMapping(j, mapping)
       })
     }
 
-    if (typeof mapping === 'string') {
-      throw `
-      Mapping object can't be string.
-      Please use:
-       setMapping( json, JSON.parse(mapping) )
-      `
-    }
-    if (++level === 16) return;
-    const ClassTemplate: { new(any?): Function } = CLASSNAME.getClassBy(mapping[path] as any) as any;
-    let toInterate: Object;
-    if (ClassTemplate) {
-      if (path === '') {
-        result = new ClassTemplate();
-        toInterate = json;
-      } else {
-        if (_.isObject(result)) {
-          _.set(result, realPath, new ClassTemplate())
+    for (const key in json) {
+      if (json.hasOwnProperty(key)) {
+        if (_.isArray(json[key])) {
+          json[key] = json[key].map(arrObj => {
+            const objMapping = getModelsMapping(CLASS.getBy(mapping[key]))
+            return setMapping(arrObj, objMapping)
+          })
+        } else if (_.isObject(json[key])) {
+          const objMapping = getModelsMapping(CLASS.getBy(mapping[key]))
+          json[key] = setMapping(json[key], objMapping)
         }
-        toInterate = _.get(json, realPath);
       }
     }
 
-    for (let propertyPath in toInterate) {
-      if (toInterate.hasOwnProperty(propertyPath)) {
-        const v = toInterate[propertyPath];
-        const tmpPath = `${path === '' ? '' : `${realPath}.`}${propertyPath}`;
-        if (_.isArray(v)) {
-          v.forEach((elem, index) => {
-            const pathArray = `${tmpPath}[${index}]`;
-            return setMapping(json, mapping,/*  circular, */ clearPath(pathArray), pathArray, level, result);
-          });
-        } else if (_.isObject(v)) {
-          setMapping(json, mapping,/*  circular,  */clearPath(tmpPath), tmpPath, level, result);
-        } else {
-          if (_.isObject(result)) {
-            _.set(result, tmpPath, v);
-          }
-        }
-      }
+    const mainClassFn = CLASS.getBy(mapping['']);
+    if (!mainClassFn) {
+      return json;
     }
-    if (path === '') {
-      if (!result) return json;
-      return result;
-    }
-    return _.get(result, realPath);
+    return _.merge(new (mainClassFn as any)(), json)
   }
 
 
@@ -218,7 +183,9 @@ export namespace Mapping {
 
 
       if (!target[SYMBOL.MODELS_MAPPING]) {
-        target[SYMBOL.MODELS_MAPPING] = getDefaultMappingModel(target);
+        target[SYMBOL.MODELS_MAPPING] = {
+          '': CLASSNAME.getClassName(target)
+        }
       }
       _.merge(target[SYMBOL.MODELS_MAPPING], mapping);
       Object.keys(target[SYMBOL.MODELS_MAPPING])

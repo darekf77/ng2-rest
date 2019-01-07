@@ -5,7 +5,6 @@ import { describe } from 'mocha'
 import { expect, use } from 'chai'
 import * as UrlNestedParams from '../params';
 import { Resource } from '../resource.service';
-import sinon from 'ts-sinon';
 import axios from 'axios';
 import { RestHeaders } from '../rest-headers';
 
