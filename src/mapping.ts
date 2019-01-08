@@ -142,8 +142,13 @@ export namespace Mapping {
       })
     }
 
+    const mainClassFn = CLASS.getBy(mapping['']);
+
     for (const key in json) {
       if (json.hasOwnProperty(key)) {
+        // if (mainClassFn && mainClassFn.name === 'Project') {
+        //   // console.log(`OWn property: "${key}"`)
+        // }
         if (_.isArray(json[key])) {
           json[key] = json[key].map(arrObj => {
             const objMapping = getModelsMapping(CLASS.getBy(mapping[key]))
@@ -154,9 +159,26 @@ export namespace Mapping {
           json[key] = setMapping(json[key], objMapping)
         }
       }
+      // else {
+      //   if (mainClassFn && mainClassFn.name === 'Project') {
+      //     // console.log(`Not own property: "${key}"`)
+      //   }
+      // }
     }
 
-    const mainClassFn = CLASS.getBy(mapping['']);
+    Object
+      .keys(mapping)
+      .filter(key => key !== '' && key.split('.').length >= 2)
+      .forEach(lodasPath => {
+        // console.log(`Loadsh path: ${lodasPath}`)
+        const objMapping = getModelsMapping(CLASS.getBy(mapping[lodasPath]))
+        const input = _.get(json, lodasPath)
+        if (!_.isUndefined(input)) {
+          const res = setMapping(input, objMapping)
+          _.set(json, lodasPath, res)
+        }
+      })
+
     if (!mainClassFn) {
       return json;
     }
