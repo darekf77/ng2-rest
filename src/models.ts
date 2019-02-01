@@ -164,11 +164,18 @@ export namespace Models {
       super(responseText, headers, statusCode, isArray);
       if (typeof entity === 'string') {
         // const headerWithMapping = headers.get(entity);
-        entity = JSON.parse(headers.getAll(entity).join());
+        let entityJSON = headers.getAll(entity)
+        if (!!entityJSON) {
+          entity = JSON.parse(entityJSON.join());
+        }
       }
       if (typeof circular === 'string') {
         // const headerWithMapping = headers.get(circular);
-        circular = JSON.parse(headers.getAll(circular).join());
+        let circuralJSON = headers.getAll(circular);
+        if (!!circuralJSON) {
+          circular = JSON.parse(circuralJSON.join());
+        }
+
       }
       this.body = new HttpBody(responseText, isArray, entity, circular) as any;
     }
