@@ -1,14 +1,9 @@
 {
-  "name": "ng2-rest",
-  "version": "9.2.11",
-  "scripts": {
-    "build:watch": "npm-run watch \"morphi build\" src"
-  },
   "tnp": {
-    "type": "isomorphic-lib",
     "resources": [
       "README.md"
     ],
+    "type": "isomorphic-lib",
     "overrided": {
       "dependencies": {
         "@types/diff": "^3.2.2",
@@ -42,6 +37,11 @@
       ]
     }
   },
+  "name": "ng2-rest",
+  "version": "9.2.11",
+  "scripts": {
+    "build:watch": "npm-run watch \"morphi build\" src"
+  },
   "bugs": {
     "url": "https://github.com/darekf77/ng2-rest/issues"
   },
@@ -58,5 +58,10 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/darekf77/ng2-rest.git"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "tnp deps:show:if:standalone"
+    }
   }
 }
