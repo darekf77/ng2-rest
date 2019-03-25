@@ -3,6 +3,7 @@ import { CLASSNAME } from 'typescript-class-helpers/classname';
 import { SYMBOL } from 'typescript-class-helpers/symbols';
 import { Helpers } from './helpers';
 import { Circ, JSON10 } from 'json10';
+import { walk } from 'lodash-walk-object';
 import { CLASS } from 'typescript-class-helpers';
 
 
@@ -33,7 +34,12 @@ export namespace Mapping {
       mapping = _.merge(mapping, decoratorMapping)
     }
 
-    let res = _.merge(setMapping(json, mapping), JSON10.parse(JSON10.stringify(json), circular));
+    let res: any;
+    if (_.isArray(circular) && circular.length > 0) {
+      res = setMappingCirc(json, mapping, circular);
+    } else {
+      res = _.merge(setMapping(json, mapping), JSON10.parse(JSON10.stringify(json), circular));
+    }
     return res;
   }
 
@@ -133,8 +139,57 @@ export namespace Mapping {
     return mapping;
   }
 
+  function getMappingPathFrom(pathLodhas: string) {
+    if (!_.isString(pathLodhas)) {
+      return void 0;
+    }
+    const regex = /\[([0-9a-zA-Z]|\'|\")*\]/g;
+    pathLodhas = pathLodhas
+      .replace(regex, '')
+      .replace('..', '.');
+    if (pathLodhas.startsWith('.')) {
+      pathLodhas = pathLodhas.slice(1)
+    }
+    return pathLodhas;
+  }
+
+  function setMappingCirc(json: Object, mapping: Mapping = {}, circular: Circ[] = []) {
+
+    const mainClassFn = !_.isArray(json) && CLASS.getBy(mapping['']);
+    // console.log(mapping)
+    walk.Object(json, (v, lodashPath, changeValue) => {
+      if (!_.isUndefined(v) && !_.isNull(v)) {
+        const mappingPath = getMappingPathFrom(lodashPath)
+        if (!_.isUndefined(mapping[mappingPath])) {
+          const isArray = _.isArray(mapping[mappingPath]);
+          if (!isArray) {
+            const className = isArray ? _.first(mapping[mappingPath]) : mapping[mappingPath];
+            const classFN = CLASS.getBy(className)
+            if (_.isFunction(classFN)) {
+              // console.log(`mapping: '${mappingPath}', lp: '${lodashPath}' class: '${className}' , set `, v.location)
+              changeValue(_.merge(new (classFN as any)(), v))
+            }
+          }
+        }
+      }
+    })
+
+    circular.forEach(c => {
+      const ref = _.get(json, c.circuralTargetPath)
+      _.set(json, c.pathToObj, ref)
+    })
+
+    if (_.isFunction(mainClassFn)) {
+      json = _.merge(new (mainClassFn as any)(), json)
+    }
+
+    return json;
+  }
+
+
 
   function setMapping(json: Object, mapping: Mapping = {}) {
+
     // console.log('mapping', mapping)
     if (Array.isArray(json)) {
       return json.map(j => {
