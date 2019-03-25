@@ -38,7 +38,7 @@ export namespace Mapping {
     if (_.isArray(circular) && circular.length > 0) {
       res = setMappingCirc(json, mapping, circular);
     } else {
-      res = _.merge(setMapping(json, mapping), JSON10.parse(JSON10.stringify(json), circular));
+      res = setMapping(json, mapping);
     }
     return res;
   }
