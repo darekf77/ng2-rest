@@ -57,6 +57,7 @@ describe('Circural and mapping', () => {
 
     // expect(res[10].children[0].children[0].location).to.be.eq('/Users/npm/tsc-npm-project/projects/container/baseline/ss-admin-webapp')
     expect(res[10].children[0].children[0]).to.be.instanceOf(Project)
+    expect(res[10].children[0].children[1]).to.be.instanceOf(Project)
     expect(res[10].children[0].children[0].name).to.be.eq('ss-admin-webapp')
 
 

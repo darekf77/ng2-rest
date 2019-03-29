@@ -9,7 +9,6 @@ import { CLASS } from 'typescript-class-helpers';
 
 export namespace Mapping {
 
-
   export function decode(json: Object, autodetect = false): Mapping {
     if (_.isUndefined(json)) {
       return undefined;
@@ -18,7 +17,7 @@ export namespace Mapping {
     let mapping = decodeFromDecorator(_.isArray(json) ? _.first(json) : json, !autodetect)
 
     if (autodetect) {
-      mapping = _.merge(getMapping(json), mapping);
+      mapping = _.merge(getMappingNaive(json), mapping);
     }
 
     return mapping;
@@ -44,11 +43,6 @@ export namespace Mapping {
   }
 
 
-  /**
-   * Change function to thier names
-   * @param json instace of class
-   * @param production
-   */
   function decodeFromDecorator(json: Object, production = false): Mapping {
     const entityClass = Helpers.Class.getFromObject(json);
     const mappings = getModelsMapping(entityClass);
@@ -63,33 +57,39 @@ export namespace Mapping {
     return mappings as any;
   }
 
-  export function getModelsMapping(entity: Function): Mapping {
-    if (_.isUndefined(entity)) {
-      return;
+  export function getModelsMapping(entity: Function) {
+    if (!_.isFunction(entity) || entity === Object) {
+      return {};
     }
-    if (!_.isFunction(entity)) {
-      return;
-    }
-    if (_.isObject(entity[SYMBOL.MODELS_MAPPING])) {
-      return entity[SYMBOL.MODELS_MAPPING]
-    }
-    if (entity.prototype && _.isObject(entity.prototype[SYMBOL.MODELS_MAPPING])) {
-      return entity.prototype[SYMBOL.MODELS_MAPPING]
-    }
-    return {
-      '': CLASSNAME.getClassName(entity)
-    }
+    const className = CLASSNAME.getClassName(entity)
+    let enityOWnMapping: any[] = _.isArray(entity[SYMBOL.MODELS_MAPPING]) ?
+      entity[SYMBOL.MODELS_MAPPING] : [{ '': className }];
+
+    let res = {};
+    let parents = enityOWnMapping
+      .filter(m => !_.isUndefined(m['']) && m[''] !== className)
+      .map(m => m['']);
+    enityOWnMapping.reverse().forEach(m => {
+      m = _.cloneDeep(m);
+      // console.log(`'${className}' m:`, m)
+      Object.keys(m).forEach(key => {
+        const v = m[key]
+        const isArr = _.isArray(v)
+        const model = isArr ? _.first(v) : v;
+        if (parents.includes(model)) {
+          m[key] = isArr ? [className] : className;
+        }
+      })
+      res = _.merge(res, m)
+    })
+    res[''] = CLASSNAME.getClassName(entity);
+    return res;
   }
 
+
   export type Mapping<T={}> = {
-    [P in keyof T]?: string | Function | string[];
+    [P in keyof T]?: string | string[];
   };
-
-
-  // export interface Mapping<T=string> {
-  //   [path: string]: Function | string;
-  // }
-
 
   function add(o: Object, path: string, mapping: Mapping = {}) {
     if (!o || Array.isArray(o) || typeof o !== 'object') return;
@@ -113,9 +113,9 @@ export namespace Mapping {
    * @param mapping
    * @param level
    */
-  function getMapping(c: Object, path = '', mapping: Mapping = {}, level = 0) {
+  function getMappingNaive(c: Object, path = '', mapping: Mapping = {}, level = 0) {
     if (Array.isArray(c)) {
-      c.forEach(c => getMapping(c, path, mapping, level))
+      c.forEach(c => getMappingNaive(c, path, mapping, level))
       return mapping;
     }
     if (++level === 16) return;
@@ -127,12 +127,12 @@ export namespace Mapping {
           v.forEach((elem, i) => {
             // const currentPaht = [`path[${i}]`, p].filter(c => c.trim() != '').join('.');
             const currentPaht = [path, p].filter(c => c.trim() != '').join('.');
-            getMapping(elem, currentPaht, mapping, level);
+            getMappingNaive(elem, currentPaht, mapping, level);
           })
         } else if (typeof v === 'object') {
           const currentPaht = [path, p].filter(c => c.trim() != '').join('.');
           add(v, currentPaht, mapping);
-          getMapping(v, currentPaht, mapping, level);
+          getMappingNaive(v, currentPaht, mapping, level);
         }
       }
     }
@@ -252,42 +252,34 @@ export namespace Mapping {
 
 
   export function DefaultModelWithMapping<T=Object>(
-    defaultModelValues: ModelValue<T>,
+    defaultModelValues?: ModelValue<T>,
     mapping?: Mapping<T>
   ) {
     return function (target: Function) {
 
-
-
-      if (!target[SYMBOL.MODELS_MAPPING]) {
-        target[SYMBOL.MODELS_MAPPING] = {
-          '': CLASSNAME.getClassName(target)
-        }
+      if (!_.isArray(target[SYMBOL.MODELS_MAPPING])) {
+        target[SYMBOL.MODELS_MAPPING] = [];
       }
-      _.merge(target[SYMBOL.MODELS_MAPPING], mapping);
-      Object.keys(target[SYMBOL.MODELS_MAPPING])
-        .forEach(key => {
-          const v = target[SYMBOL.MODELS_MAPPING][key];
-          if (_.isUndefined(v)) {
-            throw `
+
+      (target[SYMBOL.MODELS_MAPPING] as any[]).push({ '': CLASSNAME.getClassName(target) });
+      if (_.isObject(mapping)) {
+        target[SYMBOL.MODELS_MAPPING] = (target[SYMBOL.MODELS_MAPPING] as any[]).concat(mapping)
+        Object.keys(mapping)
+          .forEach(key => {
+            const v = mapping;
+            if (_.isUndefined(v) || _.isFunction(v)) {
+              throw `
 
 
-            Class: ${target.name}
-            Bad mapping value for key: ${key} is ${v}
+            Class: '${target.name}'
+[ng2rest] Bad mapping value for path: ${key} , please use type: <string> or [<string>]
+`;
 
-            `;
+            }
+          });
+      }
 
-          }
-          // else if (_.isString(v)) {
-          //   const res = getClassBy(v);
-          //   target[SYMBOL.MODELS_MAPPING][key] = res;
-          //   console.log(`resolved class from ${v}`, res)
-          // }
-        });
 
-      // console.info(`IAM IN DefaultModel, taget: ${target && target.name}`)
-      // console.info('defaultModelValues:', defaultModelValues)
-      // console.info('mapping', mapping)
       if (_.isObject(defaultModelValues)) {
         const toMerge = {};
         const describedTarget = Helpers.Class.describeProperites(target)
@@ -315,30 +307,5 @@ export namespace Mapping {
     }
   }
 
-
-
 }
 
-
-// const c = Resource.create<{ name: string; }>('http://onet.pl', 'adasd', User);
-// console.log(c)
-
-// let uu = new User();
-// uu.name = 'asdasd';
-// let book = new Book();
-// book.author = new Author();
-// book.title = 'roses';
-// book.author.friends = [new User(), new User()]
-// book.author.user = new User();
-// uu.friend = new Author();
-// uu.friend.age = 23;
-// uu.friend.user = new User();
-// uu.books = [book];
-
-
-
-// let mapping = decode(uu);
-// console.log('mapping', mapping)
-// let obj = JSON.parse(JSON.stringify(uu));
-// console.log('before', uu)
-// console.log('after', encode(obj, mapping))
