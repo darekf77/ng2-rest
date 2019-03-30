@@ -5,11 +5,13 @@ import { Helpers } from './helpers';
 import { Circ, JSON10 } from 'json10';
 import { walk } from 'lodash-walk-object';
 import { CLASS } from 'typescript-class-helpers';
-
+import { Helpers as HelpersLog } from 'ng2-logger';
 
 export namespace Mapping {
 
   export function decode(json: Object, autodetect = false): Mapping {
+    HelpersLog.simulateBrowser = true;
+    // console.log('DECODE isBrowser', HelpersLog.isBrowser)
     if (_.isUndefined(json)) {
       return undefined;
     }
@@ -19,7 +21,7 @@ export namespace Mapping {
     if (autodetect) {
       mapping = _.merge(getMappingNaive(json), mapping);
     }
-
+    HelpersLog.simulateBrowser = false;
     return mapping;
   }
 
@@ -46,22 +48,16 @@ export namespace Mapping {
   function decodeFromDecorator(json: Object, production = false): Mapping {
     const entityClass = Helpers.Class.getFromObject(json);
     const mappings = getModelsMapping(entityClass);
-    if (mappings) {
-      Object.keys(mappings).forEach(key => {
-        const classFn = mappings[key] as Function;
-        if (_.isFunction(classFn)) {
-          mappings[key] = CLASSNAME.getClassName(classFn, production);
-        }
-      })
-    }
     return mappings as any;
   }
 
   export function getModelsMapping(entity: Function) {
+
     if (!_.isFunction(entity) || entity === Object) {
       return {};
     }
     const className = CLASSNAME.getClassName(entity)
+    // console.log(`getMaping for: '${className}' `)
     let enityOWnMapping: any[] = _.isArray(entity[SYMBOL.MODELS_MAPPING]) ?
       entity[SYMBOL.MODELS_MAPPING] : [{ '': className }];
 
@@ -69,6 +65,7 @@ export namespace Mapping {
     let parents = enityOWnMapping
       .filter(m => !_.isUndefined(m['']) && m[''] !== className)
       .map(m => m['']);
+
     enityOWnMapping.reverse().forEach(m => {
       m = _.cloneDeep(m);
       // console.log(`'${className}' m:`, m)
@@ -82,7 +79,8 @@ export namespace Mapping {
       })
       res = _.merge(res, m)
     })
-    res[''] = CLASSNAME.getClassName(entity);
+    res[''] = className;
+    // console.log(`mapping for ${className} : ${JSON.stringify(res)}`)
     return res;
   }
 

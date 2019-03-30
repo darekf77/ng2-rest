@@ -41,12 +41,31 @@ describe('Mapping inheritance', () => {
 
   }
 
+
+
+  class SubProject extends PROJECT {
+
+  }
+
+
+  class SubSubProject extends PROJECT {
+
+  }
+
+
   it('Should handle inheritance of mapping', () => {
-    const fn = PROJECT as Function;
-    const mapping = Mapping.getModelsMapping(fn);
-    // console.log('\n\n')
-    // console.log(`mapping: '${fn.name}'`, mapping)
-    expect(mapping).to.deep.eq({ '': 'PROJECT', mycups: ['Coffee'], cup: 'Coffee', projectInside: 'PROJECT' });
+
+    expect(Mapping.getModelsMapping(PROJECT)).
+      to.deep.eq({ '': 'PROJECT', mycups: ['Coffee'], cup: 'Coffee', projectInside: 'PROJECT' });
+
+    expect(Mapping.getModelsMapping(SubProject)).
+      to.deep.eq({ '': 'PROJECT', mycups: ['Coffee'], cup: 'Coffee', projectInside: 'PROJECT' });
+
+    expect(Mapping.getModelsMapping(SubSubProject)).
+      to.deep.eq({ '': 'PROJECT', mycups: ['Coffee'], cup: 'Coffee', projectInside: 'PROJECT' });
+
+    expect(Mapping.getModelsMapping(Project)).
+      to.deep.eq({ '': 'Project', cup: 'Coffee', projectInside: 'Project' });
   });
 
 

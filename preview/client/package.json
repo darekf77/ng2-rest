@@ -59,5 +59,10 @@
     "ts-node": "~3.2.0",
     "tslint": "~5.7.0",
     "typescript": "~2.4.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "tnp deps:show:if:standalone"
+    }
   }
 }
