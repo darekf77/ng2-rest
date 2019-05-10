@@ -115,12 +115,12 @@
     "axios": "^0.17.1",
     "diff": "^3.2.0",
     "enum-values": "1.2.1",
-    "json10": "0.0.16",
+    "json10": "0.0.18",
     "json5": "^0.5.1",
     "lodash": "^4.17.4",
-    "lodash-walk-object": "0.0.15",
+    "lodash-walk-object": "0.0.17",
     "ng2-logger": "2.0.48",
-    "typescript-class-helpers": "0.0.15"
+    "typescript-class-helpers": "0.0.18"
   },
   "license": "MIT"
 }
