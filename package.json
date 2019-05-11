@@ -97,7 +97,7 @@
     "friendly-errors-webpack-plugin": "^1.6.1",
     "html-webpack-plugin": "^2.29.0",
     "mocha": "^5.2.0",
-    "morphi": "2.0.31",
+    "morphi": "2.0.41",
     "ngc-webpack": "^4.1.2",
     "reflect-metadata": "^0.1.10",
     "ts-loader": "^2.3.1",
@@ -115,12 +115,12 @@
     "axios": "^0.17.1",
     "diff": "^3.2.0",
     "enum-values": "1.2.1",
-    "json10": "0.0.18",
+    "json10": "0.0.19",
     "json5": "^0.5.1",
     "lodash": "^4.17.4",
-    "lodash-walk-object": "0.0.17",
+    "lodash-walk-object": "0.0.18",
     "ng2-logger": "2.0.48",
-    "typescript-class-helpers": "0.0.18"
+    "typescript-class-helpers": "0.0.20"
   },
   "license": "MIT"
 }
