@@ -6,11 +6,14 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/takeUntil';
 import 'rxjs/add/operator/take';
 
+import * as _ from 'lodash';
+
 import { Models } from "./models";
 import { RestHeaders } from "./rest-headers";
 
 import { Helpers } from "ng2-logger";
 import axios, { AxiosResponse } from 'axios';
+import { Resource } from './resource.service';
 
 const jobIDkey = 'jobID'
 
@@ -89,7 +92,7 @@ export class RestRequest {
           headers: headers.toJSON()
         })
       }
-
+      console.log('NOTMAL RESPONESE ', response)
       this.handlerResult({
         code: response.status as any,
         data: JSON.stringify(response.data),
@@ -98,6 +101,20 @@ export class RestRequest {
         headers: (response.headers instanceof RestHeaders) ? response.headers : new RestHeaders(response.headers)
       }, method, jobid, isArray);
     } catch (catchedError) {
+      // console.log('ERROR RESPONESE catchedError typeof ', typeof catchedError)
+      // console.log('ERROR RESPONESE catchedError', catchedError)
+      if (typeof catchedError === 'object' && catchedError.response && catchedError.response.data) {
+        const err = catchedError.response.data;
+        const msg: string = catchedError.response.data.message || '';
+        let stack: string[] = (err.stack || '').split('\n');
+
+        (Resource['_listenErrors'] as Subject<Models.BackendError>).next({
+          msg,
+          stack,
+          data: catchedError.response.data
+        });
+
+      }
       const error = (catchedError && catchedError.response) ? `[${catchedError.response.statusText}]: ` : '';
       this.handlerResult({
         code: (catchedError && catchedError.response) ? catchedError.response.status as any : undefined,

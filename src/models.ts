@@ -23,14 +23,19 @@ export namespace Models {
   export import ClassConfig = HelpersModels.ClassConfig;
   export import ParamConfig = HelpersModels.ParamConfig
 
+  export type BackendError = {
+    msg?: string;
+    stack?: string[];
+    data: any;
+  }
 
   export type MetaRequest = { path: string, endpoint: string; entity: Mapping.Mapping; circular: Circ[] }
   export type HttpCode = 200 | 400 | 401 | 404 | 500;
 
   export type PromiseObservableMix<T> = Promise<T> & { observable: Observable<T>; }
 
-  export type MethodWithoutBody<E, T, R =PromiseObservableMix<E>> = (params?: UrlParams[], doNotSerializeParams?: boolean) => R
-  export type MethodWithBody<E, T, R =PromiseObservableMix<E>> = (item?: T, params?: UrlParams[], doNotSerializeParams?: boolean) => R
+  export type MethodWithoutBody<E, T, R = PromiseObservableMix<E>> = (params?: UrlParams[], doNotSerializeParams?: boolean) => R
+  export type MethodWithBody<E, T, R = PromiseObservableMix<E>> = (item?: T, params?: UrlParams[], doNotSerializeParams?: boolean) => R
   export type ReplayData = { subject: Subject<any>, data: { url: string, body: string, headers: RestHeaders, isArray: boolean; }, id: number; };
   export type ReqParams = { url: string, method: HelpersModels.HttpMethod, headers?: RestHeaders, body?: any, jobid: number, isArray: boolean };
 

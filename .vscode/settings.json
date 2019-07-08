@@ -1,34 +1,44 @@
-// Place your settings in this file to overwrite default and user settings.
 {
-    "files.exclude": {
-        // "**/.git": true,
-        // "**/.svn": true,
-        // "**/.hg": true,
-        // "**/CVS": true,
-        // "**/.DS_Store": true,
-        // "index.*": true,
-        // "client.*": true,
-        // "browser.*": true,
-        // "backend.*": true,
-        // "dist": true,
-        // "bundle": true,
-        // "tmp-src": true,
-        // ".gitignore": true,
-        // ".npmignore": true,
-        // ".npmrc": true,
-        // "tsconfig.*": true,
-        // ".editorconfig": true,
-        // "node_modules": true,
-        // "tslint.*": true,
-        // "browser": true
-    },
-    "workbench.colorCustomizations": {
-        "activityBar.background": "#3186d4"
-    },
-    "editor.rulers": [
-        100,
-        120
-    ],
-    "html.format.wrapAttributes": "force-aligned",
-    "workbench.colorTheme": "Default Light+"
+  "files.exclude": {
+    "node_modules": true,
+    "tnp-system-path.txt": true,
+    "tmp*": true,
+    "dist*": true,
+    "bundle*": true,
+    "browser": true,
+    "browser*": true,
+    "module*": true,
+    "backup": true,
+    "module": true,
+    "www": true,
+    "Thumbs.db": true,
+    ".DS_Store": true,
+    "**/.DS_Store": true,
+    "npm-debug.log*": true,
+    ".sass-cache": true,
+    ".sourcemaps": true,
+    "tslint.json": true,
+    ".editorconfig": true,
+    "index.js": true,
+    "index.d.ts": true,
+    "index.js.map": true,
+    ".vscode/launch.json": true,
+    "tsconfig.json": true,
+    "tsconfig.browser.json": true,
+    "webpack.config.js": true,
+    "run.js": true,
+    ".gitignore": true,
+    ".npmignore": true,
+    ".npmrc": true,
+    ".babelrc": true
+  },
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#3186d4"
+  },
+  "editor.rulers": [
+    100,
+    120
+  ],
+  "html.format.wrapAttributes": "force-aligned",
+  "workbench.colorTheme": "Default Light+"
 }

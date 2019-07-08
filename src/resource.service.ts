@@ -23,6 +23,10 @@ import { Circ } from 'json10';
 
 export class Resource<E, T, TA> {
 
+  private static _listenErrors = new Subject<Models.BackendError>();
+  public static get listenErrors() {
+    return this._listenErrors.asObservable();
+  }
   public static enableWarnings: boolean = true;
 
   //#region private mthods and fields
@@ -181,7 +185,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
    * @param {string} model
    * @returns {boolean}
    */
-  private add(endpoint: E, model: string, entity: Mapping.Mapping,circular?: Circ[]) {
+  private add(endpoint: E, model: string, entity: Mapping.Mapping, circular?: Circ[]) {
     log.i(`I am maping ${model} on ${<any>endpoint}`);
     model = Resource.prepareModel(model);
 

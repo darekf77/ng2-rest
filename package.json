@@ -97,7 +97,7 @@
     "friendly-errors-webpack-plugin": "^1.6.1",
     "html-webpack-plugin": "^2.29.0",
     "mocha": "^5.2.0",
-    "morphi": "2.0.41",
+    "morphi": "2.0.51",
     "ngc-webpack": "^4.1.2",
     "reflect-metadata": "^0.1.10",
     "ts-loader": "^2.3.1",
@@ -120,7 +120,17 @@
     "lodash": "^4.17.4",
     "lodash-walk-object": "0.0.18",
     "ng2-logger": "2.0.48",
-    "typescript-class-helpers": "0.0.20"
+    "typescript-class-helpers": "0.0.25"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "isomorphicPackages": [
+    "browserify-sign",
+    "json10",
+    "lodash-walk-object",
+    "morphi",
+    "ng2-logger",
+    "ng2-rest",
+    "typeorm",
+    "typescript-class-helpers"
+  ]
 }
