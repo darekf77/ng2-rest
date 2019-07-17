@@ -122,15 +122,5 @@
     "ng2-logger": "2.0.48",
     "typescript-class-helpers": "0.0.25"
   },
-  "license": "MIT",
-  "isomorphicPackages": [
-    "browserify-sign",
-    "json10",
-    "lodash-walk-object",
-    "morphi",
-    "ng2-logger",
-    "ng2-rest",
-    "typeorm",
-    "typescript-class-helpers"
-  ]
+  "license": "MIT"
 }
