@@ -45,7 +45,6 @@
     "tests",
     "src/tests",
     "src/**/*.spec.ts",
-    "tmp-src",
     "tmp-site-src",
     "tmp-tests-context"
   ]

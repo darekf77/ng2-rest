@@ -92,7 +92,7 @@ export class RestRequest {
           headers: headers.toJSON()
         })
       }
-      console.log('NOTMAL RESPONESE ', response)
+
       this.handlerResult({
         code: response.status as any,
         data: JSON.stringify(response.data),
