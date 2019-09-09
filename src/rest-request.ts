@@ -8,10 +8,10 @@ import 'rxjs/add/operator/take';
 
 import * as _ from 'lodash';
 
-import { Models } from "./models";
-import { RestHeaders } from "./rest-headers";
+import { Models } from './models';
+import { RestHeaders } from './rest-headers';
 
-import { Helpers } from "ng2-logger";
+import { Helpers } from 'ng2-logger';
 import axios, { AxiosResponse } from 'axios';
 import { Resource } from './resource.service';
 

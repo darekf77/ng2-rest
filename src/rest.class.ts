@@ -6,9 +6,9 @@ import { Log, Level } from 'ng2-logger';
 const log = Log.create('rest.class', Level.__NOTHING)
 // local
 import { Models } from './models';
-import { getRestParams, getParamsUrl } from "./params";
-import { RestRequest } from "./rest-request";
-import { RestHeaders } from "./rest-headers";
+import { getRestParams, getParamsUrl } from './params';
+import { RestRequest } from './rest-request';
+import { RestHeaders } from './rest-headers';
 import { Mapping } from './mapping';
 import { Circ } from 'json10';
 //#endregion
@@ -171,4 +171,3 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   //#endregion
 
 }
-

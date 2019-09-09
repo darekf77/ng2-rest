@@ -1,4 +1,4 @@
-import * as _ from "lodash";
+import * as _ from 'lodash';
 import { CLASSNAME } from 'typescript-class-helpers/classname';
 import { SYMBOL } from 'typescript-class-helpers/symbols';
 import { Helpers } from './helpers';
@@ -306,4 +306,3 @@ export namespace Mapping {
   }
 
 }
-

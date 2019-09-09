@@ -10,12 +10,12 @@ import { Log, Level } from 'ng2-logger';
 const log = Log.create('resouce-service', Level.__NOTHING)
 
 import { Rest } from './rest.class';
-import { RestRequest } from "./rest-request";
-import { RestHeaders } from "./rest-headers";
-import { Cookie } from "./cookie";
-import { Mapping } from "./mapping";
-import { Models } from "./models";
-import { interpolateParamsToUrl, isValid, containsModels, getModels } from "./params";
+import { RestRequest } from './rest-request';
+import { RestHeaders } from './rest-headers';
+import { Cookie } from './cookie';
+import { Mapping } from './mapping';
+import { Models } from './models';
+import { interpolateParamsToUrl, isValid, containsModels, getModels } from './params';
 import { Circ } from 'json10';
 //#endregion
 

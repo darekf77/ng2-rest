@@ -34,7 +34,8 @@
         "lodash-walk-object",
         "typescript-class-helpers",
         "json10"
-      ]
+      ],
+      "ignoreDepsPattern": []
     }
   },
   "name": "ng2-rest",

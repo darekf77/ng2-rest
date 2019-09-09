@@ -1,11 +1,10 @@
-
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import { Log, Level } from 'ng2-logger';
-import { RestHeaders } from "./rest-headers";
-import { Rest } from "./rest.class";
-import { Cookie } from "./cookie";
+import { RestHeaders } from './rest-headers';
+import { Rest } from './rest.class';
+import { Cookie } from './cookie';
 import { Mapping } from './mapping';
 import { AxiosResponse } from 'axios';
 import { Models as HelpersModels } from 'typescript-class-helpers/models'
