@@ -1,0 +1,49 @@
+{
+  "files.exclude": {
+    "node_modules": true,
+    "tnp-system-path.txt": true,
+    "tmp*": true,
+    "dist*": true,
+    "bundle*": true,
+    "browser": true,
+    "browser*": true,
+    "module*": true,
+    "backup": true,
+    "module": true,
+    "www": true,
+    "Thumbs.db": true,
+    ".DS_Store": true,
+    "**/.DS_Store": true,
+    "npm-debug.log*": true,
+    ".sass-cache": true,
+    ".sourcemaps": true,
+    "tsconfig.json": true,
+    ".npmrc": true,
+    "tslint.json": true,
+    ".editorconfig": true,
+    "index.js": true,
+    "index.d.ts": true,
+    "index.js.map": true,
+    ".vscode/launch.json": true,
+    "tsconfig.browser.json": true,
+    "webpack.config.js": true,
+    "run.js": true,
+    "tsconfig.json.filetemplate": true,
+    ".gitignore": true,
+    ".npmignore": true,
+    ".babelrc": true
+  },
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#0084ff",
+    "activityBar.foreground": "#000000"
+  },
+  "editor.rulers": [
+    100,
+    120
+  ],
+  "html.format.wrapAttributes": "force-aligned",
+  "workbench.colorTheme": "Default Light+",
+  "tslint.autoFixOnSave": true,
+  "eslint.enable": false,
+  "tslint.enable": false
+}

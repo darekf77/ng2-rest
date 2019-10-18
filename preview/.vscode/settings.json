@@ -1,0 +1,33 @@
+{
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#999694",
+    "activityBar.foreground": "#000000",
+    "statusBar.background": "#999694"
+  },
+  "workbench.colorTheme": "Default Light+",
+  "files.exclude": {
+    "node_modules": true,
+    "tnp-system-path.txt": true,
+    "tmp*": true,
+    "dist*": true,
+    "bundle*": true,
+    "browser": true,
+    "browser*": true,
+    "module*": true,
+    "backup": true,
+    "module": true,
+    "www": true,
+    "Thumbs.db": true,
+    ".DS_Store": true,
+    "**/.DS_Store": true,
+    "npm-debug.log*": true,
+    ".sass-cache": true,
+    ".sourcemaps": true,
+    ".npmrc": true,
+    "tslint.json": true,
+    ".editorconfig": true,
+    ".gitignore": true,
+    ".npmignore": true,
+    ".babelrc": true
+  }
+}
