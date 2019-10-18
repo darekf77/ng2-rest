@@ -35,6 +35,7 @@
   "exclude": [
     "node_modules",
     "preview",
+    "projects",
     "docs",
     "dist",
     "bundle",
@@ -43,6 +44,7 @@
     "browser",
     "module",
     "tests",
+    "tmp-src",
     "src/tests",
     "src/**/*.spec.ts",
     "tmp-site-src",
