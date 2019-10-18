@@ -1,7 +1,13 @@
 {
   "tnp": {
     "resources": [],
-    "type": "isomorphic-lib"
+    "type": "isomorphic-lib",
+    "overrided": {
+      "ignoreDepsPattern": [],
+      "includeAsDev": [],
+      "includeOnly": [],
+      "dependencies": {}
+    }
   },
   "name": "preview-server",
   "version": "0.0.0",
@@ -33,5 +39,6 @@
     "hooks": {
       "pre-push": "tnp deps:show:if:standalone"
     }
-  }
+  },
+  "devDependencies": {}
 }
