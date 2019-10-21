@@ -13,6 +13,8 @@ export async function start() {
 
   const h = new http.Server(app)
 
+
+
   let global = io(h)
   global.on('connection', (clientSocket) => {
     console.log('connection from client namespace /')
@@ -62,6 +64,15 @@ export async function start() {
 
 
   app.use(cors())
+
+  const exampleProjects = [
+    { super: 1 }
+  ];
+
+
+  app.get('/projects', (req, res, next) => {
+    res.send(exampleProjects)
+  })
 
   app.get('/users', (req, res) => {
     res.json([{ "name": "Bob from mockable.io", "id": 1 }, { "name": "Alice from mockable.io", "id": 2 }])

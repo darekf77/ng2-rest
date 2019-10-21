@@ -14,11 +14,17 @@ import { RestHeaders } from './rest-headers';
 import { Helpers } from 'ng2-logger';
 import axios, { AxiosResponse } from 'axios';
 import { Resource } from './resource.service';
+import { Log, Logger } from 'ng2-logger';
+import { isUndefined } from 'util';
+import { RequestCache } from './request-cache';
+const log = Log.create('rest-resource')
 
 const jobIDkey = 'jobID'
 
 //#region mock request
 //#endregion
+
+
 
 export class RestRequest {
 
@@ -27,7 +33,12 @@ export class RestRequest {
   private subjectInuUse: { [id: number]: Subject<any> } = {};
   private meta: { [id: number]: Models.MetaRequest } = {};
 
-  private handlerResult(res: Models.MockResponse, method: Models.HttpMethod, jobid?: number, isArray?: boolean) {
+  private handlerResult(options: Models.HandleResultOptions,
+    sourceRequest: Models.HandleResultSourceRequestOptions) {
+    if (isUndefined(options)) {
+      options = {} as any;
+    }
+    const { res, jobid, isArray, method } = options;
     if (typeof res !== 'object') throw new Error('[ng2-rest] No resposnse for request. ')
 
     if (Helpers.isBrowser) {
@@ -44,11 +55,18 @@ export class RestRequest {
 
     // normal request case
     this.subjectInuUse[jobid].next(
-      new Models.HttpResponse(res.data, res.headers, res.code, entity, circular, isArray)
+      new Models.HttpResponse(sourceRequest, res.data, res.headers, res.code, entity, circular, isArray)
     )
     return;
   }
-
+  checkCache(sourceRequest: Models.HandleResultSourceRequestOptions, jobid: number) {
+    const existedInCache = RequestCache.findBy(sourceRequest);
+    if (existedInCache) {
+      this.subjectInuUse[jobid].next(existedInCache);
+      return true;
+    }
+    return false;
+  }
 
   private async req(
     url: string,
@@ -59,6 +77,15 @@ export class RestRequest {
     isArray = false,
     mockHttp?: Models.MockHttp
   ) {
+    if (this.checkCache({
+      url,
+      body,
+      isArray,
+      method
+    }, jobid)) {
+      return;
+    }
+
     var response: AxiosResponse<any>;
     if (mockHttp) {
 
@@ -94,12 +121,22 @@ export class RestRequest {
       }
 
       this.handlerResult({
-        code: response.status as any,
-        data: JSON.stringify(response.data),
-        isArray,
+        res: {
+          code: response.status as any,
+          data: JSON.stringify(response.data),
+          isArray,
+          jobid,
+          headers: (response.headers instanceof RestHeaders) ? response.headers : new RestHeaders(response.headers)
+        },
+        method,
         jobid,
-        headers: (response.headers instanceof RestHeaders) ? response.headers : new RestHeaders(response.headers)
-      }, method, jobid, isArray);
+        isArray
+      }, {
+        url,
+        body,
+        method,
+        isArray,
+      });
     } catch (catchedError) {
       // console.log('ERROR RESPONESE catchedError typeof ', typeof catchedError)
       // console.log('ERROR RESPONESE catchedError', catchedError)
@@ -117,29 +154,45 @@ export class RestRequest {
       }
       const error = (catchedError && catchedError.response) ? `[${catchedError.response.statusText}]: ` : '';
       this.handlerResult({
-        code: (catchedError && catchedError.response) ? catchedError.response.status as any : undefined,
-        error: `${error}${catchedError.message}`,
-        data: (catchedError && catchedError.response) ? JSON.stringify(catchedError.response.data) : undefined,
-        isArray,
+        res: {
+          code: (catchedError && catchedError.response) ? catchedError.response.status as any : undefined,
+          error: `${error}${catchedError.message}`,
+          data: (catchedError && catchedError.response) ? JSON.stringify(catchedError.response.data) : undefined,
+          isArray,
+          jobid,
+          headers: (catchedError && catchedError.response) ?
+            ((catchedError.response.headers instanceof RestHeaders) ? catchedError.response.headers : new RestHeaders(catchedError.response.headers))
+            : undefined
+        },
+        method,
         jobid,
-        headers: (catchedError && catchedError.response) ?
-          ((catchedError.response.headers instanceof RestHeaders) ? catchedError.response.headers : new RestHeaders(catchedError.response.headers))
-          : undefined
-      }, method, jobid, isArray);
+        isArray
+      }, {
+        url,
+        body,
+        isArray,
+        method
+      });
     }
   }
 
   private getSubject(method: Models.HttpMethod, meta: Models.MetaRequest): Models.ReplayData {
-    // if (!this.replaySubjects[meta.endpoint])
-    this.replaySubjects[meta.endpoint] = {};
-    // if (!this.replaySubjects[meta.endpoint][meta.path])
-    this.replaySubjects[meta.endpoint][meta.path] = {};
-    // if (!this.replaySubjects[meta.endpoint][meta.path][method]) {
-    this.replaySubjects[meta.endpoint][meta.path][method] = <Models.ReplayData>{
-      subject: new Subject(),
-      data: undefined,
-    };
-    // }
+    if (_.isUndefined(this.replaySubjects[meta.endpoint])) {
+      log.i(`[getSubject][recreate] (${meta.endpoint}) `);
+      this.replaySubjects[meta.endpoint] = {};
+    }
+    if (_.isUndefined(this.replaySubjects[meta.endpoint][meta.path])) {
+      log.i(`[getSubject][recreate] (${meta.endpoint})(${meta.path}) `);
+      this.replaySubjects[meta.endpoint][meta.path] = {};
+    }
+
+    if (_.isUndefined(this.replaySubjects[meta.endpoint][meta.path][method])) {
+      log.i(`[getSubject][recreate] (${meta.endpoint})(${meta.path})(${method}) `);
+      this.replaySubjects[meta.endpoint][meta.path][method] = <Models.ReplayData>{
+        subject: new Subject(),
+        data: undefined,
+      };
+    }
     const replay: Models.ReplayData = this.replaySubjects[meta.endpoint][meta.path][method];
 
     const id: number = RestRequest.jobId++;
@@ -246,14 +299,34 @@ export class RestRequest {
   ): Models.PromiseObservableMix<any> {
 
     const replay: Models.ReplayData = this.getSubject('jsonp', meta);
+    const jobid = replay.id;
     setTimeout(() => {
       if (url.endsWith('/')) url = url.slice(0, url.length - 1)
       let num = Math.round(10000 * Math.random());
       let callbackMethodName = "cb_" + num;
+      const method = 'jsonp'
       window[callbackMethodName] = (data) => {
+        if (this.checkCache({
+          url,
+          body,
+          isArray,
+          method
+        }, jobid)) {
+          return;
+        }
         this.handlerResult({
-          data, isArray
-        }, 'jsonp', replay.id, isArray)
+          res: {
+            data, isArray
+          },
+          method,
+          jobid,
+          isArray
+        }, {
+          url,
+          body,
+          isArray,
+          method,
+        })
       }
       let sc = document.createElement('script');
       sc.src = `${url}?callback=${callbackMethodName}`;

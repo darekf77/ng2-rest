@@ -25,11 +25,13 @@ import { AppComponent } from './app.component';
 
 import { Demo2Component } from './demo2';
 import { SocketsComponent } from './sockets/sockets.component';
+import { CacheRequestComponent } from './cache-request/cache-request.component';
 
 
 export const ROUTES: Routes = [
   { path: '', redirectTo: 'sockets', pathMatch: 'full' },
   { path: 'sockets', component: SocketsComponent },
+  { path: 'cache-request', component: CacheRequestComponent },
   { path: 'demo2', component: Demo2Component },
   { path: '**', component: NoContentComponent },
 ];
@@ -37,6 +39,7 @@ export const ROUTES: Routes = [
 @NgModule({
   declarations: [
     AppComponent,
+    CacheRequestComponent,
     NoContentComponent,
     Demo2Component,
     SocketsComponent,

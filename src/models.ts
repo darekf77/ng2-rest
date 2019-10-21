@@ -9,7 +9,8 @@ import { Mapping } from './mapping';
 import { AxiosResponse } from 'axios';
 import { Models as HelpersModels } from 'typescript-class-helpers/models'
 import { JSON10, Circ } from 'json10';
-
+import { RequestCache } from './request-cache';
+import * as _ from 'lodash';
 const log = Log.create('rest namespace', Level.__NOTHING)
 
 
@@ -21,6 +22,22 @@ export namespace Models {
   export import MethodConfig = HelpersModels.MethodConfig;
   export import ClassConfig = HelpersModels.ClassConfig;
   export import ParamConfig = HelpersModels.ParamConfig
+
+
+  export interface HandleResultOptions {
+    res: Models.MockResponse;
+    method: Models.HttpMethod;
+    jobid?: number;
+    isArray?: boolean;
+  }
+
+  export interface HandleResultSourceRequestOptions {
+    url: string,
+    method: Models.HttpMethod,
+    // headers?: RestHeaders,
+    body: any,
+    isArray: boolean,
+  }
 
   export type BackendError = {
     msg?: string;
@@ -157,7 +174,9 @@ export namespace Models {
     // public get totalElements(): number {
     //     return Number(this.headers.get(this.TOTAL_COUNT_HEADER));
     // }
+    rq: RequestCache;
     constructor(
+      public sourceRequest: Models.HandleResultSourceRequestOptions,
       responseText?: string,
       headers?: RestHeaders,
       statusCode?: HttpCode | number,
@@ -183,6 +202,14 @@ export namespace Models {
       }
       this.body = new HttpBody(responseText, isArray, entity, circular) as any;
     }
+
+    get cache() {
+      if (_.isUndefined(this.rq)) {
+        this.rq = new RequestCache(this);
+      }
+      return new RequestCache(this);
+    }
+
   }
 
   export class HttpResponseError extends BaseResponse<any> {
