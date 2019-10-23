@@ -6,3 +6,5 @@ export * from './rest.class';
 export * from './rest-headers';
 export * from 'typescript-class-helpers/symbols';
 export * from './helpers';
+export * from './request-cache';
+

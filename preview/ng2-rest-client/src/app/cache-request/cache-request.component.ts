@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Resource } from 'ng2-rest';
+import { Resource, RequestCache, } from 'ng2-rest';
 import { Log, Level } from 'ng2-logger';
 
 const rest = Resource.create('http://localhost:3000', 'projects');
@@ -15,10 +15,34 @@ export class CacheRequestComponent implements OnInit {
   constructor() { }
 
   async ngOnInit() {
-    rest.model().array.get().observable.subscribe(models => {
-      log.i('models', models);
-    });
 
+  }
+
+  cacheHandler: RequestCache;
+
+  async getModels() {
+    const existedCacheHandler = rest.model().array.get().cache;
+    if (existedCacheHandler) {
+      log.i('CACHE FOUNDED !')
+      this.cacheHandler = existedCacheHandler;
+    }
+    if (this.cacheHandler && this.cacheHandler.containsCache) {
+      this.show(this.cacheHandler.response);
+    } else {
+      const models = await rest.model().array.get();
+      if (!this.cacheHandler) {
+        this.cacheHandler = models.cache.store();
+      }
+      this.show(models);
+    }
+  }
+
+  counter = 1;
+
+  show(models) {
+    log.i('before request', models);
+    models.body.json[0] = ++this.counter;
+    log.i('after request', models);
   }
 
   replay() {

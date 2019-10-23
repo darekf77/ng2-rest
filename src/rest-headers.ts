@@ -126,7 +126,9 @@ export class RestHeaders {
   // TODO(vicb): returns {[name: string]: string[]}
   toJSON(): { [name: string]: any } {
     const serialized: { [name: string]: string[] } = {};
-
+    if (!this._headers) {
+      debugger
+    }
     this._headers.forEach((values: string[], name: string) => {
       const split: string[] = [];
       values.forEach(v => split.push(...v.split(',')));

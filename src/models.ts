@@ -48,7 +48,10 @@ export namespace Models {
   export type MetaRequest = { path: string, endpoint: string; entity: Mapping.Mapping; circular: Circ[] }
   export type HttpCode = 200 | 400 | 401 | 404 | 500;
 
-  export type PromiseObservableMix<T> = Promise<T> & { observable: Observable<T>; }
+  export type PromiseObservableMix<T> = Promise<T> & {
+    cache?: RequestCache,
+    observable: Observable<T>;
+  }
 
   export type MethodWithoutBody<E, T, R = PromiseObservableMix<E>> = (params?: UrlParams[], doNotSerializeParams?: boolean) => R
   export type MethodWithBody<E, T, R = PromiseObservableMix<E>> = (item?: T, params?: UrlParams[], doNotSerializeParams?: boolean) => R
@@ -160,16 +163,16 @@ export namespace Models {
       return BaseResponse.cookies;
     }
     constructor(
-      responseText?: string,
+      public responseText?: string,
       public readonly headers?: RestHeaders,
       public readonly statusCode?: HttpCode | number,
-      isArray = false
+      public isArray = false
     ) {
     }
   }
 
   export class HttpResponse<T> extends BaseResponse<T> {
-    public readonly body?: HttpBody<T>;
+    public body?: HttpBody<T>;
     // public readonly TOTAL_COUNT_HEADER = 'X-Total-Count'.toLowerCase();
     // public get totalElements(): number {
     //     return Number(this.headers.get(this.TOTAL_COUNT_HEADER));
@@ -177,30 +180,34 @@ export namespace Models {
     rq: RequestCache;
     constructor(
       public sourceRequest: Models.HandleResultSourceRequestOptions,
-      responseText?: string,
-      headers?: RestHeaders,
-      statusCode?: HttpCode | number,
-      entity?: Mapping.Mapping,
-      circular?: Circ[],
-      isArray = false,
+      public responseText?: string,
+      public headers?: RestHeaders,
+      public statusCode?: HttpCode | number,
+      public entity?: Mapping.Mapping,
+      public circular?: Circ[],
+      public isArray = false,
     ) {
       super(responseText, headers, statusCode, isArray);
-      if (typeof entity === 'string') {
+      this.init()
+    }
+
+    public init() {
+      if (typeof this.entity === 'string') {
         // const headerWithMapping = headers.get(entity);
-        let entityJSON = headers.getAll(entity)
+        let entityJSON = this.headers.getAll(this.entity)
         if (!!entityJSON) {
-          entity = JSON.parse(entityJSON.join());
+          this.entity = JSON.parse(entityJSON.join());
         }
       }
-      if (typeof circular === 'string') {
+      if (typeof this.circular === 'string') {
         // const headerWithMapping = headers.get(circular);
-        let circuralJSON = headers.getAll(circular);
+        let circuralJSON = this.headers.getAll(this.circular);
         if (!!circuralJSON) {
-          circular = JSON.parse(circuralJSON.join());
+          this.circular = JSON.parse(circuralJSON.join());
         }
 
       }
-      this.body = new HttpBody(responseText, isArray, entity, circular) as any;
+      this.body = new HttpBody(this.responseText, this.isArray, this.entity, this.circular) as any;
     }
 
     get cache() {

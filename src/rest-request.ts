@@ -62,9 +62,11 @@ export class RestRequest {
   checkCache(sourceRequest: Models.HandleResultSourceRequestOptions, jobid: number) {
     const existedInCache = RequestCache.findBy(sourceRequest);
     if (existedInCache) {
+      log.i('cache exists', existedInCache)
       this.subjectInuUse[jobid].next(existedInCache);
       return true;
     }
+    log.i('cache not exists', existedInCache)
     return false;
   }
 
@@ -222,7 +224,13 @@ export class RestRequest {
     replay.data = { url, body, headers, isArray };
     setTimeout(() => this.req(url, method, headers, body, replay.id, isArray, mockHttp))
     const resp: Models.PromiseObservableMix<any> = replay.subject.asObservable().take(1).toPromise() as any;
-    resp.observable = replay.subject.asObservable()
+    resp.observable = replay.subject.asObservable();
+    resp.cache = RequestCache.findBy({
+      body,
+      isArray,
+      method,
+      url
+    });
     return resp;
   }
 
@@ -300,11 +308,11 @@ export class RestRequest {
 
     const replay: Models.ReplayData = this.getSubject('jsonp', meta);
     const jobid = replay.id;
+    const method = 'jsonp'
     setTimeout(() => {
       if (url.endsWith('/')) url = url.slice(0, url.length - 1)
       let num = Math.round(10000 * Math.random());
       let callbackMethodName = "cb_" + num;
-      const method = 'jsonp'
       window[callbackMethodName] = (data) => {
         if (this.checkCache({
           url,
@@ -335,7 +343,13 @@ export class RestRequest {
     })
     // return replay.subject.asObservable();
     const resp: Models.PromiseObservableMix<any> = replay.subject.asObservable().take(1).toPromise() as any;
-    resp.observable = replay.subject.asObservable()
+    resp.observable = replay.subject.asObservable();
+    resp.cache = RequestCache.findBy({
+      body,
+      isArray,
+      method,
+      url
+    })
     return resp;
   }
   //#endregion
