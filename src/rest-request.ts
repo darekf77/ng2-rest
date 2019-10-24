@@ -11,13 +11,13 @@ import * as _ from 'lodash';
 import { Models } from './models';
 import { RestHeaders } from './rest-headers';
 
-import { Helpers } from 'ng2-logger';
+import { Helpers, Level } from 'ng2-logger';
 import axios, { AxiosResponse } from 'axios';
 import { Resource } from './resource.service';
 import { Log, Logger } from 'ng2-logger';
 import { isUndefined } from 'util';
 import { RequestCache } from './request-cache';
-const log = Log.create('rest-resource')
+const log = Log.create('rest-resource',Level.__NOTHING)
 
 const jobIDkey = 'jobID'
 

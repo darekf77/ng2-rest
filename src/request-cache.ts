@@ -3,7 +3,7 @@ import { Models } from './models';
 
 import { Log, Level } from 'ng2-logger';
 import { RestHeaders } from './rest-headers';
-const log = Log.create('request-cache')
+const log = Log.create('request-cache', Level.__NOTHING)
 
 
 export class RequestCache {
@@ -74,27 +74,32 @@ export class RequestCache {
   }
 
   get containsCache() {
+    RequestCache.restoreFromLocalStorage();
     return RequestCache.cached.includes(this);
   }
 
+  private persistsInLocalStorage() {
+    localStorage.setItem(RequestCache.LOCAL_STORAGE_KEY,
+      JSON.stringify(RequestCache.cached.map(r => {
+        return {
+          response: {
+            sourceRequest: r.response.sourceRequest,
+            responseText: r.response.responseText,
+            headers: r.response.headers,
+            statusCode: r.response.statusCode,
+            entity: r.response.entity,
+            circular: r.response.circular,
+            isArray: r.response.isArray,
+          } as Models.HttpResponse<any>
+        };
+      })));
+  }
 
   store() {
+    RequestCache.restoreFromLocalStorage();
     if (!this.containsCache) {
       RequestCache.cached.push(this);
-      localStorage.setItem(RequestCache.LOCAL_STORAGE_KEY,
-        JSON.stringify(RequestCache.cached.map(r => {
-          return {
-            response: {
-              sourceRequest: r.response.sourceRequest,
-              responseText: r.response.responseText,
-              headers: r.response.headers,
-              statusCode: r.response.statusCode,
-              entity: r.response.entity,
-              circular: r.response.circular,
-              isArray: r.response.isArray,
-            } as Models.HttpResponse<any>
-          };
-        })));
+      this.persistsInLocalStorage();
     } else {
       console.log('already stored');
     }
@@ -102,9 +107,11 @@ export class RequestCache {
   }
 
   remove() {
+    RequestCache.restoreFromLocalStorage();
     const index = RequestCache.cached.indexOf(this);
     if (index !== -1) {
       RequestCache.cached.splice(index, 1);
+      this.persistsInLocalStorage();
     } else {
       console.log('already removed');
     }
