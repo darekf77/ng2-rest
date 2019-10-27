@@ -35,6 +35,7 @@
 /.angular-cli.json.filetemplate
 /src/tsconfig.packages.json
 /tsconfig.json
+/src/typings.d.ts
 /src/main.ts
 /src/polyfills.ts
 /src/tsconfig.spec.json

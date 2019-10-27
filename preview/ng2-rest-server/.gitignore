@@ -27,3 +27,15 @@
 /webpack.config.js
 /run.js
 /tsconfig.json.filetemplate
+/src/typings.d.ts
+/src/entities.ts
+/src/controllers.ts
+/index.js
+/index.d.ts
+/index.js.map
+/.vscode/launch.json
+/tsconfig.browser.json
+/webpack.config.js
+/run.js
+/tsconfig.json.filetemplate
+/src/typings.d.ts
