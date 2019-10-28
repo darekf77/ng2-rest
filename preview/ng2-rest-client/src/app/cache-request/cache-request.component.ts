@@ -20,6 +20,14 @@ export class CacheRequestComponent implements OnInit {
 
   cacheHandler: RequestCache;
 
+  clearCache() {
+    const existedCacheHandler = rest.model().array.get().cache;
+    if (existedCacheHandler) {
+      existedCacheHandler.remove();
+      this.cacheHandler = void 0;
+    }
+  }
+
   async getModels() {
     const existedCacheHandler = rest.model().array.get().cache;
     if (existedCacheHandler) {

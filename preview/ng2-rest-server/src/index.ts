@@ -1,14 +1,18 @@
+
 import { Resource } from 'ng2-rest';
+//#region @backend
 import * as express from 'express';
 import * as http from 'http';
 import * as io from 'socket.io';
-
 const cors = require('cors')
+//#endregion
+
 const port = 3000;
 
 const rest = Resource.create(`http://localhost:${port}`, 'users');
 export async function start() {
 
+  //#region @backend
   const app = express()
 
   const h = new http.Server(app)
@@ -91,7 +95,6 @@ export async function start() {
       console.log(error)
     }
   })
-
-
+  //#endregion
 
 }

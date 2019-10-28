@@ -2,6 +2,7 @@ import * as _ from 'lodash';
 import { Models } from './models';
 
 import { Log, Level } from 'ng2-logger';
+import { Helpers } from 'ng2-logger/helper';
 import { RestHeaders } from './rest-headers';
 const log = Log.create('request-cache', Level.__NOTHING)
 
@@ -14,6 +15,9 @@ export class RequestCache {
   private static isRestoredFromLocalStorage = false;
 
   private static restoreFromLocalStorage() {
+    if(Helpers.isNode) {
+      return;
+    }
     if (!RequestCache.isRestoredFromLocalStorage) {
       RequestCache.isRestoredFromLocalStorage = true;
       const data = localStorage.getItem(RequestCache.LOCAL_STORAGE_KEY);
