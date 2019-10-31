@@ -79,7 +79,7 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
     private meta: { path: string, endpoint: string; entity: Mapping.Mapping, circular: Circ[] }
   ) {
     this.__meta_endpoint = endpoint;
-
+    // @LAST
     if (!Rest._headersAreSet) {
       Rest._headersAreSet = true;
       for (let h in DEFAULT_HEADERS) {
