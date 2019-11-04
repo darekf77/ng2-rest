@@ -37,9 +37,6 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
 
 
   //#region  private fields
-  public static headers: RestHeaders = new RestHeaders();
-  public static headersResponse: RestHeaders = new RestHeaders();
-
   private __meta_endpoint: string;
   private _endpointRest: string;
   private get endpoint() {
@@ -59,13 +56,6 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
 
   }
 
-  private static _headersAreSet: boolean = false;
-
-
-  private getHeadersJSON() {
-    return Rest.headers.toJSON();
-  }
-
   private creatUrl(params: any, doNotSerializeParams: boolean = false) {
     return `${this.endpoint}${getParamsUrl(params, doNotSerializeParams)}`;
   }
@@ -73,24 +63,22 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   //#endregion
 
   //#region  constructor
+  private _headers = RestHeaders.from(DEFAULT_HEADERS);
+  get headers() {
+    return this._headers;
+  }
   constructor(
     endpoint: string,
     private request: RestRequest,
     private meta: { path: string, endpoint: string; entity: Mapping.Mapping, circular: Circ[] }
   ) {
     this.__meta_endpoint = endpoint;
-    // @LAST
-    if (!Rest._headersAreSet) {
-      Rest._headersAreSet = true;
-      for (let h in DEFAULT_HEADERS) {
-        Rest.headers.append(h, DEFAULT_HEADERS[h]);
-      }
-    }
 
   }
   //#endregion
 
   //#region  req
+
   private req(method: Models.HttpMethod,
     item: T,
     params?: Models.UrlParams[],
@@ -100,10 +88,8 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
 
     const modelUrl = this.creatUrl(params, doNotSerializeParams);
     const body = item ? JSON.stringify(item) : undefined;
-    for (let h in DEFAULT_HEADERS) {
-      Rest.headers.set(h, DEFAULT_HEADERS[h]);
-    }
-    const result = this.request[method.toLowerCase()](modelUrl, body, Rest.headers, this.meta, isArray, this.mockHttp);
+    const result = this.request[method.toLowerCase()](modelUrl, body, this.headers, this.meta, isArray, this.mockHttp);
+    this._headers = RestHeaders.from(DEFAULT_HEADERS);
     this.mockHttp = undefined;
     return result;
   }

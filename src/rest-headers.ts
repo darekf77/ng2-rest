@@ -1,36 +1,34 @@
 /**
  * Based on Headers from https://github.com/angular/angular/blob/master/packages/http/src/headers.ts
  */
+export type RestHeadersOptions = RestHeaders | { [name: string]: (string | string[]) }
+
 export class RestHeaders {
   /** @internal header names are lower case */
   _headers: Map<string, string[]> = new Map();
   /** @internal map lower case names to actual names */
   _normalizedNames: Map<string, string> = new Map();
 
-  // TODO(vicb): any -> string|string[]
-  constructor(headers?: RestHeaders | { [name: string]: any } | any, recreate = false) {
-    if (!headers) {
-      return;
-    }
 
+  public static from(headers?: RestHeadersOptions) {
+    if (!headers) {
+      return void 0;
+    }
+    return new RestHeaders(headers);
+  }
+
+  private constructor(headers?: RestHeaders | { [name: string]: (string | string[]) }) {
     if (headers instanceof RestHeaders) {
       headers.forEach((values: string[], name: string) => {
-        values.forEach(value => this.append(name, value));
+        values.forEach(value => this.set(name, value));
       });
-      return;
+    } else {
+      Object.keys(headers).forEach((name: string) => {
+        const values: string[] = (Array.isArray(headers[name]) ? headers[name] : [headers[name]]) as any;
+        this.delete(name);
+        values.forEach(value => this.set(name, value));
+      });
     }
-
-    if (recreate) {
-      this._headers = headers._headers;
-      this._normalizedNames = headers._normalizedNames;
-      return;
-    }
-
-    Object.keys(headers).forEach((name: string) => {
-      const values: string[] = Array.isArray(headers[name]) ? headers[name] : [headers[name]];
-      this.delete(name);
-      values.forEach(value => this.append(name, value));
-    });
   }
 
   /**

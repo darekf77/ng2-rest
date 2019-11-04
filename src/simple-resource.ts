@@ -188,10 +188,6 @@ export class SimpleResource<A, TA> {
         ${ExtendedResource.doNotSerializeQueryParams},`);
   }
 
-  public static get headers() {
-    return Resource.Headers;
-  }
-
   public static __destroy() {
     ExtendedResource.handlers.forEach(h => h.unsubscribe());
   }

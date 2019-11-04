@@ -34,7 +34,7 @@ export class RequestCache {
           r.response = new Models.HttpResponse(
             sourceRequest,
             responseText,
-            new RestHeaders(headers, true),
+            RestHeaders.from(headers),
             statusCode,
             entity,
             circular,

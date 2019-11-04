@@ -17,7 +17,7 @@ import { Resource } from './resource.service';
 import { Log, Logger } from 'ng2-logger';
 import { isUndefined } from 'util';
 import { RequestCache } from './request-cache';
-const log = Log.create('rest-resource',Level.__NOTHING)
+const log = Log.create('rest-resource', Level.__NOTHING)
 
 const jobIDkey = 'jobID'
 
@@ -42,7 +42,7 @@ export class RestRequest {
     if (typeof res !== 'object') throw new Error('[ng2-rest] No resposnse for request. ')
 
     if (Helpers.isBrowser) {
-      res.headers = new RestHeaders(res.headers, true);
+      res.headers = RestHeaders.from(res.headers);
     }
 
     // error no internet
@@ -128,7 +128,7 @@ export class RestRequest {
           data: JSON.stringify(response.data),
           isArray,
           jobid,
-          headers: (response.headers instanceof RestHeaders) ? response.headers : new RestHeaders(response.headers)
+          headers: RestHeaders.from(response.headers)
         },
         method,
         jobid,
@@ -162,9 +162,7 @@ export class RestRequest {
           data: (catchedError && catchedError.response) ? JSON.stringify(catchedError.response.data) : undefined,
           isArray,
           jobid,
-          headers: (catchedError && catchedError.response) ?
-            ((catchedError.response.headers instanceof RestHeaders) ? catchedError.response.headers : new RestHeaders(catchedError.response.headers))
-            : undefined
+          headers: RestHeaders.from(catchedError && catchedError.response && catchedError.response.headers)
         },
         method,
         jobid,

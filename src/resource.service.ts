@@ -23,6 +23,11 @@ import { Circ } from 'json10';
 
 export class Resource<E, T, TA> {
 
+  public static DEFAULT_HEADERS = RestHeaders.from({
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  });
+
   private static _listenErrors = new Subject<Models.BackendError>();
   public static get listenErrors() {
     return this._listenErrors.asObservable();
@@ -88,7 +93,12 @@ export class Resource<E, T, TA> {
 
 
   //#region create
-  public static create<A, TA = A[]>(e: string, model?: string, entityMapping?: Mapping.Mapping, circular?: Circ[]): Models.ResourceModel<A, TA> {
+  public static create<A, TA = A[]>(
+    e: string,
+    model?: string,
+    entityMapping?: Mapping.Mapping,
+    circular?: Circ[]
+  ): Models.ResourceModel<A, TA> {
     const badRestRegEX = new RegExp('((\/:)[a-z]+)+', 'g');
     const matchArr = model.match(badRestRegEX) || [];
     const badModelsNextToEachOther = matchArr.join();
@@ -112,6 +122,9 @@ Instead use nested approach:            /book/:bookid/author/:authorid
       ),
       replay: (method: Models.HttpMethod) => {
         Resource.getModel(e, model).replay(method);
+      },
+      get headers() {
+        return Resource.getModel(e, model).headers;
       }
     }
   }
@@ -129,16 +142,6 @@ Instead use nested approach:            /book/:bookid/author/:authorid
       const zone = this.getZone();
       if (!RestRequest.zone) RestRequest.zone = zone;
     })
-  }
-  //#endregion
-
-  //#region header
-  public static get Headers() {
-    let res = {
-      request: Rest.headers,
-      response: Rest.headersResponse
-    }
-    return res;
   }
   //#endregion
 
@@ -204,11 +207,11 @@ Instead use nested approach:            /book/:bookid/author/:authorid
     Resource.endpoints[e].models[model] =
       new Rest<T, TA>(Resource.endpoints[e].url
         + '/' + model, Resource.request, {
-          endpoint: e,
-          path: model,
-          entity,
-          circular
-        });
+        endpoint: e,
+        path: model,
+        entity,
+        circular
+      });
     return;
   }
   //#endregion

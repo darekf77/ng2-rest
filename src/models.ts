@@ -61,6 +61,7 @@ export namespace Models {
   export interface ResourceModel<A, TA> {
     model: (pathModels?: Object, responseObjectType?: Function) => Rest<A, TA>,
     replay: (method: HelpersModels.HttpMethod) => void;
+    headers: RestHeaders;
   }
 
   export interface Ng2RestMethods<E, T> {
