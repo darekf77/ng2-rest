@@ -28,7 +28,7 @@
     }
   },
   "name": "ng2-rest",
-  "version": "9.3.1",
+  "version": "10.0.1",
   "scripts": {
     "build:watch": "npm-run watch \"morphi build\" src"
   },
@@ -156,7 +156,7 @@
     "http-proxy": "^1.16.2",
     "http-proxy-middleware": "0.19.1",
     "http-server": "0.11.1",
-    "incremental-compiler": "0.0.12",
+    "incremental-compiler": "1.0.1",
     "inquirer": "^5.2.0",
     "inquirer-autocomplete-prompt": "^1.0.1",
     "istanbul-instrumenter-loader": "^2.0.0",
@@ -224,7 +224,7 @@
     "tslib": "^1.10.0",
     "tslint": "~5.18.0",
     "typeorm": "0.2.7",
-    "typescript": "~3.7.4",
+    "typescript": "3.7.4",
     "typescript-formatter": "7.2.2",
     "underscore": "^1.9.1",
     "validator": "^9.2.0",
@@ -236,12 +236,12 @@
     "@types/lodash": "4.14.92",
     "axios": "^0.17.1",
     "diff": "^3.2.0",
-    "json10": "0.0.19",
+    "json10": "1.0.1",
     "json5": "^0.5.1",
     "lodash": "^4.17.4",
-    "lodash-walk-object": "0.0.18",
-    "ng2-logger": "3.0.10",
-    "typescript-class-helpers": "0.0.25"
+    "lodash-walk-object": "1.0.1",
+    "ng2-logger": "3.0.11",
+    "typescript-class-helpers": "1.0.1"
   },
   "license": "MIT",
   "private": false
