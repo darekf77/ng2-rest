@@ -46,7 +46,7 @@ export namespace Mapping {
 
 
   function decodeFromDecorator(json: Object, production = false): Mapping {
-    const entityClass = Helpers.Class.getFromObject(json);
+    const entityClass = CLASS.getFromObject(json);
     const mappings = getModelsMapping(entityClass);
     return mappings as any;
   }
@@ -280,7 +280,7 @@ export namespace Mapping {
 
       if (_.isObject(defaultModelValues)) {
         const toMerge = {};
-        const describedTarget = Helpers.Class.describeProperites(target)
+        const describedTarget = CLASS.describeProperites(target)
         // console.log(`describedTarget: ${describedTarget} for ${target.name}`)
         describedTarget.forEach(propDefInConstr => {
           if (defaultModelValues[propDefInConstr]) {

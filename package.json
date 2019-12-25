@@ -28,7 +28,7 @@
     }
   },
   "name": "ng2-rest",
-  "version": "10.0.1",
+  "version": "10.0.2",
   "scripts": {
     "build:watch": "npm-run watch \"morphi build\" src"
   },
@@ -177,10 +177,10 @@
     "mkdirp": "^0.5.1",
     "mocha": "^5.2.0",
     "moment": "^2.22.2",
-    "morphi": "2.1.1",
+    "morphi": "3.0.1",
     "ng-packagr": "^5.7.1",
     "ng2-file-upload": "^1.3.0",
-    "ng2-rest": "9.3.1",
+    "ng2-rest": "10.0.1",
     "ngx-bootstrap": "^5.2.0",
     "ngx-breadcrumbs": "0.0.3",
     "ngx-editor": "^4.1.0",
@@ -224,7 +224,7 @@
     "tslib": "^1.10.0",
     "tslint": "~5.18.0",
     "typeorm": "0.2.7",
-    "typescript": "3.7.4",
+    "typescript": "3.6.4",
     "typescript-formatter": "7.2.2",
     "underscore": "^1.9.1",
     "validator": "^9.2.0",

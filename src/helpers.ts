@@ -11,8 +11,6 @@ export class Helpers extends HelpersLogger {
 
   static JSON = JSON10;
 
-  static Class = CLASS;
-
   static get Mapping() {
     return {
       encode<T = Function>(json: Object, mapping: Mapping.Mapping): T {
