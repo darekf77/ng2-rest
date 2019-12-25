@@ -7,7 +7,7 @@ import { Rest } from './rest.class';
 import { Cookie } from './cookie';
 import { Mapping } from './mapping';
 import { AxiosResponse } from 'axios';
-import { Models as HelpersModels } from 'typescript-class-helpers/models'
+import { Models as HelpersModels } from 'typescript-class-helpers'
 import { JSON10, Circ } from 'json10';
 import { RequestCache } from './request-cache';
 import * as _ from 'lodash';

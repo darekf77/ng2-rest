@@ -3,7 +3,6 @@ import * as _ from 'lodash';
 import { Helpers as HelpersLogger } from 'ng2-logger';
 import { CLASS } from 'typescript-class-helpers'
 
-import { Models } from 'typescript-class-helpers/models'
 import { Mapping } from './mapping';
 import { JSON10 } from 'json10';
 
@@ -30,4 +29,3 @@ export class Helpers extends HelpersLogger {
 
 
 }
-

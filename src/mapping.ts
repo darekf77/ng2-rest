@@ -1,10 +1,8 @@
 import * as _ from 'lodash';
-import { CLASSNAME } from 'typescript-class-helpers/classname';
-import { SYMBOL } from 'typescript-class-helpers/symbols';
 import { Helpers } from './helpers';
 import { Circ, JSON10 } from 'json10';
 import { walk } from 'lodash-walk-object';
-import { CLASS } from 'typescript-class-helpers';
+import { CLASS, SYMBOL } from 'typescript-class-helpers';
 import { Helpers as HelpersLog } from 'ng2-logger';
 
 export namespace Mapping {
@@ -31,7 +29,7 @@ export namespace Mapping {
     }
 
     if (mapping['']) {
-      const decoratorMapping = getModelsMapping(CLASSNAME.getClassBy(mapping['']));
+      const decoratorMapping = getModelsMapping(CLASS.getBy(mapping['']));
       mapping = _.merge(mapping, decoratorMapping)
     }
 
@@ -56,7 +54,7 @@ export namespace Mapping {
     if (!_.isFunction(entity) || entity === Object) {
       return {};
     }
-    const className = CLASSNAME.getClassName(entity)
+    const className = CLASS.getName(entity)
     // console.log(`getMaping for: '${className}' `)
     let enityOWnMapping: any[] = _.isArray(entity[SYMBOL.MODELS_MAPPING]) ?
       entity[SYMBOL.MODELS_MAPPING] : [{ '': className }];
@@ -85,14 +83,14 @@ export namespace Mapping {
   }
 
 
-  export type Mapping<T={}> = {
+  export type Mapping<T = {}> = {
     [P in keyof T]?: string | string[];
   };
 
   function add(o: Object, path: string, mapping: Mapping = {}) {
     if (!o || Array.isArray(o) || typeof o !== 'object') return;
-    const objectClassName = CLASSNAME.getClassName(Object.getPrototypeOf(o).constructor);
-    const resolveClass = CLASSNAME.getClassBy(objectClassName);
+    const objectClassName = CLASS.getName(Object.getPrototypeOf(o).constructor);
+    const resolveClass = CLASS.getBy(objectClassName);
     if (!resolveClass) {
       if (objectClassName !== 'Object') {
         if (Helpers.isBrowser) {
@@ -101,7 +99,7 @@ export namespace Mapping {
       }
       return;
     }
-    if (!mapping[path]) mapping[path] = CLASSNAME.getClassName(resolveClass) as any;;
+    if (!mapping[path]) mapping[path] = CLASS.getName(resolveClass) as any;;
   }
 
   /**
@@ -249,7 +247,7 @@ export namespace Mapping {
   };
 
 
-  export function DefaultModelWithMapping<T=Object>(
+  export function DefaultModelWithMapping<T = Object>(
     defaultModelValues?: ModelValue<T>,
     mapping?: Mapping<T>
   ) {
@@ -259,7 +257,7 @@ export namespace Mapping {
         target[SYMBOL.MODELS_MAPPING] = [];
       }
 
-      (target[SYMBOL.MODELS_MAPPING] as any[]).push({ '': CLASSNAME.getClassName(target) });
+      (target[SYMBOL.MODELS_MAPPING] as any[]).push({ '': CLASS.getName(target) });
       if (_.isObject(mapping)) {
         target[SYMBOL.MODELS_MAPPING] = (target[SYMBOL.MODELS_MAPPING] as any[]).concat(mapping)
         Object.keys(mapping)

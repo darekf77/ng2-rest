@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import { Models } from './models';
 
 import { Log, Level } from 'ng2-logger';
-import { Helpers } from 'ng2-logger/helper';
+import { Helpers } from 'ng2-logger';
 import { RestHeaders } from './rest-headers';
 const log = Log.create('request-cache', Level.__NOTHING)
 
