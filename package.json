@@ -25,7 +25,8 @@
         "json10"
       ],
       "ignoreDepsPattern": []
-    }
+    },
+    "linkedProjects": []
   },
   "name": "ng2-rest",
   "version": "10.0.3",
