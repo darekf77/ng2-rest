@@ -1,5 +1,6 @@
 {
   "files.exclude": {
+    "webpack.backend-bundle-build.js": true,
     "node_modules": true,
     "tnp-system-path.txt": true,
     "tmp*": true,
@@ -18,6 +19,8 @@
     ".sass-cache": true,
     ".sourcemaps": true,
     "tsconfig.json": true,
+    "tsconfig.isomorphic.json": true,
+    "tsconfig.browser.json": true,
     ".npmrc": true,
     "tslint.json": true,
     ".editorconfig": true,
@@ -25,13 +28,17 @@
     "index.d.ts": true,
     "index.js.map": true,
     ".vscode/launch.json": true,
-    "tsconfig.browser.json": true,
     "webpack.config.js": true,
     "run.js": true,
     "tsconfig.json.filetemplate": true,
+    "tsconfig.isomorphic.json.filetemplate": true,
+    "tsconfig.browser.json.filetemplate": true,
     ".gitignore": true,
     ".npmignore": true,
-    ".babelrc": true
+    ".babelrc": true,
+    "docs": true,
+    "logo.svg": true,
+    "bin/db.json": false
   },
   "workbench.colorCustomizations": {
     "activityBar.background": "#3186d4"
