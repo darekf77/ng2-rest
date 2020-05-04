@@ -278,7 +278,9 @@ export namespace Mapping {
 
       if (_.isObject(defaultModelValues)) {
         const toMerge = {};
-        const describedTarget = CLASS.describeProperites(target)
+        const describedTarget = CLASS
+          .describeProperites(target)
+          .filter(prop => /^([a-zA-Z0-9]|\_|\#)+$/.test(prop))
         // console.log(`describedTarget: ${describedTarget} for ${target.name}`)
         describedTarget.forEach(propDefInConstr => {
           if (defaultModelValues[propDefInConstr]) {
@@ -297,7 +299,16 @@ export namespace Mapping {
         // console.log(`merge "${JSON.stringify(target.prototype)}" with "${JSON.stringify(defaultModelValues)}"`)
 
         target[SYMBOL.DEFAULT_MODEL] = _.merge(toMerge, defaultModelValues);
-        _.merge(target.prototype, target[SYMBOL.DEFAULT_MODEL])
+
+        const propsToOmmit = Object
+          .keys(target[SYMBOL.DEFAULT_MODEL])
+          .filter(key => {
+            const descriptor = Object
+              .getOwnPropertyDescriptor(target.prototype, key);
+            return !!descriptor;
+          });
+        _.merge(target.prototype, _.omit(target[SYMBOL.DEFAULT_MODEL], propsToOmmit));
+
         // console.log(`DEFAULT VALUE MERGE for ${target.name}`)
       }
     }
