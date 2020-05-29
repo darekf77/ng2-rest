@@ -44,6 +44,7 @@ Thumbs.db
 /index.d.ts
 /index.js.map
 /webpack.config.js
+/webpack.backend-bundle-build.js
 /run.js
 /tsconfig.isomorphic.json.filetemplate
 /tsconfig.browser.json.filetemplate
