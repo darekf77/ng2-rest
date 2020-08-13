@@ -24,7 +24,8 @@
         "typescript-class-helpers",
         "json10"
       ],
-      "ignoreDepsPattern": []
+      "ignoreDepsPattern": [],
+      "linkedFolders": []
     },
     "linkedProjects": [],
     "libReleaseOptions": {
