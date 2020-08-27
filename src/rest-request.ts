@@ -113,6 +113,7 @@ export class RestRequest {
 
     try {
       if (!response) {
+        // console.log(`[ng2-rest] ${method} request to:  ${url}`)
         response = await axios({
           url,
           method,

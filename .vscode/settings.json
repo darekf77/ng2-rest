@@ -2,7 +2,6 @@
   "files.exclude": {
     "webpack.backend-bundle-build.js": true,
     "node_modules": true,
-    "tnp-system-path.txt": true,
     "tmp*": true,
     "dist*": true,
     "bundle*": true,
@@ -40,8 +39,7 @@
     ".npmignore": true,
     ".babelrc": true,
     "docs": true,
-    "logo.svg": true,
-    "bin/db.json": false
+    "logo.svg": true
   },
   "workbench.colorCustomizations": {
     "activityBar.background": "#3186d4"
