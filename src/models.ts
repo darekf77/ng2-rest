@@ -126,6 +126,10 @@ export namespace Models {
       super();
     }
 
+    public get booleanValue() {
+      return ['ok','true'].includes(this.body.trim());
+    }
+
     public get json(): T {
 
       if (this.entity && typeof this.entity === 'object') {
