@@ -19,7 +19,10 @@ import { interpolateParamsToUrl, isValid, containsModels, getModels } from './pa
 import { Circ } from 'json10';
 //#endregion
 
-
+declare const global: any;
+if (!global['ENV']) {
+  global['ENV'] = {};
+}
 
 export class Resource<E, T, TA> {
 
@@ -159,7 +162,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
     if (url.charAt(url.length - 1) === '/') url = url.slice(0, url.length - 1);
     log.i('url after', url)
     if (Resource.endpoints[e] !== undefined) {
-      if (Resource.enableWarnings) console.warn('Cannot use map function at the same API endpoint again ('
+      !global.hideLog && console.warn('Cannot use map function at the same API endpoint again ('
         + Resource.endpoints[e].url + ')');
       return false;
     }

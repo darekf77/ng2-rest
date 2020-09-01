@@ -19,7 +19,11 @@ import { isUndefined } from 'util';
 import { RequestCache } from './request-cache';
 const log = Log.create('rest-resource', Level.__NOTHING)
 
-const jobIDkey = 'jobID'
+const jobIDkey = 'jobID';
+declare const global: any;
+if (!global['ENV']) {
+  global['ENV'] = {};
+}
 
 //#region mock request
 //#endregion
@@ -38,7 +42,7 @@ export class RestRequest {
     if (isUndefined(options)) {
       options = {} as any;
     }
-    console.log(`[ng2-rest] ${sourceRequest.url}`)
+    !global.hideLog && console.log(`[ng2-rest] ${sourceRequest.url}`);
     const { res, jobid, isArray, method } = options;
     if (typeof res !== 'object') throw new Error('[ng2-rest] No resposnse for request. ')
 
