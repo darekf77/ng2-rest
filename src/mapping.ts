@@ -11,7 +11,7 @@ export namespace Mapping {
     HelpersLog.simulateBrowser = true;
     // console.log('DECODE isBrowser', HelpersLog.isBrowser)
     if (_.isUndefined(json)) {
-      return undefined;
+      return void 0;
     }
 
     let mapping = decodeFromDecorator(_.isArray(json) ? _.first(json) : json, !autodetect)

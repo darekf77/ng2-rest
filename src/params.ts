@@ -73,7 +73,7 @@ export function getRestParams(url: string, pattern: string): Object {
     pattern = pattern.replace(`:${m}`, stars(m.length));
   })
 
-  let currentModel: string = undefined;
+  let currentModel: string = void 0;
   diffChars(pattern, url).forEach(d => {
     log.d('d', d);
     if (d.added) {
@@ -81,7 +81,7 @@ export function getRestParams(url: string, pattern: string): Object {
       else if (d.value.trim() === 'true') res[currentModel] = true;
       else if (d.value.trim() === 'false') res[currentModel] = false;
       else res[currentModel] = decodeURIComponent(d.value);
-      currentModel = undefined;
+      currentModel = void 0;
     }
     let m = d.value.replace(':', "");
     log.d('model m', m)
@@ -105,8 +105,8 @@ function cutUrlModel(params: Object, models: string[], output: string[]) {
   const paramIsPath = regexisPath.test(param)
   log.i('cut param', param)
   let model = m.match(/[a-zA-Z0-9]+\//)[0].replace('\/', '');
-  if (params === undefined ||
-    (paramIsPath ? _.get(params, param) === undefined : params[param] === undefined) ||
+  if (params === void 0 ||
+    (paramIsPath ? _.get(params, param) === void 0 : params[param] === void 0) ||
     param === 'undefined') {
     output.length = 0;
     output.unshift(model)
@@ -216,7 +216,7 @@ export function decodeUrl(url: string): Object {
   }
   let paramsObject = <Object>params;
   for (let p in paramsObject) {
-    if (paramsObject[p] === undefined) {
+    if (paramsObject[p] === void 0) {
       delete paramsObject[p];
       continue;
     }
@@ -234,7 +234,7 @@ export function decodeUrl(url: string): Object {
         try {
           json = JSON.parse(params[p]);
         } catch (error) { }
-        if (json !== undefined) {
+        if (json !== void 0) {
           params[p] = json;
           continue;
         }
@@ -272,18 +272,18 @@ export function getParamsUrl(params: Models.UrlParams[], doNotSerialize: boolean
 
 
       for (let p in paramObject) {
-        if (paramObject[p] === undefined) delete paramObject[p];
+        if (paramObject[p] === void 0) delete paramObject[p];
         if (paramObject.hasOwnProperty(p) && typeof p === 'string' && p !== 'regex' && !(paramObject[p] instanceof RegExp)) {
           if (p.length > 0 && p[0] === '/') {
             let newName = p.slice(1, p.length - 1);
             urlparam[newName] = urlparam[p];
-            urlparam[p] = undefined;
+            urlparam[p] = void 0;
             p = newName;
           }
           if (p.length > 0 && p[p.length - 1] === '/') {
             let newName = p.slice(0, p.length - 2);
             urlparam[newName] = urlparam[p];
-            urlparam[p] = undefined;
+            urlparam[p] = void 0;
             p = newName;
           }
           let v: any = urlparam[p];
@@ -291,7 +291,7 @@ export function getParamsUrl(params: Models.UrlParams[], doNotSerialize: boolean
             urlparam[p] = JSON.stringify(urlparam[p]);
           }
           urlparam[p] = doNotSerialize ? <string>urlparam[p] : encodeURIComponent(<string>urlparam[p]);
-          if (urlparam.regex !== undefined && urlparam.regex instanceof RegExp) {
+          if (urlparam.regex !== void 0 && urlparam.regex instanceof RegExp) {
 
             if (!urlparam.regex.test(<string>urlparam[p])) {
               console.warn(`Data: ${urlparam[p]} incostistent with regex ${urlparam.regex.source}`);

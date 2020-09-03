@@ -41,15 +41,15 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   private _endpointRest: string;
   private get endpoint() {
     let e = this.__meta_endpoint;
-    if (this.restQueryParams !== undefined && this._endpointRest !== undefined
+    if (this.restQueryParams !== void 0 && this._endpointRest !== void 0
       && typeof this._endpointRest === 'string' && this._endpointRest.trim() !== '') e = this._endpointRest;
     return e;
   }
   private restQueryParams: Object;
   public set __rest_endpoint(endpoint) {
     this._endpointRest = endpoint;
-    if (endpoint === undefined) {
-      this.restQueryParams = undefined;
+    if (endpoint === void 0) {
+      this.restQueryParams = void 0;
     } else {
       this.restQueryParams = getRestParams(endpoint, this.__meta_endpoint);
     }
@@ -87,10 +87,10 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   ) {
 
     const modelUrl = this.creatUrl(params, doNotSerializeParams);
-    const body = item ? JSON.stringify(item) : undefined;
+    const body = item ? JSON.stringify(item) : void 0;
     const result = this.request[method.toLowerCase()](modelUrl, body, this.headers, this.meta, isArray, this.mockHttp);
     this._headers = RestHeaders.from(DEFAULT_HEADERS);
-    this.mockHttp = undefined;
+    this.mockHttp = void 0;
     return result;
   }
   //#endregion
@@ -104,11 +104,11 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   //#endregion
 
   array = {
-    get: (params: Models.UrlParams[] = undefined, doNotSerializeParams?: boolean): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
-      return this.req('get', undefined, params, doNotSerializeParams, true) as any
+    get: (params: Models.UrlParams[] = void 0, doNotSerializeParams?: boolean): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
+      return this.req('get', void 0, params, doNotSerializeParams, true) as any
     },
-    head: (params: Models.UrlParams[] = undefined, doNotSerializeParams?: boolean): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
-      return this.req('head', undefined, params, doNotSerializeParams, true) as any
+    head: (params: Models.UrlParams[] = void 0, doNotSerializeParams?: boolean): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
+      return this.req('head', void 0, params, doNotSerializeParams, true) as any
     },
     post: (item: TA, params?: Models.UrlParams[], doNotSerializeParams?: boolean): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
       return this.req('post', item as any, params, doNotSerializeParams, true) as any;
@@ -120,19 +120,19 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
       return this.req('patch', item as any, params, doNotSerializeParams, true) as any;
     },
     delete: (params?: Models.UrlParams[], doNotSerializeParams?: boolean): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
-      return this.req('delete', undefined, params, doNotSerializeParams, true) as any;
+      return this.req('delete', void 0, params, doNotSerializeParams, true) as any;
     },
     jsonp: (params?: Models.UrlParams[], doNotSerializeParams?: boolean): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
-      return this.req('jsonp', undefined, params, doNotSerializeParams, true) as any;
+      return this.req('jsonp', void 0, params, doNotSerializeParams, true) as any;
     }
   }
 
   get(params?: Models.UrlParams[], doNotSerializeParams: boolean = false): Models.PromiseObservableMix<Models.HttpResponse<T>> {
-    return this.req('get', undefined, params, doNotSerializeParams) as any;
+    return this.req('get', void 0, params, doNotSerializeParams) as any;
   }
 
   head(params?: Models.UrlParams[], doNotSerializeParams: boolean = false): Models.PromiseObservableMix<Models.HttpResponse<T>> {
-    return this.req('head', undefined, params, doNotSerializeParams) as any;
+    return this.req('head', void 0, params, doNotSerializeParams) as any;
   }
 
   post(item: T, params?: Models.UrlParams[], doNotSerializeParams: boolean = false): Models.PromiseObservableMix<Models.HttpResponse<T>> {
@@ -148,11 +148,11 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   }
 
   delete(params?: Models.UrlParams[], doNotSerializeParams: boolean = false): Models.PromiseObservableMix<Models.HttpResponse<T>> {
-    return this.req('delete', undefined, params, doNotSerializeParams);
+    return this.req('delete', void 0, params, doNotSerializeParams);
   }
 
   jsonp(params?: Models.UrlParams[], doNotSerializeParams: boolean = false): Models.PromiseObservableMix<Models.HttpResponse<T>> {
-    return this.req('jsonp', undefined, params, doNotSerializeParams);
+    return this.req('jsonp', void 0, params, doNotSerializeParams);
   }
   //#endregion
 

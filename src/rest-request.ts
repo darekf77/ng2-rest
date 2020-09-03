@@ -163,9 +163,9 @@ export class RestRequest {
       const error = (catchedError && catchedError.response) ? `[${catchedError.response.statusText}]: ` : '';
       this.handlerResult({
         res: {
-          code: (catchedError && catchedError.response) ? catchedError.response.status as any : undefined,
+          code: (catchedError && catchedError.response) ? catchedError.response.status as any : void 0,
           error: `${error}${catchedError.message}`,
-          data: (catchedError && catchedError.response) ? JSON.stringify(catchedError.response.data) : undefined,
+          data: (catchedError && catchedError.response) ? JSON.stringify(catchedError.response.data) : void 0,
           isArray,
           jobid,
           headers: RestHeaders.from(catchedError && catchedError.response && catchedError.response.headers)
@@ -196,7 +196,7 @@ export class RestRequest {
       log.i(`[getSubject][recreate] (${meta.endpoint})(${meta.path})(${method}) `);
       this.replaySubjects[meta.endpoint][meta.path][method] = <Models.ReplayData>{
         subject: new Subject(),
-        data: undefined,
+        data: void 0,
       };
     }
     const replay: Models.ReplayData = this.replaySubjects[meta.endpoint][meta.path][method];

@@ -87,7 +87,7 @@ export class Resource<E, T, TA> {
   public static getModel(endpoint: string, model: string): Rest<any> {
     model = Resource.prepareModel(model);
     const e = Resource.endpoints[endpoint];
-    if (!e) return undefined;
+    if (!e) { return void 0; }
     const r = Resource.endpoints[endpoint].models[model];
     return Resource.endpoints[endpoint].models[model];
   }
@@ -161,7 +161,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
     }
     if (url.charAt(url.length - 1) === '/') url = url.slice(0, url.length - 1);
     log.i('url after', url)
-    if (Resource.endpoints[e] !== undefined) {
+    if (Resource.endpoints[e] !== void 0) {
       !global.hideLog && console.warn('Cannot use map function at the same API endpoint again ('
         + Resource.endpoints[e].url + ')');
       return false;
@@ -198,11 +198,11 @@ Instead use nested approach:            /book/:bookid/author/:authorid
     let e: string;
     e = <string>(endpoint).toString();
 
-    if (Resource.endpoints[e] === undefined) {
+    if (Resource.endpoints[e] === void 0) {
       console.error('Endpoint is not mapped ! Cannot add model ' + model);
       return;
     }
-    if (Resource.endpoints[e].models[model] !== undefined) {
+    if (Resource.endpoints[e].models[model] !== void 0) {
       if (Resource.enableWarnings) console.warn(`Model '${model}' is already defined in endpoint: `
         + Resource.endpoints[e].url);
       return;
@@ -231,14 +231,14 @@ Instead use nested approach:            /book/:bookid/author/:authorid
 
     if (model.charAt(0) === '/') model = model.slice(1, model.length);
     let e = <string>(endpoint).toString();
-    if (Resource.endpoints[e] === undefined) {
+    if (Resource.endpoints[e] === void 0) {
       throw `Endpoint: ${<any>endpoint} is not mapped ! Cannot add model: ${model}`;
     }
     let allModels: Object = Resource.endpoints[e].models;
     let orgModel = model;
     model = this.checkNestedModels(model, allModels);
 
-    if (Resource.endpoints[e].models[model] === undefined) {
+    if (Resource.endpoints[e].models[model] === void 0) {
       log.d('Resource.endpoints', Resource.endpoints);
       throw `Model '${model}' is undefined in endpoint: ${Resource.endpoints[e].url} `;
     }
@@ -251,7 +251,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
       log.d('baseUrl', baseUrl)
       log.d('orgModel', orgModel)
       res.__rest_endpoint = `${baseUrl}/${orgModel}`;
-    } else res.__rest_endpoint = undefined;
+    } else res.__rest_endpoint = void 0;
 
     return res;
   }
