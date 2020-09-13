@@ -35,7 +35,7 @@
     }
   },
   "name": "ng2-rest",
-  "version": "10.0.4",
+  "version": "11.0.1",
   "scripts": {
     "build:watch": "npm-run watch \"morphi build\" src"
   },
@@ -260,7 +260,7 @@
     "json5": "^0.5.1",
     "lodash": "^4.17.4",
     "lodash-walk-object": "1.0.1",
-    "ng2-logger": "3.0.12",
+    "ng2-logger": "3.0.13",
     "typescript-class-helpers": "1.0.3"
   },
   "license": "MIT",

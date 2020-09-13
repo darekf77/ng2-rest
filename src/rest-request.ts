@@ -42,7 +42,7 @@ export class RestRequest {
     if (isUndefined(options)) {
       options = {} as any;
     }
-    !global.hideLog && console.log(`[ng2-rest] ${sourceRequest.url}`);
+    log.d(`[ng2-rest] ${sourceRequest.url}`);
     const { res, jobid, isArray, method } = options;
     if (typeof res !== 'object') throw new Error('[ng2-rest] No resposnse for request. ')
 
