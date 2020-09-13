@@ -35,7 +35,7 @@
     }
   },
   "name": "ng2-rest",
-  "version": "11.0.1",
+  "version": "11.0.2",
   "scripts": {
     "build:watch": "npm-run watch \"morphi build\" src"
   },
@@ -191,7 +191,7 @@
     "morphi": "3.1.14",
     "ng-packagr": "^5.7.1",
     "ng2-file-upload": "^1.3.0",
-    "ng2-rest": "10.0.4",
+    "ng2-rest": "11.0.1",
     "ngx-bootstrap": "^5.2.0",
     "ngx-breadcrumbs": "0.0.3",
     "ngx-editor": "^4.1.0",
@@ -261,7 +261,7 @@
     "lodash": "^4.17.4",
     "lodash-walk-object": "1.0.1",
     "ng2-logger": "3.0.13",
-    "typescript-class-helpers": "1.0.3"
+    "typescript-class-helpers": "1.0.4"
   },
   "license": "MIT",
   "private": false
