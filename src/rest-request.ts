@@ -17,7 +17,9 @@ import { Resource } from './resource.service';
 import { Log, Logger } from 'ng2-logger';
 import { isUndefined } from 'util';
 import { RequestCache } from './request-cache';
-const log = Log.create('rest-resource', Level.__NOTHING)
+const log = Log.create('rest-resource'
+  , Level.__NOTHING
+)
 
 const jobIDkey = 'jobID';
 declare const global: any;
@@ -71,7 +73,7 @@ export class RestRequest {
       this.subjectInuUse[jobid].next(existedInCache);
       return true;
     }
-    log.i('cache not exists', existedInCache)
+    log.i('cache not exists')
     return false;
   }
 
@@ -118,7 +120,7 @@ export class RestRequest {
 
     try {
       if (!response) {
-        // console.log(`[ng2-rest] ${method} request to:  ${url}`)
+        log.d(`[ng2-rest][${method}]request to:  ${url}`)
         response = await axios({
           url,
           method,
@@ -126,6 +128,7 @@ export class RestRequest {
           responseType: 'text',
           headers: headers.toJSON()
         })
+        log.d(`after response`);
       }
 
       this.handlerResult({
