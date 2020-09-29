@@ -20,9 +20,7 @@ import { Circ } from 'json10';
 //#endregion
 
 declare const global: any;
-if (!global['ENV']) {
-  global['ENV'] = {};
-}
+
 
 export class Resource<E, T, TA> {
 

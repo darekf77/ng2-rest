@@ -23,9 +23,7 @@ const log = Log.create('rest-resource'
 
 const jobIDkey = 'jobID';
 declare const global: any;
-if (!global['ENV']) {
-  global['ENV'] = {};
-}
+
 
 //#region mock request
 //#endregion

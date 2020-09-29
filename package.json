@@ -235,6 +235,7 @@
     "tnp-db": "0.0.10",
     "tnp-helpers": "0.0.8",
     "tnp-models": "0.0.9",
+    "tnp-ui": "0.0.2",
     "ts-loader": "7.0.4",
     "ts-node": "~8.3.0",
     "tsickle": "^0.26.0",
