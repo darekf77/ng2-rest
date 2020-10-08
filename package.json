@@ -232,6 +232,7 @@
     "svg-png-converter": "0.0.9",
     "systeminformation": "^3.45.7",
     "task.js": "^0.1.5",
+    "tnp-config": "0.0.3",
     "tnp-db": "0.0.10",
     "tnp-helpers": "0.0.8",
     "tnp-models": "0.0.9",
