@@ -35,7 +35,7 @@
     }
   },
   "name": "ng2-rest",
-  "version": "11.0.2",
+  "version": "11.0.3",
   "scripts": {
     "build:watch": "npm-run watch \"morphi build\" src"
   },
@@ -232,7 +232,7 @@
     "svg-png-converter": "0.0.9",
     "systeminformation": "^3.45.7",
     "task.js": "^0.1.5",
-    "tnp-config": "0.0.3",
+    "tnp-config": "0.0.4",
     "tnp-db": "0.0.10",
     "tnp-helpers": "0.0.8",
     "tnp-models": "0.0.9",
@@ -263,7 +263,7 @@
     "lodash": "^4.17.4",
     "lodash-walk-object": "1.0.1",
     "ng2-logger": "3.0.13",
-    "typescript-class-helpers": "1.0.4"
+    "typescript-class-helpers": "1.0.5"
   },
   "license": "MIT",
   "private": false
