@@ -197,6 +197,7 @@
     "ngx-editor": "^4.1.0",
     "ngx-moment": "^3.5.0",
     "ngx-pipes": "^2.6.0",
+    "ngx-store": "2.1.0",
     "ngx-toastr": "^11.2.1",
     "ngx-wig": "^8.0.0",
     "node-notifier": "^6.0.0",
