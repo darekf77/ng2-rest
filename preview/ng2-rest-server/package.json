@@ -151,7 +151,7 @@
     "sort-package-json": "^1.11.0",
     "sqlite3": "4.0.9",
     "sw-toolbox": "^3.6.0",
-    "systeminformation": "^3.45.7",
+    "systeminformation": "^4.27.11",
     "ts-loader": "^2.3.1",
     "tsickle": "^0.26.0",
     "typeorm": "0.2.7",
