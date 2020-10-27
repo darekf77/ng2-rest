@@ -218,7 +218,7 @@
     "style-loader": "^0.13.1",
     "stylus-loader": "^3.0.1",
     "sw-toolbox": "^3.6.0",
-    "systeminformation": "^3.45.7",
+    "systeminformation": "^4.27.11",
     "ts-loader": "^2.3.1",
     "ts-node": "^7.0.1",
     "tsickle": "^0.26.0",
