@@ -4,7 +4,7 @@ import { Log, Level } from 'ng2-logger';
 import { Models } from './models';
 import { Helpers } from './helpers';
 
-const log = Log.create('ng2-rest params', Level.__NOTHING)
+const log = Log.create('[ng2-rest] params', Level.__NOTHING)
 
 
 
@@ -15,7 +15,7 @@ export function isValid(pattern: string) {
 
 export function check(url: string, pattern: string): boolean {
   if (!Helpers.checkValidUrl(url)) {
-    console.error(`[ng2-rest] Incorrect url: ${url}`);
+    log.error(`Incorrect url: ${url}`);
     return false;
   }
   if (url.charAt(url.length - 1) === '/') url = url.slice(0, url.length - 2);
@@ -43,9 +43,9 @@ export function containsModels(url: string, models: string[]): boolean {
   // url = url.replace(new RegExp('\/', 'g'), '');
   let res = models.filter(m => {
     let word = '/' + m;
-    log.d('word', word)
+    // log.d('word', word)
     let iii = url.indexOf(word);
-    log.d('iii', iii)
+    // log.d('iii', iii)
     if (iii + word.length < url.length && url.charAt(iii + word.length) !== '/') {
       return false;
     }
@@ -55,7 +55,7 @@ export function containsModels(url: string, models: string[]): boolean {
     }
     return false;
   }).length;
-  log.d('containsModels', res);
+  // log.d('containsModels', res);
   return res === models.length;
 }
 
@@ -68,14 +68,14 @@ export function stars(n: number): string {
 export function getRestParams(url: string, pattern: string): Object {
   let res = {};
   let models = getRestPramsNames(pattern);
-  log.d('models', models);
+  // log.d('models', models);
   models.forEach(m => {
     pattern = pattern.replace(`:${m}`, stars(m.length));
   })
 
   let currentModel: string = void 0;
   diffChars(pattern, url).forEach(d => {
-    log.d('d', d);
+    // log.d('d', d);
     if (d.added) {
       if (!isNaN(Number(d.value))) res[currentModel] = Number(d.value);
       else if (d.value.trim() === 'true') res[currentModel] = true;
@@ -84,7 +84,7 @@ export function getRestParams(url: string, pattern: string): Object {
       currentModel = void 0;
     }
     let m = d.value.replace(':', "");
-    log.d('model m', m)
+    // log.d('model m', m)
     if (d.removed) {
       currentModel = models.shift();
     }
@@ -103,7 +103,7 @@ function cutUrlModel(params: Object, models: string[], output: string[]) {
 
   let param = m.match(/:[a-zA-Z0-9\.]+/)[0].replace(':', '');
   const paramIsPath = regexisPath.test(param)
-  log.i('cut param', param)
+  // log.i('cut param', param)
   let model = m.match(/[a-zA-Z0-9]+\//)[0].replace('\/', '');
   if (params === void 0 ||
     (paramIsPath ? _.get(params, param) === void 0 : params[param] === void 0) ||
@@ -113,12 +113,12 @@ function cutUrlModel(params: Object, models: string[], output: string[]) {
     return cutUrlModel(params, models, output);
   } else {
     if (paramIsPath) {
-      log.i('param is path', param)
+      // log.i('param is path', param)
       let mrep = m.replace(new RegExp(`:${param}`, 'g'), `${_.get(params, param)}`)
       output.unshift(mrep)
       return cutUrlModel(params, models, output);
     } else {
-      log.i('param is normal', param)
+      // log.i('param is normal', param)
       let mrep = m.replace(new RegExp(`:${param}`, 'g'), `${params[param]}`)
       output.unshift(mrep)
       return cutUrlModel(params, models, output);

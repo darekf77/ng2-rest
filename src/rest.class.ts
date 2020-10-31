@@ -70,7 +70,7 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   constructor(
     endpoint: string,
     private request: RestRequest,
-    private meta: { path: string, endpoint: string; entity: Mapping.Mapping, circular: Circ[] }
+    private meta: Models.MetaRequest,
   ) {
     this.__meta_endpoint = endpoint;
 
@@ -88,7 +88,14 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
 
     const modelUrl = this.creatUrl(params, doNotSerializeParams);
     const body = item ? JSON.stringify(item) : void 0;
-    const result = this.request[method.toLowerCase()](modelUrl, body, this.headers, this.meta, isArray, this.mockHttp);
+    const result = this.request[method.toLowerCase()](
+      modelUrl,
+      body,
+      this.headers,
+      this.meta,
+      isArray,
+      this.mockHttp
+    );
     this._headers = RestHeaders.from(DEFAULT_HEADERS);
     this.mockHttp = void 0;
     return result;

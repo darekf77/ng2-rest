@@ -17,7 +17,7 @@ import { Resource } from './resource.service';
 import { Log, Logger } from 'ng2-logger';
 import { isUndefined } from 'util';
 import { RequestCache } from './request-cache';
-const log = Log.create('rest-resource'
+const log = Log.create('[ng2-rest] rest-request'
   , Level.__NOTHING
 )
 
@@ -37,14 +37,22 @@ export class RestRequest {
   private subjectInuUse: { [id: number]: Subject<any> } = {};
   private meta: { [id: number]: Models.MetaRequest } = {};
 
+
   private handlerResult(options: Models.HandleResultOptions,
     sourceRequest: Models.HandleResultSourceRequestOptions) {
     if (isUndefined(options)) {
       options = {} as any;
     }
-    log.d(`[ng2-rest] ${sourceRequest.url}`);
+    // log.d(`HANDLE RESULT (jobid:${options.jobid}) ${sourceRequest.url}`);
     const { res, jobid, isArray, method } = options;
-    if (typeof res !== 'object') throw new Error('[ng2-rest] No resposnse for request. ')
+    // if (this.endedJobs[jobid]) {
+    //   debugger
+    // }
+    // this.endedJobs[jobid] = true;
+    // log.i(`handle jobid ${jobid}`)
+    if (typeof res !== 'object') {
+      throw new Error('No resposnse for request. ');
+    }
 
     if (Helpers.isBrowser) {
       res.headers = RestHeaders.from(res.headers);
@@ -52,16 +60,16 @@ export class RestRequest {
 
     // error no internet
     if (res.error) {
-      this.subjectInuUse[jobid].error(new Models.HttpResponseError(res.error, res.data, res.headers, res.code))
+      this.subjectInuUse[jobid].error(new Models.HttpResponseError(res.error, res.data, res.headers, res.code, jobid));
       return;
     }
     const entity = this.meta[jobid].entity;
-    const circular = this.meta[jobid].circular
+    const circular = this.meta[jobid].circular;
 
-    // normal request case
     this.subjectInuUse[jobid].next(
-      new Models.HttpResponse(sourceRequest, res.data, res.headers, res.code, entity, circular, isArray)
-    )
+      new Models.HttpResponse(sourceRequest, res.data, res.headers, res.code, entity, circular, jobid, isArray)
+    );
+    this.meta[jobid] = void 0;
     return;
   }
   checkCache(sourceRequest: Models.HandleResultSourceRequestOptions, jobid: number) {
@@ -71,7 +79,7 @@ export class RestRequest {
       this.subjectInuUse[jobid].next(existedInCache);
       return true;
     }
-    log.i('cache not exists')
+    // log.i(`cache not exists for jobid ${jobid}`)
     return false;
   }
 
@@ -118,7 +126,7 @@ export class RestRequest {
 
     try {
       if (!response) {
-        log.d(`[ng2-rest][${method}]request to:  ${url}`)
+        log.d(`[${method}] (jobid=${jobid}) request to:  ${url}`)
         response = await axios({
           url,
           method,
@@ -126,7 +134,7 @@ export class RestRequest {
           responseType: 'text',
           headers: headers.toJSON()
         })
-        log.d(`after response`);
+        // log.d(`after response of jobid: ${jobid}`);
       }
 
       this.handlerResult({
@@ -183,40 +191,69 @@ export class RestRequest {
     }
   }
 
-  private getSubject(method: Models.HttpMethod, meta: Models.MetaRequest): Models.ReplayData {
+  private getReplay(method: Models.HttpMethod, meta: Models.MetaRequest, onlyGetLastReplayForMethod: boolean): Models.ReplayData {
+    let replay: Models.ReplayData;
+
+    //#region prevent empty tree
     if (_.isUndefined(this.replaySubjects[meta.endpoint])) {
-      log.i(`[getSubject][recreate] (${meta.endpoint}) `);
+      // log.i(`(${meta.endpoint}) `);
       this.replaySubjects[meta.endpoint] = {};
     }
     if (_.isUndefined(this.replaySubjects[meta.endpoint][meta.path])) {
-      log.i(`[getSubject][recreate] (${meta.endpoint})(${meta.path}) `);
+      // log.i(`(${meta.endpoint})(${meta.path}) `);
       this.replaySubjects[meta.endpoint][meta.path] = {};
     }
-
     if (_.isUndefined(this.replaySubjects[meta.endpoint][meta.path][method])) {
-      log.i(`[getSubject][recreate] (${meta.endpoint})(${meta.path})(${method}) `);
-      this.replaySubjects[meta.endpoint][meta.path][method] = <Models.ReplayData>{
+      // log.i(`(${meta.endpoint})(${meta.path}) `);
+      this.replaySubjects[meta.endpoint][meta.path][method] = {};
+    }
+    //#endregion
+
+    const objectIDToCreateOrLast = (Object.keys(this.replaySubjects[meta.endpoint][meta.path][method] as Object).length) +
+      (onlyGetLastReplayForMethod ? 0 : 1);
+    if (onlyGetLastReplayForMethod && (objectIDToCreateOrLast === 0)) {
+      return replay;
+    }
+
+    if (_.isUndefined(this.replaySubjects[meta.endpoint][meta.path][method][objectIDToCreateOrLast])) {
+      // log.i(`(${meta.endpoint})(${meta.path})(${method}) `);
+      this.replaySubjects[meta.endpoint][meta.path][method][objectIDToCreateOrLast] = <Models.ReplayData>{
         subject: new Subject(),
         data: void 0,
       };
     }
-    const replay: Models.ReplayData = this.replaySubjects[meta.endpoint][meta.path][method];
 
-    const id: number = RestRequest.jobId++;
-    replay.id = id;
+    replay = this.replaySubjects[meta.endpoint][meta.path][method][objectIDToCreateOrLast];
 
-    const subject: Subject<any> = replay.subject;
-    subject[jobIDkey] = id;
+    if (!_.isNumber(replay.id)) {
+      const jobid: number = RestRequest.jobId++;
+      replay.id = jobid;
+      const subject: Subject<any> = replay.subject;
+      subject[jobIDkey] = jobid; // modify internal rxjs subject obj
 
-    this.meta[id] = meta;
-    this.subjectInuUse[id] = subject;
+      this.meta[jobid] = meta;
+      this.subjectInuUse[jobid] = subject;
+
+      //#region DISPOSE  @UNCOMMENT AFTER TESTS
+      // if (objectIDToCreateOrLast > 2) {
+      //   const oldReq: Models.ReplayData = this.replaySubjects[meta.endpoint][meta.path][method][(objectIDToCreateOrLast - 2)];
+      //   if (_.isUndefined(this.meta[oldReq.id])) {
+      //     // cant delete this - for counter purpose
+      //     this.replaySubjects[meta.endpoint][meta.path][method][(objectIDToCreateOrLast - 2)] = {};
+      //     delete this.subjectInuUse[oldReq.id];
+      //     delete this.meta[oldReq.id];
+      //   }
+      // }
+      //#endregion
+    }
+
     return replay;
   }
 
 
   //#region http methods
 
-  private metaReq(
+  private generalReq(
     method: Models.HttpMethod,
     url: string,
     body: string,
@@ -225,9 +262,14 @@ export class RestRequest {
     isArray: boolean,
     mockHttp: Models.MockHttp): Models.PromiseObservableMix<any> {
 
-    const replay: Models.ReplayData = this.getSubject(method, meta);
+    const replay: Models.ReplayData = this.getReplay(method, meta, false);
     replay.data = { url, body, headers, isArray };
-    setTimeout(() => this.req(url, method, headers, body, replay.id, isArray, mockHttp))
+
+    ((pthis, purl, pmethod, pheaders, pbody, pid, pisArray, pmockHttp) => {
+      // log.d(`for ${purl} jobid ${pid}`);
+      setTimeout(() => pthis.req(purl, pmethod, pheaders, pbody, pid, pisArray, pmockHttp));
+    })(this, url, method, headers, body, replay.id, isArray, mockHttp)
+
     const resp: Models.PromiseObservableMix<any> = replay.subject.asObservable().take(1).toPromise() as any;
     resp.observable = replay.subject.asObservable();
     resp.cache = RequestCache.findBy({
@@ -246,7 +288,7 @@ export class RestRequest {
     meta: Models.MetaRequest,
     isArray: boolean, mockHttp: Models.MockHttp
   ): Models.PromiseObservableMix<any> {
-    return this.metaReq('get', url, body, headers, meta, isArray, mockHttp);
+    return this.generalReq('get', url, body, headers, meta, isArray, mockHttp);
   }
 
   head(
@@ -256,7 +298,7 @@ export class RestRequest {
     meta: Models.MetaRequest,
     isArray: boolean, mockHttp: Models.MockHttp
   ): Models.PromiseObservableMix<any> {
-    return this.metaReq('head', url, body, headers, meta, isArray, mockHttp);
+    return this.generalReq('head', url, body, headers, meta, isArray, mockHttp);
   }
 
   delete(
@@ -266,7 +308,7 @@ export class RestRequest {
     meta: Models.MetaRequest,
     isArray: boolean,
     mockHttp: Models.MockHttp): Models.PromiseObservableMix<any> {
-    return this.metaReq('delete', url, body, headers, meta, isArray, mockHttp);
+    return this.generalReq('delete', url, body, headers, meta, isArray, mockHttp);
   }
 
   post(
@@ -277,7 +319,7 @@ export class RestRequest {
     isArray: boolean,
     mockHttp: Models.MockHttp
   ): Models.PromiseObservableMix<any> {
-    return this.metaReq('post', url, body, headers, meta, isArray, mockHttp);
+    return this.generalReq('post', url, body, headers, meta, isArray, mockHttp);
   }
 
   put(
@@ -288,7 +330,7 @@ export class RestRequest {
     isArray: boolean,
     mockHttp: Models.MockHttp
   ): Models.PromiseObservableMix<any> {
-    return this.metaReq('put', url, body, headers, meta, isArray, mockHttp);
+    return this.generalReq('put', url, body, headers, meta, isArray, mockHttp);
   }
 
   patch(
@@ -299,7 +341,7 @@ export class RestRequest {
     isArray: boolean,
     mockHttp: Models.MockHttp
   ): Models.PromiseObservableMix<any> {
-    return this.metaReq('patch', url, body, headers, meta, isArray, mockHttp);
+    return this.generalReq('patch', url, body, headers, meta, isArray, mockHttp);
   }
 
   jsonp(
@@ -311,7 +353,7 @@ export class RestRequest {
     mockHttp: Models.MockHttp
   ): Models.PromiseObservableMix<any> {
 
-    const replay: Models.ReplayData = this.getSubject('jsonp', meta);
+    const replay: Models.ReplayData = this.getReplay('jsonp', meta, false);
     const jobid = replay.id;
     const method = 'jsonp'
     setTimeout(() => {
@@ -360,13 +402,13 @@ export class RestRequest {
   //#endregion
   private replaySubjects = {};
   public replay(method: Models.HttpMethod, meta: Models.MetaRequest) {
-    const replay: Models.ReplayData = this.getSubject(method, meta);
-    if (!replay.data) {
+    const replay: Models.ReplayData = this.getReplay(method, meta, true);
+    if (!replay || !replay.data) {
       console.warn(`Canno replay first ${method} request from ${meta.endpoint}/${meta.path}`);
       return;
     };
     if (replay && replay.subject && Array.isArray(replay.subject.observers) &&
-      replay.subject.observers.length == 0) {
+      replay.subject.observers.length === 0) {
       console.warn(`No observators for ${method} request from ${meta.endpoint}/${meta.path}`);
       return;
     }

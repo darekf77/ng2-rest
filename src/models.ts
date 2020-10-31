@@ -45,7 +45,12 @@ export namespace Models {
     data: any;
   }
 
-  export type MetaRequest = { path: string, endpoint: string; entity: Mapping.Mapping; circular: Circ[] }
+  export type MetaRequest = {
+    path: string,
+    endpoint: string;
+    entity: Mapping.Mapping;
+    circular: Circ[];
+  }
   export type HttpCode = 200 | 400 | 401 | 404 | 500;
 
   export type PromiseObservableMix<T> = Promise<T> & {
@@ -55,7 +60,14 @@ export namespace Models {
 
   export type MethodWithoutBody<E, T, R = PromiseObservableMix<E>> = (params?: UrlParams[], doNotSerializeParams?: boolean) => R
   export type MethodWithBody<E, T, R = PromiseObservableMix<E>> = (item?: T, params?: UrlParams[], doNotSerializeParams?: boolean) => R
-  export type ReplayData = { subject: Subject<any>, data: { url: string, body: string, headers: RestHeaders, isArray: boolean; }, id: number; };
+  export type ReplayData = {
+    subject: Subject<any>,
+    data: { url: string, body: string, headers: RestHeaders, isArray: boolean; },
+    /**
+     * jobid
+     */
+    id: number;
+  };
   export type ReqParams = { url: string, method: HelpersModels.HttpMethod, headers?: RestHeaders, body?: any, jobid: number, isArray: boolean };
 
   export interface ResourceModel<A, TA> {
@@ -127,7 +139,7 @@ export namespace Models {
     }
 
     public get booleanValue() {
-      return ['ok','true'].includes(this.body.trim());
+      return ['ok', 'true'].includes(this.body.trim());
     }
 
     public get json(): T {
@@ -190,6 +202,7 @@ export namespace Models {
       public statusCode?: HttpCode | number,
       public entity?: Mapping.Mapping,
       public circular?: Circ[],
+      public jobid?: number,
       public isArray = false,
     ) {
       super(responseText, headers, statusCode, isArray);
@@ -233,7 +246,8 @@ export namespace Models {
       public message: string,
       responseText?: string,
       headers?: RestHeaders,
-      statusCode?: HttpCode | number
+      statusCode?: HttpCode | number,
+      public jobid?: number,
     ) {
       super(responseText, headers, statusCode);
       this.body = new ErrorBody(responseText)

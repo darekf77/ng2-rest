@@ -15,7 +15,7 @@ export class RequestCache {
   private static isRestoredFromLocalStorage = false;
 
   private static restoreFromLocalStorage() {
-    if(Helpers.isNode) {
+    if (Helpers.isNode) {
       return;
     }
     if (!RequestCache.isRestoredFromLocalStorage) {
@@ -38,6 +38,7 @@ export class RequestCache {
             statusCode,
             entity,
             circular,
+            -1, // jobid from local storage TODO
             isArray,
           );
           r = new RequestCache(r.response);

@@ -7,7 +7,9 @@ import 'rxjs/add/operator/take';
 import 'rxjs/add/operator/toPromise';
 
 import { Log, Level } from 'ng2-logger';
-const log = Log.create('resouce-service', Level.__NOTHING)
+const log = Log.create('resouce-service',
+  Level.__NOTHING
+)
 
 import { Rest } from './rest.class';
 import { RestRequest } from './rest-request';
@@ -226,7 +228,12 @@ Instead use nested approach:            /book/:bookid/author/:authorid
    * @returns {Rest<T, TA>}
    */
   private api(endpoint: E, model: string): Rest<T, TA> {
+    // log.i(`[api]
 
+    // creating for endpoint: "${endpoint}"
+    // model: "${model}"
+
+    // `)
     if (model.charAt(0) === '/') model = model.slice(1, model.length);
     let e = <string>(endpoint).toString();
     if (Resource.endpoints[e] === void 0) {
@@ -237,20 +244,28 @@ Instead use nested approach:            /book/:bookid/author/:authorid
     model = this.checkNestedModels(model, allModels);
 
     if (Resource.endpoints[e].models[model] === void 0) {
-      log.d('Resource.endpoints', Resource.endpoints);
+      // log.d('Resource.endpoints', Resource.endpoints);
       throw `Model '${model}' is undefined in endpoint: ${Resource.endpoints[e].url} `;
     }
 
     let res: Rest<T, TA> = Resource.endpoints[<string>(endpoint).toString()].models[model];
 
+    // log.d(`
+    // orgModel: ${orgModel}
+    // model: ${model}
+
+    // `)
     if (orgModel !== model) {
       let baseUrl = Resource.endpoints[<string>(endpoint).toString()].url;
-      log.d('base', Resource.endpoints[<string>(endpoint).toString()])
-      log.d('baseUrl', baseUrl)
-      log.d('orgModel', orgModel)
+      // log.d('base', Resource.endpoints[<string>(endpoint).toString()])
+      // log.d('baseUrl', baseUrl)
+      // log.d('orgModel', orgModel)
       res.__rest_endpoint = `${baseUrl}/${orgModel}`;
-    } else res.__rest_endpoint = void 0;
+    } else {
+      res.__rest_endpoint = void 0;
+    };
 
+    // log.i(`Resource.endpoints`, Resource.endpoints)
     return res;
   }
   //#endregion
