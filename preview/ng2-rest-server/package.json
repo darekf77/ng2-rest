@@ -2,6 +2,7 @@
   "tnp": {
     "resources": [],
     "type": "isomorphic-lib",
+    "version": "v2",
     "overrided": {
       "ignoreDepsPattern": [],
       "includeAsDev": [],
@@ -20,9 +21,6 @@
   "version": "0.0.0",
   "license": "MIT",
   "private": false,
-  "scripts": {
-    "start": "ts-node src/index.ts"
-  },
   "dependencies": {
     "@angular-devkit/build-optimizer": "^0.3.1",
     "@angular-devkit/schematics": "^0.0.42",

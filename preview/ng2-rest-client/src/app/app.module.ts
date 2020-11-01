@@ -1,4 +1,6 @@
 declare const require: any;
+import hljs from 'highlight.js';
+
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
@@ -6,11 +8,15 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import {
   MatCheckboxModule,
-  MatSnackBarModule,
-  MatButtonModule,
-  MatCardModule,
-  MatTabsModule
-} from '@angular/material';
+
+} from '@angular/material/checkbox';
+
+
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatTabsModule } from '@angular/material/tabs';
+
 import { NgModule } from '@angular/core';
 import { NoContentComponent } from './no-content';
 import { HighlightCodeDirective } from './code-highlight.directive';

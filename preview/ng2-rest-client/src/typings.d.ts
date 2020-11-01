@@ -1,4 +1,5 @@
-import { EnvConfig } from 'tnp-bundle/browser';
+import { Models } from 'tnp-models/browser';
+export type EnvConfig = Models.env.EnvConfig;
 
 declare global {
     const ENV: EnvConfig;

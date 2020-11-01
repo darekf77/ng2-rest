@@ -2,28 +2,29 @@ import {
   Component, NgZone,
   OnInit, OnDestroy
 } from '@angular/core';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Preview, PreviewBase } from '../base-preview';
-
+import * as _ from 'lodash';
 declare const require: any;
 
+import { CLASS } from 'typescript-class-helpers';
 import { Subscription } from 'rxjs/Subscription';
-import { Resource, CLASSNAME } from 'ng2-rest';
+import { Resource } from 'ng2-rest';
 
-@CLASSNAME.CLASSNAME('Author')
+@CLASS.NAME('Author')
 class Author {
   age: number;
   user: User;
   friends: User[];
 }
 
-@CLASSNAME.CLASSNAME('Book')
+@CLASS.NAME('Book')
 class Book {
   title: string;
   author: Author;
 }
 
-@CLASSNAME.CLASSNAME('User')
+@CLASS.NAME('User')
 class User {
   name: string;
   friend: Author;
@@ -32,10 +33,11 @@ class User {
 
 // initEntities([Author, Book, User]);
 
+const port = ENV.workspace.projects.find(p => p.name === 'ng2-rest-server').port;
 
-const rest = Resource.create('https://demo9781896.mockable.io', 'users', { '_': User });
-const rest2 = Resource.create('https://demo9781896.mockable.io/', 'author/:authorid/book/:bookid');
-const rest3 = Resource.create('http://localhost:3000', 'users');
+// const rest = Resource.create('https://demo9781896.mockable.io', 'users', { '_': User });
+// const rest2 = Resource.create('https://demo9781896.mockable.io/', 'author/:authorid/book/:bookid');
+const rest3 = Resource.create(`http://localhost:${port}`, 'users');
 
 
 
@@ -48,15 +50,15 @@ export class Demo2Component extends PreviewBase implements OnDestroy {
   constructor(private snackBar: MatSnackBar, zone: NgZone) {
     super(); this.preview(); // ###
 
-    rest.model({
-      test: 11
-    }).array.get().observable.subscribe(data => {
-      console.log(data.body.json);
-      // console.log(JSON.stringify(data.headers.toJSON()));
-      this.users = data.body.json as any;
-    }, err => {
-      console.log(err);
-    });
+    // rest.model({
+    //   test: 11
+    // }).array.get().observable.subscribe(data => {
+    //   console.log(data.body.json);
+    //   // console.log(JSON.stringify(data.headers.toJSON()));
+    //   this.users = data.body.json as any;
+    // }, err => {
+    //   console.log(err);
+    // });
 
     rest3.model().array.get().observable.subscribe(data => {
       console.log(data.body.json);
@@ -64,7 +66,7 @@ export class Demo2Component extends PreviewBase implements OnDestroy {
       // this.users = data.body.json as any;
     });
 
-    rest3.model().array.get().then(data => {
+    rest3.model().array.get().observable.subscribe(data => {
       console.log(data.body.json);
       console.log(JSON.stringify(data.headers.toJSON()));
       // this.users = data.body.json as any;
@@ -72,10 +74,10 @@ export class Demo2Component extends PreviewBase implements OnDestroy {
       console.log(err);
     });
 
-    rest2.model({ authorid: 1, bookid: 2 }).get().observable.subscribe(data => {
+    // rest2.model({ authorid: 1, bookid: 2 }).get().observable.subscribe(data => {
 
-      console.log(data.body.json);
-    });
+    //   console.log(data.body.json);
+    // });
 
   }
 
@@ -85,7 +87,7 @@ export class Demo2Component extends PreviewBase implements OnDestroy {
   handlers: Subscription[] = [];
   users = [];
   public replay() {
-    rest2.replay('get');
+    rest3.replay('get');
   }
 
   public ngOnDestroy() {
@@ -97,11 +99,15 @@ export class Demo2Component extends PreviewBase implements OnDestroy {
     //   this.users = data as any;
     // });
     // this.handlers.push(h as any);
+
   }
 
   preview() { //###
-    this.previews.push(new Preview('demo2.component.ts', 'typescript', require('!raw-loader!./demo2.component.ts'))); //###
-    this.previews.push(new Preview('demo2.component.html', 'html', require('!raw-loader!./demo2.component.html'))); //###
+    const componentTs = require('!raw-loader!./demo2.component.ts');//###
+    const componentHtml = require('!raw-loader!./demo2.component.html');//###
+
+    this.previews.push(new Preview('demo2.component.ts', 'typescript', _.isObject(componentTs) ? componentTs.default : componentTs)); //###
+    this.previews.push(new Preview('demo2.component.html', 'html', _.isObject(componentHtml) ? componentHtml.default : componentHtml)); //###
   } //###
 
 

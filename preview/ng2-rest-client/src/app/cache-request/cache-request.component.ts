@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Resource, RequestCache, } from 'ng2-rest';
 import { Log, Level } from 'ng2-logger';
 
-const rest = Resource.create('http://localhost:3000', 'projects');
+const port = ENV.workspace.projects.find(p => p.name === 'ng2-rest-server').port;
+const rest = Resource.create(`http://localhost:${port}`, 'projects');
 const log = Log.create('cache cmp')
 
 @Component({

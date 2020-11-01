@@ -7,10 +7,10 @@ import * as io from 'socket.io';
 const cors = require('cors')
 //#endregion
 
-const port = 3000;
 
-const rest = Resource.create(`http://localhost:${port}`, 'users');
-export async function start() {
+export async function start(port: number) {
+
+  const rest = Resource.create(`http://localhost:${port}`, 'users');
 
   //#region @backend
   const app = express()
@@ -83,7 +83,7 @@ export async function start() {
   })
 
   h.listen(port, async () => {
-    console.log('Example app listening on port 3000!')
+    console.log(`Example app listening on port ${port}!`)
     console.log('test')
     try {
       const resp = await rest.model({

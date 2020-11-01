@@ -2,6 +2,7 @@
   "tnp": {
     "resources": [],
     "type": "angular-lib",
+    "version": "v2",
     "overrided": {
       "ignoreDepsPattern": [],
       "includeAsDev": [],
@@ -19,14 +20,6 @@
   "name": "ng2-rest-client",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve --port=4002",
-    "build": "ng build",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e"
-  },
   "private": false,
   "dependencies": {
     "@angular-devkit/build-optimizer": "^0.3.1",

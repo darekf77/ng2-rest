@@ -1,6 +1,12 @@
 import { Directive, ElementRef, Input } from '@angular/core';
-
-declare var hljs: any;
+import hljs from 'highlight.js';
+import javascript from 'highlight.js/lib/languages/javascript';
+import typescript from 'highlight.js/lib/languages/typescript';
+import scss from 'highlight.js/lib/languages/scss';
+hljs.registerLanguage('javascript', javascript);
+hljs.registerLanguage('typescript', typescript);
+hljs.registerLanguage('scss', scss);
+import 'highlight.js/styles/github.css';
 
 @Directive({
   selector: 'code[highlight]'

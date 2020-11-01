@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import * as io from 'socket.io-client';
 
+const port = ENV.workspace.projects.find(p => p.name === 'ng2-rest-server').port;
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -12,7 +14,7 @@ export class AppComponent {
 
   constructor() {
 
-    const global = io('http://localhost:3000');
+    const global = io(`http://localhost:${port}`);
 
     global.on('connect', () => {
       console.log('conented to namespace /')
@@ -36,7 +38,7 @@ export class AppComponent {
       })
     }
 
-    const testowa = io('http://localhost:3000/testowa')
+    const testowa = io(`http://localhost:${port}/testowa`)
     testowa.on('connect', () => {
       console.log('conented to namespace /testowa')
 

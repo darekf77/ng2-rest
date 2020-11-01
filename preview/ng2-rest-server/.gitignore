@@ -1,5 +1,21 @@
+# profiling files
+chrome-profiler-events*.json
+speed-measure-plugin*.json
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
+
+# System Files
+.DS_Store
+Thumbs.db
 /node_modules
-/tnp-system-path.txt
 /tmp*
 /dist*
 /bundle*
@@ -15,6 +31,10 @@
 /npm-debug.log*
 /.sass-cache
 /.sourcemaps
+/tsconfig.isomorphic.json
+/tsconfig.browser.json
+/.vscode/launch.json
+/.vscode/tasks.json
 /tsconfig.json
 /.npmrc
 /tslint.json
@@ -22,20 +42,33 @@
 /index.js
 /index.d.ts
 /index.js.map
-/.vscode/launch.json
-/tsconfig.browser.json
 /webpack.config.js
+/webpack.backend-bundle-build.js
 /run.js
+/tsconfig.isomorphic.json.filetemplate
+/tsconfig.browser.json.filetemplate
+/.vscode/launch.json.filetemplate
+/.vscode/tasks.json.filetemplate
 /tsconfig.json.filetemplate
 /src/typings.d.ts
+/src/assets/ng2-rest-client
 /src/entities.ts
 /src/controllers.ts
 /index.js
 /index.d.ts
 /index.js.map
-/.vscode/launch.json
-/tsconfig.browser.json
 /webpack.config.js
+/webpack.backend-bundle-build.js
 /run.js
+/tsconfig.isomorphic.json.filetemplate
+/tsconfig.browser.json.filetemplate
+/.vscode/launch.json.filetemplate
+/.vscode/tasks.json.filetemplate
 /tsconfig.json.filetemplate
 /src/typings.d.ts
+
+
+
+
+# =====================
+*.filetemplate
