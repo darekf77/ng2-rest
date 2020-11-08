@@ -1,0 +1,10 @@
+{
+  "@types/node": "9.3.0",
+  "gulp": "^3.9.1",
+  "reflect-metadata": "^0.1.10",
+  "ts-node": "^7.0.1",
+  "tslib": "^1.8.1",
+  "tslint": "^5.9.1",
+  "typescript": "2.6.2",
+  "webpack": "3.10.0"
+}

@@ -1,0 +1,18 @@
+{
+  "resources": [],
+  "version": "v2",
+  "type": "workspace",
+  "overrided": {
+    "ignoreDepsPattern": [],
+    "includeAsDev": [],
+    "includeOnly": [],
+    "dependencies": {},
+    "linkedFolders": []
+  },
+  "linkedProjects": [],
+  "libReleaseOptions": {
+    "nodts": false,
+    "obscure": false,
+    "ugly": false
+  }
+}
