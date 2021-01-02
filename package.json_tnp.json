@@ -37,5 +37,14 @@
   "author": {
     "name": "Dariusz Filipiak"
   },
-  "homepage": "https://github.com/darekf77/ng2-rest#readme"
+  "homepage": "https://github.com/darekf77/ng2-rest#readme",
+  "scripts": {
+    "build:watch": "npm-run watch \"morphi build\" src"
+  },
+  "keywords": [
+    "isomorphic",
+    "logger",
+    "log",
+    "typescript"
+  ]
 }
