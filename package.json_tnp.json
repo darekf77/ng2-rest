@@ -7,7 +7,6 @@
   "overrided": {
     "dependencies": {
       "@types/diff": "^3.2.2",
-      "axios": "^0.17.1",
       "diff": "^3.2.0"
     },
     "includeAsDev": "*",
