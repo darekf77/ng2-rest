@@ -14,5 +14,7 @@
     "nodts": false,
     "obscure": false,
     "ugly": false
-  }
+  },
+  "license": "UNLICENSED",
+  "private": true
 }
