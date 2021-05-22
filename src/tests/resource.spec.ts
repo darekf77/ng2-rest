@@ -1,7 +1,5 @@
-
-
-import * as _ from 'lodash';
-import { describe } from 'mocha'
+import { _ } from 'tnp-core';
+import { describe, it } from 'mocha'
 import { expect, use } from 'chai'
 import * as UrlNestedParams from '../params';
 import { Resource } from '../resource.service';
@@ -33,7 +31,7 @@ describe('Resource requests', () => {
       .mock({
         data,
         code: 200,
-        headers: new RestHeaders(),
+        headers: RestHeaders.from({}),
         isArray: false
       })
       .get()

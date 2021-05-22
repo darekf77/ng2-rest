@@ -1,5 +1,5 @@
-import * as _ from 'lodash';
-import { describe } from 'mocha'
+import { _ } from 'tnp-core';
+import { describe, it } from 'mocha'
 import { expect, use } from 'chai'
 
 // import { BrowserDB } from '../browser-db/browser-db';
@@ -14,7 +14,7 @@ const testName = 'testname'
   isHuman: false
 }, {
 
-  })
+})
 class Test1 {
   constructor(public age: number = 23) {
 

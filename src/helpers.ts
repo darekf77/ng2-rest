@@ -1,8 +1,5 @@
-import * as _ from 'lodash';
-
+import { _ } from 'tnp-core';
 import { Helpers as HelpersLogger } from 'ng2-logger';
-import { CLASS } from 'typescript-class-helpers'
-
 import { Mapping } from './mapping';
 import { JSON10 } from 'json10';
 

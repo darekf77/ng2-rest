@@ -1,7 +1,9 @@
-import * as _ from 'lodash';
+import { _ } from 'tnp-core';
 import { Helpers } from './helpers';
 import { Resource } from 'ng2-rest';
+//#region @notForNpm
 import { Morphi } from 'morphi';
+//#endregion
 
 @Morphi.Controller()
 class RestCtrl extends Morphi.Base.Controller<any> {

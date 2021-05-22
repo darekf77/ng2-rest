@@ -1,16 +1,12 @@
 //#region import
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import { Log, Level } from 'ng2-logger';
-const log = Log.create('rest.class', Level.__NOTHING)
+// const log = Log.create('rest.class', Level.__NOTHING)
 // local
 import { Models } from './models';
 import { getRestParams, getParamsUrl } from './params';
 import { RestRequest } from './rest-request';
 import { RestHeaders } from './rest-headers';
-import { Mapping } from './mapping';
-import { Circ } from 'json10';
 //#endregion
 
 export const DEFAULT_HEADERS = {

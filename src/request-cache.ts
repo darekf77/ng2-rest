@@ -1,6 +1,5 @@
-import * as _ from 'lodash';
+import { _ } from 'tnp-core';
 import { Models } from './models';
-
 import { Log, Level } from 'ng2-logger';
 import { Helpers } from 'ng2-logger';
 import { RestHeaders } from './rest-headers';

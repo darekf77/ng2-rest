@@ -1,5 +1,5 @@
 import { diffChars } from 'diff';
-import * as _ from 'lodash';
+import { _ } from 'tnp-core';
 import { Log, Level } from 'ng2-logger';
 import { Models } from './models';
 import { Helpers } from './helpers';

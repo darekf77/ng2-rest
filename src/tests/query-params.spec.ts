@@ -1,8 +1,5 @@
-
-
-
-import * as _ from 'lodash';
-import { describe } from 'mocha'
+import { _ } from 'tnp-core';
+import { describe, it } from 'mocha'
 import { expect, use } from 'chai'
 import * as UrlNestedParams from '../params';
 

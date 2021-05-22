@@ -6,7 +6,7 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/takeUntil';
 import 'rxjs/add/operator/take';
 
-import * as _ from 'lodash';
+import { _ } from 'tnp-core';
 
 import { Models } from './models';
 import { RestHeaders } from './rest-headers';

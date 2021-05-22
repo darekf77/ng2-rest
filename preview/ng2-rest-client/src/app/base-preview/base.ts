@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import * as _ from 'lodash';
+import { _ } from 'tnp-core';
 declare const require: any;
 
 type Lang = 'html' | 'typescript' | 'scss' | 'json';

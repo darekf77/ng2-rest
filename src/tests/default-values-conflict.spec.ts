@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import { _ } from 'tnp-core';
 import { describe } from 'mocha'
 import { expect, use } from 'chai'
 

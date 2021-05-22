@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Preview, PreviewBase } from '../base-preview';
-import * as _ from 'lodash';
+import { _ } from 'tnp-core';
 declare const require: any;
 
 import { CLASS } from 'typescript-class-helpers';

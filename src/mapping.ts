@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import { _ } from 'tnp-core';
 import { Helpers } from './helpers';
 import { Circ, JSON10 } from 'json10';
 import { walk } from 'lodash-walk-object';
