@@ -11,7 +11,8 @@ import { _ } from 'tnp-core';
 import { Models } from './models';
 import { RestHeaders } from './rest-headers';
 
-import { Helpers, Level } from 'ng2-logger';
+import { Helpers } from 'tnp-core';
+import { Level } from 'ng2-logger';
 import axios, { AxiosResponse } from 'axios';
 import { Resource } from './resource.service';
 import { Log, Logger } from 'ng2-logger';

@@ -1,9 +1,10 @@
 import { _ } from 'tnp-core';
-import { Helpers as HelpersLogger } from 'ng2-logger';
+import { CoreHelpers } from 'tnp-core';
 import { Mapping } from './mapping';
 import { JSON10 } from 'json10';
 
-export class Helpers extends HelpersLogger {
+// @ts-ignore
+export class Helpers extends CoreHelpers {
 
   static JSON = JSON10;
 

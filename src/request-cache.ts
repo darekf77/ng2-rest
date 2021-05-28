@@ -1,7 +1,7 @@
 import { _ } from 'tnp-core';
 import { Models } from './models';
 import { Log, Level } from 'ng2-logger';
-import { Helpers } from 'ng2-logger';
+import { Helpers } from 'tnp-core';
 import { RestHeaders } from './rest-headers';
 const log = Log.create('request-cache', Level.__NOTHING)
 

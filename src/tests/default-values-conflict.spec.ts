@@ -1,5 +1,5 @@
 import { _ } from 'tnp-core';
-import { describe } from 'mocha'
+import { describe, it } from 'mocha'
 import { expect, use } from 'chai'
 
 // import { BrowserDB } from '../browser-db/browser-db';
