@@ -221,7 +221,7 @@
     "ng-packagr": "5.7.1",
     "ng-talkback": "~2.4.12",
     "ng2-file-upload": "1.3.0",
-    "ng2-rest": "~11.0.22",
+    "ng2-rest": "~11.0.23",
     "ng4-icons": "~0.0.17",
     "ng4-modal": "~0.0.18",
     "ngx-bootstrap": "5.2.0",
@@ -311,5 +311,5 @@
   },
   "license": "MIT",
   "private": false,
-  "lastBuildTagHash": "2a1ce7a4bbefee6f4e1274a285eaf71b61300294"
+  "lastBuildTagHash": "f0b53cc4ce365e9ffee4624782c7dc0d4d16f92b"
 }
