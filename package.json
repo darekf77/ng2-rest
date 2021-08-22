@@ -47,7 +47,7 @@
     ]
   },
   "name": "ng2-rest",
-  "version": "11.0.31",
+  "version": "11.0.33",
   "scripts": {
     "build:watch": "npm-run watch \"morphi build\" src"
   },
