@@ -286,13 +286,13 @@
     "zone.js": "0.10.2"
   },
   "dependencies": {
-    "@types/diff": "~3.2.2",
-    "@types/lodash": "~4.14.92",
-    "axios": "~0.17.1",
-    "diff": "~3.2.0",
+    "@types/diff": "3.2.2",
+    "@types/lodash": "4.14.92",
+    "axios": "0.17.1",
+    "diff": "3.2.0",
     "json10": "~1.0.30",
-    "json5": "~2.1.3",
-    "lodash": "~4.17.4",
+    "json5": "2.1.3",
+    "lodash": "4.17.4",
     "ng2-logger": "~8.0.16"
   },
   "license": "MIT",
