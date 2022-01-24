@@ -15,7 +15,9 @@
       "nodts": false,
       "obscure": false,
       "ugly": false
-    }
+    },
+    "license": "MIT",
+    "private": false
   },
   "name": "ng2-rest-server",
   "version": "0.0.0",
@@ -160,11 +162,6 @@
     "webpack-dev-server": "~2.9.3",
     "zone.js": "0.8.20"
   },
-  "husky": {
-    "hooks": {
-      "pre-push": "tnp deps:show:if:standalone"
-    }
-  },
   "devDependencies": {
     "@types/node": "9.3.0",
     "gulp": "^3.9.1",
@@ -174,5 +171,6 @@
     "tslint": "^5.9.1",
     "typescript": "2.6.2",
     "webpack": "3.10.0"
-  }
+  },
+  "recreatedFrom": {}
 }
