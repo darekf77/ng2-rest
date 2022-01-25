@@ -172,5 +172,7 @@
     "typescript": "2.6.2",
     "webpack": "3.10.0"
   },
-  "recreatedFrom": {}
+  "recreatedFrom": {
+    "tnp.json": true
+  }
 }
