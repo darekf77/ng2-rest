@@ -1,69 +1,68 @@
-// import { _ } from 'tnp-core';
-// import { Helpers } from './helpers';
-// import { Resource } from 'ng2-rest';
-// //#region @notForNpm
-// import { Morphi } from 'morphi';
-// //#endregion
+//#region @notForNpm
 
-// @Morphi.Controller()
-// class RestCtrl extends Morphi.Base.Controller<any> {
-//   //#region @backend
-//   async initExampleDbData() {
+//#region @backend
+import * as express from 'express';
+import * as  cors from 'cors';
+//#endregion
+//#region @browser
+import { firstValueFrom } from 'rxjs';
+import { NgModule, NgZone } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Resource } from './lib/resource.service';
 
-//   }
-//   //#endregion
+const rest = Resource.create('http://localhost:3000', 'hello')
 
-//   @Morphi.Http.GET()
-//   ng(): Morphi.Response<any> {
-//     return async () => {
-//       return 'ng2-rest perfect!'
-//     }
-//   }
-// }
+@Component({
+  selector: 'app-ng2-rest',
+  template: `hello from ng2-rest
+  <br>
+{{ data }}
 
+  `
+})
+export class Ng2RestComponent implements OnInit {
+  constructor(
+    private zone: NgZone
+  ) { }
+  data: string;
+  async ngOnInit() {
+    Resource.initAngularNgZone(this.zone);
+    const data = await (await firstValueFrom(rest.model().get().observable)).body.text;
+    this.data = data;
+  }
+}
 
-
-
-// const start = async (port = 3000) => {
-
-//   const host = `http://localhost:${port}`;
-//   console.log(`HOST ng2-rest: ${host}`);
-//   //#region @backend
-//   const config = {
-//     type: "sqlite",
-//     database: 'tmp-db.sqlite',
-//     synchronize: true,
-//     dropSchema: true,
-//     logging: false
-//   };
-//   //#endregion
-
-//   const context = await Morphi.init({
-//     host,
-//     controllers: [RestCtrl],
-//     entities: [],
-//     //#region @backend
-//     config: config as any
-//     //#endregion
-//   });
+@NgModule({
+  imports: [],
+  exports: [Ng2RestComponent],
+  declarations: [Ng2RestComponent],
+  providers: [],
+})
+export class Ng2RestModule { }
+//#endregion
 
 
-//   if (Morphi.IsBrowser) {
-//     const rest = Resource.create(host, '/test');
-//     console.log('hello');
-//     await rest.model().get();
 
-//     const c: RestCtrl = _.first(context.controllers);
-//     const data = (await c.ng().received).body.text;
-//     console.log('ng:', data)
+//#region @backend
 
-//   }
-// }
 
-// export default start;
 
-// //#region @notForNpm
-// if (Helpers.isBrowser) {
-//   start()
-// }
-// //#endregion
+async function start(port: number) {
+
+  const app = express();
+  app.use(cors());
+
+  app.get(`/hello`, (req, res) => {
+    res.send('heelo');
+  });
+
+  app.listen(port, () => {
+    console.log(`app is listening on port ${port}`)
+  })
+}
+
+export default start;
+
+//#endregion
+
+//#endregion

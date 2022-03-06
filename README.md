@@ -19,7 +19,7 @@ To install package run:
 
 Import Resource class:
 ```ts
-import { Resource } from 'ng2-rest';
+import { Resource } from 'ng2-rest/browser';
 ```
 
 Resource

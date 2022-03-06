@@ -1,12 +1,8 @@
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
-import { Subscription } from 'rxjs/Subscription';
-import { Observer } from 'rxjs/Observer';
+import { Observable } from 'rxjs';
+import { Subject } from 'rxjs';
+import { Subscription } from 'rxjs';
+import { Observer } from 'rxjs';
 
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/takeUntil';
-import 'rxjs/add/operator/take';
-import 'rxjs/add/operator/toPromise';
 
 import { Rest } from './rest.class';
 import { RestHeaders } from './rest-headers';

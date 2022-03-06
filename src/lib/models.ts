@@ -1,6 +1,5 @@
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
-import 'rxjs/add/operator/map';
+import { Observable } from 'rxjs';
+import { Subject } from 'rxjs';
 import { Log, Level } from 'ng2-logger';
 import { RestHeaders } from './rest-headers';
 import { Rest } from './rest.class';

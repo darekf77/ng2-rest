@@ -1,5 +1,4 @@
 //#region import
-import 'rxjs/add/operator/map';
 import { Log, Level } from 'ng2-logger';
 // const log = Log.create('rest.class', Level.__NOTHING)
 // local

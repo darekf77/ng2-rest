@@ -1,5 +1,5 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+Object.defineProperty(exports, '__esModule', { value: true });
 var APIS;
 (function (APIS) {
     APIS[APIS["FIRST"] = 0] = "FIRST";
