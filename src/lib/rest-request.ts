@@ -38,7 +38,7 @@ export class RestRequest {
 
   private handlerResult(options: Models.HandleResultOptions,
     sourceRequest: Models.HandleResultSourceRequestOptions) {
-    if (isUndefined(options)) {
+    if (_.isUndefined(options)) {
       options = {} as any;
     }
     // log.d(`HANDLE RESULT (jobid:${options.jobid}) ${sourceRequest.url}`);
