@@ -13,7 +13,7 @@ import { Level } from 'ng2-logger';
 import axios, { AxiosResponse } from 'axios';
 import { Resource } from './resource.service';
 import { Log, Logger } from 'ng2-logger';
-import { isUndefined } from 'util';
+
 import { RequestCache } from './request-cache';
 const log = Log.create('[ng2-rest] rest-request'
   , Level.__NOTHING
