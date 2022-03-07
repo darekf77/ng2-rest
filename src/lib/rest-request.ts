@@ -1,10 +1,7 @@
 declare var require: any;
 
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/takeUntil';
-import 'rxjs/add/operator/take';
+import { firstValueFrom, Observable } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import { _ } from 'tnp-core';
 
@@ -271,7 +268,7 @@ export class RestRequest {
       setTimeout(() => pthis.req(purl, pmethod, pheaders, pbody, pid, pisArray, pmockHttp));
     })(this, url, method, headers, body, replay.id, isArray, mockHttp)
 
-    const resp: Models.PromiseObservableMix<any> = replay.subject.asObservable().take(1).toPromise() as any;
+    const resp: Models.PromiseObservableMix<any> = firstValueFrom(replay.subject.asObservable()) as any;
     resp.observable = replay.subject.asObservable();
     resp.cache = RequestCache.findBy({
       body,
@@ -390,7 +387,7 @@ export class RestRequest {
       document.body.removeChild(sc);
     })
     // return replay.subject.asObservable();
-    const resp: Models.PromiseObservableMix<any> = replay.subject.asObservable().take(1).toPromise() as any;
+    const resp: Models.PromiseObservableMix<any> = firstValueFrom(replay.subject.asObservable()) as any;
     resp.observable = replay.subject.asObservable();
     resp.cache = RequestCache.findBy({
       body,

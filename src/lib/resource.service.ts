@@ -1,11 +1,6 @@
 //#region imports
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/takeUntil';
-import 'rxjs/add/operator/take';
-import 'rxjs/add/operator/toPromise';
-
+import { Observable } from 'rxjs';
+import { Subject } from 'rxjs';
 import { Log, Level } from 'ng2-logger';
 const log = Log.create('resouce-service',
   Level.__NOTHING
@@ -40,21 +35,21 @@ export class Resource<E, T, TA> {
   //#region private mthods and fields
   private getZone() {
     const isNode = (typeof window === 'undefined')
-    if (isNode) return;
+    if (isNode) { return };
     const ng = window['ng'];
     const getAllAngularRootElements = window['getAllAngularRootElements'];
-    if (!ng || !getAllAngularRootElements) return;
+    if (!ng || !getAllAngularRootElements) { return; }
     const probe = ng.probe;
     const coreTokens = ng.coreTokens;
-    if (!coreTokens.NgZone) return;
+    if (!coreTokens || !coreTokens.NgZone) { return; }
     const zoneClass = coreTokens.NgZone;
-    if (!probe || typeof probe !== 'function' || !getAllAngularRootElements) return;
+    if (!probe || typeof probe !== 'function' || !getAllAngularRootElements) { return; }
     const angularElements: any[] = getAllAngularRootElements();
-    if (!Array.isArray(angularElements) || angularElements.length === 0) return;
+    if (!Array.isArray(angularElements) || angularElements.length === 0) { return; }
     const rootElement = ng.probe(angularElements[0]);
-    if (!rootElement) return;
+    if (!rootElement) { return; }
     const injector = rootElement.injector;
-    if (!injector || !injector.get || typeof injector.get !== 'function') return;
+    if (!injector || !injector.get || typeof injector.get !== 'function') { return; }
     const zone = injector.get(zoneClass)
     return zone;
   }
@@ -143,7 +138,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
   private constructor() {
     setTimeout(() => {
       const zone = this.getZone();
-      if (!RestRequest.zone) RestRequest.zone = zone;
+      if (!RestRequest.zone) { RestRequest.zone = zone };
     })
   }
   //#endregion
