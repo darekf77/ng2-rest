@@ -4,8 +4,8 @@
 import * as express from 'express';
 import * as  cors from 'cors';
 //#endregion
-//#region @browser
 import { firstValueFrom } from 'rxjs';
+//#region @browser
 import { NgModule, NgZone } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import { Resource } from './lib/resource.service';

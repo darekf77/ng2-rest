@@ -8,7 +8,7 @@ import { _ } from 'tnp-core';
 declare const require: any;
 
 import { CLASS } from 'typescript-class-helpers';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 import { Resource } from 'ng2-rest';
 
 @CLASS.NAME('Author')
