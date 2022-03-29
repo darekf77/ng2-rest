@@ -2,7 +2,7 @@
   resources: ["README.md"],
   overrided: {
     dependencies: {},
-    includeAsDev: "*",
+    includeAsDev: [],
     includeOnly: [
       "@types/diff",
       "diff",
