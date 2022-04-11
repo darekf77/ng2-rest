@@ -141,6 +141,14 @@ export namespace Models {
       return ['ok', 'true'].includes(this.body.trim());
     }
 
+    public get rawJson(): Partial<T> {
+      let res = this.toJSON(this.body, this.isArray);
+      if (this.circular && Array.isArray(this.circular)) {
+        res = JSON10.parse(JSON.stringify(res), this.circular)
+      }
+      return res;
+    }
+
     public get json(): T {
 
       if (this.entity && typeof this.entity === 'object') {
