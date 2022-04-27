@@ -157,7 +157,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
     if (url.charAt(url.length - 1) === '/') url = url.slice(0, url.length - 1);
     log.i('url after', url)
     if (Resource.endpoints[e] !== void 0) {
-      !global.hideLog && console.warn('Cannot use map function at the same API endpoint again ('
+      console.warn('Cannot use map function at the same API endpoint again ('
         + Resource.endpoints[e].url + ')');
       return false;
     }

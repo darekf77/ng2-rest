@@ -5,12 +5,20 @@ import * as express from 'express';
 import * as  cors from 'cors';
 //#endregion
 import { firstValueFrom } from 'rxjs';
-//#region @browser
+
+// @browserLine
 import { NgModule, NgZone } from '@angular/core';
+// @browserLine
 import { Component, OnInit } from '@angular/core';
+
+const port = 3001;
+
+//#region @browser
 import { Resource } from './lib/resource.service';
 
-const rest = Resource.create('http://localhost:3000', 'hello')
+
+
+const rest = Resource.create(`http://localhost:${port}`, 'hello')
 
 @Component({
   selector: 'app-ng2-rest',
@@ -47,7 +55,7 @@ export class Ng2RestModule { }
 
 
 
-async function start(port: number) {
+async function start() {
 
   const app = express();
   app.use(cors());

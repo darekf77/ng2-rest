@@ -5,5 +5,5 @@ export * from './rest.class';
 export * from './rest-headers';
 export * from './helpers';
 export * from './request-cache';
-export { SimpleResource } from './simple-resource';
+export { SimpleResource } from './other/simple-resource';
 export { interpolateParamsToUrl } from './params';

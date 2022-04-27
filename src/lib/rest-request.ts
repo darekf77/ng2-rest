@@ -67,6 +67,7 @@ export class RestRequest {
     this.subjectInuUse[jobid].next(
       new Models.HttpResponse(sourceRequest, res.data, res.headers, res.code, entity, circular, jobid, isArray)
     );
+    // this.subjectInuUse[jobid].complete();
     this.meta[jobid] = void 0;
     return;
   }
@@ -75,6 +76,7 @@ export class RestRequest {
     if (existedInCache) {
       log.i('cache exists', existedInCache)
       this.subjectInuUse[jobid].next(existedInCache);
+      // this.subjectInuUse[jobid].complete();
       return true;
     }
     // log.i(`cache not exists for jobid ${jobid}`)
@@ -160,12 +162,12 @@ export class RestRequest {
         const msg: string = catchedError.response.data.message || '';
         let stack: string[] = (err.stack || '').split('\n');
 
-        (Resource['_listenErrors'] as Subject<Models.BackendError>).next({
+        const errObs = (Resource['_listenErrors'] as Subject<Models.BackendError>);
+        errObs.error({
           msg,
           stack,
           data: catchedError.response.data
         });
-
       }
       const error = (catchedError && catchedError.response) ? `[${catchedError.response.statusText}]: ` : '';
       this.handlerResult({

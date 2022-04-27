@@ -4,10 +4,10 @@ import { Subscription } from 'rxjs';
 import { Observer } from 'rxjs';
 
 
-import { Rest } from './rest.class';
-import { RestHeaders } from './rest-headers';
-import { Models } from './models';
-import { Resource } from './resource.service';
+import { Rest } from '../rest.class';
+import { RestHeaders } from '../rest-headers';
+import { Models } from '../models';
+import { Resource } from '../resource.service';
 
 
 
