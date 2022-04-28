@@ -14,6 +14,7 @@ import { Mapping } from './mapping';
 import { Models } from './models';
 import { interpolateParamsToUrl, isValid, containsModels, getModels } from './params';
 import { Circ } from 'json10';
+import { Helpers } from 'tnp-core'
 //#endregion
 
 declare const global: any;
@@ -157,7 +158,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
     if (url.charAt(url.length - 1) === '/') url = url.slice(0, url.length - 1);
     log.i('url after', url)
     if (Resource.endpoints[e] !== void 0) {
-      console.warn('Cannot use map function at the same API endpoint again ('
+      Helpers.log('Cannot use map function at the same API endpoint again ('
         + Resource.endpoints[e].url + ')');
       return false;
     }
