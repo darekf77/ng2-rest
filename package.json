@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "13.0.14",
+  "version": "13.0.15",
   "scripts": {
     "build:watch": "npm-run watch \"morphi build\" src"
   },
@@ -188,7 +188,7 @@
     "moment": "2.22.2",
     "morphi": "~13.0.29",
     "ng-packagr": "13.0.0",
-    "ng-talkback": "~13.0.10",
+    "ng-talkback": "13.0.10",
     "ng2-rest": "~13.0.14",
     "ng4-icons": "~13.0.12",
     "ng4-modal": "~13.0.14",
@@ -228,6 +228,7 @@
     "sloc": "0.2.0",
     "socket.io": "2.4.1",
     "sort-package-json": "1.11.0",
+    "static-columns": "13.0.13",
     "string-similarity": "4.0.2",
     "sudo-block": "3.0.0",
     "systeminformation": "3.45.7",

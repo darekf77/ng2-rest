@@ -27,9 +27,14 @@ export class Resource<E, T, TA> {
     'Accept': 'application/json'
   });
 
-  private static _listenErrors = new Subject<Models.BackendError>();
+  protected static _listenErrors = new Subject<Models.BackendError>();
+  protected static _listenSuccess = new Subject<Models.HttpResponse<any>>();
   public static get listenErrors() {
     return this._listenErrors.asObservable();
+  }
+
+  public static get listenSuccessOperations() {
+    return this._listenSuccess.asObservable();
   }
   public static enableWarnings: boolean = true;
 

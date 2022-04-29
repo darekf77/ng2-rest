@@ -1,17 +1,13 @@
 
 ## ng2-rest ##
 
-
-Isomorphic REST framework for Browser and NodeJS apps.
-
-Simple, robust, efficient REST api  for typescript frameworks like:
- **Angular, React, ExpressJS and others**. 
-
-Nice way to:
-- connect your webapp with RESTfull backend or JSONP api 
-- access from NodeJS server third part APIs ( in the same way as in the browser)
-
-[Plunker demo](http://embed.plnkr.co/mFhAiV/)
+Liblary is:
+- robust isomorphic REST framework for Browser and NodeJS backend apps.
+- compatible with Angular (2+) (newest 13,14 also...) , React, Vue , NodeJS (works everywhere)
+- compatible with RxJS (exhaustMap, switchMap, request cancelation etc.)
+- based on [axios](https://axios-http.com/) => excellent alternative to  Angular's [HttpClient](https://angular.io/api/common/http/HttpClient)
+- JSONP api request handling
+- transfer class instancer from server to client and back
 
 To install package run:
 
@@ -71,7 +67,7 @@ class UserComponent {
 		 .array
 		 .get()
 		 .observable // Observable resposne (useful for Angular 2+ html templates)
-		 .map({ body } => body.json)  , // get all users, body.json => User[] 
+     .pipe( map({ body } => body.json) ) // get all users, body.json => User[] 
 
 	 userBy: (id) => rest.model({id})
 		 .get() // Promise response by default
@@ -101,16 +97,17 @@ Example **UrlParams[]** :
  
 | Name | Parameters  | Description |
 | :---: | --- | ---: |
-| **.array.** | get,post,put,delete,jsonp |  for everything, but with arrays |
+| **.array.** | get,post,put,head,delete,jsonp |  for everything, but with arrays |
 | **get** | `UrlParams[] ` |   get model by parameters  |
 | **post** | `model, UrlParams[] ` |   post object model  |
 | **put** | `model, UrlParams[]` |   put object model |
+| **head** | `model, UrlParams[]` |   get head for model  |
 | **delete** | `UrlParams[]` |   remove object by params |
 | **jsonp** | `UrlParams[]` |   get jsonp data |
 
 
 
-Production mode
+# Production mode
 ===
 Nice things to do in production mode:
 
@@ -123,9 +120,8 @@ if (environment.production) {
 }
 ```
 
-# Angular AOT
-If you are using Angular 2+ and AOT ( Ahead Of Time Compilation ),
- you need to do this in your **app.component**:
+# Angular 2+ ngZone
+If you are using Angular 2+ you need to do this in your root **app.component**:
 ```ts
 constructor(zone:NgZone) {
     Resource.initAngularNgZone(zone)

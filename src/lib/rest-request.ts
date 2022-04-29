@@ -1,5 +1,3 @@
-declare var require: any;
-
 import { firstValueFrom, Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 
@@ -20,13 +18,13 @@ const log = Log.create('[ng2-rest] rest-request'
 )
 
 const jobIDkey = 'jobID';
+const customObs = 'customObs';
+const cancelFn = 'cancelFn';
+const isCanceled = 'isCanceled';
 declare const global: any;
-
 
 //#region mock request
 //#endregion
-
-
 
 export class RestRequest {
 
@@ -43,11 +41,7 @@ export class RestRequest {
     }
     // log.d(`HANDLE RESULT (jobid:${options.jobid}) ${sourceRequest.url}`);
     const { res, jobid, isArray, method } = options;
-    // if (this.endedJobs[jobid]) {
-    //   debugger
-    // }
-    // this.endedJobs[jobid] = true;
-    // log.i(`handle jobid ${jobid}`)
+
     if (typeof res !== 'object') {
       throw new Error('No resposnse for request. ');
     }
@@ -64,19 +58,23 @@ export class RestRequest {
     const entity = this.meta[jobid].entity;
     const circular = this.meta[jobid].circular;
 
-    this.subjectInuUse[jobid].next(
-      new Models.HttpResponse(sourceRequest, res.data, res.headers, res.code, entity, circular, jobid, isArray)
-    );
-    // this.subjectInuUse[jobid].complete();
+    const success = (Resource['_listenSuccess'] as Subject<Models.HttpResponse<any>>)
+
+    const reqResp = new Models.HttpResponse(sourceRequest, res.data, res.headers, res.code, entity, circular, jobid, isArray);
+    success.next(reqResp);
+
+    this.subjectInuUse[jobid].next(reqResp);
     this.meta[jobid] = void 0;
-    return;
+    this.subjectInuUse[jobid].complete();
   }
   checkCache(sourceRequest: Models.HandleResultSourceRequestOptions, jobid: number) {
     const existedInCache = RequestCache.findBy(sourceRequest);
     if (existedInCache) {
       log.i('cache exists', existedInCache)
+      const success = (Resource['_listenSuccess'] as Subject<Models.HttpResponse<any>>);
+      success.next(existedInCache.response);
       this.subjectInuUse[jobid].next(existedInCache);
-      // this.subjectInuUse[jobid].complete();
+      this.subjectInuUse[jobid].complete();
       return true;
     }
     // log.i(`cache not exists for jobid ${jobid}`)
@@ -100,6 +98,10 @@ export class RestRequest {
     }, jobid)) {
       return;
     }
+
+    const CancelToken = axios.CancelToken;
+    const source = CancelToken.source();
+    this.subjectInuUse[jobid][cancelFn] = source.cancel;
 
     var response: AxiosResponse<any>;
     if (mockHttp) {
@@ -132,9 +134,14 @@ export class RestRequest {
           method,
           data: body,
           responseType: 'text',
-          headers: headers.toJSON()
-        })
+          headers: headers.toJSON(),
+          cancelToken: source.token,
+        });
         // log.d(`after response of jobid: ${jobid}`);
+      }
+
+      if (this.subjectInuUse[jobid][isCanceled]) {
+        return;
       }
 
       this.handlerResult({
@@ -155,6 +162,9 @@ export class RestRequest {
         isArray,
       });
     } catch (catchedError) {
+      if (this.subjectInuUse[jobid][isCanceled]) {
+        return;
+      }
       // console.log('ERROR RESPONESE catchedError typeof ', typeof catchedError)
       // console.log('ERROR RESPONESE catchedError', catchedError)
       if (typeof catchedError === 'object' && catchedError.response && catchedError.response.data) {
@@ -163,7 +173,7 @@ export class RestRequest {
         let stack: string[] = (err.stack || '').split('\n');
 
         const errObs = (Resource['_listenErrors'] as Subject<Models.BackendError>);
-        errObs.error({
+        errObs.next({
           msg,
           stack,
           data: catchedError.response.data
@@ -226,6 +236,10 @@ export class RestRequest {
     replay = this.replaySubjects[meta.endpoint][meta.path][method][objectIDToCreateOrLast];
 
     if (!_.isNumber(replay.id)) {
+      if (RestRequest.jobId === Number.MAX_SAFE_INTEGER) {
+        RestRequest.jobId = 0;
+      }
+
       const jobid: number = RestRequest.jobId++;
       replay.id = jobid;
       const subject: Subject<any> = replay.subject;
@@ -233,6 +247,32 @@ export class RestRequest {
 
       this.meta[jobid] = meta;
       this.subjectInuUse[jobid] = subject;
+
+      this.subjectInuUse[jobid][customObs] = new Observable((observer) => {
+        // observer.remove(() => {
+
+        // });
+        observer.add(() => {
+          // console.log(`cancel observable job${jobid}`)
+          if (!this.subjectInuUse[jobid][isCanceled]) {
+            this.subjectInuUse[jobid][isCanceled] = true;
+            if (typeof this.subjectInuUse[jobid][cancelFn] === 'function') {
+              this.subjectInuUse[jobid][cancelFn]('[ng2-rest] on purpose canceled http request');
+            }
+          } else {
+            // console.log(`somehow second time cancel ${jobid}`)
+          }
+        })
+        const sub = subject.subscribe({
+          next: a => observer.next(a),
+          error: a => observer.error(a),
+          complete: () => {
+            sub.unsubscribe();
+            observer.complete()
+          },
+        });
+      });
+
 
       //#region DISPOSE  @UNCOMMENT AFTER TESTS
       // if (objectIDToCreateOrLast > 2) {
@@ -270,8 +310,8 @@ export class RestRequest {
       setTimeout(() => pthis.req(purl, pmethod, pheaders, pbody, pid, pisArray, pmockHttp));
     })(this, url, method, headers, body, replay.id, isArray, mockHttp)
 
-    const resp: Models.PromiseObservableMix<any> = firstValueFrom(replay.subject.asObservable()) as any;
-    resp.observable = replay.subject.asObservable();
+    const resp: Models.PromiseObservableMix<any> = firstValueFrom(replay.subject[customObs]) as any;
+    resp.observable = replay.subject[customObs];
     resp.cache = RequestCache.findBy({
       body,
       isArray,
@@ -388,9 +428,10 @@ export class RestRequest {
       document.body.appendChild(sc);
       document.body.removeChild(sc);
     })
-    // return replay.subject.asObservable();
-    const resp: Models.PromiseObservableMix<any> = firstValueFrom(replay.subject.asObservable()) as any;
-    resp.observable = replay.subject.asObservable();
+
+    const resp: Models.PromiseObservableMix<any> = firstValueFrom(replay.subject[customObs]) as any;
+    resp.observable = replay.subject[customObs];
+    console.log('assiging custom observable')
     resp.cache = RequestCache.findBy({
       body,
       isArray,
