@@ -1,15 +1,19 @@
 
 ## ng2-rest ##
 
-Liblary is:
-- robust isomorphic REST framework for Browser and NodeJS backend apps.
-- compatible with Angular (2+) (newest 13,14 also...) , React, Vue , NodeJS (works everywhere)
-- compatible with RxJS (exhaustMap, switchMap, request cancelation etc.)
-- based on [axios](https://axios-http.com/) => excellent alternative to  Angular's [HttpClient](https://angular.io/api/common/http/HttpClient)
-- JSONP api request handling
-- transfer class instancer from server to client and back
+Robust isomorphic REST framework for browser (Angular, React etc.) and backend (NodeJS) JavaScript/TypeScript apps.
 
-To install package run:
+Features:
+- Compatible with Angular (2+) (newest 13,14 also...) , React, Vue , NodeJS (works everywhere)
+- Compatible with RxJS operators (exhaustMap, switchMap, request cancelation etc.)
+- Based on [axios](https://axios-http.com/) => excellent alternative to  Angular's [HttpClient](https://angular.io/api/common/http/HttpClient)
+- JSONP api request handling
+- Transfer class instance from server to client and back
+- Elegant way of dealing with REST api ( *similar to ExpressJS routes definitions* )
+
+(more documentation soon... )
+
+To install this package run:
 
     npm install ng2-rest --save
 
@@ -127,3 +131,5 @@ constructor(zone:NgZone) {
     Resource.initAngularNgZone(zone)
 }
 ```
+
+
