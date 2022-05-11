@@ -6,12 +6,8 @@ import { Models } from './models';
 import { getRestParams, getParamsUrl } from './params';
 import { RestRequest } from './rest-request';
 import { RestHeaders } from './rest-headers';
+import { CONTENT_TYPE } from './content-type';
 //#endregion
-
-export const DEFAULT_HEADERS = {
-  'Content-Type': 'application/json',
-  'Accept': 'application/json'
-};
 
 export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
 
@@ -58,7 +54,7 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   //#endregion
 
   //#region  constructor
-  private _headers = RestHeaders.from(DEFAULT_HEADERS);
+  private _headers = RestHeaders.from(CONTENT_TYPE.APPLICATION_JSON);
   get headers() {
     return this._headers;
   }
@@ -66,6 +62,7 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
     endpoint: string,
     private request: RestRequest,
     private meta: Models.MetaRequest,
+    private customContentType: RestHeaders,
   ) {
     this.__meta_endpoint = endpoint;
 
@@ -83,6 +80,12 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
 
     const modelUrl = this.creatUrl(params, doNotSerializeParams);
     const body = item ? JSON.stringify(item) : void 0;
+    if (this.customContentType) {
+      this._headers = this.customContentType;
+    } else {
+      this._headers = RestHeaders.from(CONTENT_TYPE.APPLICATION_JSON);
+    }
+
     const result = this.request[method.toLowerCase()](
       modelUrl,
       body,
@@ -91,7 +94,7 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
       isArray,
       this.mockHttp
     );
-    this._headers = RestHeaders.from(DEFAULT_HEADERS);
+
     this.mockHttp = void 0;
     return result;
   }

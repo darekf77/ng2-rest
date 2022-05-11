@@ -15,18 +15,13 @@ import { Models } from './models';
 import { interpolateParamsToUrl, isValid, containsModels, getModels } from './params';
 import { Circ } from 'json10';
 import { Helpers } from 'tnp-core'
+import { CONTENT_TYPE } from './content-type';
 //#endregion
 
 declare const global: any;
 
 
 export class Resource<E, T, TA> {
-
-  public static DEFAULT_HEADERS = RestHeaders.from({
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  });
-
   protected static _listenErrors = new Subject<Models.BackendError>();
   protected static _listenSuccess = new Subject<Models.HttpResponse<any>>();
   public static get listenErrors() {
@@ -101,7 +96,8 @@ export class Resource<E, T, TA> {
     e: string,
     model?: string,
     entityMapping?: Mapping.Mapping,
-    circular?: Circ[]
+    circular?: Circ[],
+    customContentType?: RestHeaders,
   ): Models.ResourceModel<A, TA> {
     const badRestRegEX = new RegExp('((\/:)[a-z]+)+', 'g');
     const matchArr = model.match(badRestRegEX) || [];
@@ -117,7 +113,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
             `)
     };
     Resource.map(e, e);
-    Resource.instance.add(e, model ? model : '', entityMapping, circular);
+    Resource.instance.add(e, model ? model : '', entityMapping, circular, customContentType);
     // if (model.charAt(model.length - 1) !== '/') model = `${model}/`;
     return {
       model: (params?: Object) => Resource.instance.api(
@@ -192,7 +188,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
    * @param {string} model
    * @returns {boolean}
    */
-  private add(endpoint: E, model: string, entity: Mapping.Mapping, circular?: Circ[]) {
+  private add(endpoint: E, model: string, entity: Mapping.Mapping, circular?: Circ[], customContentType?: RestHeaders) {
     log.i(`I am maping ${model} on ${<any>endpoint}`);
     model = Resource.prepareModel(model);
 
@@ -214,8 +210,8 @@ Instead use nested approach:            /book/:bookid/author/:authorid
         endpoint: e,
         path: model,
         entity,
-        circular
-      });
+        circular,
+      }, customContentType); // TODO put custom content type in meta ?
     return;
   }
   //#endregion

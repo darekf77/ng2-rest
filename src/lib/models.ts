@@ -270,7 +270,4 @@ export namespace Models {
     isArray: boolean;
   }
 
-
-
-
 }
