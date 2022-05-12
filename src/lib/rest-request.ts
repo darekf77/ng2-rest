@@ -128,8 +128,7 @@ export class RestRequest {
 
     try {
       if (!response) {
-        // log.d(`[${method}] (jobid=${jobid}) request to:  ${url}`)
-        console.log(`[${method}] (jobid=${jobid}) request to:  ${url}`,headers.toJSON())
+        log.d(`[${method}] (jobid=${jobid}) request to:  ${url}`);
 
         response = await axios({
           url,
@@ -138,6 +137,7 @@ export class RestRequest {
           responseType: 'text',
           headers: headers.toJSON(),
           cancelToken: source.token,
+          // withCredentials: true, // this can be done manually
         });
         // log.d(`after response of jobid: ${jobid}`);
       }
