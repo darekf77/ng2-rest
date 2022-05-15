@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "13.0.19",
+  "version": "13.0.20",
   "scripts": {
     "build:watch": "npm-run watch \"morphi build\" src"
   },
@@ -26,10 +26,10 @@
     "@types/lodash": "4.14.92",
     "axios": "0.17.1",
     "diff": "3.2.0",
-    "json10": "~13.0.15",
+    "json10": "~13.0.16",
     "json5": "2.1.3",
     "lodash": "4.17.4",
-    "ng2-logger": "~13.0.15"
+    "ng2-logger": "~13.0.16"
   },
   "license": "MIT",
   "private": false,
@@ -176,7 +176,7 @@
     "karma-jasmine-html-reporter": "1.7.0",
     "lnk": "1.0.1",
     "lockfile": "1.0.4",
-    "lodash-walk-object": "~13.0.15",
+    "lodash-walk-object": "~13.0.16",
     "lodash.get": ">= 4",
     "lodash.isequal": ">= 4",
     "lodash.merge": ">= 4",
@@ -236,9 +236,9 @@
     "sudo-block": "3.0.0",
     "systeminformation": "3.45.7",
     "task.js": "0.1.5",
-    "tnp-cli": "~13.0.17",
-    "tnp-config": "~13.0.20",
-    "tnp-core": "~13.0.42",
+    "tnp-cli": "~13.0.18",
+    "tnp-config": "~13.0.21",
+    "tnp-core": "~13.0.43",
     "tnp-db": "~13.0.27",
     "tnp-helpers": "~13.0.27",
     "tnp-models": "~13.0.18",
@@ -249,7 +249,7 @@
     "tslib": "~2.3.0",
     "typeorm": "~0.2.45",
     "typescript": "~4.5.2",
-    "typescript-class-helpers": "~13.0.17",
+    "typescript-class-helpers": "~13.0.18",
     "typescript-formatter": "~7.2.2",
     "underscore": "1.9.1",
     "uuid": "8.3.2",
