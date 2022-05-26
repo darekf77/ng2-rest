@@ -128,7 +128,9 @@ export class RestRequest {
 
     try {
       if (!response) {
-        log.d(`[${method}] (jobid=${jobid}) request to:  ${url}`);
+        // console.log(`[${method}] (jobid=${jobid}) request to:  ${url}`);
+
+        // console.log(headers.toJSON())
 
         response = await axios({
           url,

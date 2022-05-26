@@ -80,7 +80,15 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
 
     const modelUrl = this.creatUrl(params, doNotSerializeParams);
     const body = item ? JSON.stringify(item) : void 0;
+    // console.log('this.customContentType', this.customContentType)
     if (this.customContentType) {
+      const customHeaderKeys = this.customContentType.keys();
+      const currentHeaderKeys = this._headers.keys();
+      currentHeaderKeys
+        .filter(key => !customHeaderKeys.includes(key))
+        .forEach(key => {
+          this.customContentType.set(key, this._headers.get(key));
+        });
       this._headers = this.customContentType;
     } else {
       this._headers = RestHeaders.from(CONTENT_TYPE.APPLICATION_JSON);
