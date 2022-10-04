@@ -1,5 +1,6 @@
 {
   resources: ["README.md"],
+
   overrided: {
     dependencies: {},
     includeAsDev: [],
@@ -16,24 +17,32 @@
     ignoreDepsPattern: [],
     linkedFolders: [],
   },
+
   linkedProjects: [],
+  linkedRepos: [],
+
   libReleaseOptions: {
     nodts: false,
     obscure: false,
     ugly: false,
   },
+
   type: "isomorphic-lib",
   version: "v3",
   additionalNpmNames: ["firedev-rest"],
   license: "MIT",
   private: false,
+
   author: {
     name: "Dariusz Filipiak",
   },
+
   homepage: "https://github.com/darekf77/ng2-rest#readme",
+
   scripts: {
     "build:watch": 'npm-run watch "morphi build" src',
   },
+
   keywords: ["isomorphic", "logger", "log", "typescript"],
   workerPlugins: {},
 }

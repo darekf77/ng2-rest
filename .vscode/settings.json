@@ -11,6 +11,8 @@
     "bundle*": true,
     "browser": true,
     "browser*": true,
+    "websql": true,
+    "websql*": true,
     "module*": true,
     "backup": true,
     "module": true,
