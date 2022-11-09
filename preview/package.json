@@ -17,7 +17,8 @@
       "ugly": false
     },
     "license": "UNLICENSED",
-    "private": true
+    "private": true,
+    "linkedRepos": []
   },
   "name": "preview",
   "version": "0.0.0",
@@ -248,8 +249,5 @@
   },
   "devDependencies": {},
   "license": "UNLICENSED",
-  "private": true,
-  "recreatedFrom": {
-    "tnp.json": true
-  }
+  "private": true
 }

@@ -17,7 +17,8 @@
       "ugly": false
     },
     "license": "MIT",
-    "private": false
+    "private": false,
+    "linkedRepos": []
   },
   "name": "ng2-rest-server",
   "version": "0.0.0",
@@ -171,8 +172,5 @@
     "tslint": "^5.9.1",
     "typescript": "2.6.2",
     "webpack": "3.10.0"
-  },
-  "recreatedFrom": {
-    "tnp.json": true
   }
 }
