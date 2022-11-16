@@ -8,7 +8,7 @@ import { Helpers as HelpersLog } from 'tnp-core';
 export namespace Mapping {
 
   export function decode(json: Object, autodetect = false): Mapping {
-    HelpersLog.simulateBrowser = true;
+
     // console.log('DECODE isBrowser', HelpersLog.isBrowser)
     if (_.isUndefined(json)) {
       return void 0;
@@ -19,7 +19,7 @@ export namespace Mapping {
     if (autodetect) {
       mapping = _.merge(getMappingNaive(json), mapping);
     }
-    HelpersLog.simulateBrowser = false;
+
     return mapping;
   }
 

@@ -125,7 +125,8 @@ export class RestHeaders {
   toJSON(): { [name: string]: any } {
     const serialized: { [name: string]: string[] } = {};
     if (!this._headers) {
-      debugger
+      // debugger
+
     }
     this._headers.forEach((values: string[], name: string) => {
       const split: string[] = [];
