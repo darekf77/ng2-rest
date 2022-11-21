@@ -150,9 +150,9 @@ export namespace Models {
     }
 
     public get json(): T {
-      // if (this.entity && typeof this.entity === 'function') {
-      //   return this.entity(); // @LAST
-      // }
+      if (this.entity && typeof this.entity === 'function') {
+        return this.entity(); // @LAST
+      }
       if (this.entity && typeof this.entity === 'object') {
         const json = this.toJSON(this.body, this.isArray);
         return Mapping.encode(json, this.entity, this.circular) as any;
@@ -215,7 +215,9 @@ export namespace Models {
       public isArray = false,
     ) {
       super(responseText, headers, statusCode, isArray);
-      // debugger
+      // console.log({
+      //   sourceRequest, responseText, headers, statusCode, entity, circular, jobid, isArray
+      // })
       this.init()
     }
 
