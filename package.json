@@ -33,7 +33,7 @@
   },
   "license": "MIT",
   "private": false,
-  "lastBuildTagHash": "285f70a5020ee0ee1725a07353cba38d86d43917",
+  "lastBuildTagHash": "bee69bfeb7eed60242665e7c2d3942a9563d1d9e",
   "devDependencies": {
     "@angular-devkit/build-angular": "~13.3.9",
     "@angular-devkit/core": "~13.3.9",
@@ -190,7 +190,7 @@
     "morphi": "~13.1.6",
     "ng-packagr": "^13.0.0",
     "ng-talkback": "~13.1.17",
-    "ng2-rest": "~13.1.4",
+    "ng2-rest": "~13.1.5",
     "ng4-icons": "~13.1.19",
     "ng4-modal": "~13.1.21",
     "ngx-bootstrap": "8.0.0",
