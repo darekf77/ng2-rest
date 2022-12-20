@@ -18,7 +18,8 @@
     },
     "license": "MIT",
     "private": false,
-    "linkedRepos": []
+    "linkedRepos": [],
+    "smartContainerBuildTarget": ""
   },
   "name": "ng2-rest-server",
   "version": "0.0.0",

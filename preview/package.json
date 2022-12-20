@@ -18,7 +18,8 @@
     },
     "license": "UNLICENSED",
     "private": true,
-    "linkedRepos": []
+    "linkedRepos": [],
+    "smartContainerBuildTarget": ""
   },
   "name": "preview",
   "version": "0.0.0",
