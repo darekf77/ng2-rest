@@ -26,6 +26,7 @@
     nodts: false,
     obscure: false,
     ugly: false,
+    includeNodeModules: false,
   },
 
   smartContainerTarget: '',
