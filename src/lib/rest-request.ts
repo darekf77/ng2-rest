@@ -21,7 +21,6 @@ const jobIDkey = 'jobID';
 const customObs = 'customObs';
 const cancelFn = 'cancelFn';
 const isCanceled = 'isCanceled';
-declare const global: any;
 
 //#region mock request
 //#endregion
@@ -70,7 +69,7 @@ export class RestRequest {
   checkCache(sourceRequest: Models.HandleResultSourceRequestOptions, jobid: number) {
     const existedInCache = RequestCache.findBy(sourceRequest);
     if (existedInCache) {
-      log.i('cache exists', existedInCache)
+      // log.i('cache exists', existedInCache)
       const success = (Resource['_listenSuccess'] as Subject<Models.HttpResponse<any>>);
       success.next(existedInCache.response);
       this.subjectInuUse[jobid].next(existedInCache);
@@ -110,39 +109,45 @@ export class RestRequest {
         response = {
           data: mockHttp.data,
           status: mockHttp.code,
-          headers: mockHttp.headers,
+          headers: mockHttp.headers as any,
           statusText: mockHttp.error,
-          config: {}
+          config: {} as any
         }
       } else if (typeof mockHttp === 'function') {
         const r = mockHttp(url, method, headers, body);
         response = {
           data: r.data,
           status: r.code,
-          headers: r.headers,
+          headers: r.headers as any,
           statusText: r.error,
-          config: {}
+          config: {} as any
         }
       }
     }
+
+
+    const headersJson = headers.toJSON();
+    const responseType = headersJson.responsetypeaxios ? headersJson.responsetypeaxios : 'text';
 
     try {
       if (!response) {
         // console.log(`[${method}] (jobid=${jobid}) request to:  ${url}`);
 
-        // console.log(headers.toJSON())
-
+        // console.log('headers axios:', headers.toJSON())
+        // console.log({ responseType, headersJson, body, method, url })
         response = await axios({
           url,
           method,
           data: body,
-          responseType: 'text',
-          headers: headers.toJSON(),
+          responseType,
+          headers: headersJson,
           cancelToken: source.token,
           // withCredentials: true, // this can be done manually
         });
         // log.d(`after response of jobid: ${jobid}`);
       }
+
+      // console.log('AXIOS RESPONES', response)
 
       if (this.subjectInuUse[jobid][isCanceled]) {
         return;
@@ -151,10 +156,10 @@ export class RestRequest {
       this.handlerResult({
         res: {
           code: response.status as any,
-          data: JSON.stringify(response.data),
+          data: response.data,
           isArray,
           jobid,
-          headers: RestHeaders.from(response.headers)
+          headers: RestHeaders.from(response.headers as any)
         },
         method,
         jobid,
@@ -174,6 +179,9 @@ export class RestRequest {
       if (typeof catchedError === 'object' && catchedError.response && catchedError.response.data) {
         const err = catchedError.response.data;
         const msg: string = catchedError.response.data.message || '';
+        // console.log({
+        //   'err.stack': err?.stack
+        // })
         let stack: string[] = (err.stack || '').split('\n');
 
         const errObs = (Resource['_listenErrors'] as Subject<Models.BackendError>);

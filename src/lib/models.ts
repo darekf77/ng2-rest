@@ -130,41 +130,55 @@ export namespace Models {
 
   export class HttpBody<T> extends BaseBody {
 
-    constructor(private body: string, private isArray = false,
+    constructor(private responseText: string | Blob, private isArray = false,
       private entity: Mapping.Mapping,
       private circular: Circ[]
     ) {
       super();
     }
 
+    public get blob(): Blob {
+      return this.responseText as Blob;
+    }
+
     public get booleanValue() {
-      return ['ok', 'true'].includes(this.body.trim());
+      if (!isBlob(this.responseText)) {
+        return ['ok', 'true'].includes((this.responseText as string).trim());
+      }
     }
 
     public get rawJson(): Partial<T> {
-      let res = this.toJSON(this.body, this.isArray);
-      if (this.circular && Array.isArray(this.circular)) {
-        res = JSON10.parse(JSON.stringify(res), this.circular)
+      if (!isBlob(this.responseText)) {
+        let res = this.toJSON(this.responseText, this.isArray);
+        if (this.circular && Array.isArray(this.circular)) {
+          res = JSON10.parse(JSON.stringify(res), this.circular)
+        }
+
+        return res;
       }
-      return res;
     }
 
     public get json(): T {
-      if (this.entity && typeof this.entity === 'function') {
-        return this.entity(); // @LAST
+      if (!isBlob(this.responseText)) {
+        if (this.entity && typeof this.entity === 'function') {
+          return this.entity(); // @LAST
+        }
+        if (this.entity && typeof this.entity === 'object') {
+          const json = this.toJSON(this.responseText, this.isArray);
+          return Mapping.encode(json, this.entity, this.circular) as any;
+        }
+        let res = this.toJSON(this.responseText, this.isArray);
+        if (this.circular && Array.isArray(this.circular)) {
+          res = JSON10.parse(JSON.stringify(res), this.circular)
+        }
+        return res;
       }
-      if (this.entity && typeof this.entity === 'object') {
-        const json = this.toJSON(this.body, this.isArray);
-        return Mapping.encode(json, this.entity, this.circular) as any;
-      }
-      let res = this.toJSON(this.body, this.isArray);
-      if (this.circular && Array.isArray(this.circular)) {
-        res = JSON10.parse(JSON.stringify(res), this.circular)
-      }
-      return res;
     }
     public get text() {
-      return this.body.replace(/^\"/, '').replace(/\"$/, '')
+      if (!isBlob(this.responseText)) {
+
+        return (this.responseText as string).replace(/^\"/, '').replace(/\"$/, '')
+      }
     }
   }
 
@@ -189,7 +203,7 @@ export namespace Models {
       return BaseResponse.cookies;
     }
     constructor(
-      public responseText?: string,
+      public responseText?: string | Blob,
       public readonly headers?: RestHeaders,
       public readonly statusCode?: HttpCode | number,
       public isArray = false
@@ -206,7 +220,7 @@ export namespace Models {
     rq: RequestCache;
     constructor(
       public sourceRequest: Models.HandleResultSourceRequestOptions,
-      public responseText?: string,
+      public responseText?: string | Blob,
       public headers?: RestHeaders,
       public statusCode?: HttpCode | number,
       public entity?: Mapping.Mapping | Function,
@@ -214,10 +228,11 @@ export namespace Models {
       public jobid?: number,
       public isArray = false,
     ) {
-      super(responseText, headers, statusCode, isArray);
       // console.log({
       //   sourceRequest, responseText, headers, statusCode, entity, circular, jobid, isArray
       // })
+      super(responseText, headers, statusCode, isArray);
+
       this.init()
     }
 
@@ -275,4 +290,22 @@ export namespace Models {
     isArray: boolean;
   }
 
+  export type ResponseTypeAxios = 'blob' | 'text'
+    //#region @backend
+    | 'arraybuffer'
+    | 'document'
+    | 'stream'
+    // | 'json' - I am parsing json from text...
+
+  //#endregion
+}
+
+// const { toString } = Object.prototype;
+function isBlob(maybeBlob) {
+
+  if (typeof Blob === 'undefined') { // OK because there is no Blob in node
+    return false;
+  }
+                                    // TODO is this needed hmmmm
+  return maybeBlob instanceof Blob; // || toString.call(maybeBlob) === '[object Blob]';
 }

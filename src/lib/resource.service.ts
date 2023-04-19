@@ -15,7 +15,6 @@ import { Models } from './models';
 import { interpolateParamsToUrl, isValid, containsModels, getModels } from './params';
 import { Circ } from 'json10';
 import { Helpers } from 'tnp-core'
-import { CONTENT_TYPE } from './content-type';
 //#endregion
 
 declare const global: any;

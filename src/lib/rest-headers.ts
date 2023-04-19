@@ -36,7 +36,9 @@ export class RestHeaders {
    */
   static fromResponseHeaderString(headersString: string): RestHeaders {
     const headers = new RestHeaders();
-
+    // console.log({
+    //   headersString
+    // })
     headersString.split('\n').forEach(line => {
       const index = line.indexOf(':');
       if (index > 0) {
@@ -128,9 +130,14 @@ export class RestHeaders {
       // debugger
 
     }
+    // console.log('serializing headers',this._headers)
     this._headers.forEach((values: string[], name: string) => {
       const split: string[] = [];
       values.forEach(v => split.push(...v.split(',')));
+      // console.log({
+      //   values
+      // })
+      // values.forEach(v => split.push(...(v ? v : '').split(',')));
       serialized[this._normalizedNames.get(name)] = split;
     });
 

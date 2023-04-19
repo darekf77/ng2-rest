@@ -7,6 +7,7 @@ import { getRestParams, getParamsUrl } from './params';
 import { RestRequest } from './rest-request';
 import { RestHeaders } from './rest-headers';
 import { CONTENT_TYPE } from './content-type';
+import { CLASS } from 'typescript-class-helpers';
 //#endregion
 
 export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
@@ -72,14 +73,17 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   //#region  req
 
   private req(method: Models.HttpMethod,
-    item: T,
+    requestBody: T,
     params?: Models.UrlParams[],
     doNotSerializeParams: boolean = false,
     isArray: boolean = false
   ) {
 
     const modelUrl = this.creatUrl(params, doNotSerializeParams);
-    const body = item ? JSON.stringify(item) : void 0;
+    const body = (CLASS.getNameFromObject(requestBody) === 'FormData')
+      ? requestBody
+      : (requestBody ? JSON.stringify(requestBody) : void 0);
+
     // console.log('this.customContentType', this.customContentType)
     if (this.customContentType) {
       const customHeaderKeys = this.customContentType.keys();
@@ -93,6 +97,8 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
     } else {
       this._headers = RestHeaders.from(CONTENT_TYPE.APPLICATION_JSON);
     }
+
+    // console.log("_headers", this.headers)
 
     const result = this.request[method.toLowerCase()](
       modelUrl,

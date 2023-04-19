@@ -5,7 +5,10 @@ import { Helpers } from 'tnp-core';
 import { RestHeaders } from './rest-headers';
 const log = Log.create('request-cache', Level.__NOTHING)
 
-
+/**
+ * @deprecated
+ * there is Cache API for that
+ */
 export class RequestCache {
 
   static readonly LOCAL_STORAGE_KEY = 'ng2restrequestcache';
