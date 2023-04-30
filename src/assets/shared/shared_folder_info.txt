@@ -1,0 +1,7 @@
+THIS FILE IS GENERATED. THIS FILE IS GENERATED. THIS FILE IS GENERATED.
+
+Assets from this folder can be used in npm package "ng2-rest@13.2.3"
+created from this project.
+
+THIS FILE IS GENERATED.THIS FILE IS GENERATED. THIS FILE IS GENERATED.
+          
