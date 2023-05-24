@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "13.2.5",
+  "version": "13.2.6",
   "scripts": {
     "build:watch": "npm-run watch \"morphi build\" src"
   },
@@ -148,7 +148,7 @@
     "firedev-crud-deamon": "~13.1.37",
     "firedev-ports": "~13.1.41",
     "firedev-storage": "~13.2.32",
-    "firedev-typeorm": "~13.1.25",
+    "firedev-typeorm": "~13.1.26",
     "firedev-ui": "~13.1.20",
     "fkill": "6.1.0",
     "font-awesome": "4.7.0",
@@ -246,7 +246,7 @@
     "threads": "1.7.0",
     "tnp-cli": "~13.1.57",
     "tnp-config": "~13.1.73",
-    "tnp-core": "~13.2.16",
+    "tnp-core": "~13.2.17",
     "tnp-db": "~13.1.19",
     "tnp-helpers": "~13.1.32",
     "tnp-models": "~13.1.24",

@@ -11,6 +11,7 @@ import { JSON10, Circ } from 'json10';
 import { RequestCache } from './request-cache';
 import { _ } from 'tnp-core';
 import { ConfigModels } from 'tnp-config';
+import { Helpers } from 'tnp-core';
 // const log = Log.create('rest namespace', Level.__NOTHING)
 
 export namespace Models {
@@ -142,13 +143,13 @@ export namespace Models {
     }
 
     public get booleanValue() {
-      if (!isBlob(this.responseText)) {
+      if (!Helpers.isBlob(this.responseText)) {
         return ['ok', 'true'].includes((this.responseText as string).trim());
       }
     }
 
     public get rawJson(): Partial<T> {
-      if (!isBlob(this.responseText)) {
+      if (!Helpers.isBlob(this.responseText)) {
         let res = this.toJSON(this.responseText, this.isArray);
         if (this.circular && Array.isArray(this.circular)) {
           res = JSON10.parse(JSON.stringify(res), this.circular)
@@ -159,7 +160,7 @@ export namespace Models {
     }
 
     public get json(): T {
-      if (!isBlob(this.responseText)) {
+      if (!Helpers.isBlob(this.responseText)) {
         if (this.entity && typeof this.entity === 'function') {
           return this.entity(); // @LAST
         }
@@ -175,7 +176,7 @@ export namespace Models {
       }
     }
     public get text() {
-      if (!isBlob(this.responseText)) {
+      if (!Helpers.isBlob(this.responseText)) {
 
         return (this.responseText as string).replace(/^\"/, '').replace(/\"$/, '')
       }
@@ -295,17 +296,7 @@ export namespace Models {
     | 'arraybuffer'
     | 'document'
     | 'stream'
-    // | 'json' - I am parsing json from text...
+  // | 'json' - I am parsing json from text...
 
   //#endregion
-}
-
-// const { toString } = Object.prototype;
-function isBlob(maybeBlob) {
-
-  if (typeof Blob === 'undefined') { // OK because there is no Blob in node
-    return false;
-  }
-                                    // TODO is this needed hmmmm
-  return maybeBlob instanceof Blob; // || toString.call(maybeBlob) === '[object Blob]';
 }
