@@ -4,6 +4,7 @@
   overrided: {
     dependencies: {},
     includeAsDev: [],
+
     includeOnly: [
       "@types/diff",
       "diff",
@@ -14,8 +15,10 @@
       "json5",
       "json10",
     ],
+
     ignoreDepsPattern: [],
     linkedFolders: [],
+    npmFixes: [],
   },
 
   linkedProjects: [],
