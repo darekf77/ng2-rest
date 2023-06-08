@@ -34,7 +34,7 @@
 
   smartContainerTarget: '',
   type: "isomorphic-lib",
-  version: "v3",
+  version: 'v16',
   additionalNpmNames: ["firedev-rest"],
   license: "MIT",
   private: false,
