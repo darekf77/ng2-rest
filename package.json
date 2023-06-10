@@ -1,4 +1,57 @@
 {
+  "tnp": {
+    "resources": [
+      "README.md"
+    ],
+    "overrided": {
+      "dependencies": {},
+      "includeAsDev": [],
+      "includeOnly": [
+        "@types/diff",
+        "diff",
+        "axios",
+        "lodash",
+        "@types/lodash",
+        "ng2-logger",
+        "json5",
+        "json10"
+      ],
+      "ignoreDepsPattern": [],
+      "linkedFolders": [],
+      "npmFixes": []
+    },
+    "linkedProjects": [],
+    "smartContainerBuildTarget": "",
+    "linkedRepos": [],
+    "libReleaseOptions": {
+      "nodts": false,
+      "obscure": false,
+      "ugly": false,
+      "includeNodeModules": false
+    },
+    "smartContainerTarget": "",
+    "type": "isomorphic-lib",
+    "version": "v4",
+    "additionalNpmNames": [
+      "firedev-rest"
+    ],
+    "license": "MIT",
+    "private": false,
+    "author": {
+      "name": "Dariusz Filipiak"
+    },
+    "homepage": "https://github.com/darekf77/ng2-rest#readme",
+    "scripts": {
+      "build:watch": "npm-run watch \"morphi build\" src"
+    },
+    "keywords": [
+      "isomorphic",
+      "logger",
+      "log",
+      "typescript"
+    ],
+    "workerPlugins": {}
+  },
   "name": "ng2-rest",
   "version": "16.0.11",
   "scripts": {
