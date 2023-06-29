@@ -3,7 +3,7 @@ import { Subscription } from 'rxjs';
 import { Observer } from 'rxjs';
 
 import { Models } from '../models';
-import { Resource } from '../resource.service';
+import { Resource } from '../resource-service';
 
 
 
