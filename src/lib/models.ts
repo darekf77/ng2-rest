@@ -12,6 +12,9 @@ import { RequestCache } from './request-cache';
 import { _ } from 'tnp-core';
 import { ConfigModels } from 'tnp-config';
 import { Helpers } from 'tnp-core';
+//#region @backend
+import { Blob } from 'buffer';
+//#endregion
 // const log = Log.create('rest namespace', Level.__NOTHING)
 
 export namespace Models {
