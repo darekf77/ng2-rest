@@ -145,9 +145,15 @@ export namespace Models {
       return this.responseText as Blob;
     }
 
-    public get booleanValue() {
+    public get booleanValue(): boolean | undefined {
       if (!Helpers.isBlob(this.responseText)) {
         return ['ok', 'true'].includes((this.responseText as string).trim());
+      }
+    }
+
+    public get numericValue(): number | undefined {
+      if (!Helpers.isBlob(this.responseText)) {
+        return Number(this.responseText?.trim());
       }
     }
 
@@ -178,9 +184,12 @@ export namespace Models {
         return res;
       }
     }
-    public get text() {
-      if (!Helpers.isBlob(this.responseText)) {
 
+    /**
+     * undefined when blob
+     */
+    public get text(): string | undefined {
+      if (!Helpers.isBlob(this.responseText)) {
         return (this.responseText as string).replace(/^\"/, '').replace(/\"$/, '')
       }
     }
