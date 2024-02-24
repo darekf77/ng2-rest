@@ -1,27 +1,4 @@
 {
-  "tnp": {
-    "resources": [],
-    "version": "v2",
-    "type": "workspace",
-    "overrided": {
-      "ignoreDepsPattern": [],
-      "includeAsDev": [],
-      "includeOnly": [],
-      "dependencies": {},
-      "linkedFolders": []
-    },
-    "linkedProjects": [],
-    "libReleaseOptions": {
-      "nodts": false,
-      "obscure": false,
-      "ugly": false,
-      "includeNodeModules": false
-    },
-    "license": "UNLICENSED",
-    "private": true,
-    "linkedRepos": [],
-    "smartContainerBuildTarget": ""
-  },
   "name": "preview",
   "version": "0.0.0",
   "dependencies": {
