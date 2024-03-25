@@ -10,7 +10,7 @@ import { Models as HelpersModels } from 'typescript-class-helpers'
 import { JSON10, Circ } from 'json10';
 import { RequestCache } from './request-cache';
 import { _ } from 'tnp-core';
-import { ConfigModels } from 'tnp-config';
+import { CoreModels } from 'tnp-core';
 import { Helpers } from 'tnp-core';
 //#region @backend
 import { Blob } from 'buffer';
@@ -19,8 +19,8 @@ import { Blob } from 'buffer';
 
 export namespace Models {
 
-  export import HttpMethod = ConfigModels.HttpMethod;
-  export import ParamType = ConfigModels.ParamType;
+  export import HttpMethod = CoreModels.HttpMethod;
+  export import ParamType = CoreModels.ParamType;
 
   export import MethodConfig = HelpersModels.MethodConfig;
   export import ClassConfig = HelpersModels.ClassConfig;
@@ -71,11 +71,11 @@ export namespace Models {
      */
     id: number;
   };
-  export type ReqParams = { url: string, method: ConfigModels.HttpMethod, headers?: RestHeaders, body?: any, jobid: number, isArray: boolean };
+  export type ReqParams = { url: string, method: CoreModels.HttpMethod, headers?: RestHeaders, body?: any, jobid: number, isArray: boolean };
 
   export interface ResourceModel<A, TA> {
     model: (pathModels?: Object, responseObjectType?: Function) => Rest<A, TA>,
-    replay: (method: ConfigModels.HttpMethod) => void;
+    replay: (method: CoreModels.HttpMethod) => void;
     headers: RestHeaders;
   }
 
@@ -91,7 +91,7 @@ export namespace Models {
 
   export type MockController = (
     url: string,
-    method: ConfigModels.HttpMethod,
+    method: CoreModels.HttpMethod,
     headers?: RestHeaders,
     body?: any
   ) => MockResponse;
