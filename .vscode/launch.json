@@ -13,14 +13,9 @@
       "outFiles": [
         "${workspaceFolder}/dist/**/*.js",
         "!**/node_modules/**",
-        "c:/Users/darek/projects/npm/firedev-io/firedev-simple-org/tmp-dist-release/dist/project/firedev-simple-org/main/src/lib/../dist/**/*.js",
-        "c:/Users/darek/projects/npm/firedev-io/firedev-simple-org/tmp-dist-release/dist/project/firedev-simple-org/second/src/lib/../dist/**/*.js",
-        "c:/Users/darek/projects/npm/firedev-io/firedev-simple-org/tmp-dist-release/dist/project/firedev-simple-org/third/src/lib/../dist/**/*.js",
         "c:/Users/darek/projects/npm/cli-tools/cez-cli/src/../dist/**/*.js",
-        "c:/Users/darek/projects/npm/firedev-io/firedev/projects/examples/electron-remote-service/src/../dist/**/*.js",
         "c:/Users/darek/projects/npm/cli-tools/navi-cli/src/../dist/**/*.js",
-        "c:/Users/darek/projects/npm/firedev-io/tnp/tmp-dist-release/dist/project/tnp/src/../dist/**/*.js",
-        "c:/Users/darek/projects/npm/cli-tools/vpn-cli/src/../dist/**/*.js"
+        "c:/Users/darek/projects/npm/firedev-io/tnp/tmp-dist-release/dist/project/tnp/src/../dist/**/*.js"
       ],
       "runtimeArgs": [
         "--nolazy",
