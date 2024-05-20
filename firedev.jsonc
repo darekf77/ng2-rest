@@ -17,7 +17,7 @@
     "linkedFolders": [],
     "npmFixes": [],
   },
-  "smartContainerBuildTarget": '',
+  "smartContainerBuildTarget": "",
   "linkedRepos": [],
   "libReleaseOptions": {
     "nodts": false,
@@ -29,9 +29,9 @@
     "cliBuildIncludeNodeModules": false,
     "cliBuildUglify": false,
   },
-  "smartContainerTarget": '',
+  "smartContainerTarget": "",
   "type": "isomorphic-lib",
-  "version": 'v4',
+  "version": "v4",
   "additionalNpmNames": ["firedev-rest"],
   "license": "MIT",
   "private": false,
@@ -39,9 +39,6 @@
     "name": "Dariusz Filipiak",
   },
   "homepage": "https://github.com/darekf77/ng2-rest#readme",
-  "scripts": {
-    "build:watch": 'npm-run watch "morphi build" src',
-  },
   "keywords": ["isomorphic", "logger", "log", "typescript"],
   "workerPlugins": {},
 }
