@@ -54,9 +54,6 @@
   },
   "name": "ng2-rest",
   "version": "16.100.5",
-  "scripts": {
-    "build:watch": "npm-run watch \"morphi build\" src"
-  },
   "bugs": {
     "url": "https://github.com/darekf77/ng2-rest/issues"
   },
