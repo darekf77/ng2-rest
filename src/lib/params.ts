@@ -1,6 +1,6 @@
 import { diffChars } from 'diff';
-import { _ } from 'tnp-core';
-import { Log, Level } from 'ng2-logger';
+import { _ } from 'tnp-core/src';
+import { Log, Level } from 'ng2-logger/src';
 import { Models } from './models';
 import { Helpers } from './helpers';
 

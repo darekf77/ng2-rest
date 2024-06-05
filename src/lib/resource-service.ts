@@ -1,7 +1,7 @@
 //#region imports
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
-import { Log, Level } from 'ng2-logger';
+import { Log, Level } from 'ng2-logger/src';
 const log = Log.create('resouce-service',
   Level.__NOTHING
 )
@@ -13,8 +13,8 @@ import { Cookie } from './cookie';
 import { Mapping } from './mapping';
 import { Models } from './models';
 import { interpolateParamsToUrl, isValid, containsModels, getModels } from './params';
-import { Circ } from 'json10';
-import { Helpers } from 'tnp-core'
+import { Circ } from 'json10/src';
+import { Helpers } from 'tnp-core/src'
 //#endregion
 
 declare const global: any;

@@ -1,5 +1,5 @@
 //#region import
-import { Log, Level } from 'ng2-logger';
+import { Log, Level } from 'ng2-logger/src';
 // const log = Log.create('rest.class', Level.__NOTHING)
 // local
 import { Models } from './models';
@@ -7,7 +7,7 @@ import { getRestParams, getParamsUrl } from './params';
 import { RestRequest } from './rest-request';
 import { RestHeaders } from './rest-headers';
 import { CONTENT_TYPE } from './content-type';
-import { CLASS } from 'typescript-class-helpers';
+import { CLASS } from 'typescript-class-helpers/src';
 //#endregion
 
 export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {

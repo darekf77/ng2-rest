@@ -1,16 +1,16 @@
 import { firstValueFrom, Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 
-import { _ } from 'tnp-core';
+import { _ } from 'tnp-core/src';
 
 import { Models } from './models';
 import { RestHeaders } from './rest-headers';
 
-import { Helpers } from 'tnp-core';
-import { Level } from 'ng2-logger';
+import { Helpers } from 'tnp-core/src';
+import { Level } from 'ng2-logger/src';
 import axios, { AxiosResponse } from 'axios';
 import { Resource } from './resource-service';
-import { Log, Logger } from 'ng2-logger';
+import { Log, Logger } from 'ng2-logger/src';
 
 import { RequestCache } from './request-cache';
 const log = Log.create('[ng2-rest] rest-request'

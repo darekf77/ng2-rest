@@ -1,9 +1,9 @@
-import { _ } from 'tnp-core';
-import { Helpers } from 'tnp-core';
-import { Circ, JSON10 } from 'json10';
-import { walk } from 'lodash-walk-object';
-import { CLASS, SYMBOL } from 'typescript-class-helpers';
-import { Helpers as HelpersLog } from 'tnp-core';
+import { _ } from 'tnp-core/src';
+import { Helpers } from 'tnp-core/src';
+import { Circ, JSON10 } from 'json10/src';
+import { walk } from 'lodash-walk-object/src';
+import { CLASS, SYMBOL } from 'typescript-class-helpers/src';
+import { Helpers as HelpersLog } from 'tnp-core/src';
 
 export namespace Mapping {
 

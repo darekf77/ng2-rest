@@ -1,7 +1,7 @@
-import { _ } from 'tnp-core';
-import { CoreHelpers } from 'tnp-core';
+import { _ } from 'tnp-core/src';
+import { CoreHelpers } from 'tnp-core/src';
 import { Mapping } from './mapping';
-import { JSON10 } from 'json10';
+import { JSON10 } from 'json10/src';
 
 // @ts-ignore
 export class Helpers extends CoreHelpers {

@@ -1,17 +1,17 @@
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
-import { Log, Level } from 'ng2-logger';
+import { Log, Level } from 'ng2-logger/src';
 import { RestHeaders } from './rest-headers';
 import { Rest } from './rest.class';
 import { Cookie } from './cookie';
 import { Mapping } from './mapping';
 import { AxiosResponse } from 'axios';
-import { Models as HelpersModels } from 'typescript-class-helpers'
-import { JSON10, Circ } from 'json10';
+import { Models as HelpersModels } from 'typescript-class-helpers/src'
+import { JSON10, Circ } from 'json10/src';
 import { RequestCache } from './request-cache';
-import { _ } from 'tnp-core';
-import { CoreModels } from 'tnp-core';
-import { Helpers } from 'tnp-core';
+import { _ } from 'tnp-core/src';
+import { CoreModels } from 'tnp-core/src';
+import { Helpers } from 'tnp-core/src';
 //#region @backend
 import { Blob } from 'buffer';
 //#endregion
