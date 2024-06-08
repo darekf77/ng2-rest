@@ -53,7 +53,7 @@
     "workerPlugins": {}
   },
   "name": "ng2-rest",
-  "version": "16.444.1",
+  "version": "16.444.2",
   "bugs": {
     "url": "https://github.com/darekf77/ng2-rest/issues"
   },
