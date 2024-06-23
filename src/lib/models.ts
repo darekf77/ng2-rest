@@ -6,7 +6,7 @@ import { Rest } from './rest.class';
 import { Cookie } from './cookie';
 import { Mapping } from './mapping';
 import { AxiosResponse } from 'axios';
-import { Models as HelpersModels } from 'typescript-class-helpers/src'
+import { Models as HelpersModels } from 'typescript-class-helpers/src';
 import { JSON10, Circ } from 'json10/src';
 import { RequestCache } from './request-cache';
 import { _ } from 'tnp-core/src';
@@ -18,14 +18,12 @@ import { Blob } from 'buffer';
 // const log = Log.create('rest namespace', Level.__NOTHING)
 
 export namespace Models {
-
   export import HttpMethod = CoreModels.HttpMethod;
   export import ParamType = CoreModels.ParamType;
 
   export import MethodConfig = HelpersModels.MethodConfig;
   export import ClassConfig = HelpersModels.ClassConfig;
-  export import ParamConfig = HelpersModels.ParamConfig
-
+  export import ParamConfig = HelpersModels.ParamConfig;
 
   export interface HandleResultOptions {
     res: Models.MockResponse;
@@ -35,46 +33,60 @@ export namespace Models {
   }
 
   export interface HandleResultSourceRequestOptions {
-    url: string,
-    method: Models.HttpMethod,
+    url: string;
+    method: Models.HttpMethod;
     // headers?: RestHeaders,
-    body: any,
-    isArray: boolean,
+    body: any;
+    isArray: boolean;
   }
 
   export type BackendError = {
     msg?: string;
     stack?: string[];
     data: any;
-  }
+  };
 
   export type MetaRequest = {
-    path: string,
+    path: string;
     endpoint: string;
     entity: Mapping.Mapping;
     circular: Circ[];
-  }
+  };
   export type HttpCode = 200 | 400 | 401 | 404 | 500;
 
   export type PromiseObservableMix<T> = Promise<T> & {
-    cache?: RequestCache,
+    cache?: RequestCache;
     observable: Observable<T>;
-  }
+  };
 
-  export type MethodWithoutBody<E, T, R = PromiseObservableMix<E>> = (params?: UrlParams[], doNotSerializeParams?: boolean) => R
-  export type MethodWithBody<E, T, R = PromiseObservableMix<E>> = (item?: T, params?: UrlParams[], doNotSerializeParams?: boolean) => R
+  export type MethodWithoutBody<E, T, R = PromiseObservableMix<E>> = (
+    params?: UrlParams[],
+    doNotSerializeParams?: boolean,
+  ) => R;
+  export type MethodWithBody<E, T, R = PromiseObservableMix<E>> = (
+    item?: T,
+    params?: UrlParams[],
+    doNotSerializeParams?: boolean,
+  ) => R;
   export type ReplayData = {
-    subject: Subject<any>,
-    data: { url: string, body: string, headers: RestHeaders, isArray: boolean; },
+    subject: Subject<any>;
+    data: { url: string; body: string; headers: RestHeaders; isArray: boolean };
     /**
      * jobid
      */
     id: number;
   };
-  export type ReqParams = { url: string, method: CoreModels.HttpMethod, headers?: RestHeaders, body?: any, jobid: number, isArray: boolean };
+  export type ReqParams = {
+    url: string;
+    method: CoreModels.HttpMethod;
+    headers?: RestHeaders;
+    body?: any;
+    jobid: number;
+    isArray: boolean;
+  };
 
   export interface ResourceModel<A, TA> {
-    model: (pathModels?: Object, responseObjectType?: Function) => Rest<A, TA>,
+    model: (pathModels?: Object, responseObjectType?: Function) => Rest<A, TA>;
     replay: (method: CoreModels.HttpMethod) => void;
     headers: RestHeaders;
   }
@@ -93,21 +105,21 @@ export namespace Models {
     url: string,
     method: CoreModels.HttpMethod,
     headers?: RestHeaders,
-    body?: any
+    body?: any,
   ) => MockResponse;
 
-  export type MockHttp = (MockResponse | MockController);
+  export type MockHttp = MockResponse | MockController;
 
-  export interface FnMethodsHttp<T, TA> extends Ng2RestMethods<HttpResponse<T>, T> {
+  export interface FnMethodsHttp<T, TA>
+    extends Ng2RestMethods<HttpResponse<T>, T> {
     array: Ng2RestMethods<HttpResponse<TA>, TA>;
-  };
+  }
 
-  export interface FnMethodsHttpWithMock<T, TA> extends Ng2RestMethods<HttpResponse<T>, T> {
+  export interface FnMethodsHttpWithMock<T, TA>
+    extends Ng2RestMethods<HttpResponse<T>, T> {
     array: Ng2RestMethods<HttpResponse<TA>, TA>;
     mock(mock: MockHttp, code: HttpCode): FnMethodsHttp<T, TA>;
-  };
-
-
+  }
 
   export interface NestedParams {
     [params: string]: string;
@@ -116,7 +128,8 @@ export namespace Models {
   export interface UrlParams {
     [urlModelName: string]: string | number | boolean | RegExp | Object;
     regex?: RegExp;
-  }[];
+  }
+  [];
 
   export abstract class BaseBody {
     protected toJSON(data, isJSONArray = false) {
@@ -124,7 +137,7 @@ export namespace Models {
       if (typeof data === 'string') {
         try {
           r = JSON.parse(data);
-        } catch (e) { }
+        } catch (e) {}
       } else if (typeof data === 'object') {
         return data;
       }
@@ -133,10 +146,11 @@ export namespace Models {
   }
 
   export class HttpBody<T> extends BaseBody {
-
-    constructor(private responseText: string | Blob, private isArray = false,
+    constructor(
+      private responseText: string | Blob,
+      private isArray = false,
       private entity: Mapping.Mapping,
-      private circular: Circ[]
+      private circular: Circ[],
     ) {
       super();
     }
@@ -161,7 +175,7 @@ export namespace Models {
       if (!Helpers.isBlob(this.responseText)) {
         let res = this.toJSON(this.responseText, this.isArray);
         if (this.circular && Array.isArray(this.circular)) {
-          res = JSON10.parse(JSON.stringify(res), this.circular)
+          res = JSON10.parse(JSON.stringify(res), this.circular);
         }
 
         return res;
@@ -169,20 +183,23 @@ export namespace Models {
     }
 
     public get json(): T {
-      if (!Helpers.isBlob(this.responseText)) {
-        if (this.entity && typeof this.entity === 'function') {
-          return this.entity(); // @LAST
-        }
-        if (this.entity && typeof this.entity === 'object') {
-          const json = this.toJSON(this.responseText, this.isArray);
-          return Mapping.encode(json, this.entity, this.circular) as any;
-        }
-        let res = this.toJSON(this.responseText, this.isArray);
-        if (this.circular && Array.isArray(this.circular)) {
-          res = JSON10.parse(JSON.stringify(res), this.circular)
-        }
-        return res;
+
+      const isBlob = Helpers.isBlob(this.responseText);
+      if (isBlob) {
+        return void 0;
       }
+      if (this.entity && typeof this.entity === 'function') {
+        return this.entity(); // @LAST
+      }
+      if (this.entity && typeof this.entity === 'object') {
+        const json = this.toJSON(this.responseText, this.isArray);
+        return Mapping.encode(json, this.entity, this.circular) as any;
+      }
+      let res = this.toJSON(this.responseText, this.isArray);
+      if (this.circular && Array.isArray(this.circular)) {
+        res = JSON10.parse(JSON.stringify(res), this.circular);
+      }
+      return res;
     }
 
     /**
@@ -190,7 +207,9 @@ export namespace Models {
      */
     public get text(): string | undefined {
       if (!Helpers.isBlob(this.responseText)) {
-        return (this.responseText as string).replace(/^\"/, '').replace(/\"$/, '')
+        return (this.responseText as string)
+          .replace(/^\"/, '')
+          .replace(/\"$/, '');
       }
     }
   }
@@ -204,10 +223,9 @@ export namespace Models {
       return this.toJSON(this.data);
     }
     public get text() {
-      return this.data
+      return this.data;
     }
   }
-
 
   export abstract class BaseResponse<T> {
     protected static readonly cookies = Cookie.Instance;
@@ -219,9 +237,8 @@ export namespace Models {
       public responseText?: string | Blob,
       public readonly headers?: RestHeaders,
       public readonly statusCode?: HttpCode | number,
-      public isArray = false
-    ) {
-    }
+      public isArray = false,
+    ) {}
   }
 
   export class HttpResponse<T> extends BaseResponse<T> {
@@ -246,13 +263,13 @@ export namespace Models {
       // })
       super(responseText, headers, statusCode, isArray);
 
-      this.init()
+      this.init();
     }
 
     public init() {
       if (typeof this.entity === 'string') {
         // const headerWithMapping = headers.get(entity);
-        let entityJSON = this.headers.getAll(this.entity)
+        let entityJSON = this.headers.getAll(this.entity);
         if (!!entityJSON) {
           this.entity = JSON.parse(entityJSON.join());
         }
@@ -263,9 +280,13 @@ export namespace Models {
         if (!!circuralJSON) {
           this.circular = JSON.parse(circuralJSON.join());
         }
-
       }
-      this.body = new HttpBody(this.responseText, this.isArray, this.entity, this.circular) as any;
+      this.body = new HttpBody(
+        this.responseText,
+        this.isArray,
+        this.entity,
+        this.circular,
+      ) as any;
     }
 
     get cache() {
@@ -274,7 +295,6 @@ export namespace Models {
       }
       return new RequestCache(this);
     }
-
   }
 
   export class HttpResponseError extends BaseResponse<any> {
@@ -290,7 +310,7 @@ export namespace Models {
       public jobid?: number,
     ) {
       super(responseText, headers, statusCode);
-      this.body = new ErrorBody(responseText)
+      this.body = new ErrorBody(responseText);
     }
   }
 
@@ -303,11 +323,13 @@ export namespace Models {
     isArray: boolean;
   }
 
-  export type ResponseTypeAxios = 'blob' | 'text'
+  export type ResponseTypeAxios =
+    | 'blob'
+    | 'text'
     //#region @backend
     | 'arraybuffer'
     | 'document'
-    | 'stream'
+    | 'stream';
   // | 'json' - I am parsing json from text...
 
   //#endregion
