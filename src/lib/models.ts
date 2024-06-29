@@ -242,7 +242,7 @@ export namespace Models {
   }
 
   export class HttpResponse<T> extends BaseResponse<T> {
-    public body?: HttpBody<T>;
+    public body: HttpBody<T>;
     // public readonly TOTAL_COUNT_HEADER = 'X-Total-Count'.toLowerCase();
     // public get totalElements(): number {
     //     return Number(this.headers.get(this.TOTAL_COUNT_HEADER));
