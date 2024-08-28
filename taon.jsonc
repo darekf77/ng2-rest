@@ -38,7 +38,7 @@
   "smartContainerTarget": "",
   "type": "isomorphic-lib",
   "version": "v18",
-  "additionalNpmNames": ["firedev-rest"],
+  "additionalNpmNames": ["taon-rest"],
   "license": "MIT",
   "private": false,
 
