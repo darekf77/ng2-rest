@@ -7,7 +7,7 @@
       "name": "Debug/Start Server",
       "program": "${workspaceFolder}/run.js",
       "args": [
-        "port=4504",
+        "port=4508",
         "--ENVoverride=%7B%0A%20%20%20%20%22clientProjectName%22%3A%20%22ng2-rest%22%0A%7D "
       ],
       "outFiles": [
