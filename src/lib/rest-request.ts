@@ -17,6 +17,9 @@ const log = Log.create('[ng2-rest] rest-request'
   , Level.__NOTHING
 )
 
+/**
+ * TODO refactor this (remove jobid)
+ */
 const jobIDkey = 'jobID';
 const customObs = 'customObs';
 const cancelFn = 'cancelFn';

@@ -269,14 +269,14 @@ export namespace Models {
     public init() {
       if (typeof this.entity === 'string') {
         // const headerWithMapping = headers.get(entity);
-        let entityJSON = this.headers.getAll(this.entity);
+        let entityJSON = this.headers?.getAll(this.entity);
         if (!!entityJSON) {
           this.entity = JSON.parse(entityJSON.join());
         }
       }
       if (typeof this.circular === 'string') {
         // const headerWithMapping = headers.get(circular);
-        let circuralJSON = this.headers.getAll(this.circular);
+        let circuralJSON = this.headers?.getAll(this.circular);
         if (!!circuralJSON) {
           this.circular = JSON.parse(circuralJSON.join());
         }
