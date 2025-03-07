@@ -50,7 +50,8 @@
       "log",
       "typescript"
     ],
-    "workerPlugins": {}
+    "workerPlugins": {},
+    "packageJsonOverride": {}
   },
   "name": "ng2-rest",
   "version": "18.0.20",

@@ -48,5 +48,6 @@
 
   "homepage": "https://github.com/darekf77/ng2-rest#readme",
   "keywords": ["isomorphic", "logger", "log", "typescript"],
-  "workerPlugins": {}
+  "workerPlugins": {},
+  "packageJsonOverride": {}
 }
