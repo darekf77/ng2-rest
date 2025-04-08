@@ -1,52 +1,43 @@
 {
-  "resources": ["README.md"],
-
-  "overrided": {
-    "dependencies": {},
-    "includeAsDev": [],
-
-    "includeOnly": [
-      "@types/diff",
-      "diff",
-      "axios",
-      "lodash",
-      "@types/lodash",
-      "ng2-logger",
-      "json5",
-      "json10"
-    ],
-
-    "ignoreDepsPattern": [],
-    "linkedFolders": [],
-    "npmFixes": []
-  },
-
-  "smartContainerBuildTarget": "",
-  "linkedRepos": [],
-
-  "libReleaseOptions": {
-    "nodts": false,
-    "obscure": false,
-    "ugly": false,
-    "includeNodeModules": false,
-    "cliBuildNoDts": false,
-    "cliBuildObscure": false,
-    "cliBuildIncludeNodeModules": false,
-    "cliBuildUglify": false
-  },
-
-  "smartContainerTarget": "",
   "type": "isomorphic-lib",
   "version": "v18",
+
+  "dependenciesNamesForNpmLib": [
+    "@types/diff",
+    "diff",
+    "axios",
+    "lodash",
+    "@types/lodash",
+    "ng2-logger",
+    "json5",
+    "json10"
+  ],
+
   "additionalNpmNames": ["taon-rest"],
-  "license": "MIT",
-  "private": false,
 
-  "author": {
-    "name": "Dariusz Filipiak"
-  },
+  "autoReleaseConfigAllowedItems": [{
+    "artifactName": "npm-lib-and-cli-tool"
+  }],
 
-  "homepage": "https://github.com/darekf77/ng2-rest#readme",
-  "keywords": ["isomorphic", "logger", "log", "typescript"],
-  "workerPlugins": {}
+  "resources": ["README.md"],
+
+  "packageJsonOverride": {
+    "author": {
+      "name": "Dariusz Filipiak"
+    },
+
+    "bugs": {
+      "url": "https://github.com/darekf77/ng2-rest/issues"
+    },
+
+    "homepage": "https://github.com/darekf77/ng2-rest#readme",
+    "keywords": ["isomorphic", "logger", "log", "typescript"],
+    "license": "MIT",
+    "private": false,
+
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/darekf77/ng2-rest.git"
+    }
+  }
 }
