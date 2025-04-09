@@ -4,15 +4,7 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "strictNullChecks": false,
-    "rootDir": "./src",
-    "paths": {
-      "ng2-rest": [
-        "./src/lib"
-      ],
-      "ng2-rest/*": [
-        "./src/lib/*"
-      ]
-    }
+    "rootDir": "./src"
   },
   "include": [
     "src/**/*"
