@@ -53,7 +53,6 @@ Thumbs.db
 /taon-config-standalone.schema.json
 /taon-config-container.schema.json
 /webpack.config.js
-/webpack.backend-dist-build.js
 /run.js
 /run-org.js
 /update-vscode-package-json.js
