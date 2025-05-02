@@ -4,10 +4,16 @@
     "strictNullChecks": false,
     "rootDir": "./src",
     "paths": {
-      "ng2-rest": [
+      "@lib": [
         "./src/lib"
       ],
-      "ng2-rest/*": [
+      "@lib/*": [
+        "./src/lib/*"
+      ],
+      "ng2-rest/src": [
+        "./src/lib"
+      ],
+      "ng2-rest/src/*": [
         "./src/lib/*"
       ]
     }
