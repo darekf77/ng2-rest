@@ -167,7 +167,7 @@ export namespace Models {
 
     public get numericValue(): number | undefined {
       if (!Helpers.isBlob(this.responseText)) {
-        return Number(this.responseText?.trim());
+        return Number((this.responseText as string)?.trim());
       }
     }
 
@@ -183,7 +183,6 @@ export namespace Models {
     }
 
     public get json(): T {
-
       const isBlob = Helpers.isBlob(this.responseText);
       if (isBlob) {
         return void 0;
