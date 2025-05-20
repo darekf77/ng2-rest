@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "19.0.13",
+  "version": "19.0.14",
   "license": "MIT",
   "author": {
     "name": "Dariusz Filipiak"
@@ -338,6 +338,7 @@
     "log",
     "typescript"
   ],
+  "main": "dist/app.electron.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/darekf77/ng2-rest.git"
