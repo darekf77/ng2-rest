@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "19.0.18",
+  "version": "19.0.19",
   "scripts": {
     "taon build:lib": "taon build:lib",
     "taon build:watch:app": "taon build:watch:app",
