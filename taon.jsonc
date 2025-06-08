@@ -31,17 +31,17 @@
       "url": "https://github.com/darekf77/ng2-rest/issues"
     },
 
+    "description": "Description for ng2-rest. Hello world!",
     "homepage": "https://github.com/darekf77/ng2-rest#readme",
     "keywords": ["isomorphic", "logger", "log", "typescript"],
     "license": "MIT",
+
     "private": false,
 
     "repository": {
       "type": "git",
       "url": "git+https://github.com/darekf77/ng2-rest.git"
     },
-
-    "scripts": {},
-    "description": "Description for ng2-rest. Hello world!"
+    "scripts": {}
   }
 }
