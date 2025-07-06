@@ -1,22 +1,24 @@
-import { _ } from 'tnp-core/src';
+import { _, UtilsOs } from 'tnp-core/src';
 import { Models } from './models';
 import { Log, Level } from 'ng2-logger/src';
 import { Helpers } from 'tnp-core/src';
 import { RestHeaders } from './rest-headers';
-const log = Log.create('request-cache', Level.__NOTHING)
+// const log = Log.create('request-cache', Level.__NOTHING);
 
 /**
  * @deprecated
  * there is Cache API for that
  */
 export class RequestCache {
-
   static readonly LOCAL_STORAGE_KEY = 'ng2restrequestcache';
 
   private static cached: RequestCache[] = [];
   private static isRestoredFromLocalStorage = false;
 
   private static restoreFromLocalStorage() {
+    if (UtilsOs.isSSRMode) {
+      return;
+    }
     if (Helpers.isNode) {
       return;
     }
@@ -27,12 +29,19 @@ export class RequestCache {
       if (data) {
         try {
           requests = JSON.parse(data) as RequestCache[];
-        } catch (error) {
-
-        }
+        } catch (error) {}
         const restored = requests.map(r => {
-          let { sourceRequest, responseText, body, headers, circular,
-            entity, isArray, cookies, statusCode } = r.response;
+          let {
+            sourceRequest,
+            responseText,
+            body,
+            headers,
+            circular,
+            entity,
+            isArray,
+            cookies,
+            statusCode,
+          } = r.response;
           r.response = new Models.HttpResponse(
             sourceRequest,
             responseText,
@@ -48,16 +57,18 @@ export class RequestCache {
 
           return r;
         });
-        log.i('RESTORED FROM LOCAL STORAGE', restored);
+        // log.i('RESTORED FROM LOCAL STORAGE', restored);
         RequestCache.cached = restored;
       }
-
     }
   }
 
   public static findBy(sourceRequest: Models.HandleResultSourceRequestOptions) {
-    log.i('findby', sourceRequest)
-    log.i('RequestCache.cached', RequestCache.cached)
+    if (UtilsOs.isSSRMode) {
+      return;
+    }
+    // log.i('findby', sourceRequest);
+    // log.i('RequestCache.cached', RequestCache.cached);
     RequestCache.restoreFromLocalStorage();
     return RequestCache.cached.find(c => {
       const a = c.response.sourceRequest;
@@ -67,18 +78,11 @@ export class RequestCache {
         a.url === b.url &&
         a.method === b.method &&
         a.body === b.body
-      )
+      );
     });
   }
 
-
-
-
-  constructor(
-    public response: Models.HttpResponse<any>
-  ) {
-
-  }
+  constructor(public response: Models.HttpResponse<any>) {}
 
   get containsCache() {
     RequestCache.restoreFromLocalStorage();
@@ -86,23 +90,33 @@ export class RequestCache {
   }
 
   private persistsInLocalStorage() {
-    localStorage.setItem(RequestCache.LOCAL_STORAGE_KEY,
-      JSON.stringify(RequestCache.cached.map(r => {
-        return {
-          response: {
-            sourceRequest: r.response.sourceRequest,
-            responseText: r.response.responseText,
-            headers: r.response.headers,
-            statusCode: r.response.statusCode,
-            entity: r.response.entity,
-            circular: r.response.circular,
-            isArray: r.response.isArray,
-          } as Models.HttpResponse<any>
-        };
-      })));
+    if (UtilsOs.isSSRMode) {
+      return;
+    }
+    localStorage.setItem(
+      RequestCache.LOCAL_STORAGE_KEY,
+      JSON.stringify(
+        RequestCache.cached.map(r => {
+          return {
+            response: {
+              sourceRequest: r.response.sourceRequest,
+              responseText: r.response.responseText,
+              headers: r.response.headers,
+              statusCode: r.response.statusCode,
+              entity: r.response.entity,
+              circular: r.response.circular,
+              isArray: r.response.isArray,
+            } as Models.HttpResponse<any>,
+          };
+        }),
+      ),
+    );
   }
 
   store() {
+    if (UtilsOs.isSSRMode) {
+      return;
+    }
     RequestCache.restoreFromLocalStorage();
     if (!this.containsCache) {
       RequestCache.cached.push(this);
@@ -114,6 +128,9 @@ export class RequestCache {
   }
 
   remove() {
+    if (UtilsOs.isSSRMode) {
+      return;
+    }
     RequestCache.restoreFromLocalStorage();
     const index = RequestCache.cached.indexOf(this);
     if (index !== -1) {
@@ -123,5 +140,4 @@ export class RequestCache {
       console.log('already removed');
     }
   }
-
 }
