@@ -161,7 +161,11 @@ export class RestRequest {
 
     try {
       if (!response) {
-        // console.log(`[${method}] (jobid=${jobid}) request to:  ${url}`);
+        //#region @backend
+        Helpers.log(
+          `[${method}] (jobid=${jobid}) request to:  ${(url || '')?.split('?')[0]}`,
+        );
+        //#endregion
 
         // console.log('headers axios:', headers.toJSON())
         // console.log({ responseType, headersJson, body, method, url })
@@ -502,8 +506,7 @@ export class RestRequest {
     const method = 'jsonp';
 
     if (UtilsOs.isSSRMode) {
-      const emptyStuff =
-        Promise.resolve() as Models.PromiseObservableMix<any>;
+      const emptyStuff = Promise.resolve() as Models.PromiseObservableMix<any>;
       emptyStuff.observable = new Observable<any>();
       emptyStuff.cache = RequestCache.findBy({
         body,
