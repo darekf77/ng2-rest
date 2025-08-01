@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "19.0.31",
+  "version": "19.0.32",
   "scripts": {
     "taon init": "taon init",
     "taon start": "taon start",
@@ -237,6 +237,7 @@
     "lodash-walk-object": "~19.0.0",
     "lowdb": "7.0.1",
     "magic-renamer": "~19.0.0",
+    "mariadb": "~3.4.4",
     "material-design-icons": "3.0.1",
     "method-override": "^2.3.10",
     "minimist": "~1.2.8",
