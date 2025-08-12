@@ -1,5 +1,5 @@
 //#region imports
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Level } from 'ng2-logger/src';
 import { Log, Logger } from 'ng2-logger/src';
 import { firstValueFrom, Observable } from 'rxjs';
@@ -8,7 +8,6 @@ import { _, UtilsOs } from 'tnp-core/src';
 import { Helpers } from 'tnp-core/src';
 
 import { Models } from './models';
-import { RequestCache } from './request-cache';
 import { Resource } from './resource-service';
 import { RestHeaders } from './rest-headers';
 //#endregion
@@ -31,6 +30,14 @@ export class RestRequest {
   private static jobId = 0;
   private subjectInuUse: { [id: number]: Subject<any> } = {};
   private meta: { [id: number]: Models.MetaRequest } = {};
+
+  interceptors = new Map<
+    string,
+    (
+      config: AxiosRequestConfig<any>,
+      interceptorName?: string,
+    ) => Promise<AxiosRequestConfig<any>>
+  >();
 
   private handlerResult(
     options: Models.HandleResultOptions,
@@ -86,24 +93,6 @@ export class RestRequest {
     this.meta[jobid] = void 0;
     this.subjectInuUse[jobid].complete();
   }
-  checkCache(
-    sourceRequest: Models.HandleResultSourceRequestOptions,
-    jobid: number,
-  ) {
-    const existedInCache = RequestCache.findBy(sourceRequest);
-    if (existedInCache) {
-      // log.i('cache exists', existedInCache)
-      const success = Resource['_listenSuccess'] as Subject<
-        Models.HttpResponse<any>
-      >;
-      success.next(existedInCache.response);
-      this.subjectInuUse[jobid].next(existedInCache);
-      this.subjectInuUse[jobid].complete();
-      return true;
-    }
-    // log.i(`cache not exists for jobid ${jobid}`)
-    return false;
-  }
 
   private async req(
     url: string,
@@ -114,20 +103,6 @@ export class RestRequest {
     isArray = false,
     mockHttp?: Models.MockHttp,
   ) {
-    if (
-      this.checkCache(
-        {
-          url,
-          body,
-          isArray,
-          method,
-        },
-        jobid,
-      )
-    ) {
-      return;
-    }
-
     const CancelToken = axios.CancelToken;
     const source = CancelToken.source();
     this.subjectInuUse[jobid][cancelFn] = source.cancel;
@@ -169,7 +144,7 @@ export class RestRequest {
 
         // console.log('headers axios:', headers.toJSON())
         // console.log({ responseType, headersJson, body, method, url })
-        response = await axios({
+        let axiosConfig: AxiosRequestConfig<any> = {
           url,
           method,
           data: body,
@@ -177,7 +152,20 @@ export class RestRequest {
           headers: headersJson,
           cancelToken: source.token,
           // withCredentials: true, // this can be done manually
-        });
+        };
+
+        // console.log('AXIOS CONFIG', axiosConfig);
+
+        const entries = this.interceptors.entries();
+        // console.log('AXIOS INTERCEPTORS', entries);
+        for (const interceptorObj of entries) {
+          const [interceptorName, interceptor] = interceptorObj;
+          if (typeof interceptor === 'function') {
+            axiosConfig = await interceptor(axiosConfig, interceptorName);
+          }
+        }
+
+        response = await axios(axiosConfig);
         // log.d(`after response of jobid: ${jobid}`);
       }
 
@@ -404,12 +392,6 @@ export class RestRequest {
       replay.subject[customObs],
     ) as any;
     resp.observable = replay.subject[customObs];
-    resp.cache = RequestCache.findBy({
-      body,
-      isArray,
-      method,
-      url,
-    });
     return resp;
   }
 
@@ -508,12 +490,6 @@ export class RestRequest {
     if (UtilsOs.isSSRMode) {
       const emptyStuff = Promise.resolve() as Models.PromiseObservableMix<any>;
       emptyStuff.observable = new Observable<any>();
-      emptyStuff.cache = RequestCache.findBy({
-        body,
-        isArray,
-        method,
-        url,
-      });
       console.warn(`Cannot perform jsonp request in SSR mode`);
       return emptyStuff;
     }
@@ -527,19 +503,6 @@ export class RestRequest {
       let callbackMethodName = 'cb_' + num;
       let win: any = globalThis; // TODO not a good idea! @LAST
       win[callbackMethodName] = data => {
-        if (
-          this.checkCache(
-            {
-              url,
-              body,
-              isArray,
-              method,
-            },
-            jobid,
-          )
-        ) {
-          return;
-        }
         this.handlerResult(
           {
             res: {
@@ -568,40 +531,8 @@ export class RestRequest {
       replay.subject[customObs],
     ) as any;
     resp.observable = replay.subject[customObs];
-    // console.log('assiging custom observable');
-    resp.cache = RequestCache.findBy({
-      body,
-      isArray,
-      method,
-      url,
-    });
     return resp;
   }
   //#endregion
   private replaySubjects = {};
-  public replay(method: Models.HttpMethod, meta: Models.MetaRequest) {
-    const replay: Models.ReplayData = this.getReplay(method, meta, true);
-    if (!replay || !replay.data) {
-      console.warn(
-        `Canno replay first ${method} request from ${meta.endpoint}/${meta.path}`,
-      );
-      return;
-    }
-    if (
-      replay &&
-      replay.subject &&
-      Array.isArray(replay.subject.observers) &&
-      replay.subject.observers.length === 0
-    ) {
-      console.warn(
-        `No observators for ${method} request from ${meta.endpoint}/${meta.path}`,
-      );
-      return;
-    }
-    const url = replay.data.url;
-    const headers = replay.data.headers;
-    const body = replay.data.body;
-    const isArray = replay.data.isArray;
-    setTimeout(() => this.req(url, method, headers, body, replay.id, isArray));
-  }
 }

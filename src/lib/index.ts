@@ -4,7 +4,6 @@ export * from './mapping';
 export * from './rest.class';
 export * from './rest-headers';
 export * from './helpers';
-export * from './request-cache';
 export * from './content-type';
 export { SimpleResource } from './other/simple-resource';
 export { interpolateParamsToUrl } from './params';

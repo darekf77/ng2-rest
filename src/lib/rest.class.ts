@@ -116,11 +116,6 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
 
   //#region http methods
 
-  //#region replay
-  replay(method: Models.HttpMethod) {
-    this.request.replay(method, this.meta);
-  }
-  //#endregion
 
   array = {
     get: (params: Models.UrlParams[] = void 0, doNotSerializeParams?: boolean): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {

@@ -67,7 +67,7 @@ export class Resource<E, T, TA> {
     const r = Resource.endpoints[endpoint].models[model];
     return Resource.endpoints[endpoint].models[model];
   }
-  private static request: RestRequest = new RestRequest();
+  public static request: RestRequest = new RestRequest();
   //#endregion
 
   //#region create
@@ -104,9 +104,6 @@ Instead use nested approach:            /book/:bookid/author/:authorid
     return {
       model: (params?: Object) =>
         Resource.instance.api(e, interpolateParamsToUrl(params, model)),
-      replay: (method: Models.HttpMethod) => {
-        Resource.getModel(e, model).replay(method);
-      },
       get headers() {
         return Resource.getModel(e, model).headers;
       },

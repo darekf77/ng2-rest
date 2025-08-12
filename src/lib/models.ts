@@ -8,7 +8,6 @@ import { Mapping } from './mapping';
 import { AxiosResponse } from 'axios';
 import { Models as HelpersModels } from 'typescript-class-helpers/src';
 import { JSON10, Circ } from 'json10/src';
-import { RequestCache } from './request-cache';
 import { _ } from 'tnp-core/src';
 import { CoreModels } from 'tnp-core/src';
 import { Helpers } from 'tnp-core/src';
@@ -55,7 +54,6 @@ export namespace Models {
   export type HttpCode = 200 | 400 | 401 | 404 | 500;
 
   export type PromiseObservableMix<T> = Promise<T> & {
-    cache?: RequestCache;
     observable: Observable<T>;
   };
 
@@ -87,7 +85,6 @@ export namespace Models {
 
   export interface ResourceModel<A, TA> {
     model: (pathModels?: Object, responseObjectType?: Function) => Rest<A, TA>;
-    replay: (method: CoreModels.HttpMethod) => void;
     headers: RestHeaders;
   }
 
@@ -118,7 +115,6 @@ export namespace Models {
   export interface FnMethodsHttpWithMock<T, TA>
     extends Ng2RestMethods<HttpResponse<T>, T> {
     array: Ng2RestMethods<HttpResponse<TA>, TA>;
-    mock(mock: MockHttp, code: HttpCode): FnMethodsHttp<T, TA>;
   }
 
   export interface NestedParams {
@@ -246,7 +242,7 @@ export namespace Models {
     // public get totalElements(): number {
     //     return Number(this.headers.get(this.TOTAL_COUNT_HEADER));
     // }
-    rq: RequestCache;
+
     constructor(
       public sourceRequest: Models.HandleResultSourceRequestOptions,
       public responseText?: string | Blob,
@@ -286,13 +282,6 @@ export namespace Models {
         this.entity,
         this.circular,
       ) as any;
-    }
-
-    get cache() {
-      if (_.isUndefined(this.rq)) {
-        this.rq = new RequestCache(this);
-      }
-      return new RequestCache(this);
     }
   }
 
