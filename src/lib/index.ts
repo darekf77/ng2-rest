@@ -5,5 +5,6 @@ export * from './rest.class';
 export * from './rest-headers';
 export * from './helpers';
 export * from './content-type';
+export * from './axios-interceptors';
 export { SimpleResource } from './other/simple-resource';
 export { interpolateParamsToUrl } from './params';

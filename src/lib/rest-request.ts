@@ -2,11 +2,16 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Level } from 'ng2-logger/src';
 import { Log, Logger } from 'ng2-logger/src';
-import { firstValueFrom, Observable } from 'rxjs';
+import { firstValueFrom, from, Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 import { _, UtilsOs } from 'tnp-core/src';
 import { Helpers } from 'tnp-core/src';
 
+import {
+  AxiosBackendHandler,
+  buildInterceptorChain,
+  TaonAxiosClientInterceptor,
+} from './axios-interceptors';
 import { Models } from './models';
 import { Resource } from './resource-service';
 import { RestHeaders } from './rest-headers';
@@ -26,18 +31,22 @@ const isCanceled = 'isCanceled';
 //#endregion
 
 export class RestRequest {
+  //#region fields
   public static zone;
   private static jobId = 0;
   private subjectInuUse: { [id: number]: Subject<any> } = {};
   private meta: { [id: number]: Models.MetaRequest } = {};
+  //#endregion
 
-  interceptors = new Map<
-    string,
-    (
-      config: AxiosRequestConfig<any>,
-      interceptorName?: string,
-    ) => Promise<AxiosRequestConfig<any>>
-  >();
+  /**
+   * key(interceptorName)
+   */
+  interceptors = new Map<string, TaonAxiosClientInterceptor>();
+
+  /**
+   * key(expressPath)
+   */
+  methodsInterceptors = new Map<string, TaonAxiosClientInterceptor>();
 
   private handlerResult(
     options: Models.HandleResultOptions,
@@ -155,17 +164,25 @@ export class RestRequest {
         };
 
         // console.log('AXIOS CONFIG', axiosConfig);
+        const uri = new URL(url);
+        const backend = new AxiosBackendHandler<any>();
 
-        const entries = this.interceptors.entries();
-        // console.log('AXIOS INTERCEPTORS', entries);
-        for (const interceptorObj of entries) {
-          const [interceptorName, interceptor] = interceptorObj;
-          if (typeof interceptor === 'function') {
-            axiosConfig = await interceptor(axiosConfig, interceptorName);
-          }
-        }
+        const globalInterceptors = Array.from(this.interceptors.entries()).map(
+          ([_, interceptor]) => interceptor,
+        );
 
-        response = await axios(axiosConfig);
+        const methodInterceptors = Array.from(
+          this.methodsInterceptors.entries(),
+        )
+          .filter(([key]) => key === uri.pathname)
+          .map(([_, interceptor]) => interceptor);
+
+        // console.log(`for ${uri.pathname} global ${globalInterceptors.length} method: ${methodInterceptors.length}`);
+
+        const allInterceptors = [...globalInterceptors, ...methodInterceptors];
+
+        const handler = buildInterceptorChain(allInterceptors, backend);
+        response = await firstValueFrom(handler.handle(axiosConfig));
         // log.d(`after response of jobid: ${jobid}`);
       }
 
