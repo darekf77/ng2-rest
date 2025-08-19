@@ -1,11 +1,13 @@
 //#region imports
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import * as FormData from 'form-data'; // @backend
 import { Level } from 'ng2-logger/src';
 import { Log, Logger } from 'ng2-logger/src';
 import { firstValueFrom, from, Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 import { _, UtilsOs } from 'tnp-core/src';
 import { Helpers } from 'tnp-core/src';
+import { CLASS } from 'typescript-class-helpers/src';
 
 import {
   AxiosBackendHandler,
@@ -139,6 +141,16 @@ export class RestRequest {
       }
     }
 
+    const isFormData = CLASS.getNameFromObject(body) === 'FormData';
+    const formData: FormData = isFormData ? (body as any) : void 0;
+    if (formData) {
+      const headersForm = formData.getHeaders();
+      headersForm['Content-Length'] = formData.getLengthSync();
+      for (const [key, value] of Object.entries(headersForm)) {
+        headers.set(key, (value?.toString()) as string);
+      }
+    }
+
     const headersJson = headers.toJSON();
     const responseType = headersJson.responsetypeaxios
       ? headersJson.responsetypeaxios
@@ -164,6 +176,10 @@ export class RestRequest {
           // withCredentials: true, // this can be done manually
         };
 
+        if (isFormData) {
+          axiosConfig.maxBodyLength = Infinity;
+        }
+
         // console.log('AXIOS CONFIG', axiosConfig);
         const uri = new URL(url);
         const backend = new AxiosBackendHandler<any>();
@@ -175,7 +191,7 @@ export class RestRequest {
         const methodInterceptors = Array.from(
           this.methodsInterceptors.entries(),
         )
-          .filter(([key]) => key ===  `${method?.toUpperCase()}-${uri.pathname}`)
+          .filter(([key]) => key === `${method?.toUpperCase()}-${uri.pathname}`)
           .map(([_, interceptor]) => interceptor);
 
         // console.log(`for ${uri.pathname} global ${globalInterceptors.length} method: ${methodInterceptors.length}`);
