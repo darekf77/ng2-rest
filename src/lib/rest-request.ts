@@ -39,12 +39,13 @@ export class RestRequest {
   //#endregion
 
   /**
-   * key(interceptorName)
+   * key is interceptorName (just to identify who is intercepting)
    */
   interceptors = new Map<string, TaonAxiosClientInterceptor>();
 
   /**
-   * key(expressPath)
+   * key is a joined string METHOD-expressPath.
+   * Example `GET-/api/users`
    */
   methodsInterceptors = new Map<string, TaonAxiosClientInterceptor>();
 
@@ -174,7 +175,7 @@ export class RestRequest {
         const methodInterceptors = Array.from(
           this.methodsInterceptors.entries(),
         )
-          .filter(([key]) => key === uri.pathname)
+          .filter(([key]) => key ===  `${method?.toUpperCase()}-${uri.pathname}`)
           .map(([_, interceptor]) => interceptor);
 
         // console.log(`for ${uri.pathname} global ${globalInterceptors.length} method: ${methodInterceptors.length}`);
