@@ -143,13 +143,15 @@ export class RestRequest {
 
     const isFormData = CLASS.getNameFromObject(body) === 'FormData';
     const formData: FormData = isFormData ? (body as any) : void 0;
+    //#region @backend
     if (formData) {
       const headersForm = formData.getHeaders();
       headersForm['Content-Length'] = formData.getLengthSync();
       for (const [key, value] of Object.entries(headersForm)) {
-        headers.set(key, (value?.toString()) as string);
+        headers.set(key, value?.toString() as string);
       }
     }
+    //#endregion
 
     const headersJson = headers.toJSON();
     const responseType = headersJson.responsetypeaxios
