@@ -1,20 +1,21 @@
-import { _ } from 'tnp-core/src';
-import { Helpers } from 'tnp-core/src';
-import { Circ, JSON10 } from 'json10/src';
+import { Stream } from 'node:stream'; // @backend
+
+import { Circ } from 'json10/src';
 import { walk } from 'lodash-walk-object/src';
+import { _, UtilsOs } from 'tnp-core/src';
 import { CLASS, SYMBOL } from 'typescript-class-helpers/src';
-import { Helpers as HelpersLog } from 'tnp-core/src';
 
 export namespace Mapping {
-
   export function decode(json: Object, autodetect = false): Mapping {
-
     // console.log('DECODE isBrowser', HelpersLog.isBrowser)
     if (_.isUndefined(json)) {
       return void 0;
     }
 
-    let mapping = decodeFromDecorator(_.isArray(json) ? _.first(json) : json, !autodetect)
+    let mapping = decodeFromDecorator(
+      _.isArray(json) ? _.first(json) : json,
+      !autodetect,
+    );
 
     if (autodetect) {
       mapping = _.merge(getMappingNaive(json), mapping);
@@ -23,14 +24,18 @@ export namespace Mapping {
     return mapping;
   }
 
-  export function encode<T = Function>(json: Object, mapping: Mapping, circular: Circ[] = []): T {
+  export function encode<T = Function>(
+    json: Object,
+    mapping: Mapping,
+    circular: Circ[] = [],
+  ): T {
     if (_.isString(json) || _.isBoolean(json) || _.isNumber(json)) {
       return json as any;
     }
 
     if (mapping['']) {
       const decoratorMapping = getModelsMapping(CLASS.getBy(mapping['']));
-      mapping = _.merge(mapping, decoratorMapping)
+      mapping = _.merge(mapping, decoratorMapping);
     }
 
     let res: any;
@@ -42,7 +47,6 @@ export namespace Mapping {
     return res;
   }
 
-
   function decodeFromDecorator(json: Object, production = false): Mapping {
     const entityClass = CLASS.getFromObject(json);
     const mappings = getModelsMapping(entityClass);
@@ -50,14 +54,14 @@ export namespace Mapping {
   }
 
   export function getModelsMapping(entity: Function) {
-
     if (!_.isFunction(entity) || entity === Object) {
       return {};
     }
-    const className = CLASS.getName(entity)
+    const className = CLASS.getName(entity);
     // console.log(`getMaping for: '${className}' `)
-    let enityOWnMapping: any[] = _.isArray(entity[SYMBOL.MODELS_MAPPING]) ?
-      entity[SYMBOL.MODELS_MAPPING] : [{ '': className }];
+    let enityOWnMapping: any[] = _.isArray(entity[SYMBOL.MODELS_MAPPING])
+      ? entity[SYMBOL.MODELS_MAPPING]
+      : [{ '': className }];
 
     let res = {};
     let parents = enityOWnMapping
@@ -68,20 +72,19 @@ export namespace Mapping {
       m = _.cloneDeep(m);
       // console.log(`'${className}' m:`, m)
       Object.keys(m).forEach(key => {
-        const v = m[key]
-        const isArr = _.isArray(v)
+        const v = m[key];
+        const isArr = _.isArray(v);
         const model = isArr ? _.first(v) : v;
         if (parents.includes(model)) {
           m[key] = isArr ? [className] : className;
         }
-      })
-      res = _.merge(res, m)
-    })
+      });
+      res = _.merge(res, m);
+    });
     res[''] = className;
     // console.log(`mapping for ${className} : ${JSON.stringify(res)}`)
     return res;
   }
-
 
   export type Mapping<T = {}> = {
     [P in keyof T]?: string | string[];
@@ -89,17 +92,23 @@ export namespace Mapping {
 
   function add(o: Object, path: string, mapping: Mapping = {}) {
     if (!o || Array.isArray(o) || typeof o !== 'object') return;
-    const objectClassName = CLASS.getName(Object.getPrototypeOf(o).constructor);
+    const proptotypeObj = Object.getPrototypeOf(o);
+    if (!proptotypeObj) {
+      return;
+    }
+    const objectClassName = CLASS.getName(proptotypeObj.constructor);
     const resolveClass = CLASS.getBy(objectClassName);
     if (!resolveClass) {
       if (objectClassName !== 'Object') {
-        if (Helpers.isBrowser) {
-          console.error(`Cannot resolve class "${objectClassName}" while mapping.`)
+        if (UtilsOs.isBrowser) {
+          console.error(
+            `Cannot resolve class "${objectClassName}" while mapping.`,
+          );
         }
       }
       return;
     }
-    if (!mapping[path]) mapping[path] = CLASS.getName(resolveClass) as any;;
+    if (!mapping[path]) mapping[path] = CLASS.getName(resolveClass) as any;
   }
 
   /**
@@ -109,22 +118,37 @@ export namespace Mapping {
    * @param mapping
    * @param level
    */
-  function getMappingNaive(c: Object, path = '', mapping: Mapping = {}, level = 0) {
+  function getMappingNaive(
+    c: Object,
+    path = '',
+    mapping: Mapping = {},
+    level = 0,
+  ) {
+    if (c === null || c === undefined) {
+      return;
+    }
+    //#region @backend
+    if (c instanceof Stream) {
+      return;
+    }
+    //#endregion
+    // console.log({c})
     if (Array.isArray(c)) {
-      c.forEach(c => getMappingNaive(c, path, mapping, level))
+      c.forEach(c => getMappingNaive(c, path, mapping, level));
       return mapping;
     }
     if (++level === 16) return;
     add(c, path, mapping);
     for (var p in c) {
-      if (c.hasOwnProperty(p)) {
+      if (_.isFunction(c.hasOwnProperty) && c.hasOwnProperty(p)) {
         const v = c[p];
-        if (Array.isArray(v) && v.length > 0) { // reducer as impovement
+        if (Array.isArray(v) && v.length > 0) {
+          // reducer as impovement
           v.forEach((elem, i) => {
             // const currentPaht = [`path[${i}]`, p].filter(c => c.trim() != '').join('.');
             const currentPaht = [path, p].filter(c => c.trim() != '').join('.');
             getMappingNaive(elem, currentPaht, mapping, level);
-          })
+          });
         } else if (typeof v === 'object') {
           const currentPaht = [path, p].filter(c => c.trim() != '').join('.');
           add(v, currentPaht, mapping);
@@ -140,57 +164,57 @@ export namespace Mapping {
       return void 0;
     }
     const regex = /\[([0-9a-zA-Z]|\'|\")*\]/g;
-    pathLodhas = pathLodhas
-      .replace(regex, '')
-      .replace('..', '.');
+    pathLodhas = pathLodhas.replace(regex, '').replace('..', '.');
     if (pathLodhas.startsWith('.')) {
-      pathLodhas = pathLodhas.slice(1)
+      pathLodhas = pathLodhas.slice(1);
     }
     return pathLodhas;
   }
 
-  function setMappingCirc(json: Object, mapping: Mapping = {}, circular: Circ[] = []) {
-
+  function setMappingCirc(
+    json: Object,
+    mapping: Mapping = {},
+    circular: Circ[] = [],
+  ) {
     const mainClassFn = !_.isArray(json) && CLASS.getBy(mapping['']);
     // console.log(mapping)
     walk.Object(json, (v, lodashPath, changeValue) => {
       if (!_.isUndefined(v) && !_.isNull(v)) {
-        const mappingPath = getMappingPathFrom(lodashPath)
+        const mappingPath = getMappingPathFrom(lodashPath);
         if (!_.isUndefined(mapping[mappingPath])) {
           const isArray = _.isArray(mapping[mappingPath]);
           if (!isArray) {
-            const className = isArray ? _.first(mapping[mappingPath]) : mapping[mappingPath];
-            const classFN = CLASS.getBy(className)
+            const className = isArray
+              ? _.first(mapping[mappingPath])
+              : mapping[mappingPath];
+            const classFN = CLASS.getBy(className);
             if (_.isFunction(classFN)) {
               // console.log(`mapping: '${mappingPath}', lp: '${lodashPath}' class: '${className}' , set `, v.location)
-              changeValue(_.merge(new (classFN as any)(), v))
+              changeValue(_.merge(new (classFN as any)(), v));
             }
           }
         }
       }
-    })
+    });
 
     circular.forEach(c => {
-      const ref = _.get(json, c.circuralTargetPath)
-      _.set(json, c.pathToObj, ref)
-    })
+      const ref = _.get(json, c.circuralTargetPath);
+      _.set(json, c.pathToObj, ref);
+    });
 
     if (_.isFunction(mainClassFn)) {
-      json = _.merge(new (mainClassFn as any)(), json)
+      json = _.merge(new (mainClassFn as any)(), json);
     }
 
     return json;
   }
 
-
-
   function setMapping(json: Object, mapping: Mapping = {}) {
-
     // console.log('mapping', mapping)
     if (Array.isArray(json)) {
       return json.map(j => {
-        return setMapping(j, mapping)
-      })
+        return setMapping(j, mapping);
+      });
     }
 
     const mainClassFn = CLASS.getBy(mapping['']);
@@ -202,12 +226,12 @@ export namespace Mapping {
         // }
         if (_.isArray(json[key])) {
           json[key] = json[key].map(arrObj => {
-            const objMapping = getModelsMapping(CLASS.getBy(mapping[key]))
-            return setMapping(arrObj, objMapping)
-          })
+            const objMapping = getModelsMapping(CLASS.getBy(mapping[key]));
+            return setMapping(arrObj, objMapping);
+          });
         } else if (_.isObject(json[key])) {
-          const objMapping = getModelsMapping(CLASS.getBy(mapping[key]))
-          json[key] = setMapping(json[key], objMapping)
+          const objMapping = getModelsMapping(CLASS.getBy(mapping[key]));
+          json[key] = setMapping(json[key], objMapping);
         }
       }
       // else {
@@ -217,27 +241,23 @@ export namespace Mapping {
       // }
     }
 
-    Object
-      .keys(mapping)
+    Object.keys(mapping)
       .filter(key => key !== '' && key.split('.').length >= 2)
       .forEach(lodasPath => {
         // console.log(`Loadsh path: ${lodasPath}`)
-        const objMapping = getModelsMapping(CLASS.getBy(mapping[lodasPath]))
-        const input = _.get(json, lodasPath)
+        const objMapping = getModelsMapping(CLASS.getBy(mapping[lodasPath]));
+        const input = _.get(json, lodasPath);
         if (!_.isUndefined(input)) {
-          const res = setMapping(input, objMapping)
-          _.set(json, lodasPath, res)
+          const res = setMapping(input, objMapping);
+          _.set(json, lodasPath, res);
         }
-      })
+      });
 
     if (!mainClassFn) {
       return json;
     }
-    return _.merge(new (mainClassFn as any)(), json)
+    return _.merge(new (mainClassFn as any)(), json);
   }
-
-
-
 
   export type ModelValue<T> = {
     /**
@@ -246,41 +266,40 @@ export namespace Mapping {
     [propName in keyof T]?: T[propName];
   };
 
-
   export function DefaultModelWithMapping<T = Object>(
     defaultModelValues?: ModelValue<T>,
-    mapping?: Mapping<T>
+    mapping?: Mapping<T>,
   ) {
     return function (target: Function) {
-
       if (!_.isArray(target[SYMBOL.MODELS_MAPPING])) {
         target[SYMBOL.MODELS_MAPPING] = [];
       }
 
-      (target[SYMBOL.MODELS_MAPPING] as any[]).push({ '': CLASS.getName(target) });
+      (target[SYMBOL.MODELS_MAPPING] as any[]).push({
+        '': CLASS.getName(target),
+      });
       if (_.isObject(mapping)) {
-        target[SYMBOL.MODELS_MAPPING] = (target[SYMBOL.MODELS_MAPPING] as any[]).concat(mapping)
-        Object.keys(mapping)
-          .forEach(key => {
-            const v = mapping;
-            if (_.isUndefined(v) || _.isFunction(v)) {
-              throw `
+        target[SYMBOL.MODELS_MAPPING] = (
+          target[SYMBOL.MODELS_MAPPING] as any[]
+        ).concat(mapping);
+        Object.keys(mapping).forEach(key => {
+          const v = mapping;
+          if (_.isUndefined(v) || _.isFunction(v)) {
+            throw `
 
 
             Class: '${target.name}'
 [ng2rest] Bad mapping value for path: ${key} , please use type: <string> or [<string>]
 `;
-
-            }
-          });
+          }
+        });
       }
-
 
       if (_.isObject(defaultModelValues)) {
         const toMerge = {};
-        const describedTarget = CLASS
-          .describeProperites(target)
-          .filter(prop => /^([a-zA-Z0-9]|\_|\#)+$/.test(prop))
+        const describedTarget = CLASS.describeProperites(target).filter(prop =>
+          /^([a-zA-Z0-9]|\_|\#)+$/.test(prop),
+        );
         // console.log(`describedTarget: ${describedTarget} for ${target.name}`)
         describedTarget.forEach(propDefInConstr => {
           if (defaultModelValues[propDefInConstr]) {
@@ -290,7 +309,7 @@ export namespace Mapping {
             in class "${target.name}" already defined as typescript
             default class proprty value.
 
-            `)
+            `);
           } else {
             toMerge[propDefInConstr] = null; // TODO from toString I can't know that
           }
@@ -300,18 +319,22 @@ export namespace Mapping {
 
         target[SYMBOL.DEFAULT_MODEL] = _.merge(toMerge, defaultModelValues);
 
-        const propsToOmmit = Object
-          .keys(target[SYMBOL.DEFAULT_MODEL])
-          .filter(key => {
-            const descriptor = Object
-              .getOwnPropertyDescriptor(target.prototype, key);
+        const propsToOmmit = Object.keys(target[SYMBOL.DEFAULT_MODEL]).filter(
+          key => {
+            const descriptor = Object.getOwnPropertyDescriptor(
+              target.prototype,
+              key,
+            );
             return !!descriptor;
-          });
-        _.merge(target.prototype, _.omit(target[SYMBOL.DEFAULT_MODEL], propsToOmmit));
+          },
+        );
+        _.merge(
+          target.prototype,
+          _.omit(target[SYMBOL.DEFAULT_MODEL], propsToOmmit),
+        );
 
         // console.log(`DEFAULT VALUE MERGE for ${target.name}`)
       }
-    }
+    };
   }
-
 }
