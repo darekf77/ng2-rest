@@ -78,10 +78,11 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
     method: Models.HttpMethod,
     requestBody: T,
     params?: Models.UrlParams[],
-    doNotSerializeParams: boolean = false,
+    axiosOptions?: Models.Ng2RestAxiosRequestConfig,
     isArray: boolean = false,
   ) {
-    const modelUrl = this.creatUrl(params, doNotSerializeParams);
+    axiosOptions = axiosOptions || {};
+    const modelUrl = this.creatUrl(params, !!axiosOptions.doNotSerializeParams);
 
     const isFormData = CLASS.getNameFromObject(requestBody) === 'FormData';
 
@@ -125,138 +126,110 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
 
   array = {
     get: (
+      item: TA,
       params: Models.UrlParams[] = void 0,
-      doNotSerializeParams?: boolean,
+      axiosOptions?: Models.Ng2RestAxiosRequestConfig,
     ): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
-      return this.req('get', void 0, params, doNotSerializeParams, true) as any;
+      return this.req('get', item as any, params, axiosOptions, true) as any;
     },
     head: (
+      item: TA,
       params: Models.UrlParams[] = void 0,
-      doNotSerializeParams?: boolean,
+      axiosOptions?: Models.Ng2RestAxiosRequestConfig,
     ): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
-      return this.req(
-        'head',
-        void 0,
-        params,
-        doNotSerializeParams,
-        true,
-      ) as any;
+      return this.req('head', item as any, params, axiosOptions, true) as any;
     },
     post: (
       item: TA,
       params?: Models.UrlParams[],
-      doNotSerializeParams?: boolean,
+      axiosOptions?: Models.Ng2RestAxiosRequestConfig,
     ): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
-      return this.req(
-        'post',
-        item as any,
-        params,
-        doNotSerializeParams,
-        true,
-      ) as any;
+      return this.req('post', item as any, params, axiosOptions, true) as any;
     },
     put: (
       item: TA,
       params?: Models.UrlParams[],
-      doNotSerializeParams?: boolean,
+      axiosOptions?: Models.Ng2RestAxiosRequestConfig,
     ): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
-      return this.req(
-        'put',
-        item as any,
-        params,
-        doNotSerializeParams,
-        true,
-      ) as any;
+      return this.req('put', item as any, params, axiosOptions, true) as any;
     },
     patch: (
       item: TA,
       params?: Models.UrlParams[],
-      doNotSerializeParams?: boolean,
+      axiosOptions?: Models.Ng2RestAxiosRequestConfig,
     ): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
-      return this.req(
-        'patch',
-        item as any,
-        params,
-        doNotSerializeParams,
-        true,
-      ) as any;
+      return this.req('patch', item as any, params, axiosOptions, true) as any;
     },
     delete: (
+      item: TA,
       params?: Models.UrlParams[],
-      doNotSerializeParams?: boolean,
+      axiosOptions?: Models.Ng2RestAxiosRequestConfig,
     ): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
-      return this.req(
-        'delete',
-        void 0,
-        params,
-        doNotSerializeParams,
-        true,
-      ) as any;
+      return this.req('delete', item as any, params, axiosOptions, true) as any;
     },
     jsonp: (
+      item: TA,
       params?: Models.UrlParams[],
-      doNotSerializeParams?: boolean,
+      axiosOptions?: Models.Ng2RestAxiosRequestConfig,
     ): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
-      return this.req(
-        'jsonp',
-        void 0,
-        params,
-        doNotSerializeParams,
-        true,
-      ) as any;
+      return this.req('jsonp', item as any, params, axiosOptions, true) as any;
     },
   };
 
   get(
+    item: T,
     params?: Models.UrlParams[],
-    doNotSerializeParams: boolean = false,
+    axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<Models.HttpResponse<T>> {
-    return this.req('get', void 0, params, doNotSerializeParams) as any;
+    return this.req('get', item as any, params, axiosOptions) as any;
   }
 
   head(
+    item: T,
     params?: Models.UrlParams[],
-    doNotSerializeParams: boolean = false,
+    axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<Models.HttpResponse<T>> {
-    return this.req('head', void 0, params, doNotSerializeParams) as any;
+    return this.req('head', item as any, params, axiosOptions) as any;
   }
 
   post(
     item: T,
     params?: Models.UrlParams[],
-    doNotSerializeParams: boolean = false,
+    axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<Models.HttpResponse<T>> {
-    return this.req('post', item, params, doNotSerializeParams);
+    return this.req('post', item, params, axiosOptions);
   }
 
   put(
     item: T,
     params?: Models.UrlParams[],
-    doNotSerializeParams: boolean = false,
+    axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<Models.HttpResponse<T>> {
-    return this.req('put', item, params, doNotSerializeParams);
+    return this.req('put', item, params, axiosOptions);
   }
 
   patch(
     item: T,
     params?: Models.UrlParams[],
-    doNotSerializeParams: boolean = false,
+    axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<Models.HttpResponse<T>> {
-    return this.req('patch', item, params, doNotSerializeParams);
+    return this.req('patch', item, params, axiosOptions);
   }
 
   delete(
+    item: T,
     params?: Models.UrlParams[],
-    doNotSerializeParams: boolean = false,
+    axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<Models.HttpResponse<T>> {
-    return this.req('delete', void 0, params, doNotSerializeParams);
+    return this.req('delete', item, params, axiosOptions);
   }
 
   jsonp(
+    item: T,
     params?: Models.UrlParams[],
-    doNotSerializeParams: boolean = false,
+    axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<Models.HttpResponse<T>> {
-    return this.req('jsonp', void 0, params, doNotSerializeParams);
+    return this.req('jsonp', item, params, axiosOptions);
   }
   //#endregion
 }

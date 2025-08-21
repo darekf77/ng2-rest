@@ -5,24 +5,22 @@ import { Observer } from 'rxjs';
 import { Models } from '../models';
 import { Resource } from '../resource-service';
 
-
-
 export interface RestPromises<A, TA, QP extends Models.UrlParams> {
-  get: (queryParams?: QP) => Observable<Models.HttpResponse<A>>;
-  head: (queryParams?: QP) => Observable<Models.HttpResponse<A>>;
-  query: (queryParams?: QP) => Observable<Models.HttpResponse<TA>>;
+  get: (tem?: A, queryParams?: QP) => Observable<Models.HttpResponse<A>>;
+  head: (tem?: A, queryParams?: QP) => Observable<Models.HttpResponse<A>>;
+  query: (tem?: A, queryParams?: QP) => Observable<Models.HttpResponse<TA>>;
   put: (item?: A, queryParams?: QP) => Observable<Models.HttpResponse<A>>;
   patch: (item?: A, queryParams?: QP) => Observable<Models.HttpResponse<A>>;
   post: (item?: A, queryParams?: QP) => Observable<Models.HttpResponse<A>>;
-  delete: (queryParams?: QP) => Observable<Models.HttpResponse<A> | any>;
+  delete: (
+    item?: A,
+    queryParams?: QP,
+  ) => Observable<Models.HttpResponse<A> | any>;
 }
 
 export interface Model<A, TA, RP extends Object, QP extends Models.UrlParams> {
   (restParams?: RP): RestPromises<A, TA, QP>;
 }
-
-
-
 
 /**
  *
@@ -36,7 +34,13 @@ export interface Model<A, TA, RP extends Object, QP extends Models.UrlParams> {
  * @template RP rest url parameters type
  * @template QP query parameter type
  */
-class ExtendedResource<E, A, TA, RP extends Object, QP extends Models.UrlParams>  {
+class ExtendedResource<
+  E,
+  A,
+  TA,
+  RP extends Object,
+  QP extends Models.UrlParams,
+> {
   public static doNotSerializeQueryParams = false;
   public static handlers: Subscription[] = [];
 
@@ -44,117 +48,146 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Models.UrlParams>
 
   /**
    * Get model by rest params
-  */
+   */
   model: Model<A, TA, RP, QP> = (restParams?: RP) => {
-
     return {
-
-      get: (queryPrams?: QP) => {
+      get: (item: A, queryPrams?: QP) => {
         return Observable.create((observer: Observer<A>) => {
-          ExtendedResource.handlers.push(this.rest.model(restParams)
-            .get([queryPrams], ExtendedResource.doNotSerializeQueryParams)
-            .observable
-            .subscribe(
-              data => observer.next(data.body.json),
-              err => observer.error(err),
-              () => observer.complete()))
-        })
+          ExtendedResource.handlers.push(
+            this.rest
+              .model(restParams)
+              .get(item, [queryPrams], {
+                doNotSerializeParams:
+                  ExtendedResource.doNotSerializeQueryParams,
+              })
+              .observable.subscribe(
+                data => observer.next(data.body.json),
+                err => observer.error(err),
+                () => observer.complete(),
+              ),
+          );
+        });
       },
 
       patch: (item: A, queryParams?: QP) => {
         return Observable.create((observer: Observer<A>) => {
-          ExtendedResource.handlers.push(this.rest.model(restParams)
-            .put(item, [queryParams], ExtendedResource.doNotSerializeQueryParams)
-            .observable
-            .subscribe(
-              data => observer.next(data.body.json),
-              err => observer.error(err),
-              () => observer.complete()))
-        })
-
+          ExtendedResource.handlers.push(
+            this.rest
+              .model(restParams)
+              .put(item, [queryParams], {
+                doNotSerializeParams:
+                  ExtendedResource.doNotSerializeQueryParams,
+              })
+              .observable.subscribe(
+                data => observer.next(data.body.json),
+                err => observer.error(err),
+                () => observer.complete(),
+              ),
+          );
+        });
       },
 
-      head: (queryPrams?: QP) => {
+      head: (item: A, queryPrams?: QP) => {
         return Observable.create((observer: Observer<A>) => {
-          ExtendedResource.handlers.push(this.rest.model(restParams)
-            .head([queryPrams], ExtendedResource.doNotSerializeQueryParams)
-            .observable
-            .subscribe(
-              data => observer.next(data.body.json),
-              err => observer.error(err),
-              () => observer.complete()))
-        })
+          ExtendedResource.handlers.push(
+            this.rest
+              .model(restParams)
+              .head(item, [queryPrams], {
+                doNotSerializeParams:
+                  ExtendedResource.doNotSerializeQueryParams,
+              })
+              .observable.subscribe(
+                data => observer.next(data.body.json),
+                err => observer.error(err),
+                () => observer.complete(),
+              ),
+          );
+        });
       },
 
-      query: (queryPrams?: QP) => {
+      query: (item: A, queryPrams?: QP) => {
         return Observable.create((observer: Observer<TA>) => {
-          ExtendedResource.handlers.push(this.rest.model(restParams).
-            array
-            .get([queryPrams], ExtendedResource.doNotSerializeQueryParams)
-            .observable
-            .subscribe(
-              data => observer.next(data.body.json),
-              err => observer.error(err),
-              () => observer.complete()))
-        })
+          ExtendedResource.handlers.push(
+            this.rest
+              .model(restParams)
+              .array.get(item as any, [queryPrams], {
+                doNotSerializeParams:
+                  ExtendedResource.doNotSerializeQueryParams,
+              })
+              .observable.subscribe(
+                data => observer.next(data.body.json),
+                err => observer.error(err),
+                () => observer.complete(),
+              ),
+          );
+        });
       },
-
 
       post: (item: A, queryParams?: QP) => {
         return Observable.create((observer: Observer<A>) => {
-          ExtendedResource.handlers.push(this.rest.model(restParams)
-            .post(item, [queryParams], ExtendedResource.doNotSerializeQueryParams)
-            .observable
-            .subscribe(
-              data => observer.next(data.body.json),
-              err => observer.error(err),
-              () => observer.complete()))
-        })
-
+          ExtendedResource.handlers.push(
+            this.rest
+              .model(restParams)
+              .post(item, [queryParams], {
+                doNotSerializeParams:
+                  ExtendedResource.doNotSerializeQueryParams,
+              })
+              .observable.subscribe(
+                data => observer.next(data.body.json),
+                err => observer.error(err),
+                () => observer.complete(),
+              ),
+          );
+        });
       },
-
 
       put: (item: A, queryParams?: QP) => {
         return Observable.create((observer: Observer<A>) => {
-          ExtendedResource.handlers.push(this.rest.model(restParams)
-            .put(item, [queryParams], ExtendedResource.doNotSerializeQueryParams)
-            .observable
-            .subscribe(
-              data => observer.next(data.body.json),
-              err => observer.error(err),
-              () => observer.complete()))
-        })
-
+          ExtendedResource.handlers.push(
+            this.rest
+              .model(restParams)
+              .put(item, [queryParams], {
+                doNotSerializeParams:
+                  ExtendedResource.doNotSerializeQueryParams,
+              })
+              .observable.subscribe(
+                data => observer.next(data.body.json),
+                err => observer.error(err),
+                () => observer.complete(),
+              ),
+          );
+        });
       },
 
-
-      delete: (queryPrams?: QP) => {
+      delete: (item: A, queryPrams?: QP) => {
         return Observable.create((observer: Observer<A>) => {
-          ExtendedResource.handlers.push(this.rest.model(restParams)
-            .delete([queryPrams], ExtendedResource.doNotSerializeQueryParams)
-            .observable
-            .subscribe(
-              data => observer.next(data.body.json),
-              err => observer.error(err),
-              () => observer.complete()))
-        })
-      }
-
-
-    }
-  }
-
+          ExtendedResource.handlers.push(
+            this.rest
+              .model(restParams)
+              .delete(item, [queryPrams], {
+                doNotSerializeParams:
+                  ExtendedResource.doNotSerializeQueryParams,
+              })
+              .observable.subscribe(
+                data => observer.next(data.body.json),
+                err => observer.error(err),
+                () => observer.complete(),
+              ),
+          );
+        });
+      },
+    };
+  };
 
   // add(endpoint: E, model: string, group?: string, name?: string, description?: string) { }
 
-  public constructor(private endpoint: E | string, private path_model: string) {
+  public constructor(
+    private endpoint: E | string,
+    private path_model: string,
+  ) {
     this.rest = <any>Resource.create<A, TA>(<any>endpoint, path_model);
-
   }
-
 }
-
-
 
 /**
  *
@@ -168,12 +201,11 @@ class ExtendedResource<E, A, TA, RP extends Object, QP extends Models.UrlParams>
 export class SimpleResource<A, TA> {
   model: Model<A, TA, Object, Models.UrlParams>;
 
-
   private static _isSetQueryParamsSerialization = false;
   public static set doNotSerializeQueryParams(value) {
     if (!SimpleResource._isSetQueryParamsSerialization) {
       SimpleResource._isSetQueryParamsSerialization = true;
-      ExtendedResource.doNotSerializeQueryParams = value
+      ExtendedResource.doNotSerializeQueryParams = value;
       return;
     }
     console.warn(`Query params serialization already set as
@@ -185,8 +217,10 @@ export class SimpleResource<A, TA> {
   }
 
   constructor(endpoint: string, model: string) {
-    let rest = new ExtendedResource<string, A, TA, Object, Models.UrlParams>(endpoint, model);
+    let rest = new ExtendedResource<string, A, TA, Object, Models.UrlParams>(
+      endpoint,
+      model,
+    );
     this.model = rest.model;
   }
-
 }

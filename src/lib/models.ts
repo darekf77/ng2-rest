@@ -1,19 +1,20 @@
+import { Blob } from 'buffer'; // @backend
+
+import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { JSON10, Circ } from 'json10/src';
+import { Log, Level } from 'ng2-logger/src';
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
-import { Log, Level } from 'ng2-logger/src';
-import { RestHeaders } from './rest-headers';
-import { Rest } from './rest.class';
-import { Cookie } from './cookie';
-import { Mapping } from './mapping';
-import { AxiosResponse } from 'axios';
-import { Models as HelpersModels } from 'typescript-class-helpers/src';
-import { JSON10, Circ } from 'json10/src';
 import { _ } from 'tnp-core/src';
 import { CoreModels } from 'tnp-core/src';
 import { Helpers } from 'tnp-core/src';
-//#region @backend
-import { Blob } from 'buffer';
-//#endregion
+import { Models as HelpersModels } from 'typescript-class-helpers/src';
+
+import { Cookie } from './cookie';
+import { Mapping } from './mapping';
+import { RestHeaders } from './rest-headers';
+import { Rest } from './rest.class';
+
 // const log = Log.create('rest namespace', Level.__NOTHING)
 
 export namespace Models {
@@ -57,14 +58,15 @@ export namespace Models {
     observable: Observable<T>;
   };
 
-  export type MethodWithoutBody<E, T, R = PromiseObservableMix<E>> = (
-    params?: UrlParams[],
-    doNotSerializeParams?: boolean,
-  ) => R;
+  export type Ng2RestAxiosRequestConfig = {
+    doNotSerializeParams?: boolean;
+  } & AxiosRequestConfig<any>;
+
+
   export type MethodWithBody<E, T, R = PromiseObservableMix<E>> = (
     item?: T,
     params?: UrlParams[],
-    doNotSerializeParams?: boolean,
+    axiosOptions?: Ng2RestAxiosRequestConfig,
   ) => R;
   export type ReplayData = {
     subject: Subject<any>;
@@ -89,13 +91,13 @@ export namespace Models {
   }
 
   export interface Ng2RestMethods<E, T> {
-    get: MethodWithoutBody<E, T>;
+    get: MethodWithBody<E, T>;
     post: MethodWithBody<E, T>;
     put: MethodWithBody<E, T>;
     patch: MethodWithBody<E, T>;
-    head: MethodWithoutBody<E, T>;
-    delete: MethodWithoutBody<E, T>;
-    jsonp: MethodWithoutBody<E, T>;
+    head: MethodWithBody<E, T>;
+    delete: MethodWithBody<E, T>;
+    jsonp: MethodWithBody<E, T>;
   }
 
   export type MockController = (

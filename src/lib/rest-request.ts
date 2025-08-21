@@ -114,6 +114,7 @@ export class RestRequest {
     jobid?: number,
     isArray = false,
     mockHttp?: Models.MockHttp,
+    axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ) {
     const CancelToken = axios.CancelToken;
     const source = CancelToken.source();
@@ -175,6 +176,7 @@ export class RestRequest {
           responseType,
           headers: headersJson,
           cancelToken: source.token,
+          ...(axiosOptions || {}), // merge with axiosOptions
           // withCredentials: true, // this can be done manually
         };
 
@@ -413,16 +415,46 @@ export class RestRequest {
     meta: Models.MetaRequest,
     isArray: boolean,
     mockHttp: Models.MockHttp,
+    axiosOptions: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<any> {
     const replay: Models.ReplayData = this.getReplay(method, meta, false);
     replay.data = { url, body, headers, isArray };
 
-    ((pthis, purl, pmethod, pheaders, pbody, pid, pisArray, pmockHttp) => {
+    ((
+      pthis,
+      purl,
+      pmethod,
+      pheaders,
+      pbody,
+      pid,
+      pisArray,
+      pmockHttp,
+      axiosOpt,
+    ) => {
       // log.d(`for ${purl} jobid ${pid}`);
       setTimeout(() =>
-        pthis.req(purl, pmethod, pheaders, pbody, pid, pisArray, pmockHttp),
+        pthis.req(
+          purl,
+          pmethod,
+          pheaders,
+          pbody,
+          pid,
+          pisArray,
+          pmockHttp,
+          axiosOpt,
+        ),
       );
-    })(this, url, method, headers, body, replay.id, isArray, mockHttp);
+    })(
+      this,
+      url,
+      method,
+      headers,
+      body,
+      replay.id,
+      isArray,
+      mockHttp,
+      axiosOptions,
+    );
 
     const resp: Models.PromiseObservableMix<any> = firstValueFrom(
       replay.subject[customObs],
@@ -438,8 +470,18 @@ export class RestRequest {
     meta: Models.MetaRequest,
     isArray: boolean,
     mockHttp: Models.MockHttp,
+    axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<any> {
-    return this.generalReq('get', url, body, headers, meta, isArray, mockHttp);
+    return this.generalReq(
+      'get',
+      url,
+      body,
+      headers,
+      meta,
+      isArray,
+      mockHttp,
+      axiosOptions,
+    );
   }
 
   head(
@@ -449,8 +491,18 @@ export class RestRequest {
     meta: Models.MetaRequest,
     isArray: boolean,
     mockHttp: Models.MockHttp,
+    axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<any> {
-    return this.generalReq('head', url, body, headers, meta, isArray, mockHttp);
+    return this.generalReq(
+      'head',
+      url,
+      body,
+      headers,
+      meta,
+      isArray,
+      mockHttp,
+      axiosOptions,
+    );
   }
 
   delete(
@@ -460,6 +512,7 @@ export class RestRequest {
     meta: Models.MetaRequest,
     isArray: boolean,
     mockHttp: Models.MockHttp,
+    axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<any> {
     return this.generalReq(
       'delete',
@@ -469,6 +522,7 @@ export class RestRequest {
       meta,
       isArray,
       mockHttp,
+      axiosOptions,
     );
   }
 
@@ -479,8 +533,18 @@ export class RestRequest {
     meta: Models.MetaRequest,
     isArray: boolean,
     mockHttp: Models.MockHttp,
+    axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<any> {
-    return this.generalReq('post', url, body, headers, meta, isArray, mockHttp);
+    return this.generalReq(
+      'post',
+      url,
+      body,
+      headers,
+      meta,
+      isArray,
+      mockHttp,
+      axiosOptions,
+    );
   }
 
   put(
@@ -490,8 +554,18 @@ export class RestRequest {
     meta: Models.MetaRequest,
     isArray: boolean,
     mockHttp: Models.MockHttp,
+    axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<any> {
-    return this.generalReq('put', url, body, headers, meta, isArray, mockHttp);
+    return this.generalReq(
+      'put',
+      url,
+      body,
+      headers,
+      meta,
+      isArray,
+      mockHttp,
+      axiosOptions,
+    );
   }
 
   patch(
@@ -501,6 +575,7 @@ export class RestRequest {
     meta: Models.MetaRequest,
     isArray: boolean,
     mockHttp: Models.MockHttp,
+    axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<any> {
     return this.generalReq(
       'patch',
@@ -510,6 +585,7 @@ export class RestRequest {
       meta,
       isArray,
       mockHttp,
+      axiosOptions,
     );
   }
 
@@ -520,6 +596,7 @@ export class RestRequest {
     meta: Models.MetaRequest,
     isArray: boolean,
     mockHttp: Models.MockHttp,
+    axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<any> {
     const method = 'jsonp';
 
