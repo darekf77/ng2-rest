@@ -115,6 +115,7 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
       this.meta,
       isArray,
       this.mockHttp,
+      axiosOptions,
     );
 
     this.mockHttp = void 0;
