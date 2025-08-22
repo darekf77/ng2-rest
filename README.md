@@ -101,13 +101,14 @@ Example **UrlParams[]** :
  
 | Name | Parameters  | Description |
 | :---: | --- | ---: |
-| **.array.** | get,post,put,head,delete,jsonp |  for everything, but with arrays |
-| **get** | `UrlParams[] ` |   get model by parameters  |
-| **post** | `model, UrlParams[] ` |   post object model  |
-| **put** | `model, UrlParams[]` |   put object model |
-| **head** | `model, UrlParams[]` |   get head for model  |
-| **delete** | `UrlParams[]` |   remove object by params |
-| **jsonp** | `UrlParams[]` |   get jsonp data |
+| **array** |  changes response type to array |
+| **get** | `model, UrlParams[] ` |   get data  |
+| **post** | `model, UrlParams[] ` |  create data  |
+| **patch** | `model, UrlParams[] ` | change data <br>(effect of changing data may be diffrent with each request)  |
+| **put** | `model, UrlParams[]` |   change data <br>(can be done multiple times with same effect) |
+| **head** | `model, UrlParams[]` |   check data  |
+| **delete** | `model, UrlParams[] ` |   remove data |
+| **jsonp** | `model, UrlParams[] ` |   get jsonp data |
 
 
 
