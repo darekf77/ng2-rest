@@ -195,10 +195,15 @@ export class RestRequest {
         const methodInterceptors = Array.from(
           this.methodsInterceptors.entries(),
         )
-          .filter(([key]) => key === `${method?.toUpperCase()}-${uri.pathname}`)
+          .filter(([key ]) => {
+            const ending = `-${method?.toUpperCase()}-${uri.pathname}`;
+            return key.endsWith(ending);
+          })
           .map(([_, interceptor]) => interceptor);
 
-        // console.log(`for ${uri.pathname} global ${globalInterceptors.length} method: ${methodInterceptors.length}`);
+        // console.log(
+        //   `for ${uri.pathname} global ${globalInterceptors.length} method: ${methodInterceptors.length}`,
+        // );
 
         const allInterceptors = [...globalInterceptors, ...methodInterceptors];
 
