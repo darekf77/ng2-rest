@@ -159,7 +159,7 @@ export namespace Models {
 
     public get booleanValue(): boolean | undefined {
       if (!Helpers.isBlob(this.responseText)) {
-        return ['ok', 'true'].includes((this.responseText as string).trim());
+        return ['ok', 'true'].includes((this.responseText as string)?.trim());
       }
     }
 
