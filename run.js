@@ -44,5 +44,16 @@ app({
    onlyMigrationRun: argsMinimist.onlyMigrationRun,
    onlyMigrationRevertToTimestamp: argsMinimist.onlyMigrationRevertToTimestamp,
    args: [process.argv.slice(2).map(c => `"${c}"`).join(',')]
+}).then(async (ctxs) => {
+  ctxs = Array.isArray(ctxs) ? ctxs : [];
+  const contextsObj = ctxs.reduce((acc, c) => {
+    acc[c.contextName] = c;
+    return acc;
+  }, {});
+  await Promise.all(ctxs.map(c => c.initControllersHook(contextsObj)));
+  console.log('App Started..');
+}).catch(err => {
+  console.error('App Start Error', err);
+  process.exit(1);
 });
 process.stdin.resume();
