@@ -37,23 +37,22 @@ if (messageWasShown) {
 }
 
 const PROJECT_NPM_NAME = require('./dist/lib/build-info._auto-generated_.js').PROJECT_NPM_NAME;
-console.log({PROJECT_NPM_NAME})
+console.log({PROJECT_NPM_NAME});
+const core = require('tnp-core/lib');
+const taon = require('taon/lib');
 
 var app = require('./dist/app').default;
 app({
    onlyMigrationRun: argsMinimist.onlyMigrationRun,
    onlyMigrationRevertToTimestamp: argsMinimist.onlyMigrationRevertToTimestamp,
    args: [process.argv.slice(2).map(c => `"${c}"`).join(',')]
-}).then(async (ctxs) => {
-  ctxs = Array.isArray(ctxs) ? ctxs : [];
-  const contextsObj = ctxs.reduce((acc, c) => {
-    acc[c.contextName] = c;
-    return acc;
-  }, {});
-  await Promise.all(ctxs.map(c => c.initControllersHook(contextsObj)));
-  console.log('App Started..');
+}).then(async () => {
+  const endpoints = taon.ContextsEndpointStorage.Instance.arr || [];
+  await Promise.all(endpoints.map(c => c.initControllersHook(taon.ContextsEndpointStorage.Instance)));
+  console.log(core.CoreModels.SPECIAL_APP_READY_MESSAGE);
 }).catch(err => {
-  console.error('App Start Error', err);
+  console.error(err);
+  console.error('App Start Error');
   process.exit(1);
 });
 process.stdin.resume();
