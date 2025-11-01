@@ -15,6 +15,30 @@ import { Mapping } from './mapping';
 import { RestHeaders } from './rest-headers';
 import { Rest } from './rest.class';
 
+class RestCommonHttpResponseWrapper {
+  declare success?: boolean;
+}
+
+export class RestResponseWrapper extends RestCommonHttpResponseWrapper {
+  declare data?: any;
+}
+
+export class RestErrorResponseWrapper extends RestCommonHttpResponseWrapper {
+  declare message: string;
+  /**
+   * stack trace / more details about error
+   */
+  declare details?: string;
+  /**
+   * http status code
+   */
+  declare status?: number;
+  /**
+   * custom error code from backend
+   */
+  declare code?: string;
+}
+
 // const log = Log.create('rest namespace', Level.__NOTHING)
 
 export namespace Models {
@@ -61,7 +85,6 @@ export namespace Models {
   export type Ng2RestAxiosRequestConfig = {
     doNotSerializeParams?: boolean;
   } & AxiosRequestConfig<any>;
-
 
   export type MethodWithBody<E, T, R = PromiseObservableMix<E>> = (
     item?: T,
@@ -130,11 +153,25 @@ export namespace Models {
   [];
 
   export abstract class BaseBody {
-    protected toJSON(data, isJSONArray = false) {
-      let r = isJSONArray ? [] : {};
+    protected toJSON(
+      data,
+      opt: {
+        isJSONArray?: boolean;
+        parsingError?: boolean;
+      },
+    ): object | undefined {
+      opt = opt || { isJSONArray: false };
+      let r = opt.isJSONArray ? [] : {};
       if (typeof data === 'string') {
         try {
-          r = JSON.parse(data);
+          let parsed = JSON.parse(data);
+          if (typeof parsed === 'string' && parsed.trim().startsWith('{')) {
+            parsed = JSON.parse(parsed);
+          }
+          if (opt.parsingError && parsed[CoreModels.TaonHttpErrorCustomProp]) {
+            return _.merge(new RestErrorResponseWrapper(), parsed);
+          }
+          return parsed;
         } catch (e) {}
       } else if (typeof data === 'object') {
         return data;
@@ -171,7 +208,7 @@ export namespace Models {
 
     public get rawJson(): Partial<T> {
       if (!Helpers.isBlob(this.responseText)) {
-        let res = this.toJSON(this.responseText, this.isArray);
+        let res = this.toJSON(this.responseText, { isJSONArray: this.isArray });
         if (this.circular && Array.isArray(this.circular)) {
           res = JSON10.parse(JSON.stringify(res), this.circular);
         }
@@ -189,14 +226,16 @@ export namespace Models {
         return this.entity(); // @LAST
       }
       if (this.entity && typeof this.entity === 'object') {
-        const json = this.toJSON(this.responseText, this.isArray);
+        const json = this.toJSON(this.responseText, {
+          isJSONArray: this.isArray,
+        });
         return Mapping.encode(json, this.entity, this.circular) as any;
       }
-      let res = this.toJSON(this.responseText, this.isArray);
+      let res = this.toJSON(this.responseText, { isJSONArray: this.isArray });
       if (this.circular && Array.isArray(this.circular)) {
         res = JSON10.parse(JSON.stringify(res), this.circular);
       }
-      return res;
+      return res as any;
     }
 
     /**
@@ -211,15 +250,15 @@ export namespace Models {
     }
   }
 
-  export class ErrorBody extends BaseBody {
+  export class ErrorBody<T = RestErrorResponseWrapper> extends BaseBody {
     constructor(private data) {
       super();
     }
 
-    public get json(): Object {
-      return this.toJSON(this.data);
+    public get json(): T {
+      return this.toJSON(this.data, { parsingError: true }) as any;
     }
-    public get text() {
+    public get text(): string {
       return this.data;
     }
   }
@@ -287,23 +326,6 @@ export namespace Models {
     }
   }
 
-  export class HttpResponseError extends BaseResponse<any> {
-    private body: ErrorBody;
-    // public tryRecconect() {
-
-    // }
-    constructor(
-      public message: string,
-      responseText?: string,
-      headers?: RestHeaders,
-      statusCode?: HttpCode | number,
-      public jobid?: number,
-    ) {
-      super(responseText, headers, statusCode);
-      this.body = new ErrorBody(responseText);
-    }
-  }
-
   export interface MockResponse {
     data?: any;
     code?: HttpCode;
@@ -323,4 +345,23 @@ export namespace Models {
   // | 'json' - I am parsing json from text...
 
   //#endregion
+}
+
+export class HttpResponseError<
+  ERROR_BODY = object,
+> extends Models.BaseResponse<any> {
+  public readonly body: Models.ErrorBody<ERROR_BODY>;
+  // public tryRecconect() {
+
+  // }
+  constructor(
+    public message: string,
+    responseText?: string,
+    headers?: RestHeaders,
+    statusCode?: Models.HttpCode | number,
+    public jobid?: number,
+  ) {
+    super(responseText, headers, statusCode);
+    this.body = new Models.ErrorBody<ERROR_BODY>(responseText);
+  }
 }

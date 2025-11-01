@@ -14,7 +14,7 @@ import {
   buildInterceptorChain,
   TaonAxiosClientInterceptor,
 } from './axios-interceptors';
-import { Models } from './models';
+import { HttpResponseError, Models } from './models';
 import { Resource } from './resource-service';
 import { RestHeaders } from './rest-headers';
 //#endregion
@@ -72,7 +72,7 @@ export class RestRequest {
     // error no internet
     if (res.error) {
       this.subjectInuUse[jobid].error(
-        new Models.HttpResponseError(
+        new HttpResponseError(
           res.error,
           res.data,
           res.headers,
@@ -218,6 +218,7 @@ export class RestRequest {
         return;
       }
 
+      // handle normal request
       this.handlerResult(
         {
           res: {
@@ -269,6 +270,8 @@ export class RestRequest {
         catchedError && catchedError.response
           ? `[${catchedError.response.statusText}]: `
           : '';
+
+      // handle error request
       this.handlerResult(
         {
           res: {
@@ -621,6 +624,7 @@ export class RestRequest {
       let callbackMethodName = 'cb_' + num;
       let win: any = globalThis; // TODO not a good idea! @LAST
       win[callbackMethodName] = data => {
+        // handle jsonp result data
         this.handlerResult(
           {
             res: {
