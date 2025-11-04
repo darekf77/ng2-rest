@@ -78,6 +78,7 @@ export class RestRequest {
           res.headers,
           res.code,
           jobid,
+          sourceRequest,
         ),
       );
       return;
@@ -195,7 +196,7 @@ export class RestRequest {
         const methodInterceptors = Array.from(
           this.methodsInterceptors.entries(),
         )
-          .filter(([key ]) => {
+          .filter(([key]) => {
             const ending = `-${method?.toUpperCase()}-${uri.pathname}`;
             return key.endsWith(ending);
           })

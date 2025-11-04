@@ -360,6 +360,7 @@ export class HttpResponseError<
     headers?: RestHeaders,
     statusCode?: Models.HttpCode | number,
     public jobid?: number,
+    public sourceRequest?: Models.HandleResultSourceRequestOptions,
   ) {
     super(responseText, headers, statusCode);
     this.body = new Models.ErrorBody<ERROR_BODY>(responseText);
