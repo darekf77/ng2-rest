@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "19.0.46",
+  "version": "19.0.47",
   "scripts": {
     "taon init": "taon init",
     "taon start": "taon start",
@@ -236,7 +236,6 @@
     "jest-marbles": "latest",
     "jest-preset-angular": "~14.5.5",
     "jimp": "~0.22.12",
-    "joi": "~17.13.3",
     "jscodeshift": "^0.6.3",
     "json-stringify-safe": "^5.0.1",
     "json10": "~19.0.0",
@@ -382,7 +381,7 @@
     "webpack-dev-server": "~5.0.4",
     "yauzl": "~3.2.0",
     "yazl": "~3.3.1",
-    "yup": "~1.0.0-beta.8",
+    "zod": "~4.1.2",
     "zone.js": "~0.13.0"
   },
   "description": "Description for ng2-rest. Hello world!",
