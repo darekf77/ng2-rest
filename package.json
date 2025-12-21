@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest",
-  "version": "21.0.1",
+  "version": "21.0.2",
   "scripts": {
     "taon init": "taon init",
     "taon start": "taon start",
