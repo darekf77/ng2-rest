@@ -1,8 +1,8 @@
-import { Models } from 'tnp-models/browser';
-export type EnvConfig = Models.env.EnvConfig;
+// import { Models } from 'tnp-models/browser';
+// export type EnvConfig = Models.env.EnvConfig;
 
 declare global {
-    const ENV: EnvConfig;
+    const ENV: any; // EnvConfig;
 }
 
 /* SystemJS module definition */
