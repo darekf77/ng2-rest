@@ -1,3 +1,4 @@
+// @ts-nocheck
 //#region @notForNpm
 
 //#region @backend
