@@ -240,23 +240,25 @@ export class RestRequest {
           isArray,
         },
       );
-    } catch (catchedError) {
+    } catch (e: unknown) {
       if (this.subjectInuUse[jobid][isCanceled]) {
         return;
       }
-      // console.log('ERROR RESPONESE catchedError typeof ', typeof catchedError)
-      // console.log('ERROR RESPONESE catchedError', catchedError)
-      if (
-        typeof catchedError === 'object' &&
-        catchedError.response &&
-        catchedError.response.data
-      ) {
-        const err = catchedError.response.data;
-        const msg: string = catchedError.response.data.message || '';
-        // console.log({
-        //   'err.stack': err?.stack
-        // })
-        let stack: string[] = (err.stack || '').split('\n');
+
+      // ---- Axios error path ------------------------------------
+      if (axios.isAxiosError(e)) {
+        const response = e.response;
+        const data = response?.data as any;
+
+        const msg: string =
+          typeof data?.message === 'string' ? data.message : '';
+
+        const stack: string[] =
+          typeof data?.stack === 'string'
+            ? data.stack.split('\n')
+            : typeof e.stack === 'string'
+              ? e.stack.split('\n')
+              : [];
 
         const errObs = Resource[
           '_listenErrors'
@@ -264,34 +266,56 @@ export class RestRequest {
         errObs.next({
           msg,
           stack,
-          data: catchedError.response.data,
+          data,
         });
-      }
-      const error =
-        catchedError && catchedError.response
-          ? `[${catchedError.response.statusText}]: `
-          : '';
 
-      // handle error request
+        const errorPrefix = response ? `[${response.statusText}]: ` : '';
+
+        this.handlerResult(
+          {
+            res: {
+              code: response?.status as any,
+              error: `${errorPrefix}${e.message}`,
+              data: response ? JSON.stringify(response.data) : undefined,
+              isArray,
+              jobid,
+              headers: RestHeaders.from(response?.headers as any),
+            },
+            method,
+            jobid,
+            isArray,
+          },
+          {
+            url,
+            body,
+            isArray,
+            method,
+          },
+        );
+
+        return;
+      }
+
+      // ---- Non-Axios error path --------------------------------
+      let message = '';
+      let stack: string[] = [];
+
+      if (e instanceof Error) {
+        message = e.message;
+        stack = typeof e.stack === 'string' ? e.stack.split('\n') : [];
+      } else {
+        message = String(e);
+      }
+
       this.handlerResult(
         {
           res: {
-            code:
-              catchedError && catchedError.response
-                ? (catchedError.response.status as any)
-                : void 0,
-            error: `${error}${catchedError.message}`,
-            data:
-              catchedError && catchedError.response
-                ? JSON.stringify(catchedError.response.data)
-                : void 0,
+            code: undefined,
+            error: message,
+            data: undefined,
             isArray,
             jobid,
-            headers: RestHeaders.from(
-              catchedError &&
-                catchedError.response &&
-                catchedError.response.headers,
-            ),
+            headers: RestHeaders.from(undefined),
           },
           method,
           jobid,
