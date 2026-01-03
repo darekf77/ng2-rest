@@ -9,6 +9,7 @@
       "es2022",
       "dom"
     ],
+    "useUnknownInCatchVariables": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "dist",
