@@ -125,12 +125,4 @@ if (environment.production) {
 }
 ```
 
-# Angular 2+ ngZone
-If you are using Angular 2+ you need to do this in your root **app.component**:
-```ts
-constructor(zone:NgZone) {
-    Resource.initAngularNgZone(zone)
-}
-```
-
 

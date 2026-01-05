@@ -34,7 +34,6 @@ const isCanceled = 'isCanceled';
 
 export class RestRequest {
   //#region fields
-  public static zone;
   private static jobId = 0;
   private subjectInuUse: { [id: number]: Subject<any> } = {};
   private meta: { [id: number]: Models.MetaRequest } = {};

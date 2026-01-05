@@ -34,9 +34,6 @@ export class Resource<E, T, TA> {
   public static enableWarnings: boolean = true;
 
   //#region private mthods and fields
-  public static initAngularNgZone(zone) {
-    RestRequest.zone = zone;
-  }
 
   private checkNestedModels(model: string, allModels: Object) {
     // if (model.indexOf('/') !== -1) { //TODO make this better, becouse now I unecesary checking shit
@@ -135,11 +132,11 @@ Instead use nested approach:            /book/:bookid/author/:authorid
     if (url.charAt(url.length - 1) === '/') url = url.slice(0, url.length - 1);
     // log.i('url after', url);
     if (Resource.endpoints[e] !== void 0) {
-      Helpers.log(
-        'Cannot use map function at the same API endpoint again (' +
-          Resource.endpoints[e].url +
-          ')',
-      );
+      // Helpers.log(
+      //   'Cannot use map function at the same API endpoint again (' +
+      //     Resource.endpoints[e].url +
+      //     ')',
+      // );
       return false;
     }
     Resource.endpoints[e] = {

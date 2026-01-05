@@ -22,7 +22,7 @@ import {
 export type KeyboardEventType = KeyboardEvent & { target: HTMLButtonElement };
 
 // @browserLine
-import { ElementRef, NgModule, NgZone, ViewChild } from '@angular/core';
+import { ElementRef, NgModule, ViewChild } from '@angular/core';
 // @browserLine
 import { Component, OnInit } from '@angular/core';
 
@@ -73,10 +73,8 @@ export class Ng2RestComponent implements OnInit {
     // share(),
   );
 
-  constructor(private zone: NgZone) {}
   data: string;
   async ngOnInit() {
-    Resource.initAngularNgZone(this.zone);
     const data = await (
       await firstValueFrom(rest.model().get().observable)
     ).body.text;

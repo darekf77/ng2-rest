@@ -1,5 +1,5 @@
 import {
-  Component, NgZone,
+  Component,
   OnInit, OnDestroy
 } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -47,7 +47,7 @@ const rest3 = Resource.create(`http://localhost:${port}`, 'users');
 })
 export class Demo2Component extends PreviewBase implements OnDestroy {
 
-  constructor(private snackBar: MatSnackBar, zone: NgZone) {
+  constructor(private snackBar: MatSnackBar) {
     super(); this.preview(); // ###
 
     // rest.model({

@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import type express from 'express';
-import { firstValueFrom, from, Observable } from 'rxjs';
+import { from, Observable } from 'rxjs';
 
 export interface AxiosTaonHttpHandler<T = any> {
   handle(req: AxiosRequestConfig): Observable<AxiosResponse<T>>;
