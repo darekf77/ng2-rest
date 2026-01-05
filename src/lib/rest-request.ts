@@ -391,8 +391,10 @@ export class RestRequest {
           next: a => observer.next(a),
           error: a => observer.error(a),
           complete: () => {
-            sub.unsubscribe();
-            observer.complete();
+            setTimeout(() => {
+              sub.unsubscribe();
+              observer.complete();
+            });
           },
         });
       });
