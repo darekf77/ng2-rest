@@ -1,35 +1,41 @@
 {
   "type": "isomorphic-lib",
   "version": "v21",
-
   "dependenciesNamesForNpmLib": [
-    "@types/diff",
-    "diff",
     "axios",
-    "lodash",
-    "@types/lodash",
-    "ng2-logger",
-    "json5",
-    "json10"
+    "diff",
+    "express",
+    "form-data",
+    "rxjs",
   ],
-
   "additionalNpmNames": ["taon-rest"],
   "appId": "com.domain.example.ng2-rest",
 
-  "autoReleaseConfigAllowedItems": [{
-    "artifactName": "npm-lib-and-cli-tool",
-    "taskName": "npm"
-  }],
+  "autoReleaseConfigAllowedItems": [
+    {
+      "artifactName": "npm-lib-and-cli-tool",
+      "taskName": "npm",
+    },
+  ],
 
+  "isomorphicDependenciesForNpmLib": [
+    "json10",
+    "lodash-walk-object",
+    "ng2-logger",
+    "tnp-core",
+    "typescript-class-helpers",
+  ],
+
+  "peerDependenciesNamesForNpmLib": [],
   "resources": ["README.md"],
 
   "packageJsonOverride": {
     "author": {
-      "name": "Dariusz Filipiak"
+      "name": "Dariusz Filipiak",
     },
 
     "bugs": {
-      "url": "https://github.com/darekf77/ng2-rest/issues"
+      "url": "https://github.com/darekf77/ng2-rest/issues",
     },
 
     "description": "Description for ng2-rest. Hello world!",
@@ -41,8 +47,8 @@
 
     "repository": {
       "type": "git",
-      "url": "git+https://github.com/darekf77/ng2-rest.git"
+      "url": "git+https://github.com/darekf77/ng2-rest.git",
     },
-    "scripts": {}
-  }
+    "scripts": {},
+  },
 }
