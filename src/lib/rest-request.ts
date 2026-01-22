@@ -5,7 +5,7 @@ import { Level } from 'ng2-logger/src';
 import { Log, Logger } from 'ng2-logger/src';
 import { firstValueFrom, from, Observable } from 'rxjs';
 import { Subject } from 'rxjs';
-import { _, UtilsOs } from 'tnp-core/src';
+import { _, CoreModels, UtilsOs } from 'tnp-core/src';
 import { Helpers } from 'tnp-core/src';
 import { CLASS } from 'typescript-class-helpers/src';
 
@@ -108,7 +108,7 @@ export class RestRequest {
 
   private async req(
     url: string,
-    method: Models.HttpMethod,
+    method: CoreModels.HttpMethod,
     headers?: RestHeaders,
     body?: any,
     jobid?: number,
@@ -307,7 +307,7 @@ export class RestRequest {
   }
 
   private getReplay(
-    method: Models.HttpMethod,
+    method: CoreModels.HttpMethod,
     meta: Models.MetaRequest,
     onlyGetLastReplayForMethod: boolean,
   ): Models.ReplayData {
@@ -418,7 +418,7 @@ export class RestRequest {
   //#region http methods
 
   private generalReq(
-    method: Models.HttpMethod,
+    method: CoreModels.HttpMethod,
     url: string,
     body: string,
     headers: RestHeaders,

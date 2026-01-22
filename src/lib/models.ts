@@ -2,13 +2,12 @@ import { Blob } from 'buffer'; // @backend
 
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { JSON10, Circ } from 'json10/src';
-import { Log, Level } from 'ng2-logger/src';
+// import { Log, Level } from 'ng2-logger/src';
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 import { _ } from 'tnp-core/src';
 import { CoreModels } from 'tnp-core/src';
 import { Helpers } from 'tnp-core/src';
-import { Models as HelpersModels } from 'typescript-class-helpers/src';
 
 import { Cookie } from './cookie';
 import { Mapping } from './mapping';
@@ -42,23 +41,19 @@ export class RestErrorResponseWrapper extends RestCommonHttpResponseWrapper {
 // const log = Log.create('rest namespace', Level.__NOTHING)
 
 export namespace Models {
-  export import HttpMethod = CoreModels.HttpMethod;
-  export import ParamType = CoreModels.ParamType;
-
-  export import MethodConfig = HelpersModels.MethodConfig;
-  export import ClassConfig = HelpersModels.ClassConfig;
-  export import ParamConfig = HelpersModels.ParamConfig;
+  // export import HttpMethod = CoreModels.HttpMethod;
+  // export import ParamType = CoreModels.ParamType;
 
   export interface HandleResultOptions {
     res: Models.MockResponse;
-    method: Models.HttpMethod;
+    method: CoreModels.HttpMethod;
     jobid?: number;
     isArray?: boolean;
   }
 
   export interface HandleResultSourceRequestOptions {
     url: string;
-    method: Models.HttpMethod;
+    method: CoreModels.HttpMethod;
     // headers?: RestHeaders,
     body: any;
     isArray: boolean;
@@ -132,13 +127,17 @@ export namespace Models {
 
   export type MockHttp = MockResponse | MockController;
 
-  export interface FnMethodsHttp<T, TA>
-    extends Ng2RestMethods<HttpResponse<T>, T> {
+  export interface FnMethodsHttp<T, TA> extends Ng2RestMethods<
+    HttpResponse<T>,
+    T
+  > {
     array: Ng2RestMethods<HttpResponse<TA>, TA>;
   }
 
-  export interface FnMethodsHttpWithMock<T, TA>
-    extends Ng2RestMethods<HttpResponse<T>, T> {
+  export interface FnMethodsHttpWithMock<T, TA> extends Ng2RestMethods<
+    HttpResponse<T>,
+    T
+  > {
     array: Ng2RestMethods<HttpResponse<TA>, TA>;
   }
 

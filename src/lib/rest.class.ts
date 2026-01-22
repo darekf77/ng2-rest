@@ -3,6 +3,7 @@
 
 // const log = Log.create('rest.class', Level.__NOTHING)
 
+import { CoreModels } from 'tnp-core/src';
 import { CLASS } from 'typescript-class-helpers/src';
 
 import { CONTENT_TYPE } from './content-type';
@@ -14,6 +15,7 @@ import { RestRequest } from './rest-request';
 
 export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   private mockHttp: Models.MockHttp;
+
   mock(mock: Models.MockHttp): Models.FnMethodsHttp<T, TA> {
     if (typeof mock === 'function' || typeof mock === 'object') {
       this.mockHttp = mock;
@@ -29,7 +31,9 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
 
   //#region  private fields
   private __meta_endpoint: string;
+
   private _endpointRest: string;
+
   private get endpoint() {
     let e = this.__meta_endpoint;
     if (
@@ -41,7 +45,9 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
       e = this._endpointRest;
     return e;
   }
+
   private restQueryParams: Object;
+
   public set __rest_endpoint(endpoint) {
     this._endpointRest = endpoint;
     if (endpoint === void 0) {
@@ -59,9 +65,11 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
 
   //#region  constructor
   private _headers = RestHeaders.from(CONTENT_TYPE.APPLICATION_JSON);
+
   get headers() {
     return this._headers;
   }
+
   constructor(
     endpoint: string,
     private request: RestRequest,
@@ -75,7 +83,7 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   //#region  req
 
   private req(
-    method: Models.HttpMethod,
+    method: CoreModels.HttpMethod,
     requestBody: T,
     params?: Models.UrlParams[],
     axiosOptions?: Models.Ng2RestAxiosRequestConfig,
