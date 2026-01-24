@@ -64,7 +64,7 @@ export class RestRequest {
       throw new Error('No resposnse for request. ');
     }
 
-    if (Helpers.isBrowser) {
+    if (UtilsOs.isBrowser) {
       res.headers = RestHeaders.from(res.headers);
     }
 
