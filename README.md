@@ -1,7 +1,10 @@
 
 ## ng2-rest ##
 
-Robust isomorphic REST framework for browser (Angular, React etc.) and backend (NodeJS) JavaScript/TypeScript apps.
+Robust isomorphic REST framework
+- for browser (Angular, React etc.) 
+- for backend Taon apps/libs (NodeJS/TypeScript) 
+(part of [taon.dev](https://github.com/darekf77/taon)).
 
 Features:
 - Compatible with Angular (2+) (newest 13,14 also...) , React, Vue , NodeJS (works everywhere)
