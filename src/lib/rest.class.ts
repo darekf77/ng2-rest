@@ -135,49 +135,49 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
 
   array = {
     get: (
-      item: TA,
+      item?: TA,
       params: Models.UrlParams[] = void 0,
       axiosOptions?: Models.Ng2RestAxiosRequestConfig,
     ): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
       return this.req('get', item as any, params, axiosOptions, true) as any;
     },
     head: (
-      item: TA,
+      item?: TA,
       params: Models.UrlParams[] = void 0,
       axiosOptions?: Models.Ng2RestAxiosRequestConfig,
     ): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
       return this.req('head', item as any, params, axiosOptions, true) as any;
     },
     post: (
-      item: TA,
+      item?: TA,
       params?: Models.UrlParams[],
       axiosOptions?: Models.Ng2RestAxiosRequestConfig,
     ): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
       return this.req('post', item as any, params, axiosOptions, true) as any;
     },
     put: (
-      item: TA,
+      item?: TA,
       params?: Models.UrlParams[],
       axiosOptions?: Models.Ng2RestAxiosRequestConfig,
     ): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
       return this.req('put', item as any, params, axiosOptions, true) as any;
     },
     patch: (
-      item: TA,
+      item?: TA,
       params?: Models.UrlParams[],
       axiosOptions?: Models.Ng2RestAxiosRequestConfig,
     ): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
       return this.req('patch', item as any, params, axiosOptions, true) as any;
     },
     delete: (
-      item: TA,
+      item?: TA,
       params?: Models.UrlParams[],
       axiosOptions?: Models.Ng2RestAxiosRequestConfig,
     ): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
       return this.req('delete', item as any, params, axiosOptions, true) as any;
     },
     jsonp: (
-      item: TA,
+      item?: TA,
       params?: Models.UrlParams[],
       axiosOptions?: Models.Ng2RestAxiosRequestConfig,
     ): Models.PromiseObservableMix<Models.HttpResponse<TA>> => {
@@ -186,7 +186,7 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   };
 
   get(
-    item: T,
+    item?: T,
     params?: Models.UrlParams[],
     axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<Models.HttpResponse<T>> {
@@ -194,7 +194,7 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   }
 
   head(
-    item: T,
+    item?: T,
     params?: Models.UrlParams[],
     axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<Models.HttpResponse<T>> {
@@ -202,7 +202,7 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   }
 
   post(
-    item: T,
+    item?: T,
     params?: Models.UrlParams[],
     axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<Models.HttpResponse<T>> {
@@ -210,7 +210,7 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   }
 
   put(
-    item: T,
+    item?: T,
     params?: Models.UrlParams[],
     axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<Models.HttpResponse<T>> {
@@ -218,7 +218,7 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   }
 
   patch(
-    item: T,
+    item?: T,
     params?: Models.UrlParams[],
     axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<Models.HttpResponse<T>> {
@@ -226,7 +226,7 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   }
 
   delete(
-    item: T,
+    item?: T,
     params?: Models.UrlParams[],
     axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<Models.HttpResponse<T>> {
@@ -234,7 +234,7 @@ export class Rest<T, TA = T[]> implements Models.FnMethodsHttpWithMock<T, TA> {
   }
 
   jsonp(
-    item: T,
+    item?: T,
     params?: Models.UrlParams[],
     axiosOptions?: Models.Ng2RestAxiosRequestConfig,
   ): Models.PromiseObservableMix<Models.HttpResponse<T>> {
