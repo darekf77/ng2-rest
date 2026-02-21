@@ -1,12 +1,12 @@
-import { _ } from 'tnp-core';
-import { describe, it } from 'mocha'
 import { expect, use } from 'chai'
-
+import { describe, it } from 'mocha'
+import { Log } from 'ng2-logger';
+import { _ } from 'tnp-core';
 import { CLASS } from 'typescript-class-helpers';
 // import { BrowserDB } from '../browser-db/browser-db';
 
-import { Mapping } from '../mapping'
-import { Log } from 'ng2-logger';
+import { Mapping } from '../index'
+
 const log = Log.create('mapping test')
 
 // const instance = BrowserDB.instance;
@@ -25,7 +25,9 @@ describe('Mapping inheritance', () => {
   })
   class Project {
     cup: Coffee;
+
     projectInside: Project;
+
     location: string;
 
   }

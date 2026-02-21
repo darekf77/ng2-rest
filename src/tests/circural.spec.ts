@@ -1,10 +1,11 @@
-import { _ } from 'tnp-core';
-import { describe, it } from 'mocha'
 import { expect, use } from 'chai'
+import { describe, it } from 'mocha'
 import { Log } from 'ng2-logger';
+import { _ } from 'tnp-core';
 const log = Log.create('Circural test');
-import { Mapping } from '../mapping'
 import { CLASS } from 'typescript-class-helpers';
+
+import { Mapping } from '../index'
 
 
 @CLASS.NAME('Project')
@@ -24,6 +25,7 @@ export class Project {
   get parent() {
     return this.browser && this.browser.parent;
   }
+
   get name() {
     return this.browser && this.browser.name;
   }

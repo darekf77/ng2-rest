@@ -1,10 +1,10 @@
-import { _ } from 'tnp-core';
-import { describe, it } from 'mocha'
 import { expect, use } from 'chai'
+import { describe, it } from 'mocha'
+import { _ } from 'tnp-core';
 
 // import { BrowserDB } from '../browser-db/browser-db';
 
-import { Mapping } from '../mapping'
+import { Mapping } from '../index'
 
 describe('default model conflict', () => {
 
@@ -29,7 +29,9 @@ describe('default model conflict', () => {
       constructor(public age: number = 23) {
 
       }
+
       isHuman = true;
+
       name: string;
 
     }

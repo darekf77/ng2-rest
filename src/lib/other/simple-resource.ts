@@ -2,8 +2,8 @@ import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { Observer } from 'rxjs';
 
-import { Models } from '../models';
-import { Resource } from '../resource-service';
+import { Models } from '../ng2-rest-old';
+import { Resource } from '../ng2-rest-old';
 
 export interface RestPromises<A, TA, QP extends Models.UrlParams> {
   get: (tem?: A, queryParams?: QP) => Observable<Models.HttpResponse<A>>;
