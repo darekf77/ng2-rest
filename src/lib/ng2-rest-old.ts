@@ -104,7 +104,7 @@ export namespace Models {
   export interface HandleResultSourceRequestOptions {
     url: string;
     method: CoreModels.HttpMethod;
-    // headers?: RestHeaders,
+    headers?: RestHeaders,
     body: any;
     isArray: boolean;
   }
@@ -2507,3 +2507,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
 //   .array.
 
 //#endregion
+
+
+// const rest = Resource.create('asd','asd');
+// rest.model().get();

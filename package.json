@@ -458,5 +458,9 @@
     "type": "git",
     "url": "git+https://github.com/darekf77/ng2-rest.git"
   },
-  "bin": {}
+  "bin": {
+    "ng2-rest": "bin/ng2-rest",
+    "ng2-rest-debug": "bin/ng2-rest-debug",
+    "ng2-rest-debug-brk": "bin/ng2-rest-debug-brk"
+  }
 }
