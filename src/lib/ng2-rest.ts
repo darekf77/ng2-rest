@@ -20,6 +20,86 @@ import { CLASS } from 'typescript-class-helpers/src';
 
 //#region cookie
 
+// TODO do it for nodejs
+
+// import { CookieJar } from 'tough-cookie';
+
+// const jar = new CookieJar();
+
+// const rest = Resource.create('http://my-website.pl', 'api/v3/user/:userId', {
+//   cookieJar: jar,
+// });
+
+// await rest.model({ userId: 1 }).get(); // cookies persist across requests
+
+// import type { CookieJar } from 'tough-cookie';
+
+// interface ResourceOptions {
+//   // ...
+//   cookieJar?: CookieJar;
+// }
+
+// export class CookieJarInterceptor implements TaonAxiosClientInterceptor<any> {
+//   constructor(private readonly jar: CookieJar) {}
+
+//   intercept({ req, next }: TaonClientMiddlewareInterceptOptions<any>) {
+//     return new Observable<AxiosResponse<any>>(subscriber => {
+//       const url = req.url || '';
+
+//       // 1) attach Cookie header from jar
+//       this.jar.getCookieString(url, (err, cookieString) => {
+//         if (err) {
+//           subscriber.error(err);
+//           return;
+//         }
+
+//         if (cookieString) {
+//           req.headers = req.headers || {};
+//           // axios headers can be plain object or AxiosHeaders
+//           if (req.headers instanceof AxiosHeaders) {
+//             req.headers.set('Cookie', cookieString);
+//           } else {
+//             (req.headers as any)['Cookie'] = cookieString;
+//           }
+//         }
+
+//         // 2) proceed
+//         const sub = next.handle(req).subscribe({
+//           next: res => {
+//             // 3) store Set-Cookie back into jar
+//             const setCookie = (res.headers as any)?.['set-cookie'];
+//             const cookies: string[] =
+//               typeof setCookie === 'string'
+//                 ? [setCookie]
+//                 : Array.isArray(setCookie)
+//                   ? setCookie
+//                   : [];
+
+//             if (!cookies.length) {
+//               subscriber.next(res);
+//               return;
+//             }
+
+//             let pending = cookies.length;
+//             for (const c of cookies) {
+//               this.jar.setCookie(c, url, () => {
+//                 pending--;
+//                 if (pending === 0) {
+//                   subscriber.next(res);
+//                 }
+//               });
+//             }
+//           },
+//           error: e => subscriber.error(e),
+//           complete: () => subscriber.complete(),
+//         });
+
+//         return () => sub.unsubscribe();
+//       });
+//     });
+//   }
+// }
+
 export class Cookie {
   public static get Instance(): Cookie {
     if (!Cookie.__instance) {
@@ -33,6 +113,7 @@ export class Cookie {
   private constructor() {}
 
   read(name: string): string {
+    if (typeof document === 'undefined') return null;
     var result = new RegExp(
       '(?:^|; )' + encodeURIComponent(name) + '=([^;]*)',
     ).exec(document.cookie);
@@ -40,6 +121,7 @@ export class Cookie {
   }
 
   write(name: string, value: string, days?: number): void {
+    if (typeof document === 'undefined') return null;
     if (!days) {
       days = 365 * 20;
     }
@@ -53,6 +135,7 @@ export class Cookie {
   }
 
   remove(name: string): void {
+    if (typeof document === 'undefined') return null;
     this.write(name, '', -1);
   }
 }
@@ -173,9 +256,9 @@ const cutUrlModel = (params: Object, models: string[], output: string[]) => {
 };
 
 /**
-   * let pattern = '/books/:bookid';
-   # let url = `/books/34`;
-   */
+ * let pattern = '/books/:bookid';
+ * let url = `/books/34`;
+ */
 export function interpolateParamsToUrl(params: Object, url: string): string {
   const regexInt = /\[\[([^\..]+\.[^\..]+)+\]\]/g;
 
@@ -483,16 +566,6 @@ export class RestHeaders {
     return serialized;
   }
 
-  toAxiosHeaders(): Record<string, string> {
-    const h = RestHeaders.from(DEFAULT_HEADERS.APPLICATION_JSON).toJSON();
-
-    return AxiosHeaders.from(
-      Object.fromEntries(
-        Object.entries(h).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v]),
-      ),
-    );
-  }
-
   /**
    * Returns list of header values for a given name.
    */
@@ -716,14 +789,13 @@ abstract class ResourceResponse<DATA = any, ERROR = any> implements Promise<
 > {
   [Symbol.toStringTag] = 'Promise';
 
-  private _promise:
-    | Promise<HttpResponse<DATA> | HttpResponseError<ERROR>>
-    | undefined;
+  private _promise?: Promise<HttpResponse<DATA> | HttpResponseError<ERROR>>;
+
+  private _promiseAbort?: AbortController;
+
+  private _observable?: Observable<HttpResponse<DATA>>;
 
   constructor(
-    /**
-     *  "get" | "post" | "put" | "delete" | "patch" | "head" | "jsonp"
-     */
     protected httpMethodName: CoreModels.HttpMethod,
     protected urlOrigin: string,
     protected urlPathname: string,
@@ -731,34 +803,31 @@ abstract class ResourceResponse<DATA = any, ERROR = any> implements Promise<
     protected body: DATA | DATA,
     protected urlParams: UrlParams[],
     protected axiosOptions: Ng2RestAxiosRequestConfig,
-
-    /**
-     * key is interceptorName (just to identify who is intercepting)
-     */
     protected interceptors: Map<string, TaonAxiosClientInterceptor>,
-
-    /**
-     * key is a joined string METHOD-expressPath.
-     * Example `GET-/api/users`
-     */
     protected methodsInterceptors: Map<string, TaonAxiosClientInterceptor>,
-    /**
-     * Just to check if response is array
-     */
     protected isArray: boolean,
     protected headers: RestHeaders,
   ) {}
 
-  protected abstract makeRequest(): Promise<
-    HttpResponse<DATA> | HttpResponseError<ERROR>
-  >;
+  // ✅ NEW: make request cancellable
+  protected abstract makeRequest(
+    abortSignal: AbortSignal,
+  ): Promise<HttpResponse<DATA> | HttpResponseError<ERROR>>;
 
   /**
-   * If you prefer explicitness instead of "this object is a Promise"
+   * ✅ Explicit cancel (useful for "promise style")
+   */
+  public cancel(reason?: string): void {
+    this._promiseAbort?.abort(reason);
+  }
+
+  /**
+   * Promise API (cannot be auto-cancelled by consumer, so we expose cancel())
    */
   public get promise(): Promise<HttpResponse<DATA> | HttpResponseError<ERROR>> {
     if (!this._promise) {
-      this._promise = this.makeRequest();
+      this._promiseAbort = new AbortController();
+      this._promise = this.makeRequest(this._promiseAbort.signal);
     }
     return this._promise;
   }
@@ -769,51 +838,50 @@ abstract class ResourceResponse<DATA = any, ERROR = any> implements Promise<
       | ((
           value: HttpResponse<DATA> | HttpResponseError<ERROR>,
         ) => TResult1 | PromiseLike<TResult1>)
-      | undefined
       | null,
-    onrejected?:
-      | ((reason: any) => TResult2 | PromiseLike<TResult2>)
-      | undefined
-      | null,
+    onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null,
   ): Promise<TResult1 | TResult2> {
     return this.promise.then(onfulfilled as any, onrejected as any);
   }
 
   // @ts-ignore
-
   catch<TResult = never>(
-    onrejected?:
-      | ((reason: any) => TResult | PromiseLike<TResult>)
-      | undefined
-      | null,
+    onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null,
   ): Promise<(HttpResponse<DATA> | HttpResponseError<ERROR>) | TResult> {
     return this.promise.catch(onrejected as any);
   }
 
   // @ts-ignore
   finally(
-    onfinally?: (() => void) | undefined | null,
+    onfinally?: (() => void) | null,
   ): Promise<HttpResponse<DATA> | HttpResponseError<ERROR>> {
     return this.promise.finally(onfinally as any);
   }
 
   /**
-   * Observable that executes the same underlying axios request.
-   * Emits DATA (not HttpResponse) to match your example.
+   * ✅ Observable owns AbortController:
+   * - subscribe starts request
+   * - unsubscribe aborts request
+   * - shareReplay shares the same in-flight request among subscribers
    */
-  private _observable?: Observable<HttpResponse<DATA>>;
-
   get observable(): Observable<HttpResponse<DATA>> {
     if (!this._observable) {
-      this._observable = from(this.promise).pipe(
-        switchMap(res =>
-          res instanceof HttpResponseError
-            ? throwError(() => res)
-            : from([res]),
-        ),
-        // share the single result for all subscribers
-        shareReplay({ bufferSize: 1, refCount: true }),
-      );
+      this._observable = new Observable<HttpResponse<DATA>>(subscriber => {
+        const ac = new AbortController();
+
+        this.makeRequest(ac.signal)
+          .then(res => {
+            if (res instanceof HttpResponseError) {
+              subscriber.error(res);
+              return;
+            }
+            subscriber.next(res);
+            subscriber.complete();
+          })
+          .catch(err => subscriber.error(err));
+
+        return () => ac.abort('rxjs-unsubscribe');
+      }).pipe(shareReplay({ bufferSize: 1, refCount: true }));
     }
     return this._observable;
   }
@@ -830,16 +898,6 @@ abstract class ResourceResponse<DATA = any, ERROR = any> implements Promise<
     const path = (this.urlPathname || '').replace(/^\/+/, '');
     const endpoint = `${origin}/${path}`;
     return `${endpoint}${getParamsUrl(params, doNotSerializeParams)}`;
-  }
-
-  protected serializeResponseText(data: any): string | Blob {
-    if (Helpers.isBlob(data)) return data as Blob;
-    if (typeof data === 'string') return data;
-    try {
-      return JSON.stringify(data ?? (this.isArray ? [] : {}));
-    } catch {
-      return String(data);
-    }
   }
 }
 //#endregion
@@ -860,11 +918,13 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
   DATA,
   ERROR
 > {
-  protected async makeRequest(): Promise<
-    HttpResponse<DATA> | HttpResponseError<ERROR>
-  > {
-    const url = this.creatUrl(this.urlParams);
-
+  protected async makeRequest(
+    abortSignal: AbortSignal,
+  ): Promise<HttpResponse<DATA> | HttpResponseError<ERROR>> {
+    const url = this.creatUrl(
+      this.urlParams,
+      !!this.axiosOptions?.doNotSerializeParams,
+    );
     const method = this.httpMethodName;
 
     const isFormData = CLASS.getNameFromObject(this.body) === 'FormData';
@@ -880,13 +940,8 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
     }
     //#endregion
 
-    const responseType: ResponseTypeAxios = this.headers.get(
-      'responsetypeaxios',
-    )
-      ? (this.headers.get('responsetypeaxios').toString() as any)
-      : 'text';
-
-    console.log(`REQUEST ${method} ${url}`);
+    const responseType: ResponseTypeAxios =
+      (this.headers.get('responsetypeaxios')?.toString() as any) || 'text';
 
     const axiosConfig: AxiosRequestConfig = {
       url,
@@ -894,6 +949,7 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
       data: this.body,
       responseType,
       headers: this.headers.toJSON(),
+      signal: abortSignal, // ✅ this is the key
       ...this.axiosOptions,
     };
 
@@ -901,31 +957,22 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
       axiosConfig.maxBodyLength = Infinity;
     }
 
-    let response: AxiosResponse<any>;
-
     try {
       const uri = new URL(url);
       const backend = new AxiosBackendHandler<any>();
 
-      const globalInterceptors = Array.from(this.interceptors.entries()).map(
-        ([_, interceptor]) => interceptor,
-      );
-
+      const globalInterceptors = Array.from(this.interceptors.values());
       const methodInterceptors = Array.from(this.methodsInterceptors.entries())
-        .filter(([key]) => {
-          const ending = `-${method?.toUpperCase()}-${uri.pathname}`;
-          return key.endsWith(ending);
-        })
+        .filter(([key]) =>
+          key.endsWith(`-${method?.toUpperCase()}-${uri.pathname}`),
+        )
         .map(([_, interceptor]) => interceptor);
 
-      // console.log(
-      //   `for ${uri.pathname} global ${globalInterceptors.length} method: ${methodInterceptors.length}`,
-      // );
-
-      const allInterceptors = [...globalInterceptors, ...methodInterceptors];
-
-      const handler = buildInterceptorChain(allInterceptors, backend);
-      response = await firstValueFrom(handler.handle(axiosConfig));
+      const handler = buildInterceptorChain(
+        [...globalInterceptors, ...methodInterceptors],
+        backend,
+      );
+      const response = await firstValueFrom(handler.handle(axiosConfig));
 
       return new HttpResponse<DATA>(
         url,
@@ -936,72 +983,39 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
         this.options,
         this.isArray,
       );
-    } catch (catchedError: any) {
-      //#region handle errors
-      if (
-        typeof catchedError === 'object' &&
-        catchedError.response &&
-        catchedError.response.data
-      ) {
-        const err = catchedError.response.data;
-        const message: string = catchedError.response.data.message || '';
-        // console.log({
-        //   'err.stack': err?.stack
-        // })
-        let stack: string[] = (err.stack || '').split('\n');
-
-        const errorDataString = JSON.stringify({
-          message,
-          stack,
-          data: catchedError.response.data,
-        });
-
+    } catch (e: any) {
+      // ✅ treat cancellation separately (nice UX)
+      if (e?.code === 'ERR_CANCELED' || e?.name === 'CanceledError') {
         return new HttpResponseError<ERROR>(
           url,
           method,
-          errorDataString,
+          JSON.stringify({ message: 'Request canceled' }),
           this.options,
-          RestHeaders.from(
-            catchedError &&
-              catchedError.response &&
-              catchedError.response.headers,
-          ),
-          catchedError.response.status,
+          RestHeaders.from(e?.response?.headers),
+          0,
           this.isArray,
         );
       }
 
-      const error =
-        catchedError && catchedError.response
-          ? `[${catchedError.response.statusText}]: `
-          : '';
+      const status = e?.response?.status ?? 0; // ✅ FIX: you used "status" before defining it
+      const data = e?.response?.data ?? e?.message ?? e;
 
-      const message =
-        catchedError?.message ||
-        (status ? `HTTP ${status}` : 'HTTP request failed');
-
-      const errorDataString = JSON.stringify({
-        error,
-        message,
-      });
+      const responseText =
+        typeof data === 'string' ? data : JSON.stringify(data);
 
       return new HttpResponseError<ERROR>(
         url,
         method,
-        errorDataString,
+        responseText,
         this.options,
-        RestHeaders.from(
-          catchedError &&
-            catchedError.response &&
-            catchedError.response.headers,
-        ),
-        catchedError.response.status,
+        RestHeaders.from(e?.response?.headers),
+        status,
         this.isArray,
       );
-      //#endregion
     }
   }
 }
+
 //#endregion
 
 //#region models
@@ -1052,33 +1066,11 @@ export namespace Resource {
     arg2?: string | Object,
     arg3?: ResourceOptions,
   ): ResourceFactory<MODEL> {
-    let url: URL = typeof arg1 === 'string' ? new URL(`${arg1}${arg2}`) : arg1;
-
-    let options: ResourceOptions = typeof arg2 === 'object' ? arg2 : arg3;
-    options = options || {};
-
     return {
       model: <INTERPOLATE_ARGS = {}>(
         interpolateParams?: INTERPOLATE_ARGS,
         overrideOptions?: ResourceOptions,
       ) => {
-        if (interpolateParams) {
-          // interpolate args
-          let pathNameInterpolated = interpolateParamsToUrl(
-            interpolateParams,
-            url.pathname,
-          );
-          url = new URL(`${url.origin}/${pathNameInterpolated}`);
-        }
-
-        if (overrideOptions) {
-          // just first level override
-          const keys = Object.keys(options);
-          for (const key of keys) {
-            options[key] = overrideOptions[key];
-          }
-        }
-
         const methods = <T>(
           isArray = false,
         ): {
@@ -1088,16 +1080,6 @@ export namespace Resource {
             axiosOptions?: Ng2RestAxiosRequestConfig,
           ) => ResourceResponse<T>;
         } => {
-          let interceptors: Map<string, TaonAxiosClientInterceptor> =
-            options.interceptors ? options.interceptors : new Map();
-
-          let methodsInterceptors: Map<string, TaonAxiosClientInterceptor> =
-            options.methodsInterceptors
-              ? options.methodsInterceptors
-              : new Map();
-
-          let headers: RestHeaders = RestHeaders.from(options.headers);
-
           const methodsObj = {};
           for (const methodName of CoreModels.HttpMethodArr) {
             methodsObj[methodName] = (
@@ -1105,6 +1087,41 @@ export namespace Resource {
               urlParams?: UrlParams[],
               axiosOptions?: Ng2RestAxiosRequestConfig,
             ) => {
+              let url: URL =
+                typeof arg1 === 'string' ? new URL(`${arg1}${arg2}`) : arg1;
+
+              let options: ResourceOptions =
+                typeof arg2 === 'object' ? arg2 : arg3;
+              options = options || {};
+
+              url = new URL(url.toString());
+              options = { ...options, ...(overrideOptions || {}) };
+
+              if (interpolateParams) {
+                // console.log({ interpolateParams });
+                // interpolate args
+                let pathNameInterpolated = interpolateParamsToUrl(
+                  interpolateParams,
+                  url.pathname,
+                );
+                // console.log(
+                //   `interpolated ${pathNameInterpolated}, url ${url.toString()}`,
+                // );
+                url = new URL(`${url.origin}/${pathNameInterpolated}`);
+              }
+
+              const interceptors: Map<string, TaonAxiosClientInterceptor> =
+                options.interceptors ? options.interceptors : new Map();
+
+              const methodsInterceptors: Map<
+                string,
+                TaonAxiosClientInterceptor
+              > = options.methodsInterceptors
+                ? options.methodsInterceptors
+                : new Map();
+
+              const headers: RestHeaders = RestHeaders.from(options.headers);
+
               options.strategy = options.strategy || 'http';
               if (options.strategy === 'http') {
                 return new ResourceResponseHttp(

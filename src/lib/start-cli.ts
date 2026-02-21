@@ -1,6 +1,9 @@
 import { Resource } from './ng2-rest';
 
-export async function startCli(argsv: string[], filename: string): Promise<void> {
+export async function startCli(
+  argsv: string[],
+  filename: string,
+): Promise<void> {
   //#region @backendFunc
   console.log('Hello from cli');
 
@@ -18,7 +21,14 @@ export async function startCli(argsv: string[], filename: string): Promise<void>
   console.log('SINGLE');
   console.log(respSingle.body.json);
 
-  process.exit(0);
+  objSingle
+    .model({ id: 2 })
+    .get()
+    .observable.subscribe(d => {
+      console.log('THIRD', d.body.json);
+      process.exit(0);
+    });
+
   // https://api.restful-api.dev/objects/{id}
   //#endregion
 }
