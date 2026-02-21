@@ -417,18 +417,16 @@ export type RestHeadersOptions =
 
 export class RestHeaders {
   /** @internal header names are lower case */
-  _headers: Map<string, string[]> = new Map();
+  protected _headers: Map<string, string[]> = new Map();
 
   /** @internal map lower case names to actual names */
-  _normalizedNames: Map<string, string> = new Map();
+  protected _normalizedNames: Map<string, string> = new Map();
 
   public static from(headers?: RestHeadersOptions): RestHeaders {
     return new RestHeaders(headers || {});
   }
 
-  private constructor(
-    headers?: RestHeaders | { [name: string]: string | string[] },
-  ) {
+  apply(headers?: RestHeadersOptions): RestHeaders {
     if (headers instanceof RestHeaders) {
       headers.forEach((values: string[], name: string) => {
         values.forEach(value => this.set(name, value));
@@ -442,6 +440,11 @@ export class RestHeaders {
         values.forEach(value => this.set(name, value));
       });
     }
+    return this;
+  }
+
+  private constructor(headers?: RestHeadersOptions) {
+    this.apply(headers);
   }
 
   /**
@@ -883,9 +886,10 @@ export const DEFAULT_HEADERS = {
 } as const;
 
 //#region abstract resource reponse class
-abstract class ResourceResponse<DATA = any, ERROR = any> implements Promise<
-  HttpResponse<DATA> | HttpResponseError<ERROR>
-> {
+export abstract class ResourceResponse<
+  DATA = any,
+  ERROR = any,
+> implements Promise<HttpResponse<DATA> | HttpResponseError<ERROR>> {
   [Symbol.toStringTag] = 'Promise';
 
   private _promise?: Promise<HttpResponse<DATA>>;
@@ -1132,11 +1136,16 @@ export type Ng2RestAxiosRequestConfig = {
 
 //#region resource namespace
 export namespace Resource {
-  export const globalInterceptors = new Map<string, TaonAxiosClientInterceptor>();
+  export const globalInterceptors = new Map<
+    string,
+    TaonAxiosClientInterceptor
+  >();
   export const methodsInterceptors = new Map<
     string,
     TaonAxiosClientInterceptor
   >();
+
+  export const Cookies = Cookie.Instance;
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   export function create<MODEL = any>(
