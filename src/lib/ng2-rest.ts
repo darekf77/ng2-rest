@@ -5,7 +5,7 @@ import { AxiosHeaders, AxiosRequestConfig, AxiosResponse } from 'axios';
 import axios from 'axios';
 import type express from 'express';
 import * as FormData from 'form-data'; // @backend
-import { JSON10 } from 'json10/src';
+import { Circ, JSON10 } from 'json10/src';
 import {
   firstValueFrom,
   from,
@@ -16,6 +16,8 @@ import {
 } from 'rxjs';
 import { CoreModels, Helpers, _ } from 'tnp-core/src';
 import { CLASS } from 'typescript-class-helpers/src';
+
+import { Mapping } from './mapping';
 //#endregion
 
 //#region cookie
@@ -382,10 +384,10 @@ export class AxiosBackendHandler<T = any> implements AxiosTaonHttpHandler<T> {
 
 // === Chain builder (request: forward order, response: reverse order) ===
 export const buildInterceptorChain = <T = any>(
-  interceptors: Array<TaonAxiosClientInterceptor<T>>,
+  globalInterceptors: Array<TaonAxiosClientInterceptor<T>>,
   backend: AxiosTaonHttpHandler<T>,
 ): AxiosTaonHttpHandler<T> => {
-  return interceptors.reduceRight<AxiosTaonHttpHandler<T>>(
+  return globalInterceptors.reduceRight<AxiosTaonHttpHandler<T>>(
     (next, interceptor) => ({
       handle: req => interceptor.intercept({ req, next }),
     }),
@@ -646,11 +648,39 @@ export abstract class BaseBody {
 export class HttpBody<T> extends BaseBody {
   constructor(
     private readonly url: string,
+    private readonly headers: RestHeaders,
     private readonly responseText: string | Blob,
     private readonly options: ResourceOptions,
     private readonly isArray: boolean,
   ) {
     super();
+  }
+
+  private get entity(): Mapping.Mapping {
+    if (typeof this.options.responseMapping?.entity === 'string') {
+      // const headerWithMapping = headers.get(entity);
+      let entityJSON = this.headers?.getAll(
+        this.options.responseMapping?.entity,
+      );
+      if (!!entityJSON) {
+        return JSON.parse(entityJSON.join());
+      }
+    }
+
+    return this.options.responseMapping?.entity;
+  }
+
+  private get circular(): Circ[] {
+    if (typeof this.options.responseMapping?.circular === 'string') {
+      // const headerWithMapping = headers.get(circular);
+      let circuralJSON = this.headers?.getAll(
+        this.options.responseMapping.circular,
+      );
+      if (!!circuralJSON) {
+        return JSON.parse(circuralJSON.join());
+      }
+    }
+    return (this.options.responseMapping?.circular || []) as any;
   }
 
   public get blob(): Blob {
@@ -672,9 +702,9 @@ export class HttpBody<T> extends BaseBody {
   public get rawJson(): Partial<T> {
     if (!Helpers.isBlob(this.responseText)) {
       let res = this.toJSON(this.responseText, { isJSONArray: this.isArray });
-      // if (this.circular && Array.isArray(this.circular)) {
-      //   res = JSON10.parse(JSON.stringify(res), this.circular);
-      // }
+      if (this.circular && Array.isArray(this.circular)) {
+        res = JSON10.parse(JSON.stringify(res), this.circular);
+      }
 
       return res;
     }
@@ -685,9 +715,19 @@ export class HttpBody<T> extends BaseBody {
     if (isBlob) {
       return void 0;
     }
-
+    if (this.entity && typeof this.entity === 'function') {
+      return this.entity(); // @LAST
+    }
+    if (this.entity && typeof this.entity === 'object') {
+      const json = this.toJSON(this.responseText, {
+        isJSONArray: this.isArray,
+      });
+      return Mapping.encode(json, this.entity, this.circular) as any;
+    }
     let res = this.toJSON(this.responseText, { isJSONArray: this.isArray });
-
+    if (this.circular && Array.isArray(this.circular)) {
+      res = JSON10.parse(JSON.stringify(res), this.circular);
+    }
     return res as any;
   }
 
@@ -750,7 +790,8 @@ export class HttpResponse<T> extends BaseResponse<T> {
     public readonly isArray: boolean,
   ) {
     super(responseText, options, statusCode, headers, isArray);
-    this.body = new HttpBody(url, responseText, options, isArray);
+
+    this.body = new HttpBody(url, headers, responseText, options, isArray);
   }
 }
 
@@ -778,10 +819,21 @@ export type ResourceStrategy = 'http' | 'ipc-electron' | 'js-mock';
 
 interface ResourceOptions {
   strategy?: ResourceStrategy;
-  interceptors?: Map<string, TaonAxiosClientInterceptor>;
-  methodsInterceptors?: Map<string, TaonAxiosClientInterceptor>;
   headers?: RestHeaders;
   defaultHeadersProfile?: keyof typeof DEFAULT_HEADERS;
+  responseMapping?: {
+    /**
+     * Use ()=>MyEntity to avoid js circural dependencies.
+     * String only when as header key value.
+     */
+    entity?: Mapping.Mapping | { (): Mapping.Mapping } | string;
+    /**
+     * Metadata for remapping circular objects.
+     * Generated from json10 packages.
+     * String only when as header key value.
+     */
+    circular?: Circ[] | string;
+  };
 }
 //#endregion
 
@@ -851,10 +903,10 @@ abstract class ResourceResponse<DATA = any, ERROR = any> implements Promise<
     protected body: DATA | DATA,
     protected urlParams: UrlParams[],
     protected axiosOptions: Ng2RestAxiosRequestConfig,
-    protected interceptors: Map<string, TaonAxiosClientInterceptor>,
-    protected methodsInterceptors: Map<string, TaonAxiosClientInterceptor>,
     protected isArray: boolean,
     protected headers: RestHeaders,
+    protected globalInterceptors: Map<string, TaonAxiosClientInterceptor>,
+    protected methodsInterceptors: Map<string, TaonAxiosClientInterceptor>,
   ) {}
   //#endregion
 
@@ -1004,7 +1056,7 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
       const uri = new URL(url);
       const backend = new AxiosBackendHandler<any>();
 
-      const globalInterceptors = Array.from(this.interceptors.values());
+      const globalInterceptors = Array.from(this.globalInterceptors.values());
       const methodInterceptors = Array.from(this.methodsInterceptors.entries())
         .filter(([key]) =>
           key.endsWith(`-${method?.toUpperCase()}-${uri.pathname}`),
@@ -1080,6 +1132,12 @@ export type Ng2RestAxiosRequestConfig = {
 
 //#region resource namespace
 export namespace Resource {
+  export const globalInterceptors = new Map<string, TaonAxiosClientInterceptor>();
+  export const methodsInterceptors = new Map<
+    string,
+    TaonAxiosClientInterceptor
+  >();
+
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   export function create<MODEL = any>(
     originUrl: string,
@@ -1144,6 +1202,8 @@ Instead use nested approach:            /book/:bookid/author/:authorid
               let options: ResourceOptions = resourceOptions;
               options = options || {};
 
+              options.responseMapping = options.responseMapping || {};
+
               options = {
                 ...options,
                 ...(_.isFunction(overrideOptions)
@@ -1165,16 +1225,6 @@ Instead use nested approach:            /book/:bookid/author/:authorid
                   `${localUrl.origin}/${pathNameInterpolated}`,
                 );
               }
-
-              const interceptors: Map<string, TaonAxiosClientInterceptor> =
-                options.interceptors ? options.interceptors : new Map();
-
-              const methodsInterceptors: Map<
-                string,
-                TaonAxiosClientInterceptor
-              > = options.methodsInterceptors
-                ? options.methodsInterceptors
-                : new Map();
 
               const headers: RestHeaders = RestHeaders.from(options.headers);
 
@@ -1202,10 +1252,10 @@ Instead use nested approach:            /book/:bookid/author/:authorid
                   body,
                   urlParams,
                   axiosOptions,
-                  interceptors,
-                  methodsInterceptors,
                   isArray,
                   headers,
+                  globalInterceptors,
+                  methodsInterceptors,
                 );
               } else if (options.strategy === 'ipc-electron') {
                 // TODO later
@@ -1246,6 +1296,11 @@ async function example() {
   const rest = Resource.create<ExampleBook>(
     'http://my-website.pl',
     'api/v3/user/:userId',
+    {
+      responseMapping: {
+        entity: () => ExampleBook,
+      },
+    },
   );
 
   const response = await rest.model({ userId: 1 }).get();
@@ -1256,10 +1311,12 @@ async function example() {
     .model({ userId: 1 })
     .array.post([new ExampleBook()], [{ 'location-id': 123 }]).observable;
 
+  const responseObservableOnlyONe = rest
+    .model({ userId: 1 })
+    .post(new ExampleBook(), [{ 'location-id': 123 }]).observable;
+
   responseObservable.subscribe(data => {
     data; // HttpResponse<ExampleBook>
   });
-
-  // response.
 }
 //#endregion
