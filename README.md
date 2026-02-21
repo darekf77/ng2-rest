@@ -73,7 +73,7 @@ class UserComponent {
 	 allUsers: () => rest.model()
 		 .array
 		 .get()
-		 .observable // Observable resposne (useful for Angular 2+ html templates)
+		 .observable // Observable resposnse (useful for Angular 2+ html templates)
      .pipe( map({ body } => body.json) ) // get all users, body.json => User[] 
 
 	 userBy: (id) => rest.model({id})
