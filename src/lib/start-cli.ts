@@ -7,6 +7,11 @@ export async function startCli(
   //#region @backendFunc
   console.log('Hello from cli');
 
+  const arrAPiBad = Resource.create(
+    'https://api.restful-api.dev',
+    '/user/:user/:author',
+  );
+
   const arrRest = Resource.create('https://api.restful-api.dev', '/objects');
   const objSingle = Resource.create(
     'https://api.restful-api.dev',
@@ -26,7 +31,17 @@ export async function startCli(
     .get()
     .observable.subscribe(d => {
       console.log('THIRD', d.body.json);
-      process.exit(0);
+
+      objSingle
+        .model({ id: 2 })
+        .get({}, [{ location: 'asdas' }])
+        .observable.subscribe(async d => {
+          console.log('FOURTH', d.body.json);
+
+          // await arrAPiBad.model().get();
+
+          process.exit(0);
+        });
     });
 
   // https://api.restful-api.dev/objects/{id}

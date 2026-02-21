@@ -155,6 +155,7 @@ export function getParamsUrl(
   params: UrlParams[],
   doNotSerialize: boolean = false,
 ): string {
+  params = _.cloneDeep(params); // TODO refactor it
   let urlparts: string[] = [];
   if (!params) return '';
   if (!(params instanceof Array)) return '';
@@ -780,21 +781,68 @@ interface ResourceOptions {
   interceptors?: Map<string, TaonAxiosClientInterceptor>;
   methodsInterceptors?: Map<string, TaonAxiosClientInterceptor>;
   headers?: RestHeaders;
+  defaultHeadersProfile?: keyof typeof DEFAULT_HEADERS;
 }
 //#endregion
 
+export const HeaderKeyContentType = 'Content-Type';
+export const HeaderKeyAccept = 'Accept';
+
+export const DEFAULT_HEADERS = {
+  // JSON (most APIs)
+  APPLICATION_JSON: RestHeaders.from({
+    [HeaderKeyContentType]: 'application/json',
+    [HeaderKeyAccept]: 'application/json',
+  }),
+
+  // JSON:API (you already have)
+  APPLICATION_VND_API_JSON: RestHeaders.from({
+    [HeaderKeyContentType]: 'application/vnd.api+json',
+    [HeaderKeyAccept]: 'application/vnd.api+json',
+  }),
+
+  // Form URL encoded (old APIs, OAuth token endpoints)
+  APPLICATION_X_WWW_FORM_URLENCODED: RestHeaders.from({
+    [HeaderKeyContentType]: 'application/x-www-form-urlencoded',
+    [HeaderKeyAccept]: 'application/json',
+  }),
+
+  // Multipart form-data (file uploads) — note: boundary will be set by FormData in Node
+  MULTIPART_FORM_DATA: RestHeaders.from({
+    [HeaderKeyContentType]: 'multipart/form-data',
+    [HeaderKeyAccept]: 'application/json',
+  }),
+
+  // Plain text request/response (health checks, simple endpoints)
+  TEXT_PLAIN: RestHeaders.from({
+    [HeaderKeyContentType]: 'text/plain; charset=utf-8',
+    [HeaderKeyAccept]: 'text/plain',
+  }),
+
+  // Accept anything (downloads, weird backends)
+  ACCEPT_ANY: RestHeaders.from({
+    [HeaderKeyAccept]: '*/*',
+  }),
+
+  // Binary download (still just headers; axios responseType controls actual handling)
+  OCTET_STREAM: RestHeaders.from({
+    [HeaderKeyAccept]: 'application/octet-stream',
+  }),
+} as const;
+
 //#region abstract resource reponse class
 abstract class ResourceResponse<DATA = any, ERROR = any> implements Promise<
-  HttpResponse<DATA>
+  HttpResponse<DATA> | HttpResponseError<ERROR>
 > {
   [Symbol.toStringTag] = 'Promise';
 
-  private _promise?: Promise<HttpResponse<DATA> | HttpResponseError<ERROR>>;
+  private _promise?: Promise<HttpResponse<DATA>>;
 
   private _promiseAbort?: AbortController;
 
   private _observable?: Observable<HttpResponse<DATA>>;
 
+  //#region constructor
   constructor(
     protected httpMethodName: CoreModels.HttpMethod,
     protected urlOrigin: string,
@@ -808,11 +856,12 @@ abstract class ResourceResponse<DATA = any, ERROR = any> implements Promise<
     protected isArray: boolean,
     protected headers: RestHeaders,
   ) {}
+  //#endregion
 
   // ✅ NEW: make request cancellable
   protected abstract makeRequest(
     abortSignal: AbortSignal,
-  ): Promise<HttpResponse<DATA> | HttpResponseError<ERROR>>;
+  ): Promise<HttpResponse<DATA>>;
 
   /**
    * ✅ Explicit cancel (useful for "promise style")
@@ -832,26 +881,21 @@ abstract class ResourceResponse<DATA = any, ERROR = any> implements Promise<
     return this._promise;
   }
 
-  // @ts-ignore
   then<TResult1 = HttpResponse<DATA>, TResult2 = never>(
     onfulfilled?:
-      | ((
-          value: HttpResponse<DATA> | HttpResponseError<ERROR>,
-        ) => TResult1 | PromiseLike<TResult1>)
+      | ((value: HttpResponse<DATA>) => TResult1 | PromiseLike<TResult1>)
       | null,
     onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null,
   ): Promise<TResult1 | TResult2> {
     return this.promise.then(onfulfilled as any, onrejected as any);
   }
 
-  // @ts-ignore
   catch<TResult = never>(
     onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null,
   ): Promise<(HttpResponse<DATA> | HttpResponseError<ERROR>) | TResult> {
     return this.promise.catch(onrejected as any);
   }
 
-  // @ts-ignore
   finally(
     onfinally?: (() => void) | null,
   ): Promise<HttpResponse<DATA> | HttpResponseError<ERROR>> {
@@ -903,16 +947,6 @@ abstract class ResourceResponse<DATA = any, ERROR = any> implements Promise<
 //#endregion
 
 //#region resource reponse http strategy
-export const DEFAULT_HEADERS = {
-  APPLICATION_JSON: RestHeaders.from({
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-  }),
-  APPLICATINO_VND_API_JSON: RestHeaders.from({
-    'Content-Type': 'application/vnd.api+json',
-    Accept: 'application/vnd.api+json',
-  }),
-};
 
 class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
   DATA,
@@ -920,12 +954,14 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
 > {
   protected async makeRequest(
     abortSignal: AbortSignal,
-  ): Promise<HttpResponse<DATA> | HttpResponseError<ERROR>> {
+  ): Promise<HttpResponse<DATA>> {
     const url = this.creatUrl(
       this.urlParams,
       !!this.axiosOptions?.doNotSerializeParams,
     );
     const method = this.httpMethodName;
+
+    Helpers.log(`Requesting ${method} ${url}`);
 
     const isFormData = CLASS.getNameFromObject(this.body) === 'FormData';
     const formData: FormData = isFormData ? (this.body as any) : void 0;
@@ -943,12 +979,19 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
     const responseType: ResponseTypeAxios =
       (this.headers.get('responsetypeaxios')?.toString() as any) || 'text';
 
+    const headersObj = Object.fromEntries(
+      Object.entries(this.headers.toJSON()).map(([k, v]) => [
+        k,
+        Array.isArray(v) ? v.join(',') : v,
+      ]),
+    );
+
     const axiosConfig: AxiosRequestConfig = {
       url,
       method,
       data: this.body,
       responseType,
-      headers: this.headers.toJSON(),
+      headers: headersObj,
       signal: abortSignal, // ✅ this is the key
       ...this.axiosOptions,
     };
@@ -983,32 +1026,36 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
         this.options,
         this.isArray,
       );
-    } catch (e: any) {
+    } catch (catchedError: any) {
       // ✅ treat cancellation separately (nice UX)
-      if (e?.code === 'ERR_CANCELED' || e?.name === 'CanceledError') {
-        return new HttpResponseError<ERROR>(
+      if (
+        catchedError?.code === 'ERR_CANCELED' ||
+        catchedError?.name === 'CanceledError'
+      ) {
+        throw new HttpResponseError<ERROR>(
           url,
           method,
           JSON.stringify({ message: 'Request canceled' }),
           this.options,
-          RestHeaders.from(e?.response?.headers),
+          RestHeaders.from(),
           0,
           this.isArray,
         );
       }
 
-      const status = e?.response?.status ?? 0; // ✅ FIX: you used "status" before defining it
-      const data = e?.response?.data ?? e?.message ?? e;
+      const status = catchedError?.response?.status ?? 0; // ✅ FIX: you used "status" before defining it
+      const data =
+        catchedError?.response?.data ?? catchedError?.message ?? catchedError;
 
       const responseText =
         typeof data === 'string' ? data : JSON.stringify(data);
 
-      return new HttpResponseError<ERROR>(
+      throw new HttpResponseError<ERROR>(
         url,
         method,
         responseText,
         this.options,
-        RestHeaders.from(e?.response?.headers),
+        RestHeaders.from(catchedError?.response?.headers),
         status,
         this.isArray,
       );
@@ -1029,47 +1076,22 @@ export type Ng2RestAxiosRequestConfig = {
   doNotSerializeParams?: boolean;
 } & AxiosRequestConfig<any>;
 
-type ResourceFactory<MODEL> = {
-  model: <INTERPOLATE_ARGS = {}>(
-    interpolateParams?: INTERPOLATE_ARGS,
-  ) => {
-    array: {
-      [method in CoreModels.HttpMethod]: (
-        item?: MODEL | MODEL[],
-        params?: UrlParams[],
-        axiosOptions?: Ng2RestAxiosRequestConfig,
-      ) => ResourceResponse<MODEL[]>;
-    };
-  } & {
-    [method in CoreModels.HttpMethod]: (
-      item?: MODEL,
-      params?: UrlParams[],
-      axiosOptions?: Ng2RestAxiosRequestConfig,
-    ) => ResourceResponse<MODEL>;
-  };
-};
 //#endregion
 
 //#region resource namespace
 export namespace Resource {
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   export function create<MODEL = any>(
-    url: URL,
-    option?: ResourceOptions,
-  ): ResourceFactory<MODEL>;
-  export function create<MODEL = any>(
-    origin: string,
-    pathname: string,
-    option?: ResourceOptions,
-  ): ResourceFactory<MODEL>;
-  export function create<MODEL = any>(
-    arg1?: string | URL,
-    arg2?: string | Object,
-    arg3?: ResourceOptions,
-  ): ResourceFactory<MODEL> {
+    originUrl: string,
+    pathnameModel: string,
+    resourceOptions?: ResourceOptions,
+  ) {
     return {
       model: <INTERPOLATE_ARGS = {}>(
         interpolateParams?: INTERPOLATE_ARGS,
-        overrideOptions?: ResourceOptions,
+        overrideOptions?:
+          | ResourceOptions
+          | { (options: ResourceOptions): ResourceOptions },
       ) => {
         const methods = <T>(
           isArray = false,
@@ -1087,27 +1109,61 @@ export namespace Resource {
               urlParams?: UrlParams[],
               axiosOptions?: Ng2RestAxiosRequestConfig,
             ) => {
-              let url: URL =
-                typeof arg1 === 'string' ? new URL(`${arg1}${arg2}`) : arg1;
+              let localPathname = pathnameModel;
+              if (!localPathname.startsWith('/')) {
+                localPathname = `/${localPathname}`;
+              }
+              let localOriginUrl = originUrl;
+              if (localOriginUrl.endsWith('/')) {
+                localOriginUrl = localOriginUrl.replace(/\/$/, '');
+              }
 
-              let options: ResourceOptions =
-                typeof arg2 === 'object' ? arg2 : arg3;
+              let localUrl: URL = new URL(`${localOriginUrl}${localPathname}`);
+
+              //#region validate pathname model
+              const badRestRegEX = new RegExp('((\/:)[a-z]+)+', 'g');
+              const matchArr = localPathname.match(badRestRegEX) || [];
+              const badModelsNextToEachOther = matchArr.join();
+              const atleas2DoubleDots =
+                (badModelsNextToEachOther.match(new RegExp(':', 'g')) || [])
+                  .length >= 2;
+              if (
+                atleas2DoubleDots &&
+                localPathname.search(badModelsNextToEachOther) !== -1
+              ) {
+                throw new Error(`
+
+Bad rest model: ${localPathname}
+
+Do not create rest models like this:    /book/author/:bookid/:authorid
+Instead use nested approach:            /book/:bookid/author/:authorid
+            `);
+              }
+              //#endregion
+
+              let options: ResourceOptions = resourceOptions;
               options = options || {};
 
-              url = new URL(url.toString());
-              options = { ...options, ...(overrideOptions || {}) };
+              options = {
+                ...options,
+                ...(_.isFunction(overrideOptions)
+                  ? overrideOptions(options)
+                  : overrideOptions || {}),
+              };
 
               if (interpolateParams) {
                 // console.log({ interpolateParams });
                 // interpolate args
                 let pathNameInterpolated = interpolateParamsToUrl(
                   interpolateParams,
-                  url.pathname,
+                  localUrl.pathname,
                 );
                 // console.log(
                 //   `interpolated ${pathNameInterpolated}, url ${url.toString()}`,
                 // );
-                url = new URL(`${url.origin}/${pathNameInterpolated}`);
+                localUrl = new URL(
+                  `${localUrl.origin}/${pathNameInterpolated}`,
+                );
               }
 
               const interceptors: Map<string, TaonAxiosClientInterceptor> =
@@ -1123,11 +1179,25 @@ export namespace Resource {
               const headers: RestHeaders = RestHeaders.from(options.headers);
 
               options.strategy = options.strategy || 'http';
+
+              options.defaultHeadersProfile =
+                options.defaultHeadersProfile || 'APPLICATION_JSON';
+
+              if (options.defaultHeadersProfile) {
+                DEFAULT_HEADERS[options.defaultHeadersProfile].forEach(
+                  (values, name) => {
+                    values.forEach(headerValue =>
+                      headers.set(name, headerValue),
+                    );
+                  },
+                );
+              }
+
               if (options.strategy === 'http') {
                 return new ResourceResponseHttp(
                   methodName,
-                  url.origin,
-                  url.pathname,
+                  localUrl.origin,
+                  localUrl.pathname,
                   options,
                   body,
                   urlParams,
@@ -1138,9 +1208,9 @@ export namespace Resource {
                   headers,
                 );
               } else if (options.strategy === 'ipc-electron') {
-                // TODO
+                // TODO later
               } else if (options.strategy === 'js-mock') {
-                // TODO
+                // TODO later
               }
             };
           }
@@ -1150,12 +1220,13 @@ export namespace Resource {
         const methodsRes = methods<MODEL>();
         const methodsArrayRes = methods<MODEL[]>(true);
 
-        return {
+        const res = {
           get array() {
             return methodsArrayRes;
           },
           ...methodsRes,
         };
+        return res;
       },
     };
   }
@@ -1183,7 +1254,8 @@ async function example() {
 
   const responseObservable = rest
     .model({ userId: 1 })
-    .array.post(new ExampleBook(), [{ 'location-id': 123 }]).observable;
+    .array.post([new ExampleBook()], [{ 'location-id': 123 }]).observable;
+
   responseObservable.subscribe(data => {
     data; // HttpResponse<ExampleBook>
   });
