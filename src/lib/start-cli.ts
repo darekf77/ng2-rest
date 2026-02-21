@@ -1,6 +1,6 @@
 import { Resource } from './ng2-rest';
 
-export async function start(argsv: string[], filename: string): Promise<void> {
+export async function startCli(argsv: string[], filename: string): Promise<void> {
   //#region @backendFunc
   console.log('Hello from cli');
 
@@ -20,4 +20,5 @@ export async function start(argsv: string[], filename: string): Promise<void> {
 
   process.exit(0);
   // https://api.restful-api.dev/objects/{id}
+  //#endregion
 }

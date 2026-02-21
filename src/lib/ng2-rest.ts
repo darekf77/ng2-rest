@@ -1,11 +1,133 @@
 //#region imports
 import { URL } from 'url'; // @backend
 
-import { AxiosRequestConfig } from 'axios';
+import { AxiosHeaders, AxiosRequestConfig, AxiosResponse } from 'axios';
 import axios from 'axios';
+import type express from 'express';
+import * as FormData from 'form-data'; // @backend
 import { JSON10 } from 'json10/src';
-import { from, Observable, shareReplay, switchMap, throwError } from 'rxjs';
+import {
+  firstValueFrom,
+  from,
+  Observable,
+  shareReplay,
+  switchMap,
+  throwError,
+} from 'rxjs';
 import { CoreModels, Helpers, _ } from 'tnp-core/src';
+import { CLASS } from 'typescript-class-helpers/src';
+//#endregion
+
+//#region cookie
+
+export class Cookie {
+  public static get Instance(): Cookie {
+    if (!Cookie.__instance) {
+      Cookie.__instance = new Cookie();
+    }
+    return Cookie.__instance as any;
+  }
+
+  private static __instance;
+
+  private constructor() {}
+
+  read(name: string): string {
+    var result = new RegExp(
+      '(?:^|; )' + encodeURIComponent(name) + '=([^;]*)',
+    ).exec(document.cookie);
+    return result ? result[1] : null;
+  }
+
+  write(name: string, value: string, days?: number): void {
+    if (!days) {
+      days = 365 * 20;
+    }
+
+    var date = new Date();
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+
+    var expires = '; expires=' + date.toUTCString();
+
+    document.cookie = name + '=' + value + expires + '; path=/';
+  }
+
+  remove(name: string): void {
+    this.write(name, '', -1);
+  }
+}
+
+//#endregion
+
+//#region get params url
+
+/**
+ * Create query params string for url
+ *
+ * @export
+ * @param {UrlParams[]} params
+ * @returns {string}
+ */
+export function getParamsUrl(
+  params: UrlParams[],
+  doNotSerialize: boolean = false,
+): string {
+  let urlparts: string[] = [];
+  if (!params) return '';
+  if (!(params instanceof Array)) return '';
+  if (params.length === 0) return '';
+
+  params.forEach(urlparam => {
+    if (JSON.stringify(urlparam) !== '{}') {
+      let parameters: string[] = [];
+      let paramObject = <Object>urlparam;
+
+      for (let p in paramObject) {
+        if (paramObject[p] === void 0) delete paramObject[p];
+        if (
+          paramObject.hasOwnProperty(p) &&
+          typeof p === 'string' &&
+          p !== 'regex' &&
+          !(paramObject[p] instanceof RegExp)
+        ) {
+          if (p.length > 0 && p[0] === '/') {
+            let newName = p.slice(1, p.length - 1);
+            urlparam[newName] = urlparam[p];
+            urlparam[p] = void 0;
+            p = newName;
+          }
+          if (p.length > 0 && p[p.length - 1] === '/') {
+            let newName = p.slice(0, p.length - 2);
+            urlparam[newName] = urlparam[p];
+            urlparam[p] = void 0;
+            p = newName;
+          }
+          let v: any = urlparam[p];
+          if (v instanceof Object) {
+            urlparam[p] = JSON.stringify(urlparam[p]);
+          }
+          urlparam[p] = doNotSerialize
+            ? <string>urlparam[p]
+            : encodeURIComponent(<string>urlparam[p]);
+          if (urlparam.regex !== void 0 && urlparam.regex instanceof RegExp) {
+            if (!urlparam.regex.test(<string>urlparam[p])) {
+              console.warn(
+                `Data: ${urlparam[p]} incostistent with regex ${urlparam.regex.source}`,
+              );
+            }
+          }
+          parameters.push(`${p}=${urlparam[p]}`);
+        }
+      }
+
+      urlparts.push(parameters.join('&'));
+    }
+  });
+  let join = urlparts.join().trim();
+  if (join.trim() === '') return '';
+  return `?${urlparts.join('&')}`;
+}
+
 //#endregion
 
 //#region interpolate utils
@@ -142,6 +264,66 @@ export function interpolateParamsToUrl(params: Object, url: string): string {
 }
 //#endregion
 
+//#region axios intercepstors
+export interface AxiosTaonHttpHandler<T = any> {
+  handle(req: AxiosRequestConfig): Observable<AxiosResponse<T>>;
+}
+
+export interface TaonClientMiddlewareInterceptOptions<T = any> {
+  req: AxiosRequestConfig; // <- request config only (no AxiosResponse here)
+  next: AxiosTaonHttpHandler<T>;
+}
+
+export interface TaonServerMiddlewareInterceptOptions<T = any> {
+  req: express.Request;
+  res: express.Response;
+  next: express.NextFunction;
+}
+
+export interface TaonAxiosClientInterceptor<T = any> {
+  intercept(
+    client: TaonClientMiddlewareInterceptOptions<T>,
+  ): Observable<AxiosResponse<T>>;
+}
+
+// Optional helper for passing around context (browser/client)
+
+// === Backend handler (last in chain) ===
+export class AxiosBackendHandler<T = any> implements AxiosTaonHttpHandler<T> {
+  handle(req: AxiosRequestConfig): Observable<AxiosResponse<T>> {
+    // axios returns a Promise; wrap as Observable
+    return from(axios.request<T>(req));
+  }
+}
+
+// === Chain builder (request: forward order, response: reverse order) ===
+export const buildInterceptorChain = <T = any>(
+  interceptors: Array<TaonAxiosClientInterceptor<T>>,
+  backend: AxiosTaonHttpHandler<T>,
+): AxiosTaonHttpHandler<T> => {
+  return interceptors.reduceRight<AxiosTaonHttpHandler<T>>(
+    (next, interceptor) => ({
+      handle: req => interceptor.intercept({ req, next }),
+    }),
+    backend,
+  );
+};
+
+//#endregion
+
+//#region response type axios
+export type ResponseTypeAxios =
+  | 'blob'
+  | 'text'
+  | 'json'
+  //#region @backend
+  | 'arraybuffer'
+  | 'document'
+  | 'stream'
+  | 'formdata';
+//#endregion
+//#endregion
+
 //#region rest headers
 export type RestHeadersOptions =
   | RestHeaders
@@ -154,11 +336,13 @@ export class RestHeaders {
   /** @internal map lower case names to actual names */
   _normalizedNames: Map<string, string> = new Map();
 
-  public static from(headers?: RestHeadersOptions) {
+  public static from(headers?: RestHeadersOptions): RestHeaders {
     return new RestHeaders(headers || {});
   }
 
-  private constructor(headers?: RestHeaders | { [name: string]: string | string[] }) {
+  private constructor(
+    headers?: RestHeaders | { [name: string]: string | string[] },
+  ) {
     if (headers instanceof RestHeaders) {
       headers.forEach((values: string[], name: string) => {
         values.forEach(value => this.set(name, value));
@@ -299,6 +483,16 @@ export class RestHeaders {
     return serialized;
   }
 
+  toAxiosHeaders(): Record<string, string> {
+    const h = RestHeaders.from(DEFAULT_HEADERS.APPLICATION_JSON).toJSON();
+
+    return AxiosHeaders.from(
+      Object.fromEntries(
+        Object.entries(h).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v]),
+      ),
+    );
+  }
+
   /**
    * Returns list of header values for a given name.
    */
@@ -317,12 +511,6 @@ export class RestHeaders {
 //#endregion
 
 //#region handle result source request options
-export interface HandleResultSourceRequestOptions {
-  url: string;
-  method: CoreModels.HttpMethod;
-  body: any;
-  isArray: boolean;
-}
 
 class RestCommonHttpResponseWrapper {
   declare success?: boolean;
@@ -383,8 +571,10 @@ export abstract class BaseBody {
 
 export class HttpBody<T> extends BaseBody {
   constructor(
-    private responseText: string | Blob,
-    private isArray = false,
+    private readonly url: string,
+    private readonly responseText: string | Blob,
+    private readonly options: ResourceOptions,
+    private readonly isArray: boolean,
   ) {
     super();
   }
@@ -440,7 +630,10 @@ export class HttpBody<T> extends BaseBody {
 }
 
 export class ErrorBody<T = RestErrorResponseWrapper> extends BaseBody {
-  constructor(private data) {
+  constructor(
+    private readonly url: string,
+    private readonly data: any,
+  ) {
     super();
   }
 
@@ -454,17 +647,16 @@ export class ErrorBody<T = RestErrorResponseWrapper> extends BaseBody {
 }
 
 export abstract class BaseResponse<T> {
-  // protected static readonly cookies = Cookie.Instance;
-
-  // public get cookies() {
-  //   return BaseResponse.cookies;
-  // }
+  public get cookies(): Cookie {
+    return Cookie.Instance; // IS THIS OK ?
+  }
 
   constructor(
-    public responseText?: string | Blob,
-    public readonly headers?: RestHeaders,
-    public readonly statusCode?: CoreModels.HttpCode | number,
-    public isArray = false,
+    public readonly responseText: string | Blob,
+    public readonly options: ResourceOptions,
+    public readonly statusCode: number,
+    public readonly headers: RestHeaders,
+    public readonly isArray: boolean,
   ) {}
 }
 
@@ -475,46 +667,51 @@ export class HttpResponse<T> extends BaseResponse<T> {
   public body: HttpBody<T>;
 
   constructor(
-    public sourceRequest: HandleResultSourceRequestOptions,
-    public responseText?: string | Blob,
-    public headers?: RestHeaders,
-    public statusCode?: CoreModels.HttpCode | number,
-    public isArray = false,
+    public readonly url: string,
+    public readonly method: CoreModels.HttpMethod,
+    public readonly responseText: string | Blob,
+    public readonly headers: RestHeaders,
+    public readonly statusCode: number,
+    public readonly options: ResourceOptions,
+    public readonly isArray: boolean,
   ) {
-    super(responseText, headers, statusCode, isArray);
-
-    this.init();
-  }
-
-  public init() {
-    this.body = new HttpBody(this.responseText, this.isArray) as any;
+    super(responseText, options, statusCode, headers, isArray);
+    this.body = new HttpBody(url, responseText, options, isArray);
   }
 }
 
 export class HttpResponseError<ERROR_BODY = object> extends BaseResponse<any> {
   public readonly body: ErrorBody<ERROR_BODY>;
-  // public tryRecconect() {
 
-  // }
   constructor(
-    public message: string,
-    responseText?: string,
-    headers?: RestHeaders,
-    statusCode?: CoreModels.HttpCode | number,
-
-    public sourceRequest?: HandleResultSourceRequestOptions,
+    public readonly url: string,
+    public readonly method: CoreModels.HttpMethod,
+    public readonly responseText: string,
+    public readonly options: ResourceOptions,
+    public readonly headers: RestHeaders,
+    public readonly statusCode: number,
+    public readonly isArray: boolean,
   ) {
-    super(responseText, headers, statusCode);
-    this.body = new ErrorBody<ERROR_BODY>(responseText);
+    super(responseText, options, statusCode, headers, isArray);
+    this.body = new ErrorBody<ERROR_BODY>(url, responseText);
   }
 }
 
-interface ResourceOptions {}
-
 //#endregion
 
-//#region resource reponse class
-class ResourceResponse<DATA = any, ERROR = any> implements Promise<
+//#region resource strategy
+export type ResourceStrategy = 'http' | 'ipc-electron' | 'js-mock';
+
+interface ResourceOptions {
+  strategy?: ResourceStrategy;
+  interceptors?: Map<string, TaonAxiosClientInterceptor>;
+  methodsInterceptors?: Map<string, TaonAxiosClientInterceptor>;
+  headers?: RestHeaders;
+}
+//#endregion
+
+//#region abstract resource reponse class
+abstract class ResourceResponse<DATA = any, ERROR = any> implements Promise<
   HttpResponse<DATA>
 > {
   [Symbol.toStringTag] = 'Promise';
@@ -524,18 +721,37 @@ class ResourceResponse<DATA = any, ERROR = any> implements Promise<
     | undefined;
 
   constructor(
-    private httpMethodName: CoreModels.HttpMethod,
-    private urlOrigin: string,
-    private urlPathname: string,
-    private options: ResourceOptions,
-    private item?: DATA | DATA,
-    private params?: UrlParams[],
-    private axiosOptions?: Ng2RestAxiosRequestConfig,
+    /**
+     *  "get" | "post" | "put" | "delete" | "patch" | "head" | "jsonp"
+     */
+    protected httpMethodName: CoreModels.HttpMethod,
+    protected urlOrigin: string,
+    protected urlPathname: string,
+    protected options: ResourceOptions,
+    protected body: DATA | DATA,
+    protected urlParams: UrlParams[],
+    protected axiosOptions: Ng2RestAxiosRequestConfig,
+
+    /**
+     * key is interceptorName (just to identify who is intercepting)
+     */
+    protected interceptors: Map<string, TaonAxiosClientInterceptor>,
+
+    /**
+     * key is a joined string METHOD-expressPath.
+     * Example `GET-/api/users`
+     */
+    protected methodsInterceptors: Map<string, TaonAxiosClientInterceptor>,
     /**
      * Just to check if response is array
      */
-    private isArray = false,
+    protected isArray: boolean,
+    protected headers: RestHeaders,
   ) {}
+
+  protected abstract makeRequest(): Promise<
+    HttpResponse<DATA> | HttpResponseError<ERROR>
+  >;
 
   /**
    * If you prefer explicitness instead of "this object is a Promise"
@@ -606,28 +822,17 @@ class ResourceResponse<DATA = any, ERROR = any> implements Promise<
   // Internals
   // -------------------------
 
-  private buildUrl(): string {
-    // avoid double slashes
+  protected creatUrl(
+    params: any,
+    doNotSerializeParams: boolean = false,
+  ): string {
     const origin = (this.urlOrigin || '').replace(/\/+$/, '');
     const path = (this.urlPathname || '').replace(/^\/+/, '');
-    return `${origin}/${path}`;
+    const endpoint = `${origin}/${path}`;
+    return `${endpoint}${getParamsUrl(params, doNotSerializeParams)}`;
   }
 
-  private mergeParamsToHeaders(params?: UrlParams[]): Record<string, any> {
-    // Your params[] in example looks like headers (e.g. { 'location-id': 123 })
-    // We'll treat them as headers by default.
-    const headers: Record<string, any> = {};
-    for (const p of params || []) {
-      if (!p || typeof p !== 'object') continue;
-      for (const [k, v] of Object.entries(p)) {
-        if (k === 'regex') continue;
-        headers[k] = v as any;
-      }
-    }
-    return headers;
-  }
-
-  private serializeResponseText(data: any): string | Blob {
+  protected serializeResponseText(data: any): string | Blob {
     if (Helpers.isBlob(data)) return data as Blob;
     if (typeof data === 'string') return data;
     try {
@@ -636,76 +841,164 @@ class ResourceResponse<DATA = any, ERROR = any> implements Promise<
       return String(data);
     }
   }
+}
+//#endregion
 
-  private async makeRequest(): Promise<
+//#region resource reponse http strategy
+export const DEFAULT_HEADERS = {
+  APPLICATION_JSON: RestHeaders.from({
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  }),
+  APPLICATINO_VND_API_JSON: RestHeaders.from({
+    'Content-Type': 'application/vnd.api+json',
+    Accept: 'application/vnd.api+json',
+  }),
+};
+
+class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
+  DATA,
+  ERROR
+> {
+  protected async makeRequest(): Promise<
     HttpResponse<DATA> | HttpResponseError<ERROR>
   > {
-    const url = this.buildUrl();
+    const url = this.creatUrl(this.urlParams);
 
-    const method = String(this.httpMethodName).toLowerCase() as any;
+    const method = this.httpMethodName;
+
+    const isFormData = CLASS.getNameFromObject(this.body) === 'FormData';
+    const formData: FormData = isFormData ? (this.body as any) : void 0;
+
+    //#region @backend
+    if (formData) {
+      const headersForm = formData.getHeaders();
+      headersForm['Content-Length'] = formData.getLengthSync();
+      for (const [key, value] of Object.entries(headersForm)) {
+        this.headers.set(key, value?.toString() as string);
+      }
+    }
+    //#endregion
+
+    const responseType: ResponseTypeAxios = this.headers.get(
+      'responsetypeaxios',
+    )
+      ? (this.headers.get('responsetypeaxios').toString() as any)
+      : 'text';
 
     console.log(`REQUEST ${method} ${url}`);
 
-    const headersFromParams = this.mergeParamsToHeaders(this.params);
-
-    const cfg: AxiosRequestConfig = {
+    const axiosConfig: AxiosRequestConfig = {
       url,
       method,
-      headers: {
-        ...(this.axiosOptions?.headers || {}),
-        ...headersFromParams,
-      },
-      // allow your custom flags but don’t break axios
+      data: this.body,
+      responseType,
+      headers: this.headers.toJSON(),
       ...this.axiosOptions,
     };
 
-    // Decide where "item" goes.
-    // - For GET/DELETE/HEAD we treat "item" as query params if it's a plain object
-    // - For others we send it as request body
-    const canHaveBody = !['get', 'delete', 'head'].includes(method);
-    if (canHaveBody) {
-      (cfg as any).data = this.item;
-    } else if (this.item && typeof this.item === 'object') {
-      (cfg as any).params = this.item as any;
+    if (isFormData) {
+      axiosConfig.maxBodyLength = Infinity;
     }
 
-    const sourceRequest: HandleResultSourceRequestOptions = {
-      url,
-      method: this.httpMethodName,
-      body: this.item,
-      isArray: this.isArray,
-    };
+    let response: AxiosResponse<any>;
 
     try {
-      const resp = await axios(cfg);
+      const uri = new URL(url);
+      const backend = new AxiosBackendHandler<any>();
 
-      const responseText = this.serializeResponseText(resp.data);
+      const globalInterceptors = Array.from(this.interceptors.entries()).map(
+        ([_, interceptor]) => interceptor,
+      );
+
+      const methodInterceptors = Array.from(this.methodsInterceptors.entries())
+        .filter(([key]) => {
+          const ending = `-${method?.toUpperCase()}-${uri.pathname}`;
+          return key.endsWith(ending);
+        })
+        .map(([_, interceptor]) => interceptor);
+
+      // console.log(
+      //   `for ${uri.pathname} global ${globalInterceptors.length} method: ${methodInterceptors.length}`,
+      // );
+
+      const allInterceptors = [...globalInterceptors, ...methodInterceptors];
+
+      const handler = buildInterceptorChain(allInterceptors, backend);
+      response = await firstValueFrom(handler.handle(axiosConfig));
 
       return new HttpResponse<DATA>(
-        sourceRequest,
-        responseText,
-        RestHeaders.from(),
-        resp.status,
+        url,
+        method,
+        response.data,
+        RestHeaders.from(response.headers as any),
+        response.status,
+        this.options,
         this.isArray,
       );
-    } catch (e: any) {
-      // Axios error shape: e.response?.data / e.response?.status
-      const status = e?.response?.status;
-      const data = e?.response?.data ?? e?.message ?? e;
+    } catch (catchedError: any) {
+      //#region handle errors
+      if (
+        typeof catchedError === 'object' &&
+        catchedError.response &&
+        catchedError.response.data
+      ) {
+        const err = catchedError.response.data;
+        const message: string = catchedError.response.data.message || '';
+        // console.log({
+        //   'err.stack': err?.stack
+        // })
+        let stack: string[] = (err.stack || '').split('\n');
 
-      const responseText =
-        typeof data === 'string' ? data : this.serializeResponseText(data);
+        const errorDataString = JSON.stringify({
+          message,
+          stack,
+          data: catchedError.response.data,
+        });
+
+        return new HttpResponseError<ERROR>(
+          url,
+          method,
+          errorDataString,
+          this.options,
+          RestHeaders.from(
+            catchedError &&
+              catchedError.response &&
+              catchedError.response.headers,
+          ),
+          catchedError.response.status,
+          this.isArray,
+        );
+      }
+
+      const error =
+        catchedError && catchedError.response
+          ? `[${catchedError.response.statusText}]: `
+          : '';
 
       const message =
-        e?.message || (status ? `HTTP ${status}` : 'HTTP request failed');
+        catchedError?.message ||
+        (status ? `HTTP ${status}` : 'HTTP request failed');
+
+      const errorDataString = JSON.stringify({
+        error,
+        message,
+      });
 
       return new HttpResponseError<ERROR>(
-        message,
-        typeof responseText === 'string' ? responseText : undefined,
-        RestHeaders.from(),
-        status,
-        sourceRequest,
+        url,
+        method,
+        errorDataString,
+        this.options,
+        RestHeaders.from(
+          catchedError &&
+            catchedError.response &&
+            catchedError.response.headers,
+        ),
+        catchedError.response.status,
+        this.isArray,
       );
+      //#endregion
     }
   }
 }
@@ -761,10 +1054,14 @@ export namespace Resource {
   ): ResourceFactory<MODEL> {
     let url: URL = typeof arg1 === 'string' ? new URL(`${arg1}${arg2}`) : arg1;
 
-    const options: ResourceOptions = typeof arg2 === 'object' ? arg2 : arg3;
+    let options: ResourceOptions = typeof arg2 === 'object' ? arg2 : arg3;
+    options = options || {};
 
     return {
-      model: <INTERPOLATE_ARGS = {}>(interpolateParams?: INTERPOLATE_ARGS) => {
+      model: <INTERPOLATE_ARGS = {}>(
+        interpolateParams?: INTERPOLATE_ARGS,
+        overrideOptions?: ResourceOptions,
+      ) => {
         if (interpolateParams) {
           // interpolate args
           let pathNameInterpolated = interpolateParamsToUrl(
@@ -774,32 +1071,61 @@ export namespace Resource {
           url = new URL(`${url.origin}/${pathNameInterpolated}`);
         }
 
+        if (overrideOptions) {
+          // just first level override
+          const keys = Object.keys(options);
+          for (const key of keys) {
+            options[key] = overrideOptions[key];
+          }
+        }
+
         const methods = <T>(
           isArray = false,
         ): {
           [method in CoreModels.HttpMethod]: (
             item?: T,
-            params?: UrlParams[],
+            urlParams?: UrlParams[],
             axiosOptions?: Ng2RestAxiosRequestConfig,
           ) => ResourceResponse<T>;
         } => {
+          let interceptors: Map<string, TaonAxiosClientInterceptor> =
+            options.interceptors ? options.interceptors : new Map();
+
+          let methodsInterceptors: Map<string, TaonAxiosClientInterceptor> =
+            options.methodsInterceptors
+              ? options.methodsInterceptors
+              : new Map();
+
+          let headers: RestHeaders = RestHeaders.from(options.headers);
+
           const methodsObj = {};
           for (const methodName of CoreModels.HttpMethodArr) {
             methodsObj[methodName] = (
-              item?: MODEL,
-              params?: UrlParams[],
+              body?: MODEL,
+              urlParams?: UrlParams[],
               axiosOptions?: Ng2RestAxiosRequestConfig,
-            ) =>
-              new ResourceResponse(
-                methodName,
-                url.origin,
-                url.pathname,
-                options,
-                item,
-                params,
-                axiosOptions,
-                isArray,
-              );
+            ) => {
+              options.strategy = options.strategy || 'http';
+              if (options.strategy === 'http') {
+                return new ResourceResponseHttp(
+                  methodName,
+                  url.origin,
+                  url.pathname,
+                  options,
+                  body,
+                  urlParams,
+                  axiosOptions,
+                  interceptors,
+                  methodsInterceptors,
+                  isArray,
+                  headers,
+                );
+              } else if (options.strategy === 'ipc-electron') {
+                // TODO
+              } else if (options.strategy === 'js-mock') {
+                // TODO
+              }
+            };
           }
           return methodsObj as any;
         };

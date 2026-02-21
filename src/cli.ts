@@ -1,3 +1,3 @@
 //#region @backend
-export { start } from './lib/start';
+export { startCli } from './index';
 //#endregion
