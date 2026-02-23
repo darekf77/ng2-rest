@@ -654,6 +654,7 @@ export abstract class BaseBody {
 export class HttpBody<T> extends BaseBody {
   constructor(
     private readonly url: string,
+    private readonly method: string,
     private readonly headers: RestHeaders,
     private readonly responseText: string | Blob,
     private readonly options: ResourceOptions,
@@ -671,6 +672,14 @@ export class HttpBody<T> extends BaseBody {
       if (!!entityJSON) {
         return JSON.parse(entityJSON.join());
       }
+    }
+
+    const entityAsResolvableFn = this.options?.responseMapping
+      ?.entity as () => Mapping.Mapping;
+    if (typeof entityAsResolvableFn === 'function') {
+      const mappingFromFunction = entityAsResolvableFn();
+      console.log({ mappingFromFunction });
+      return mappingFromFunction;
     }
 
     return this.options.responseMapping?.entity;
@@ -721,20 +730,44 @@ export class HttpBody<T> extends BaseBody {
     if (isBlob) {
       return void 0;
     }
-    if (this.entity && typeof this.entity === 'function') {
-      return this.entity(); // @LAST
-    }
+
     if (this.entity && typeof this.entity === 'object') {
       const json = this.toJSON(this.responseText, {
         isJSONArray: this.isArray,
       });
-      return Mapping.encode(json, this.entity, this.circular) as any;
+      const resEntityMapping = Mapping.encode(
+        json,
+        this.entity,
+        this.circular,
+      ) as any;
+
+      this.displayWarningWhenNotUsingProperAPI(resEntityMapping);
+
+      return resEntityMapping;
     }
     let res = this.toJSON(this.responseText, { isJSONArray: this.isArray });
     if (this.circular && Array.isArray(this.circular)) {
       res = JSON10.parse(JSON.stringify(res), this.circular);
     }
+    this.displayWarningWhenNotUsingProperAPI(res);
     return res as any;
+  }
+
+  private displayWarningWhenNotUsingProperAPI(res: any): void {
+    if (!this.options.useArrayApiWarning) {
+      return;
+    }
+    if (this.isArray) {
+      Helpers.warn(`[${this.method}: ${this.url}]
+Your api response is object, but you are using .array api`);
+    } else {
+      if (Array.isArray(res)) {
+        Helpers.warn(
+          `[${this.method}: ${this.url}]
+Your api response is array, but you are using object api instread .arrray.`,
+        );
+      }
+    }
   }
 
   /**
@@ -793,7 +826,14 @@ export class HttpResponse<T> extends BaseResponse<T> {
   ) {
     super(responseText, options, statusCode, headers, isArray);
 
-    this.body = new HttpBody(url, headers, responseText, options, isArray);
+    this.body = new HttpBody(
+      url,
+      method,
+      headers,
+      responseText,
+      options,
+      isArray,
+    );
   }
 }
 
@@ -822,6 +862,7 @@ export type ResourceStrategy = 'http' | 'ipc-electron' | 'js-mock';
 interface ResourceOptions {
   strategy?: ResourceStrategy;
   headers?: RestHeaders;
+  useArrayApiWarning?: boolean;
   defaultHeadersProfile?: keyof typeof DEFAULT_HEADERS;
   responseMapping?: {
     /**

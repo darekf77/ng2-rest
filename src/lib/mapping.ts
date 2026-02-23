@@ -29,6 +29,7 @@ export namespace Mapping {
     mapping: Mapping,
     circular: Circ[] = [],
   ): T {
+    mapping = _.cloneDeep(mapping);
     if (_.isString(json) || _.isBoolean(json) || _.isNumber(json)) {
       return json as any;
     }
