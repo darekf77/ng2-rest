@@ -11,6 +11,7 @@ import {
   from,
   Observable,
   shareReplay,
+  Subject,
   switchMap,
   throwError,
 } from 'rxjs';
@@ -19,6 +20,8 @@ import { CLASS } from 'typescript-class-helpers/src';
 
 import { Mapping } from './mapping';
 //#endregion
+
+const listenErrorsSrc = new Subject<BackendError>();
 
 //#region cookie
 
@@ -840,6 +843,13 @@ interface ResourceOptions {
 }
 //#endregion
 
+type BackendError = {
+  msg?: string;
+  stack?: string[];
+  data: any;
+};
+
+//#region default headers
 export const HeaderKeyContentType = 'Content-Type';
 export const HeaderKeyAccept = 'Accept';
 
@@ -884,6 +894,7 @@ export const DEFAULT_HEADERS = {
     [HeaderKeyAccept]: 'application/octet-stream',
   }),
 } as const;
+//#endregion
 
 //#region abstract resource reponse class
 export abstract class ResourceResponse<
@@ -1099,6 +1110,27 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
         );
       }
 
+      //#region handle global error listener for notificaitons
+      if (
+        typeof catchedError === 'object' &&
+        catchedError.response &&
+        catchedError.response.data
+      ) {
+        const err = catchedError.response.data;
+        const msg: string = catchedError.response.data.message || '';
+        // console.log({
+        //   'err.stack': err?.stack
+        // })
+        let stack: string[] = (err.stack || '').split('\n');
+
+        listenErrorsSrc.next({
+          msg,
+          stack,
+          data: catchedError.response.data,
+        });
+      }
+      //#endregion
+
       const status = catchedError?.response?.status ?? 0; // ✅ FIX: you used "status" before defining it
       const data =
         catchedError?.response?.data ?? catchedError?.message ?? catchedError;
@@ -1144,6 +1176,8 @@ export namespace Resource {
     string,
     TaonAxiosClientInterceptor
   >();
+
+  export const listenErrors = listenErrorsSrc.asObservable();
 
   export const Cookies = Cookie.Instance;
 
