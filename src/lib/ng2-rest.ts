@@ -767,10 +767,6 @@ export class ErrorBody<T = RestErrorResponseWrapper> extends BaseBody {
 }
 
 export abstract class BaseResponse<T> {
-  public get cookies(): Cookie {
-    return Cookie.Instance; // IS THIS OK ?
-  }
-
   constructor(
     public readonly responseText: string | Blob,
     public readonly options: ResourceOptions,

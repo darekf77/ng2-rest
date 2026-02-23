@@ -1,181 +1,185 @@
-// // @ts-nocheck
-// //#region @notForNpm
+//#region imports
+import * as os from 'os'; // @backend
 
-// //#region @backend
-// import * as express from 'express';
-// import * as cors from 'cors';
-// //#endregion
-// import {
-//   catchError,
-//   debounceTime,
-//   defer,
-//   EMPTY,
-//   exhaustMap,
-//   firstValueFrom,
-//   fromEvent,
-//   map,
-//   Observable,
-//   switchMap,
-//   tap,
-// } from 'rxjs';
+import {
+  APP_INITIALIZER,
+  ApplicationConfig,
+  provideBrowserGlobalErrorListeners,
+  isDevMode,
+  mergeApplicationConfig,
+  provideZonelessChangeDetection,
+  signal,
+} from '@angular/core'; // @browser
+import { Component } from '@angular/core'; // @browser
+import { OnInit } from '@angular/core'; // @browser
+import {
+  provideClientHydration,
+  withEventReplay,
+} from '@angular/platform-browser';
+import {
+  provideRouter,
+  RouterModule,
+  Routes,
+  withHashLocation,
+} from '@angular/router';
+import { provideServiceWorker } from '@angular/service-worker';
+import { provideServerRendering, withRoutes } from '@angular/ssr';
+import { RenderMode, ServerRoute } from '@angular/ssr';
+import Aura from '@primeng/themes/aura'; // @browser
+import { providePrimeNG } from 'primeng/config'; // @browser
+import { Taon, TAON_CONTEXT, TaonContext } from 'taon/src';
 
-// export type KeyboardEventType = KeyboardEvent & { target: HTMLButtonElement };
+import { HOST_CONFIG } from './app.hosts';
+import { ENV_ANGULAR_NODE_APP_BUILD_PWA_DISABLE_SERVICE_WORKER } from './lib/env/env.angular-node-app';
+import { Resource } from 'ng2-rest/src';
+// @placeholder-for-imports
+//#endregion
 
-// // @browserLine
-// import { ElementRef, NgModule, ViewChild } from '@angular/core';
-// // @browserLine
-// import { Component, OnInit } from '@angular/core';
+//#region constants
+const firstHostConfig = (Object.values(HOST_CONFIG) || [])[0];
+console.log('Your backend host ' + firstHostConfig?.host);
+console.log('Your frontend host ' + firstHostConfig?.frontendHost);
+//#endregion
 
-// const port = 3001;
+//#region ng2-rest component
+//#region @browser
+@Component({
+  selector: 'app-root',
 
-// //#region @browser
-// import { Resource } from './lib/resource.service';
+  imports: [RouterModule],
+  template: `<router-outlet /> `,
+})
+export class Ng2RestApp implements OnInit {
+  itemsLoaded = signal(false);
 
-// const rest = Resource.create(`http://localhost:${port}`, 'hello');
+  ngOnInit(): void {
+    Taon.removeLoader().then(() => {
+      this.itemsLoaded.set(true);
+    });
+  }
+}
+//#endregion
 
-// // const rest2 = Resource.create(`http://localhost:${3333}`, '/api/hamsterByName/:name')
+//#endregion
 
-// @Component({
-//   selector: 'app-ng2-rest',
-//   template: `hello from ng2-rest
-//     <br />
-//     {{ data }}
-//     search:
-//     <input
-//       #search
-//       placeholder="switch map testing" />
-//     <br />
-//     exhaust result:
-//     <input
-//       #exhaust
-//       placeholder="exhause map testing" /> `,
-// })
-// export class Ng2RestComponent implements OnInit {
-//   @ViewChild('search', { static: true }) search: ElementRef<HTMLButtonElement>;
-//   @ViewChild('exhaust', { static: true })
-//   exhaust: ElementRef<HTMLButtonElement>;
+//#region ng2-rest routes
+//#region @browser
+export const Ng2RestServerRoutes: ServerRoute[] = [
+  {
+    path: '**',
+    renderMode: RenderMode.Prerender,
+  },
+];
+export const Ng2RestClientRoutes: Routes = [
+  {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: () => {
+      if (Ng2RestClientRoutes.length === 1) {
+        return '';
+      }
+      return Ng2RestClientRoutes.find(r => r.path !== '')!.path!;
+    },
+  },
+  // PUT ALL ROUTES HERE
+  // @placeholder-for-routes
+];
+//#endregion
+//#endregion
 
-//   searchInputChange$ = defer(() =>
-//     fromEvent<KeyboardEventType>(this.search?.nativeElement as any, 'keyup'),
-//   ).pipe(
-//     map(c => c.target.value),
-//     // debounceTime(500),
-//     // distinctUntilChanged(),
-//     // share(),
-//   );
+//#region ng2-rest app configs
+//#region @browser
+export const Ng2RestAppConfig: ApplicationConfig = {
+  providers: [
+    provideZonelessChangeDetection(),
+    providePrimeNG({
+      theme: {
+        preset: Aura,
+      },
+    }),
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      useFactory: () => Ng2RestStartFunction,
+    },
+    provideBrowserGlobalErrorListeners(),
+    // remove withHashLocation() to use SSR
+    provideRouter(Ng2RestClientRoutes, withHashLocation()),
+    provideClientHydration(withEventReplay()),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled:
+        !isDevMode() && !ENV_ANGULAR_NODE_APP_BUILD_PWA_DISABLE_SERVICE_WORKER,
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
+  ],
+};
 
-//   exhaustInputChange$ = defer(() =>
-//     fromEvent<KeyboardEventType>(this.exhaust?.nativeElement as any, 'keyup'),
-//   ).pipe(
-//     map(c => c.target.value),
-//     // debounceTime(500),
-//     // distinctUntilChanged(),
-//     // share(),
-//   );
+export const Ng2RestServerConfig: ApplicationConfig = {
+  providers: [provideServerRendering(withRoutes(Ng2RestServerRoutes))],
+};
 
-//   data: string;
-//   async ngOnInit() {
-//     const data = await (
-//       await firstValueFrom(rest.model().get().observable)
-//     ).body.text;
-//     this.data = data;
+export const Ng2RestConfig = mergeApplicationConfig(
+  Ng2RestAppConfig,
+  Ng2RestServerConfig,
+);
+//#endregion
+//#endregion
 
-//     this.searchInputChange$
-//       .pipe(
-//         tap(v => {
-//           console.log('pinging switchMap', v);
-//         }),
-//         switchMap(v => {
-//           return rest
-//             .model()
-//             .get([{ delay: true }])
-//             .observable.pipe(
-//               catchError(err => {
-//                 return EMPTY;
-//               }),
-//             );
-//         }),
-//         // map(r => r?.body?.json as any)
-//       )
-//       .subscribe();
+//#region ng2-rest context
+var Ng2RestContext = Taon.createContext(() => ({
+  ...HOST_CONFIG['Ng2RestContext'],
+  contexts: {},
+  disabledRealtime: true,
+}));
+//#endregion
 
-//     this.exhaustInputChange$
-//       .pipe(
-//         exhaustMap(v => {
-//           return rest
-//             .model()
-//             .get([{ delay: true }])
-//             .observable.pipe(
-//               catchError(err => {
-//                 return EMPTY;
-//               }),
-//             );
-//         }),
-//         tap(v => {
-//           console.log('done exhause', v);
-//         }),
-//         // map(r => r?.body?.json as any)
-//       )
-//       .subscribe();
+//#region ng2-rest start function
+export const Ng2RestStartFunction = async (
+  startParams?: Taon.StartParams,
+): Promise<void> => {
+  await Ng2RestContext.initialize();
 
-//     Resource.listenSuccessOperations.subscribe(a => {
-//       console.log('succees');
-//     });
-//   }
-// }
+  const arrRest = Resource.create('https://api.restful-api.dev', '/objects');
 
-// @NgModule({
-//   imports: [],
-//   exports: [Ng2RestComponent],
-//   declarations: [Ng2RestComponent],
-//   providers: [],
-// })
-// export class Ng2RestModule {}
-// //#endregion
+  const data = await arrRest.model().get();
+  console.log(data);
 
-// //#region @backend
+  //#region initialize auto generated active contexts
+  const autoGeneratedActiveContextsForApp: TaonContext[] = [
+    // @placeholder-for-contexts-init
+  ];
 
-// async function start() {
-//   const http = require('http');
+  const priorityContexts = [
+    // put here manual priority for contexts if needed
+  ];
 
-//   const app = express();
-//   app.use(cors());
+  const activeContextsForApp: TaonContext[] = [
+    ...priorityContexts,
+    ...autoGeneratedActiveContextsForApp.filter(
+      c => !priorityContexts.includes(c),
+    ),
+  ];
 
-//   app.get(`/hello`, (req, res) => {
-//     // console.log(req.params)
-//     // console.log(req.query)
+  for (const activeContext of activeContextsForApp) {
+    await activeContext.initialize();
+  }
+  //#endregion
 
-//     // req.on('close', function () {
-//     //   console.log('user aborted');
-//     //   req['isCanceled'] = true;
-//     //   res.end();
-//     //   // code to handle connection abort
-//     // });
+  //#region @backend
+  if (
+    startParams?.onlyMigrationRun ||
+    startParams?.onlyMigrationRevertToTimestamp
+  ) {
+    process.exit(0);
+  }
+  //#endregion
 
-//     if (req.query['delay'] === 'true') {
-//       setTimeout(() => {
-//         // if (req['isCanceled']) {
-//         //   res.sendStatus(400);
-//         // } else {
-//         res.send('heelo delay');
-//         // }
-//       }, 1000);
-//     } else {
-//       // if (req['isCanceled']) {
-//       //   res.sendStatus(400);
-//       // } else {
-//       res.send('heelo');
-//       // }
-//     }
-//   });
+  //#region @backend
+  console.log(`Hello in NodeJs backend! os=${os.platform()}`);
+  //#endregion
+};
+//#endregion
 
-//   app.listen(port, () => {
-//     console.log(`app is listening on port ${port}`);
-//   });
-// }
-
-// export default start;
-
-// //#endregion
-
-// //#endregion
+//#region default export
+export default Ng2RestStartFunction;
+//#endregion
