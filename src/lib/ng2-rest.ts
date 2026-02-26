@@ -17,8 +17,9 @@ import {
 } from 'rxjs';
 import { CoreModels, Helpers, _ } from 'tnp-core/src';
 import { CLASS } from 'typescript-class-helpers/src';
+import { encodeMapping, EncodeSchema, EncodeSchemaString } from './new-mapping';
 
-import { Mapping } from './mapping';
+// import { Mapping } from './mapping';
 //#endregion
 
 const listenErrorsSrc = new Subject<BackendError>();
@@ -663,7 +664,7 @@ export class HttpBody<T> extends BaseBody {
     super();
   }
 
-  private get entity(): Mapping.Mapping {
+  private get entity(): EncodeSchema | EncodeSchemaString {
     if (typeof this.options.responseMapping?.entity === 'string') {
       // const headerWithMapping = headers.get(entity);
       let entityJSON = this.headers?.getAll(
@@ -674,15 +675,17 @@ export class HttpBody<T> extends BaseBody {
       }
     }
 
-    const entityAsResolvableFn = this.options?.responseMapping
-      ?.entity as () => Mapping.Mapping;
+    const entityAsResolvableFn = this.options?.responseMapping?.entity as () =>
+      | EncodeSchema
+      | EncodeSchemaString;
+
     if (typeof entityAsResolvableFn === 'function') {
       const mappingFromFunction = entityAsResolvableFn();
-      console.log({ mappingFromFunction });
-      return mappingFromFunction;
+      // console.log({ mappingFromFunction });
+      return mappingFromFunction as any;
     }
 
-    return this.options.responseMapping?.entity;
+    return this.options.responseMapping?.entity as any;
   }
 
   private get circular(): Circ[] {
@@ -735,7 +738,7 @@ export class HttpBody<T> extends BaseBody {
       const json = this.toJSON(this.responseText, {
         isJSONArray: this.isArray,
       });
-      const resEntityMapping = Mapping.encode(
+      const resEntityMapping = encodeMapping(
         json,
         this.entity,
         this.circular,
@@ -869,7 +872,7 @@ interface ResourceOptions {
      * Use ()=>MyEntity to avoid js circural dependencies.
      * String only when as header key value.
      */
-    entity?: Mapping.Mapping | { (): Mapping.Mapping } | string;
+    entity?: (EncodeSchema | EncodeSchemaString) | { ():(EncodeSchema | EncodeSchemaString) } | string;
     /**
      * Metadata for remapping circular objects.
      * Generated from json10 packages.
@@ -1378,7 +1381,7 @@ async function example() {
     'api/v3/user/:userId',
     {
       responseMapping: {
-        entity: () => ExampleBook,
+        entity: () =>({'': ExampleBook}),
       },
     },
   );
