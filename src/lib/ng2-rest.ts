@@ -869,7 +869,7 @@ interface ResourceOptions {
   defaultHeadersProfile?: keyof typeof DEFAULT_HEADERS;
   responseMapping?: {
     /**
-     * Use ()=>MyEntity to avoid js circural dependencies.
+     * Use ()=> MyEntity to avoid js circural dependencies.
      * String only when as header key value.
      */
     entity?: (EncodeSchema | EncodeSchemaString) | { ():(EncodeSchema | EncodeSchemaString) } | string;
