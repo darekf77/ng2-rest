@@ -6,6 +6,7 @@ import axios from 'axios';
 import type express from 'express';
 import * as FormData from 'form-data'; // @backend
 import { Circ, JSON10 } from 'json10/src';
+import { Level, Log } from 'ng2-logger/src';
 import {
   firstValueFrom,
   from,
@@ -17,10 +18,13 @@ import {
 } from 'rxjs';
 import { CoreModels, Helpers, _ } from 'tnp-core/src';
 import { CLASS } from 'typescript-class-helpers/src';
+
 import { encodeMapping, EncodeSchema, EncodeSchemaString } from './new-mapping';
 
 // import { Mapping } from './mapping';
 //#endregion
+
+const log = Log.create('ng2-rest', Level.WARN, Level.ERROR);
 
 const listenErrorsSrc = new Subject<BackendError>();
 
@@ -872,7 +876,10 @@ interface ResourceOptions {
      * Use ()=> MyEntity to avoid js circural dependencies.
      * String only when as header key value.
      */
-    entity?: (EncodeSchema | EncodeSchemaString) | { ():(EncodeSchema | EncodeSchemaString) } | string;
+    entity?:
+      | (EncodeSchema | EncodeSchemaString)
+      | { (): EncodeSchema | EncodeSchemaString }
+      | string;
     /**
      * Metadata for remapping circular objects.
      * Generated from json10 packages.
@@ -1068,7 +1075,7 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
     );
     const method = this.httpMethodName;
 
-    Helpers.log(`Requesting ${method} ${url}`);
+    log.d(`Requesting ${method} ${url}`);
 
     const isFormData = CLASS.getNameFromObject(this.body) === 'FormData';
     const formData: FormData = isFormData ? (this.body as any) : void 0;
@@ -1381,7 +1388,7 @@ async function example() {
     'api/v3/user/:userId',
     {
       responseMapping: {
-        entity: () =>({'': ExampleBook}),
+        entity: () => ({ '': ExampleBook }),
       },
     },
   );
