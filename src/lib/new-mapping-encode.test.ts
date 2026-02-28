@@ -128,6 +128,30 @@ describe('encodeMapping - array header protocol', () => {
     expect(result[3]).toBeInstanceOf(Author);
   });
 
+  it('should decode RLE header and map array elements 2', () => {
+    const raw = [
+      { age: 10 },
+      { age: 20 },
+      null,
+      { name: 'Author1' },
+      undefined,
+      { age: 20 },
+    ];
+
+    const headerSchema = {
+      '[]': ['DecoratedUser#2', '#1', 'Author', '', 'DecoratedUser'],
+    };
+
+    const result = encodeMapping(raw, headerSchema);
+
+    expect(result[0]).toBeInstanceOf(DecoratedUser);
+    expect(result[1]).toBeInstanceOf(DecoratedUser);
+    expect(result[2]).toBeNull();
+    expect(result[3]).toBeInstanceOf(Author);
+    expect(result[4]).toBeUndefined();
+    expect(result[5]).toBeInstanceOf(DecoratedUser);
+  });
+
   it('should decode header and map array elements when array is unified', () => {
     const raw = [{ age: 10 }, { age: 20 }];
 
@@ -158,5 +182,24 @@ describe('deep mapping without direct rule on key', () => {
     });
 
     expect(result.book.author).toBeInstanceOf(Author);
+    expect(result.book.author.name).toBe('X');
+  });
+
+  it('should still recurse and apply deep rules but with string classnames', () => {
+    const raw = {
+      book: {
+        author: {
+          name: 'X',
+        },
+      },
+    };
+
+    const result = encodeMapping<User>(raw, {
+      '': 'DecoratedUser',
+      'book.author': 'Author',
+    });
+
+    expect(result.book.author).toBeInstanceOf(Author);
+    expect(result.book.author.name).toBe('X');
   });
 });
