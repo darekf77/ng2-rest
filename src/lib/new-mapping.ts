@@ -286,17 +286,36 @@ export function getMappingHeaderString<T = any>(
  */
 export function decodeMappingForHeaderJson<T>(
   instanceOrClass: T | Constructor<T> | (T | Constructor<T>)[],
-): EncodeSchemaString<T> | undefined {
+  options?: {
+    useFirstArrayItemClassNameForAllElements?: boolean;
+  },
+): EncodeSchemaString<T> {
+  options = options || {};
   // Array encoding (special protocol)
-  if (Array.isArray(instanceOrClass)) {
+  if (
+    Array.isArray(instanceOrClass) &&
+    !options.useFirstArrayItemClassNameForAllElements
+  ) {
     const tokens = instanceOrClass.map(getClassNameTokenFromItem);
     return { '[]': rleEncodeTokens(tokens) } as any;
+  }
+
+  if (
+    Array.isArray(instanceOrClass) &&
+    options.useFirstArrayItemClassNameForAllElements
+  ) {
+    instanceOrClass = _.first(instanceOrClass);
   }
 
   // Single object / class encoding
   const mapping = getDefaultMappingSingleObjOrClass(instanceOrClass);
   if (!mapping || !mapping['']) {
-    return undefined;
+    const className =
+      CLASS.getClassNameFromObjInstanceOrClassFn(instanceOrClass as any) || '';
+
+    return {
+      '': className,
+    };
   }
 
   // Your EncodeSchema is flat (dot-path keys), so we can encode it flat too.

@@ -80,6 +80,18 @@ describe('decodeMappingForHeaderJson - array RLE', () => {
   });
 });
 
+describe('decodeMappingForHeaderJson - array RLE unfied', () => {
+  it('should RLE encode class unified array', () => {
+    const array = [DecoratedUser, DecoratedUser, null, null, Author, null];
+
+    const mapping = decodeMappingForHeaderJson(array as any,{
+      useFirstArrayItemClassNameForAllElements: true
+    });
+
+    expect(mapping?.['']).toEqual('DecoratedUser');
+  });
+});
+
 describe('getMappingHeaderString', () => {
   it('should stringify mapping', () => {
     const header = getMappingHeaderString(DecoratedUser);
