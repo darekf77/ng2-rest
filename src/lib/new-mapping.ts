@@ -246,7 +246,11 @@ export function getDefaultModel<T>(
   const classFn =
     typeof instanceOrClass === 'function'
       ? instanceOrClass
-      : (instanceOrClass as any).constructor;
+      : (instanceOrClass as any)?.constructor;
+
+  if (classFn === undefined) {
+    return undefined;
+  }
 
   const getter = defaultValueStore.get(classFn)?.defaults;
   return getter ? (getter() as any) : undefined;
@@ -260,7 +264,11 @@ export function getDefaultMappingSingleObjOrClass<T>(
   const classFn =
     typeof instanceOrClass === 'function'
       ? instanceOrClass
-      : (instanceOrClass as any).constructor;
+      : (instanceOrClass as any)?.constructor;
+
+  if (classFn === undefined) {
+    return undefined;
+  }
 
   const getter = mappingStore.get(classFn)?.mapping;
   return getter ? (getter() as any) : undefined;
@@ -418,11 +426,20 @@ const encodeMappingFn = <T>(
     return input;
   }
 
-  const RootClass = (
-    _.isString((schema as any)[''])
-      ? CLASS.getBy((schema as any)[''])
-      : (schema as any)['']
+  const classNameOrFunctionInSchema: string | Constructor = (schema as any)[''];
+
+  let RootClass = (
+    _.isString(classNameOrFunctionInSchema) &&
+    classNameOrFunctionInSchema !== ''
+      ? CLASS.getBy(classNameOrFunctionInSchema)
+      : classNameOrFunctionInSchema
   ) as Constructor | undefined;
+
+  const classNameOfRootClass =
+    CLASS.getClassNameFromObjInstanceOrClassFn(RootClass);
+  if (classNameOfRootClass === '' || !classNameOfRootClass) {
+    RootClass = undefined;
+  }
 
   const instance = RootClass ? new RootClass() : {};
 

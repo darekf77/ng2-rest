@@ -10,6 +10,15 @@ import {
 
 //#region test models
 
+@CLASS.NAME('')
+class SpecialClassWithEmptyName {
+  name!: string;
+
+  get nameWithPrefix(): string {
+    return `AAA${this.name}`;
+  }
+}
+
 @CLASS.NAME('Author')
 class Author {
   name!: string;
@@ -116,6 +125,22 @@ describe('encodeMapping - empty mapping', () => {
 
     expect(result[0]).toBeNull();
     expect(result[1]?.age).toBe(33);
+  });
+
+  it('should skip mapping class with empty name ', () => {
+    expect(
+      CLASS.getClassNameFromObjInstanceOrClassFn(SpecialClassWithEmptyName),
+    ).toBe('');
+
+    const raw = { name: 'anything' } as Partial<SpecialClassWithEmptyName>;
+
+    const result = encodeMapping<SpecialClassWithEmptyName>(raw, {
+      '': SpecialClassWithEmptyName,
+    });
+
+    expect(result instanceof SpecialClassWithEmptyName).toBeFalsy();
+    expect(result).not.toBeInstanceOf(SpecialClassWithEmptyName);
+    expect(result.nameWithPrefix).toBeUndefined();
   });
 });
 
