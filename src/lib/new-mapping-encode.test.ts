@@ -73,6 +73,52 @@ describe('encodeMapping - basic mapping', () => {
   });
 });
 
+describe('encodeMapping - empty mapping', () => {
+  it('should skip mapping of object', () => {
+    const raw = { age: 33 };
+
+    const result = encodeMapping<DecoratedUser>(raw, {
+      '': '',
+    });
+
+    expect(result).not.toBeInstanceOf(DecoratedUser);
+    expect(result.agePlusOne).toBe(undefined);
+  });
+
+  it('should skip mapping of object for array', () => {
+    const raw = [null, { age: 33 }];
+
+    const result = encodeMapping<DecoratedUser>(raw, {
+      '[]': ['', 'DecoratedUser'],
+    });
+
+    expect(result[0]).toBeNull();
+    expect(result[1]).toBeInstanceOf(DecoratedUser);
+  });
+
+  it('should skip mapping empty array ', () => {
+    const raw = [null, { age: 33 }];
+
+    const result = encodeMapping<DecoratedUser>(raw, {
+      '[]': [],
+    });
+
+    expect(result[0]).toBeNull();
+    expect(result[1]?.age).toBe(33);
+  });
+
+  it('should skip mapping empty array undefined ', () => {
+    const raw = [null, { age: 33 }];
+
+    const result = encodeMapping<DecoratedUser>(raw, {
+      '[]': undefined,
+    });
+
+    expect(result[0]).toBeNull();
+    expect(result[1]?.age).toBe(33);
+  });
+});
+
 describe('encodeMapping - deep mapping', () => {
   it('should map nested object using dot path', () => {
     const raw = {
