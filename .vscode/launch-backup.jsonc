@@ -3,6 +3,43 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Vitest Debug (single run all files)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": [
+        "run",
+        "--environment",
+        "node",
+        "--testTimeout",
+        "60000"
+      ],
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "smartStep": true
+    },
+    {
+      "name": "Vitest Debug (active file)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": [
+        "run",
+        "${file}",
+        "--environment",
+        "node",
+        "--testTimeout",
+        "60000"
+      ],
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "smartStep": true
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "Debug/Start Server",

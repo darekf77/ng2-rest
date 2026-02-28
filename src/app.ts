@@ -26,18 +26,18 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { provideServerRendering, withRoutes } from '@angular/ssr';
 import { RenderMode, ServerRoute } from '@angular/ssr';
 import Aura from '@primeng/themes/aura'; // @browser
+import { Resource } from 'ng2-rest/src';
 import { providePrimeNG } from 'primeng/config'; // @browser
-import { Taon, TAON_CONTEXT, TaonContext } from 'taon/src';
+import { Taon, TAON_CONTEXT, TaonBaseClass, TaonContext } from 'taon/src';
+import { CLASS } from 'typescript-class-helpers/src';
 
 import { HOST_CONFIG } from './app.hosts';
 import { ENV_ANGULAR_NODE_APP_BUILD_PWA_DISABLE_SERVICE_WORKER } from './lib/env/env.angular-node-app';
-import { Resource } from 'ng2-rest/src';
-import { CLASS } from 'typescript-class-helpers/src';
 import {
-  decodeMapping,
   decodeMappingForHeaderJson,
-  DefaultModelWithMapping,
+  DefaultMapping,
   encodeMapping,
+  getMappingHeaderString,
 } from './lib/new-mapping';
 // @placeholder-for-imports
 //#endregion
@@ -143,39 +143,51 @@ var Ng2RestContext = Taon.createContext(() => ({
 }));
 //#endregion
 
-class Book {}
+//#region case 1 default mapping
+function case1() {
+  class Book {}
 
-@DefaultModelWithMapping<User>(
-  () => ({ name: 'testName' }),
-  () => ({ books: [Book] }),
-)
-class User {
-  declare name: string;
+  // class Book {}
 
-  declare books: Book[];
+  // @DefaultMapping<User>(() => ({ books: [Book] }))
+  // class User {
+  //   declare name: string;
+
+  //   declare books: Book[];
+  // }
+
+  // const raw = {
+  //   books: [{ id: 1 }, { id: 2 }],
+  // };
+
+  // const mapping = getDefaultMapping(User);
+  // console.log({ mapping });
+  // const user = encodeMapping<User>(raw, mapping);
+
+  // const forHeader = decodeMappingForHeaderJson(User);
+  // console.log({ forHeader });
+  // console.log(user instanceof User); // true
+  // console.log(user.name); // "testName"
+  // console.log(user.books[0] instanceof Book); // true
 }
+//#endregion
 
-// @CLASS.NAME('EntityData')
-class EntityData {
-  declare color: string;
+//#region case 2 using class name
+async function case2() {
+  @CLASS.NAME('EntityData')
+  class EntityData {
+    declare color: string;
 
-  declare capacity: string;
-}
+    declare capacity: string;
+  }
 
-// @CLASS.NAME('Entity')
-class Entity {
-  declare id: number;
+  @CLASS.NAME('Entity')
+  class Entity {
+    declare id: number;
 
-  declare name: string;
-}
+    declare name: string;
+  }
 
-//#region ng2-rest start function
-export const Ng2RestStartFunction = async (
-  startParams?: Taon.StartParams,
-): Promise<void> => {
-  await Ng2RestContext.initialize();
-
-  //#region test 1
   const arrRest = Resource.create('https://api.restful-api.dev', '/objects', {
     responseMapping: {
       // entity: () => ({
@@ -191,57 +203,126 @@ export const Ng2RestStartFunction = async (
 
   const data = await arrRest.model().get();
   console.log(data.body.json);
-  //#endregion
+}
+//#endregion
 
-  // class User {
-  //   declare name: string;
+//#region case 3 using just class
+async function case3() {
+  class EntityData {
+    declare color: string;
 
-  //   declare firend: User;
+    declare capacity: string;
+  }
 
-  //   declare relatives: User[];
+  class Entity {
+    declare id: number;
+
+    declare name: string;
+  }
+
+  await Ng2RestContext.initialize();
+
+  const arrRest = Resource.create('https://api.restful-api.dev', '/objects', {
+    responseMapping: {
+      // entity: () => ({
+      //   '': Entity,
+      //   data: EntityData,
+      // }),
+      entity: {
+        '': Entity,
+        data: EntityData,
+      },
+    },
+  });
+
+  const data = await arrRest.model().get();
+  console.log(data.body.json);
+}
+//#endregion
+
+//#region case 4 circural objects
+function case4() {
+  class User {
+    declare name: string;
+
+    declare firend: User;
+
+    declare relatives: User[];
+  }
+
+  const user1 = { name: 'figot' } as Partial<User>;
+  const user2 = { name: 'fagot' } as Partial<User>;
+  const user3 = { name: 'donald' } as Partial<User>;
+  const rawData = {
+    name: 'wiesiek',
+    firend: user1,
+    relatives: [user2, user3],
+  } as Partial<User>;
+  const rawDataEntioty = encodeMapping(
+    rawData,
+    {
+      '': User,
+      firend: User,
+      relatives: [User],
+    },
+    [
+      {
+        circuralTargetPath: '',
+        pathToObj: 'friend',
+      },
+    ],
+  );
+  console.log({ rawDataEntioty });
+}
+//#endregion
+
+//#region case 5 mapping for header array
+function case5() {
+  @CLASS.NAME('User')
+  @DefaultMapping<User>(() => ({ '': User }))
+  class User extends TaonBaseClass<User> {
+    declare title?: string;
+  }
+
+  @CLASS.NAME('Book')
+  @DefaultMapping<Book>(() => ({ '': Book }))
+  class Book extends TaonBaseClass<Book> {
+    declare name?: string;
+  }
+
+  @CLASS.NAME('BookExtended')
+  @DefaultMapping<BookExtended>(() => ({ '': Book }))
+  class BookExtended extends Book {
+    declare title?: string;
+  }
+
+  const books = [
+    new Book().clone({ name: 'book1' }),
+    new Book().clone({ name: 'book2' }),
+    new BookExtended().clone({
+      name: 'book extended',
+    }),
+  ];
+
+  console.log({
+    books,
+    Book: CLASS.getName(Book),
+    BookExtended: CLASS.getName(BookExtended),
+  });
+  const forHeader = getMappingHeaderString(books);
+  console.log(forHeader);
+  // I am expecting
+  // {
+  //   '': ['Book#2','BookExtended']
   // }
+}
+//#endregion
 
-  // const user1 = { name: 'figot' } as Partial<User>;
-  // const user2 = { name: 'fagot' } as Partial<User>;
-  // const user3 = { name: 'donald' } as Partial<User>;
-
-  // const rawData = {
-  //   name: 'wiesiek',
-  //   // firend: user1,
-  //   // relatives: [user2, user3],
-  // } as Partial<User>;
-
-  // const rawDataEntioty = encodeMapping(
-  //   rawData,
-  //   {
-  //     '': User,
-  //     firend: User,
-  //     relatives: [User],
-  //   },
-  //   [
-  //     {
-  //       circuralTargetPath: '',
-  //       pathToObj: 'friend',
-  //     },
-  //   ],
-  // );
-  // console.log({ rawDataEntioty });
-
-  //#region test 2
-  // const raw = {
-  //   books: [{ id: 1 }, { id: 2 }],
-  // };
-
-  // const mapping = decodeMapping(User);
-  // console.log({ mapping });
-  // const user = encodeMapping<User>(raw, mapping);
-
-  // const forHeader = decodeMappingForHeaderJson(User);
-  // console.log({ forHeader });
-  // console.log(user instanceof User); // true
-  // console.log(user.name); // "testName"
-  // console.log(user.books[0] instanceof Book); // true
-  //#endregion
+//#region ng2-rest start function
+export const Ng2RestStartFunction = async (
+  startParams?: Taon.StartParams,
+): Promise<void> => {
+  case5();
 
   //#region initialize auto generated active contexts
   const autoGeneratedActiveContextsForApp: TaonContext[] = [
