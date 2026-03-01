@@ -13,11 +13,27 @@ import {
 @CLASS.NAME('Author')
 class Author {
   name!: string;
+
+  friend: Author;
+}
+
+@DefaultMapping<AuthorNested>(() => ({
+  '': AuthorNested,
+  friend: AuthorNested,
+  friendOther: AuthorNested,
+}))
+@CLASS.NAME('AuthorNested')
+class AuthorNested {
+  name: string;
+
+  friend: AuthorNested;
+
+  friendOther: AuthorNested;
 }
 
 @CLASS.NAME('DecoratedAuthor')
 @DefaultMapping(() => ({
-  '': Author,
+  '': DecoratedAuthor,
 }))
 class DecoratedAuthor extends Author {}
 
@@ -60,6 +76,26 @@ class DecoratedUser extends User {
 
 //#endregion
 
+describe('decodeMappingForHeaderJson - nesed object', () => {
+  it('should generate mapping header nested recursive object', () => {
+    const nested = new AuthorNested();
+    nested.friend = nested;
+    const newFirend = new AuthorNested();
+    nested.friendOther = newFirend;
+    newFirend.friend = nested;
+
+    const mapping = decodeMappingForHeaderJson(nested);
+    // console.log({ mapping });
+    expect(mapping?.['']).toBe(CLASS.getName(AuthorNested));
+    expect(mapping?.['friend' as keyof AuthorNested]).toBe(
+      CLASS.getName(AuthorNested),
+    );
+    expect(mapping?.['friendOther' as keyof AuthorNested]).toBe(
+      CLASS.getName(AuthorNested),
+    );
+  });
+});
+
 describe('decodeMappingForHeaderJson - single', () => {
   it('should generate mapping header for class', () => {
     const mapping = decodeMappingForHeaderJson(DecoratedUser);
@@ -84,8 +120,8 @@ describe('decodeMappingForHeaderJson - array RLE unfied', () => {
   it('should RLE encode class unified array', () => {
     const array = [DecoratedUser, DecoratedUser, null, null, Author, null];
 
-    const mapping = decodeMappingForHeaderJson(array as any,{
-      useFirstArrayItemClassNameForAllElements: true
+    const mapping = decodeMappingForHeaderJson(array as any, {
+      useFirstArrayItemClassNameForAllElements: true,
     });
 
     expect(mapping?.['']).toEqual('DecoratedUser');

@@ -27,13 +27,17 @@ export type ModelValue<T> =
 
 type Constructor<T = any> = new (...args: any[]) => T;
 
-type MappingFrom<T> = {
-  [K in keyof T & string]: T[K] extends Primitive
-    ? K
-    : T[K] extends Array<infer U>
-      ? K | `${K}.${MappingFrom<U>}`
-      : K | `${K}.${MappingFrom<T[K]>}`;
-}[keyof T & string];
+type DecrementDepth = [never, 0, 1, 2, 3, 4, 5];
+
+type MappingFrom<T, Depth extends number = 5> = [Depth] extends [never]
+  ? never
+  : {
+      [K in keyof T & string]: T[K] extends Primitive
+        ? K
+        : T[K] extends Array<infer U>
+          ? K | `${K}.${MappingFrom<U, DecrementDepth[Depth]>}`
+          : K | `${K}.${MappingFrom<T[K], DecrementDepth[Depth]>}`;
+    }[keyof T & string];
 
 /**
  * Mapping schema that can be set from decorator

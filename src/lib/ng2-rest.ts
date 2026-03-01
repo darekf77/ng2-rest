@@ -671,6 +671,8 @@ export class HttpBody<T> extends BaseBody {
   private get entity(): EncodeSchema | EncodeSchemaString {
     if (typeof this.options.responseMapping?.entity === 'string') {
       // const headerWithMapping = headers.get(entity);
+      // console.log('header key ',this.options.responseMapping?.entity);
+      // console.log(this.headers)
       let entityJSON = this.headers?.getAll(
         this.options.responseMapping?.entity,
       );
@@ -742,11 +744,15 @@ export class HttpBody<T> extends BaseBody {
       const json = this.toJSON(this.responseText, {
         isJSONArray: this.isArray,
       });
+      // console.log({ entityMapping: this.entity })
+
       const resEntityMapping = encodeMapping(
         json,
         this.entity,
         this.circular,
       ) as any;
+
+      // console.log({ resEntityMapping })
 
       this.displayWarningWhenNotUsingProperAPI(resEntityMapping);
 
