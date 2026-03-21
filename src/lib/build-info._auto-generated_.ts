@@ -24,9 +24,9 @@ export const CURRENT_PACKAGE_TAON_VERSION = 'v21';
  */
 export const CURRENT_PACKAGE_VERSION = '21.0.41';
 
-export namespace TAON_STRIPE_CLOUDFLARE_WORKERS_URLS {
 
-}
+
+
 
 // THIS FILE IS GENERATED - DO NOT MODIFY
       

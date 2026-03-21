@@ -52,6 +52,8 @@
     "**/index.js.map": true,
     "index.d.ts": true,
     "**/index.d.ts": true,
+    "vitest.config.ts": true,
+    "**/vitest.config.ts": true,
     ".gitignore": true,
     "**/.gitignore": true,
     ".npmignore": true,
@@ -83,7 +85,8 @@
     ".idea": true,
     "webpack.*": true,
     ".eslintrc*": true,
-    "tslint.*": true
+    "tslint.*": true,
+    "!templates-subprojects/**/package.json": true
   },
 
   "workbench.colorCustomizations": {
