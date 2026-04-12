@@ -187,7 +187,7 @@
   "tslint.alwaysShowRuleFailuresAsWarnings": false,
   "prettier.endOfLine": "auto",
   "prettier.prettierPath": "./node_modules/prettier",
-  "window.title": "npm/taon-dev/ng2-rest  [ ${activeEditorShort} ]",
+  "window.title": "taon-dev/ng2-rest () [ ${activeEditorShort}]",
   "search.useIgnoreFiles": false,
 
   "search.include": [
