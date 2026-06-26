@@ -1,8 +1,11 @@
+global.frameworkName = 'ng2-rest';
 Error.stackTraceLimit = 100;
 global.i0 = {
   defineInjectable: function () { }
 }
 const process= require('process');
+global.currentTaonScriptStartDateTime =  process.hrtime.bigint();
+
 process.removeAllListeners('warning');
 var argv = process.argv;
 
