@@ -1,10 +1,9 @@
 //#region imports
 import { URL } from 'url'; // @backend
 
-import { AxiosHeaders, AxiosRequestConfig, AxiosResponse } from 'axios';
-import axios from 'axios';
+import type { AxiosHeaders, AxiosRequestConfig, AxiosResponse } from 'axios';
 import type express from 'express';
-import * as FormData from 'form-data'; // @backend
+import type * as FormData from 'form-data'; // @backend
 import { Circ, JSON10 } from 'json10/src';
 import { Level, Log } from 'ng2-logger/src';
 import {
@@ -16,6 +15,7 @@ import {
   switchMap,
   throwError,
 } from 'rxjs';
+import { axios } from 'tnp-core/src';
 import { CoreModels, Helpers, _ } from 'tnp-core/src';
 import { CLASS } from 'typescript-class-helpers/src';
 

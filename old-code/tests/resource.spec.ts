@@ -3,7 +3,7 @@
 // import { expect, use } from 'chai'
 // import * as UrlNestedParams from '../params';
 // import { Resource } from '../resource.service';
-// import axios from 'axios';
+//import type { axios } from 'tnp-core/src';
 // import { RestHeaders } from '../rest-headers';
 
 // describe('Resource requests', () => {
