@@ -232,7 +232,7 @@
   "javascript.suggest.autoImports": false,
 
   "files.associations": {
-    "tsconfig.json": "plaintext",
+    "tsconfig.json": "json",
     "**/tsconfig.json": "plaintext",
     "**/tsconfig.*.json": "plaintext"
   },
