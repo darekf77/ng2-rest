@@ -2,6 +2,7 @@
 import { URL } from 'url'; // @backend
 
 import type { AxiosHeaders, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { wrapper } from 'axios-cookiejar-support'; // @backend  @esmRemove
 import type express from 'express';
 import type * as FormData from 'form-data'; // @backend
 import { Circ, JSON10 } from 'json10/src';
@@ -16,7 +17,9 @@ import {
   throwError,
 } from 'rxjs';
 import { axios } from 'tnp-core/src';
+import { SimpleCookieJar } from 'tnp-core/src'; // @backend  @cjsRemove
 import { CoreModels, Helpers, _ } from 'tnp-core/src';
+import { CookieJar } from 'tough-cookie'; // @backend  @esmRemove
 import { CLASS } from 'typescript-class-helpers/src';
 
 import { encodeMapping, EncodeSchema, EncodeSchemaString } from './new-mapping';
@@ -28,87 +31,39 @@ const log = Log.create('ng2-rest', Level.WARN, Level.ERROR);
 
 const listenErrorsSrc = new Subject<BackendError>();
 
-//#region cookie
+//#region cookie jar
 
-// TODO do it for nodejs
+//#region @backend
+//#region @esmRemove
+const globalCookieJar = new CookieJar();
+//#endregion
 
-// import { CookieJar } from 'tough-cookie';
+let initializedCookieJar = false;
 
-// const jar = new CookieJar();
+function registerGlobalAxiosCookieJar(): void {
+  //#region @backend
+  if (initializedCookieJar) {
+    return;
+  }
 
-// const rest = Resource.create('http://my-website.pl', 'api/v3/user/:userId', {
-//   cookieJar: jar,
-// });
+  initializedCookieJar = true;
 
-// await rest.model({ userId: 1 }).get(); // cookies persist across requests
+  //#region  @esmRemove
+  // NODEJS
+  wrapper(axios as any);
+  // @ts-ignore
+  axios.defaults.jar = globalCookieJar;
+  //#endregion
 
-// import type { CookieJar } from 'tough-cookie';
+  //#region @cjsRemove
+  // CLOUDFLARE
+  // @ts-ignore
+  axios.defaults.jar = new SimpleCookieJar();
+  //#endregion
+  //#endregion
+}
 
-// interface ResourceOptions {
-//   // ...
-//   cookieJar?: CookieJar;
-// }
-
-// export class CookieJarInterceptor implements TaonAxiosClientInterceptor<any> {
-//   constructor(private readonly jar: CookieJar) {}
-
-//   intercept({ req, next }: TaonClientMiddlewareInterceptOptions<any>) {
-//     return new Observable<AxiosResponse<any>>(subscriber => {
-//       const url = req.url || '';
-
-//       // 1) attach Cookie header from jar
-//       this.jar.getCookieString(url, (err, cookieString) => {
-//         if (err) {
-//           subscriber.error(err);
-//           return;
-//         }
-
-//         if (cookieString) {
-//           req.headers = req.headers || {};
-//           // axios headers can be plain object or AxiosHeaders
-//           if (req.headers instanceof AxiosHeaders) {
-//             req.headers.set('Cookie', cookieString);
-//           } else {
-//             (req.headers as any)['Cookie'] = cookieString;
-//           }
-//         }
-
-//         // 2) proceed
-//         const sub = next.handle(req).subscribe({
-//           next: res => {
-//             // 3) store Set-Cookie back into jar
-//             const setCookie = (res.headers as any)?.['set-cookie'];
-//             const cookies: string[] =
-//               typeof setCookie === 'string'
-//                 ? [setCookie]
-//                 : Array.isArray(setCookie)
-//                   ? setCookie
-//                   : [];
-
-//             if (!cookies.length) {
-//               subscriber.next(res);
-//               return;
-//             }
-
-//             let pending = cookies.length;
-//             for (const c of cookies) {
-//               this.jar.setCookie(c, url, () => {
-//                 pending--;
-//                 if (pending === 0) {
-//                   subscriber.next(res);
-//                 }
-//               });
-//             }
-//           },
-//           error: e => subscriber.error(e),
-//           complete: () => subscriber.complete(),
-//         });
-
-//         return () => sub.unsubscribe();
-//       });
-//     });
-//   }
-// }
+//#endregion
 
 export class Cookie {
   public static get Instance(): Cookie {
@@ -1075,6 +1030,12 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
   protected async makeRequest(
     abortSignal: AbortSignal,
   ): Promise<HttpResponse<DATA>> {
+    //#region @backend
+    if (axios.defaults.withCredentials) {
+      registerGlobalAxiosCookieJar();
+    }
+
+    //#endregion
     const url = this.creatUrl(
       this.urlParams,
       !!this.axiosOptions?.doNotSerializeParams,

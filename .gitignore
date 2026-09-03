@@ -80,7 +80,7 @@
 /src/lib/env/**/*.*
 /src/lib/lib-info.md
 /src/lib/migrations/migrations-info.md
-/src/tests/mocha-tests-info.md
+/src/tests/tests-folder-info.md
 /src/vars.scss
 /testem.log
 /tests-environments
