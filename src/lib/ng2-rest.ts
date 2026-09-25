@@ -29,7 +29,7 @@ import { encodeMapping, EncodeSchema, EncodeSchemaString } from './new-mapping';
 
 const log = Log.create('ng2-rest', Level.WARN, Level.ERROR);
 
-const listenErrorsSrc = new Subject<BackendError>();
+const listenErrorsSrc = new Subject<HttpResponseError | any>();
 
 //#region cookie jar
 
@@ -851,12 +851,6 @@ interface ResourceOptions {
 }
 //#endregion
 
-type BackendError = {
-  msg?: string;
-  stack?: string[];
-  data: any;
-};
-
 //#region default headers
 export const HeaderKeyContentType = 'Content-Type';
 export const HeaderKeyAccept = 'Accept';
@@ -938,6 +932,20 @@ export abstract class ResourceResponse<
     abortSignal: AbortSignal,
   ): Promise<HttpResponse<DATA>>;
 
+  private async makeRequestWithGlobalErrorHandling(
+    abortSignal: AbortSignal,
+  ): Promise<HttpResponse<DATA>> {
+    try {
+      return await this.makeRequest(abortSignal);
+    } catch (error) {
+      // if (error instanceof HttpResponseError) {
+      listenErrorsSrc.next(error as any);
+      // }
+
+      throw error;
+    }
+  }
+
   /**
    * ✅ Explicit cancel (useful for "promise style")
    */
@@ -951,8 +959,12 @@ export abstract class ResourceResponse<
   public get promise(): Promise<HttpResponse<DATA> | HttpResponseError<ERROR>> {
     if (!this._promise) {
       this._promiseAbort = new AbortController();
-      this._promise = this.makeRequest(this._promiseAbort.signal);
+
+      this._promise = this.makeRequestWithGlobalErrorHandling(
+        this._promiseAbort.signal,
+      );
     }
+
     return this._promise;
   }
 
@@ -988,20 +1000,24 @@ export abstract class ResourceResponse<
       this._observable = new Observable<HttpResponse<DATA>>(subscriber => {
         const ac = new AbortController();
 
-        this.makeRequest(ac.signal)
+        this.makeRequestWithGlobalErrorHandling(ac.signal)
           .then(res => {
-            if (res instanceof HttpResponseError) {
-              subscriber.error(res);
-              return;
-            }
             subscriber.next(res);
             subscriber.complete();
           })
-          .catch(err => subscriber.error(err));
+          .catch(err => {
+            subscriber.error(err);
+          });
 
         return () => ac.abort('rxjs-unsubscribe');
-      }).pipe(shareReplay({ bufferSize: 1, refCount: true }));
+      }).pipe(
+        shareReplay({
+          bufferSize: 1,
+          refCount: true,
+        }),
+      );
     }
+
     return this._observable;
   }
 
@@ -1123,27 +1139,6 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
           this.isArray,
         );
       }
-
-      //#region handle global error listener for notificaitons
-      if (
-        typeof catchedError === 'object' &&
-        catchedError.response &&
-        catchedError.response.data
-      ) {
-        const err = catchedError.response.data;
-        const msg: string = catchedError.response.data.message || '';
-        // console.log({
-        //   'err.stack': err?.stack
-        // })
-        let stack: string[] = (err.stack || '').split('\n');
-
-        listenErrorsSrc.next({
-          msg,
-          stack,
-          data: catchedError.response.data,
-        });
-      }
-      //#endregion
 
       const status = catchedError?.response?.status ?? 0; // ✅ FIX: you used "status" before defining it
       const data =
