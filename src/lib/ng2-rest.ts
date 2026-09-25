@@ -578,7 +578,7 @@ export class RestErrorResponseWrapper extends RestCommonHttpResponseWrapper {
   /**
    * custom error code from backend
    */
-  declare code?: string;
+  declare code?: string | number;
 }
 //#endregion
 
