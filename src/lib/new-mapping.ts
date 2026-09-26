@@ -21,6 +21,33 @@ type DeepPartial<T> = {
   [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
 };
 
+/**
+ * Checks whether assigning to a property would override
+ * a getter-only property somewhere in the prototype chain.
+ */
+const canAssignProperty = (target: any, key: string): boolean => {
+  let current = target;
+
+  while (current) {
+    const descriptor = Object.getOwnPropertyDescriptor(current, key);
+
+    if (descriptor) {
+      // Accessor property
+      if ('get' in descriptor || 'set' in descriptor) {
+        return typeof descriptor.set === 'function';
+      }
+
+      // Normal property
+      return descriptor.writable !== false;
+    }
+
+    current = Object.getPrototypeOf(current);
+  }
+
+  // Property doesn't exist yet -> safe to create
+  return true;
+};
+
 export type ModelValue<T> =
   | DeepPartial<T>
   | Partial<Record<MappingFrom<T>, any>>;
@@ -455,6 +482,12 @@ const encodeMappingFn = <T>(
 
   for (const key of Object.keys(input)) {
     const value = (input as any)[key];
+
+    // Don't try to overwrite getter-only / readonly properties.
+    if (!canAssignProperty(instance, key)) {
+      // console.log({keyNot:key})
+      continue;
+    }
 
     const fullPath = parentPath ? `${parentPath}.${key}` : key;
     const rule: any = (schema as any)[fullPath];
