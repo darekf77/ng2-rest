@@ -169,6 +169,7 @@
     "@taon-dev/emails": "~21.0.0",
     "@taon-dev/i18n": "~21.0.0",
     "@taon-dev/session": "~21.0.0",
+    "@taon-dev/sudo": "~21.0.0",
     "@taon-dev/ui": "~21.0.0",
     "@taon-dev/vscode-plugin": "~21.0.0",
     "@testdeck/jest": "~0.3.3",

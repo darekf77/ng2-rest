@@ -1,10 +1,7 @@
 //#region imports
 import { URL } from 'url'; // @backend
 
-import type { AxiosHeaders, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { wrapper } from 'axios-cookiejar-support'; // @backend  @esmRemove
 import type express from 'express';
-import type * as FormData from 'form-data'; // @backend
 import { Circ, JSON10 } from 'json10/src';
 import { Level, Log } from 'ng2-logger/src';
 import {
@@ -16,51 +13,91 @@ import {
   switchMap,
   throwError,
 } from 'rxjs';
-import { axios } from 'tnp-core/src';
-import { SimpleCookieJar } from 'tnp-core/src'; // @backend  @cjsRemove
 import { CoreModels, Helpers, _ } from 'tnp-core/src';
-import { CookieJar } from 'tough-cookie'; // @backend  @esmRemove
 import { CLASS } from 'typescript-class-helpers/src';
 
 import { encodeMapping, EncodeSchema, EncodeSchemaString } from './new-mapping';
 
-// import { Mapping } from './mapping';
 //#endregion
+
+//#region constants
 
 const log = Log.create('ng2-rest', Level.WARN, Level.ERROR);
 
 const listenErrorsSrc = new Subject<HttpResponseError | any>();
 
-//#region cookie jar
-
-//#region @backend
-//#region @esmRemove
-const globalCookieJar = new CookieJar();
 //#endregion
 
-let initializedCookieJar = false;
+export const ResponseTypeFetchHeaderKey = 'responsetypefetch';
 
-function registerGlobalAxiosCookieJar(): void {
-  //#region @backend
+//#region cookie && cookie jar
+
+export interface TaonCookieJar {
+  getCookieHeader(
+    url: string,
+  ): Promise<string | undefined> | string | undefined;
+
+  setCookie(cookie: string, url: string): Promise<void> | void;
+}
+
+export class SimpleCookieJar implements TaonCookieJar {
+  private cookies = new Map<string, Map<string, string>>();
+
+  getCookieHeader(url: string): string | undefined {
+    const hostname = new URL(url).hostname;
+
+    const cookies = this.cookies.get(hostname);
+
+    if (!cookies?.size) {
+      return undefined;
+    }
+
+    return [...cookies.entries()]
+
+      .map(([name, value]) => `${name}=${value}`)
+
+      .join('; ');
+  }
+
+  setCookie(setCookieHeader: string, url: string): void {
+    const hostname = new URL(url).hostname;
+
+    const firstPart = setCookieHeader.split(';', 1)[0];
+
+    const separatorIndex = firstPart.indexOf('=');
+
+    if (separatorIndex === -1) {
+      return;
+    }
+
+    const name = firstPart.slice(0, separatorIndex).trim();
+
+    const value = firstPart.slice(separatorIndex + 1).trim();
+
+    let cookies = this.cookies.get(hostname);
+
+    if (!cookies) {
+      cookies = new Map();
+
+      this.cookies.set(hostname, cookies);
+    }
+
+    cookies.set(name, value);
+  }
+}
+
+//#region @backend
+
+let initializedCookieJar = false;
+let globalFetchCookieJar: TaonCookieJar | undefined;
+
+function registerGlobalFetchCookieJar(): void {
   if (initializedCookieJar) {
     return;
   }
 
   initializedCookieJar = true;
-
-  //#region  @esmRemove
-  // NODEJS
-  wrapper(axios as any);
-  // @ts-ignore
-  axios.defaults.jar = globalCookieJar;
-  //#endregion
-
-  //#region @cjsRemove
-  // CLOUDFLARE
-  // @ts-ignore
-  axios.defaults.jar = new SimpleCookieJar();
-  //#endregion
-  //#endregion
+  globalFetchCookieJar = new SimpleCookieJar();
 }
 
 //#endregion
@@ -313,14 +350,22 @@ export function interpolateParamsToUrl(params: Object, url: string): string {
 }
 //#endregion
 
-//#region axios intercepstors
-export interface AxiosTaonHttpHandler<T = any> {
-  handle(req: AxiosRequestConfig): Observable<AxiosResponse<T>>;
+//#region fetch interceptors
+
+export type FetchResponse = Response;
+
+export interface TaonFetchRequestConfig extends RequestInit {
+  url: string;
+}
+
+export interface FetchTaonHttpHandler<T = any> {
+  handle(req: TaonFetchRequestConfig): Observable<FetchResponse>;
 }
 
 export interface TaonClientMiddlewareInterceptOptions<T = any> {
-  req: AxiosRequestConfig; // <- request config only (no AxiosResponse here)
-  next: AxiosTaonHttpHandler<T>;
+  req: TaonFetchRequestConfig; // <- request config only
+
+  next: FetchTaonHttpHandler<T>;
 }
 
 export interface TaonServerMiddlewareInterceptOptions<T = any> {
@@ -329,28 +374,71 @@ export interface TaonServerMiddlewareInterceptOptions<T = any> {
   next: express.NextFunction;
 }
 
-export interface TaonAxiosClientInterceptor<T = any> {
+export interface TaonFetchClientInterceptor<T = any> {
   intercept(
     client: TaonClientMiddlewareInterceptOptions<T>,
-  ): Observable<AxiosResponse<T>>;
+  ): Observable<Response>;
 }
 
 // Optional helper for passing around context (browser/client)
 
 // === Backend handler (last in chain) ===
-export class AxiosBackendHandler<T = any> implements AxiosTaonHttpHandler<T> {
-  handle(req: AxiosRequestConfig): Observable<AxiosResponse<T>> {
-    // axios returns a Promise; wrap as Observable
-    return from(axios.request<T>(req));
+
+export class FetchBackendHandler<T = any> implements FetchTaonHttpHandler<T> {
+  handle(req: TaonFetchRequestConfig): Observable<FetchResponse> {
+    const { url, ...requestInit } = req;
+
+    return from(
+      (async () => {
+        const headers = new Headers(requestInit.headers);
+
+        //#region @backend
+        registerGlobalFetchCookieJar();
+
+        if (globalFetchCookieJar && requestInit.credentials !== 'omit') {
+          const cookieHeader = await globalFetchCookieJar.getCookieHeader(url);
+
+          if (cookieHeader) {
+            headers.set('cookie', cookieHeader);
+          }
+        }
+        //#endregion
+
+        const response = await fetch(url, {
+          ...requestInit,
+          headers,
+        });
+
+        //#region @backend
+        if (globalFetchCookieJar && requestInit.credentials !== 'omit') {
+          const responseHeaders = response.headers as Headers & {
+            getSetCookie?: () => string[];
+          };
+
+          const setCookies =
+            typeof responseHeaders.getSetCookie === 'function'
+              ? responseHeaders.getSetCookie()
+              : [];
+
+          for (const cookie of setCookies) {
+            await globalFetchCookieJar.setCookie(cookie, url);
+          }
+        }
+        //#endregion
+
+        return response;
+      })(),
+    );
   }
 }
 
 // === Chain builder (request: forward order, response: reverse order) ===
 export const buildInterceptorChain = <T = any>(
-  globalInterceptors: Array<TaonAxiosClientInterceptor<T>>,
-  backend: AxiosTaonHttpHandler<T>,
-): AxiosTaonHttpHandler<T> => {
-  return globalInterceptors.reduceRight<AxiosTaonHttpHandler<T>>(
+  globalInterceptors: Array<TaonFetchClientInterceptor<T>>,
+
+  backend: FetchTaonHttpHandler<T>,
+): FetchTaonHttpHandler<T> => {
+  return globalInterceptors.reduceRight<FetchTaonHttpHandler<T>>(
     (next, interceptor) => ({
       handle: req => interceptor.intercept({ req, next }),
     }),
@@ -360,17 +448,17 @@ export const buildInterceptorChain = <T = any>(
 
 //#endregion
 
-//#region response type axios
-export type ResponseTypeAxios =
-  | 'blob'
-  | 'text'
-  | 'json'
-  //#region @backend
-  | 'arraybuffer'
-  | 'document'
-  | 'stream'
-  | 'formdata';
-//#endregion
+//#region response type fetch
+
+export type FetchResponseType =
+  | 'blob' // Blob
+  | 'text' // string
+  | 'json' // mapped T
+  | 'arraybuffer' // ArrayBuffer
+  | 'document' // Document
+  | 'stream' // stream
+  | 'formdata'; // FormData
+
 //#endregion
 
 //#region rest headers
@@ -390,19 +478,34 @@ export class RestHeaders {
   }
 
   apply(headers?: RestHeadersOptions): RestHeaders {
-    if (headers instanceof RestHeaders) {
-      headers.forEach((values: string[], name: string) => {
-        values.forEach(value => this.set(name, value));
-      });
-    } else {
-      Object.keys(headers).forEach((name: string) => {
-        const values: string[] = (
-          Array.isArray(headers[name]) ? headers[name] : [headers[name]]
-        ) as any;
-        this.delete(name);
-        values.forEach(value => this.set(name, value));
-      });
+    if (!headers) {
+      return this;
     }
+
+    if (headers instanceof RestHeaders) {
+      headers.forEach((values, name) => {
+        values.forEach(value => this.append(name, value));
+      });
+
+      return this;
+    }
+
+    if (headers instanceof Headers) {
+      headers.forEach((value, name) => {
+        this.append(name, value);
+      });
+
+      return this;
+    }
+
+    Object.entries(headers).forEach(([name, value]) => {
+      this.delete(name);
+
+      const values = Array.isArray(value) ? value : [value];
+
+      values.forEach(value => this.append(name, value));
+    });
+
     return this;
   }
 
@@ -495,13 +598,10 @@ export class RestHeaders {
    * Sets or overrides header value for given name.
    */
   set(name: string, value: string | string[]): void {
-    if (Array.isArray(value)) {
-      if (value.length) {
-        this._headers.set(name.toLowerCase(), [value.join(',')]);
-      }
-    } else {
-      this._headers.set(name.toLowerCase(), [value]);
-    }
+    const values = Array.isArray(value) ? [...value] : [value];
+
+    this._headers.set(name.toLowerCase(), values);
+
     this.mayBeSetNormalizedName(name);
   }
 
@@ -516,23 +616,14 @@ export class RestHeaders {
    * Returns string of all headers.
    */
   // TODO(vicb): returns {[name: string]: string[]}
-  toJSON(): { [name: string]: any } {
-    const serialized: { [name: string]: string[] } = {};
-    if (!this._headers) {
-      // debugger
-    }
-    // console.log('serializing headers',this._headers)
-    this._headers.forEach((values: string[], name: string) => {
-      const split: string[] = [];
-      values.forEach(v => split.push(...v.split(',')));
-      // console.log({
-      //   values
-      // })
-      // values.forEach(v => split.push(...(v ? v : '').split(',')));
-      serialized[this._normalizedNames.get(name)] = split;
+  toJSON(): Record<string, string[]> {
+    const result: Record<string, string[]> = {};
+
+    this._headers.forEach((values, name) => {
+      result[this._normalizedNames.get(name)] = [...values];
     });
 
-    return serialized;
+    return result;
   }
 
   /**
@@ -616,7 +707,8 @@ export class HttpBody<T> extends BaseBody {
     private readonly url: string,
     private readonly method: string,
     private readonly headers: RestHeaders,
-    private readonly responseText: string | Blob,
+    private readonly response: FetchResponse,
+    public readonly responseText: string | undefined,
     private readonly options: ResourceOptions,
     private readonly isArray: boolean,
   ) {
@@ -662,8 +754,18 @@ export class HttpBody<T> extends BaseBody {
     return (this.options.responseMapping?.circular || []) as any;
   }
 
-  public get blob(): Blob {
-    return this.responseText as Blob;
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  public get native() {
+    return {
+      response: this.response.clone(),
+      stream: () => this.response.clone().body,
+      blob: () => this.response.clone().blob(),
+      arrayBuffer: () => this.response.clone().arrayBuffer(),
+      bytes: () => this.response.clone().bytes(),
+      formData: () => this.response.clone().formData(),
+      json: () => this.response.clone().json(),
+      text: () => this.response.clone().text(),
+    };
   }
 
   public get booleanValue(): boolean | undefined {
@@ -753,51 +855,41 @@ Your api response is array, but you are using object api instread .arrray.`,
 export class ErrorBody<T = RestErrorResponseWrapper> extends BaseBody {
   constructor(
     private readonly url: string,
-    private readonly data: any,
+    private readonly responseText: string | undefined,
   ) {
     super();
   }
 
   public get json(): T {
-    return this.toJSON(this.data, { parsingError: true }) as any;
+    return this.toJSON(this.responseText, { parsingError: true }) as any;
   }
 
-  public get text(): string {
-    return this.data;
+  public get text(): string | undefined {
+    return this.responseText;
   }
-}
-
-export abstract class BaseResponse<T> {
-  constructor(
-    public readonly responseText: string | Blob,
-    public readonly options: ResourceOptions,
-    public readonly statusCode: number,
-    public readonly headers: RestHeaders,
-    public readonly isArray: boolean,
-  ) {}
 }
 
 //#endregion
 
 //#region http response
-export class HttpResponse<T> extends BaseResponse<T> {
+export class HttpResponse<T> {
   public body: HttpBody<T>;
 
   constructor(
     public readonly url: string,
     public readonly method: CoreModels.HttpMethod,
-    public readonly responseText: string | Blob,
+    public readonly response: FetchResponse,
+    public readonly responseText: string | undefined,
     public readonly headers: RestHeaders,
     public readonly statusCode: number,
     public readonly options: ResourceOptions,
     public readonly isArray: boolean,
   ) {
-    super(responseText, options, statusCode, headers, isArray);
-
     this.body = new HttpBody(
       url,
       method,
       headers,
+      response,
       responseText,
       options,
       isArray,
@@ -805,19 +897,19 @@ export class HttpResponse<T> extends BaseResponse<T> {
   }
 }
 
-export class HttpResponseError<ERROR_BODY = object> extends BaseResponse<any> {
+export class HttpResponseError<ERROR_BODY = object> {
   public readonly body: ErrorBody<ERROR_BODY>;
 
   constructor(
     public readonly url: string,
     public readonly method: CoreModels.HttpMethod,
-    public readonly responseText: string,
+    public readonly response: FetchResponse,
+    public readonly responseText: string | undefined,
     public readonly options: ResourceOptions,
     public readonly headers: RestHeaders,
     public readonly statusCode: number,
     public readonly isArray: boolean,
   ) {
-    super(responseText, options, statusCode, headers, isArray);
     this.body = new ErrorBody<ERROR_BODY>(url, responseText);
   }
 }
@@ -891,7 +983,7 @@ export const DEFAULT_HEADERS = {
     [HeaderKeyAccept]: '*/*',
   }),
 
-  // Binary download (still just headers; axios responseType controls actual handling)
+  // Binary download (headers only; Taon response handling controls body consumption)
   OCTET_STREAM: RestHeaders.from({
     [HeaderKeyAccept]: 'application/octet-stream',
   }),
@@ -917,14 +1009,15 @@ export abstract class ResourceResponse<
     protected urlOrigin: string,
     protected urlPathname: string,
     protected options: ResourceOptions,
-    protected body: DATA | DATA,
+    protected body: DATA | DATA[],
     protected urlParams: UrlParams[],
-    protected axiosOptions: Ng2RestAxiosRequestConfig,
+    protected fetchOptions: Ng2RestFetchRequestConfig,
     protected isArray: boolean,
     protected headers: RestHeaders,
-    protected globalInterceptors: Map<string, TaonAxiosClientInterceptor>,
-    protected methodsInterceptors: Map<string, TaonAxiosClientInterceptor>,
+    protected globalInterceptors: Map<string, TaonFetchClientInterceptor>,
+    protected methodsInterceptors: Map<string, TaonFetchClientInterceptor>,
   ) {}
+
   //#endregion
 
   // ✅ NEW: make request cancellable
@@ -1047,34 +1140,43 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
     abortSignal: AbortSignal,
   ): Promise<HttpResponse<DATA>> {
     //#region @backend
-    if (axios.defaults.withCredentials) {
-      registerGlobalAxiosCookieJar();
-    }
+
+    registerGlobalFetchCookieJar();
 
     //#endregion
     const url = this.creatUrl(
       this.urlParams,
-      !!this.axiosOptions?.doNotSerializeParams,
+
+      !!this.fetchOptions?.doNotSerializeParams,
     );
+
     const method = this.httpMethodName;
 
     log.d(`Requesting ${method} ${url}`);
 
     const isFormData = CLASS.getNameFromObject(this.body) === 'FormData';
-    const formData: FormData = isFormData ? (this.body as any) : void 0;
 
-    //#region @backend
-    if (formData) {
-      const headersForm = formData.getHeaders();
-      headersForm['Content-Length'] = formData.getLengthSync();
-      for (const [key, value] of Object.entries(headersForm)) {
-        this.headers.set(key, value?.toString() as string);
-      }
+    if (isFormData) {
+      // Native fetch must generate multipart/form-data boundary itself.
+      this.headers.delete(HeaderKeyContentType);
     }
-    //#endregion
 
-    const responseType: ResponseTypeAxios =
-      (this.headers.get('responsetypeaxios')?.toString() as any) || 'text';
+    let requestBody: BodyInit | null | undefined = this.body as any;
+    const requestContentType = this.headers.get(HeaderKeyContentType) || '';
+
+    if (
+      requestBody !== undefined &&
+      requestBody !== null &&
+      !isFormData &&
+      requestContentType.includes('application/json') &&
+      typeof requestBody !== 'string'
+    ) {
+      requestBody = JSON.stringify(requestBody);
+    }
+
+    const responseType: FetchResponseType =
+      (this.headers.get(ResponseTypeFetchHeaderKey)?.toString() as any) ||
+      'text';
 
     const headersObj = Object.fromEntries(
       Object.entries(this.headers.toJSON()).map(([k, v]) => [
@@ -1083,23 +1185,38 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
       ]),
     );
 
-    const axiosConfig: AxiosRequestConfig = {
+    const { doNotSerializeParams: _doNotSerializeParams, ...requestInit } =
+      this.fetchOptions || {};
+
+    const methodUpperCase = method.toUpperCase();
+
+    if (methodUpperCase === 'GET' || methodUpperCase === 'HEAD') {
+      if (_.isObject(requestBody) && Object.keys(requestBody).length > 0) {
+        throw new Error(
+          `[ng2-rest] Don't use Body params for GET,HEAD requests.`,
+        );
+      }
+      requestBody = undefined;
+    }
+
+    // console.log(`[${method}] url ${url}`);
+    // Helpers.log({ requestBody });
+
+    const fetchConfig: TaonFetchRequestConfig = {
       url,
       method,
-      data: this.body,
-      responseType,
+      body: requestBody,
       headers: headersObj,
-      signal: abortSignal, // ✅ this is the key
-      ...this.axiosOptions,
+      signal: abortSignal,
+      credentials: 'include',
+      ...requestInit,
     };
 
-    if (isFormData) {
-      axiosConfig.maxBodyLength = Infinity;
-    }
+    let response: FetchResponse;
 
     try {
       const uri = new URL(url);
-      const backend = new AxiosBackendHandler<any>();
+      const backend = new FetchBackendHandler<any>();
 
       const globalInterceptors = Array.from(this.globalInterceptors.values());
       const methodInterceptors = Array.from(this.methodsInterceptors.entries())
@@ -1112,26 +1229,49 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
         [...globalInterceptors, ...methodInterceptors],
         backend,
       );
-      const response = await firstValueFrom(handler.handle(axiosConfig));
+      response = await firstValueFrom(handler.handle(fetchConfig));
+
+      if (!response.ok) {
+        const responseText = await response.text();
+
+        throw new HttpResponseError<ERROR>(
+          url,
+          method,
+          response,
+          responseText,
+          this.options,
+          RestHeaders.from(response.headers as any),
+          response.status,
+          this.isArray,
+        );
+      }
+
+      //       console.log(`** responseType=(${responseType})
+      // ** url ${url}
+      // ** text=<<<${await response.clone().text()}>>>`)
 
       return new HttpResponse<DATA>(
         url,
         method,
-        response.data,
+        response,
+        responseType === 'json' || responseType === 'text' || !responseType
+          ? await response.text()
+          : void 0,
         RestHeaders.from(response.headers as any),
         response.status,
         this.options,
         this.isArray,
       );
     } catch (catchedError: any) {
-      // ✅ treat cancellation separately (nice UX)
-      if (
-        catchedError?.code === 'ERR_CANCELED' ||
-        catchedError?.name === 'CanceledError'
-      ) {
+      if (catchedError instanceof HttpResponseError) {
+        throw catchedError;
+      }
+
+      if (catchedError?.name === 'AbortError') {
         throw new HttpResponseError<ERROR>(
           url,
           method,
+          response,
           JSON.stringify({ message: 'Request canceled' }),
           this.options,
           RestHeaders.from(),
@@ -1141,18 +1281,18 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
       }
 
       const status = catchedError?.response?.status ?? 0; // ✅ FIX: you used "status" before defining it
-      const data =
-        catchedError?.response?.data ?? catchedError?.message ?? catchedError;
-
       const responseText =
-        typeof data === 'string' ? data : JSON.stringify(data);
+        typeof catchedError?.message === 'string'
+          ? catchedError.message
+          : JSON.stringify(catchedError);
 
       throw new HttpResponseError<ERROR>(
         url,
         method,
+        response,
         responseText,
         this.options,
-        RestHeaders.from(catchedError?.response?.headers),
+        RestHeaders.from(),
         status,
         this.isArray,
       );
@@ -1169,9 +1309,9 @@ export interface UrlParams {
 }
 [];
 
-export type Ng2RestAxiosRequestConfig = {
+export type Ng2RestFetchRequestConfig = {
   doNotSerializeParams?: boolean;
-} & AxiosRequestConfig<any>;
+} & RequestInit;
 
 //#endregion
 
@@ -1179,11 +1319,12 @@ export type Ng2RestAxiosRequestConfig = {
 export namespace Resource {
   export const globalInterceptors = new Map<
     string,
-    TaonAxiosClientInterceptor
+    TaonFetchClientInterceptor
   >();
+
   export const methodsInterceptors = new Map<
     string,
-    TaonAxiosClientInterceptor
+    TaonFetchClientInterceptor
   >();
 
   export const listenErrors = listenErrorsSrc.asObservable();
@@ -1209,7 +1350,7 @@ export namespace Resource {
           [method in CoreModels.HttpMethod]: (
             item?: T,
             urlParams?: UrlParams[],
-            axiosOptions?: Ng2RestAxiosRequestConfig,
+            fetchOptions?: Ng2RestFetchRequestConfig,
           ) => ResourceResponse<T>;
         } => {
           const methodsObj = {};
@@ -1217,7 +1358,7 @@ export namespace Resource {
             methodsObj[methodName] = (
               body?: MODEL,
               urlParams?: UrlParams[],
-              axiosOptions?: Ng2RestAxiosRequestConfig,
+              fetchOptions?: Ng2RestFetchRequestConfig,
             ) => {
               let localPathname = pathnameModel;
               if (!localPathname.startsWith('/')) {
@@ -1303,7 +1444,7 @@ Instead use nested approach:            /book/:bookid/author/:authorid
                   options,
                   body,
                   urlParams,
-                  axiosOptions,
+                  fetchOptions,
                   isArray,
                   headers,
                   globalInterceptors,
@@ -1340,35 +1481,36 @@ Instead use nested approach:            /book/:bookid/author/:authorid
  * EXample useage
  */
 
-class ExampleBook {
-  title: string;
-}
+// class ExampleBook {
+//   title: string;
+// }
 
-async function example() {
-  const rest = Resource.create<ExampleBook>(
-    'http://my-website.pl',
-    'api/v3/user/:userId',
-    {
-      responseMapping: {
-        entity: () => ({ '': ExampleBook }),
-      },
-    },
-  );
+// async function example() {
+//   const rest = Resource.create<ExampleBook>(
+//     'http://my-website.pl',
+//     'api/v3/user/:userId',
+//     {
+//       responseMapping: {
+//         entity: () => ({ '': ExampleBook }),
+//       },
+//     },
+//   );
 
-  const response = await rest.model({ userId: 1 }).get();
+//   const response = await rest.model({ userId: 1 }).get();
 
-  response; // type of response should be HttpResponse
+//   response; // type of response should be HttpResponse
 
-  const responseObservable = rest
-    .model({ userId: 1 })
-    .array.post([new ExampleBook()], [{ 'location-id': 123 }]).observable;
+//   const responseObservable = rest
+//     .model({ userId: 1 })
+//     .array.post([new ExampleBook()], [{ 'location-id': 123 }]).observable;
 
-  const responseObservableOnlyONe = rest
-    .model({ userId: 1 })
-    .post(new ExampleBook(), [{ 'location-id': 123 }]).observable;
+//   const responseObservableOnlyONe = rest
+//     .model({ userId: 1 })
+//     .post(new ExampleBook(), [{ 'location-id': 123 }]).observable;
 
-  responseObservable.subscribe(data => {
-    data; // HttpResponse<ExampleBook>
-  });
-}
+//   responseObservable.subscribe(data => {
+//     data.body.json[1].title
+//     data; // HttpResponse<ExampleBook>
+//   });
+// }
 //#endregion
