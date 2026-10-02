@@ -450,14 +450,49 @@ export const buildInterceptorChain = <T = any>(
 
 //#region response type fetch
 
-export type FetchResponseType =
-  | 'blob' // Blob
-  | 'text' // string
-  | 'json' // mapped T
-  | 'arraybuffer' // ArrayBuffer
-  | 'document' // Document
-  | 'stream' // stream
-  | 'formdata'; // FormData
+export enum FetchResponseType {
+  /**
+   * Can be used with `Taon.Response<Blob>`.
+   */
+  Blob = 'blob',
+
+  /**
+   * Can be used with `Taon.Response<string>`.
+   */
+  Text = 'text',
+
+  /**
+   * Can be used with `Taon.Response<T>`.
+   *
+   * JSON response is parsed and mapped to the expected Taon response type.
+   */
+  Json = 'json',
+
+  /**
+   * Can be used with `Taon.Response<ArrayBuffer>`.
+   */
+  ArrayBuffer = 'arraybuffer',
+
+  /**
+   * Can be used with `Taon.Response<Document>`.
+   *
+   * Mainly useful in browser environments.
+   */
+  Document = 'document',
+
+  /**
+   * Can be used with `Taon.Response<ReadableStream<Uint8Array>>`.
+   *
+   * Useful for large files, videos, downloads, and other responses
+   * that should not be fully buffered in memory.
+   */
+  Stream = 'stream',
+
+  /**
+   * Can be used with `Taon.Response<FormData>`.
+   */
+  FormData = 'formdata',
+}
 
 //#endregion
 
