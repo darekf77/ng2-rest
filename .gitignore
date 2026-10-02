@@ -55,7 +55,7 @@
 /databases/**/*.sqlite.png
 /databases/**/*.sqlite.schema.txt
 /databases/**/*.sqlite.txt
-/databases/bucket/**/*.*
+/databases/bucket
 /dist
 /dist-nocutsrc
 /dist-nocutsrc-prod
