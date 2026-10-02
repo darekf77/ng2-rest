@@ -792,7 +792,9 @@ export class HttpBody<T> extends BaseBody {
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   public get native() {
     return {
-      response: this.response.clone(),
+      get response() {
+        return this.response.clone();
+      },
       stream: () => this.response.clone().body,
       blob: () => this.response.clone().blob(),
       arrayBuffer: () => this.response.clone().arrayBuffer(),
@@ -1289,8 +1291,10 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
         url,
         method,
         response,
-        responseType === 'json' || responseType === 'text' || !responseType
-          ? await response.text()
+        responseType === FetchResponseType.Json ||
+          responseType === FetchResponseType.Text ||
+          !responseType
+          ? await response.clone().text()
           : void 0,
         RestHeaders.from(response.headers as any),
         response.status,
