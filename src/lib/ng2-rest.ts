@@ -705,6 +705,11 @@ export class RestErrorResponseWrapper extends RestCommonHttpResponseWrapper {
    * custom error code from backend
    */
   declare code?: string;
+
+  /**
+   * context of the error
+   */
+  declare context?: string;
 }
 //#endregion
 
