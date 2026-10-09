@@ -26,6 +26,8 @@ const log = Log.create('ng2-rest', Level.WARN, Level.ERROR);
 
 const listenErrorsSrc = new Subject<HttpResponseError | any>();
 
+export const RxjsUnsubscribeAbortReason = 'rxjs-unsubscribe';
+
 //#endregion
 
 export const ResponseTypeFetchHeaderKey = 'responsetypefetch';
@@ -1073,9 +1075,13 @@ export abstract class ResourceResponse<
     try {
       return await this.makeRequest(abortSignal);
     } catch (error) {
-      // if (error instanceof HttpResponseError) {
-      listenErrorsSrc.next(error as any);
-      // }
+      const isRxjsUnsubscribe =
+        abortSignal.aborted &&
+        abortSignal.reason === RxjsUnsubscribeAbortReason;
+
+      if (!isRxjsUnsubscribe) {
+        listenErrorsSrc.next(error);
+      }
 
       throw error;
     }
@@ -1144,7 +1150,7 @@ export abstract class ResourceResponse<
             subscriber.error(err);
           });
 
-        return () => ac.abort('rxjs-unsubscribe');
+        return () => ac.abort(RxjsUnsubscribeAbortReason);
       }).pipe(
         shareReplay({
           bufferSize: 1,
@@ -1312,16 +1318,7 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
       }
 
       if (catchedError?.name === 'AbortError') {
-        throw new HttpResponseError<ERROR>(
-          url,
-          method,
-          response,
-          JSON.stringify({ message: 'Request canceled' }),
-          this.options,
-          RestHeaders.from(),
-          0,
-          this.isArray,
-        );
+        throw catchedError;
       }
 
       const status = catchedError?.response?.status ?? 0; // ✅ FIX: you used "status" before defining it
