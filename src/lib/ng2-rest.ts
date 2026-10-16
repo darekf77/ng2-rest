@@ -356,7 +356,7 @@ export function interpolateParamsToUrl(params: Object, url: string): string {
 
 export type FetchResponse = Response;
 
-export interface TaonFetchRequestConfig extends RequestInit {
+export interface TaonFetchRequestConfig extends Ng2RestFetchRequestConfig {
   url: string;
 }
 
@@ -1192,9 +1192,9 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
     registerGlobalFetchCookieJar();
 
     //#endregion
+
     const url = this.creatUrl(
       this.urlParams,
-
       !!this.fetchOptions?.doNotSerializeParams,
     );
 
@@ -1210,6 +1210,7 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
     }
 
     let requestBody: BodyInit | null | undefined = this.body as any;
+
     const requestContentType = this.headers.get(HeaderKeyContentType) || '';
 
     if (
@@ -1244,11 +1245,9 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
           `[ng2-rest] Don't use Body params for GET,HEAD requests.`,
         );
       }
+
       requestBody = undefined;
     }
-
-    // console.log(`[${method}] url ${url}`);
-    // Helpers.log({ requestBody });
 
     const fetchConfig: TaonFetchRequestConfig = {
       url,
@@ -1261,23 +1260,52 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
     };
 
     let response: FetchResponse;
-
     try {
-      const uri = new URL(url);
-      const backend = new FetchBackendHandler<any>();
+      response = await this.executeFetch(fetchConfig);
 
-      const globalInterceptors = Array.from(this.globalInterceptors.values());
-      const methodInterceptors = Array.from(this.methodsInterceptors.entries())
-        .filter(([key]) =>
-          key.endsWith(`-${method?.toUpperCase()}-${uri.pathname}`),
-        )
-        .map(([_, interceptor]) => interceptor);
+      //#region handle 401 reauthentication
+      // -------------------------------------------------------
+      // 401 -> reauthenticate -> retry original request ONCE
+      // -------------------------------------------------------
 
-      const handler = buildInterceptorChain(
-        [...globalInterceptors, ...methodInterceptors],
-        backend,
-      );
-      response = await firstValueFrom(handler.handle(fetchConfig));
+      if (
+        response.status === CoreModels.StatusCode401 &&
+        typeof fetchConfig.reauthenticateOn401 === 'function'
+      ) {
+        // console.log('[401] detected', url);
+
+        // console.log('[401] starting/waiting for reauthentication');
+
+        const reauthenticated = await Reauthenticate401Manager.run(async () => {
+          // console.log('[401] callback START');
+
+          const result = await fetchConfig.reauthenticateOn401();
+
+          // console.log('[401] callback END', result);
+
+          return result;
+        });
+
+        // console.log('[401] manager resolved', reauthenticated);
+
+        if (abortSignal.aborted) {
+          // console.log('[401] original request ABORTED', abortSignal.reason);
+          throw abortSignal.reason;
+        }
+
+        if (reauthenticated) {
+          // console.log('[401] retrying original request', url);
+
+          response = await this.executeFetch(fetchConfig);
+
+          // console.log('[401] retry response', response.status);
+        }
+      }
+      //#endregion
+
+      // -------------------------------------------------------
+      // Normal error handling
+      // -------------------------------------------------------
 
       if (!response.ok) {
         const responseText = await response.text();
@@ -1294,9 +1322,9 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
         );
       }
 
-      //       console.log(`** responseType=(${responseType})
-      // ** url ${url}
-      // ** text=<<<${await response.clone().text()}>>>`)
+      // -------------------------------------------------------
+      // Success
+      // -------------------------------------------------------
 
       return new HttpResponse<DATA>(
         url,
@@ -1321,6 +1349,14 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
         throw catchedError;
       }
 
+      // Preserve your RxJS unsubscribe behavior.
+      if (
+        abortSignal.aborted &&
+        abortSignal.reason === RxjsUnsubscribeAbortReason
+      ) {
+        throw catchedError;
+      }
+
       const status = catchedError?.response?.status ?? 0; // ✅ FIX: you used "status" before defining it
       const responseText =
         typeof catchedError?.message === 'string'
@@ -1339,6 +1375,33 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
       );
     }
   }
+
+  //#region execute fetch
+
+  private async executeFetch(
+    fetchConfig: TaonFetchRequestConfig,
+  ): Promise<FetchResponse> {
+    const uri = new URL(fetchConfig.url);
+
+    const backend = new FetchBackendHandler<any>();
+
+    const globalInterceptors = Array.from(this.globalInterceptors.values());
+
+    const methodInterceptors = Array.from(this.methodsInterceptors.entries())
+      .filter(([key]) =>
+        key.endsWith(`-${fetchConfig.method?.toUpperCase()}-${uri.pathname}`),
+      )
+      .map(([_, interceptor]) => interceptor);
+
+    const handler = buildInterceptorChain(
+      [...globalInterceptors, ...methodInterceptors],
+      backend,
+    );
+
+    return await firstValueFrom(handler.handle(fetchConfig));
+  }
+
+  //#endregion
 }
 
 //#endregion
@@ -1352,8 +1415,40 @@ export interface UrlParams {
 
 export type Ng2RestFetchRequestConfig = {
   doNotSerializeParams?: boolean;
+  /**
+   * Called when request returns HTTP 401.
+   *
+   * If callback resolves to true, original request
+   * will be retried exactly once.
+   *
+   * Concurrent 401 responses share the same
+   * in-progress reauthentication Promise.
+   */
+  reauthenticateOn401?: () => Promise<boolean>;
 } & RequestInit;
 
+//#endregion
+
+//#region reauthenticate manager
+class Reauthenticate401Manager {
+  private static inProgress?: Promise<boolean>;
+
+  static async run(reauthenticate: () => Promise<boolean>): Promise<boolean> {
+    if (!this.inProgress) {
+      this.inProgress = Promise.resolve()
+        .then(() => reauthenticate())
+        .catch(error => {
+          console.error('[ng2-rest] Reauthentication failed.', error);
+          return false;
+        })
+        .finally(() => {
+          this.inProgress = undefined;
+        });
+    }
+
+    return this.inProgress;
+  }
+}
 //#endregion
 
 //#region resource namespace
