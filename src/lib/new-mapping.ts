@@ -330,6 +330,9 @@ export function decodeMappingForHeaderJson<T>(
   },
 ): EncodeSchemaString<T> {
   options = options || {};
+  if (_.isNumber(instanceOrClass) || _.isBoolean(instanceOrClass)) {
+    return;
+  }
   // Array encoding (special protocol)
   if (
     Array.isArray(instanceOrClass) &&

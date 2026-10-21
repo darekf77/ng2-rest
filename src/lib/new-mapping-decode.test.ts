@@ -106,6 +106,20 @@ describe('decodeMappingForHeaderJson - single', () => {
   });
 });
 
+describe('decodeMappingForHeaderJson - boolean, number', () => {
+  it('should not generate mapping when number', () => {
+    const mapping = decodeMappingForHeaderJson(1);
+
+    expect(mapping).toBeUndefined();
+  });
+
+  it('should not generate mapping when boolean', () => {
+    const mapping = decodeMappingForHeaderJson(true);
+
+    expect(mapping).toBeUndefined();
+  });
+});
+
 describe('decodeMappingForHeaderJson - array RLE', () => {
   it('should RLE encode class array', () => {
     const array = [DecoratedUser, DecoratedUser, null, null, Author, null];
