@@ -27,10 +27,9 @@ const log = Log.create('ng2-rest', Level.WARN, Level.ERROR);
 const listenErrorsSrc = new Subject<HttpResponseError | any>();
 
 export const RxjsUnsubscribeAbortReason = 'rxjs-unsubscribe';
+export const ResponseTypeFetchHeaderKey = 'responsetypefetch';
 
 //#endregion
-
-export const ResponseTypeFetchHeaderKey = 'responsetypefetch';
 
 //#region cookie && cookie jar
 
@@ -1184,6 +1183,7 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
   DATA,
   ERROR
 > {
+  //#region make request
   protected async makeRequest(
     abortSignal: AbortSignal,
   ): Promise<HttpResponse<DATA>> {
@@ -1263,6 +1263,14 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
     try {
       response = await this.executeFetch(fetchConfig);
 
+      //#region retry when Taon Worker is initializing
+      response = await this.retryOnTaonInitialization503(
+        response,
+        fetchConfig,
+        abortSignal,
+      );
+      //#endregion
+
       //#region handle 401 reauthentication
       // -------------------------------------------------------
       // 401 -> reauthenticate -> retry original request ONCE
@@ -1297,6 +1305,14 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
           // console.log('[401] retrying original request', url);
 
           response = await this.executeFetch(fetchConfig);
+
+          //#region retry when Taon Worker is initializing
+          response = await this.retryOnTaonInitialization503(
+            response,
+            fetchConfig,
+            abortSignal,
+          );
+          //#endregion
 
           // console.log('[401] retry response', response.status);
         }
@@ -1345,7 +1361,7 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
         throw catchedError;
       }
 
-      if (catchedError?.name === 'AbortError') {
+      if (abortSignal.aborted) {
         throw catchedError;
       }
 
@@ -1375,6 +1391,7 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
       );
     }
   }
+  //#endregion
 
   //#region execute fetch
 
@@ -1401,6 +1418,91 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
     return await firstValueFrom(handler.handle(fetchConfig));
   }
 
+  //#endregion
+
+  //#region retry on taon initalization 503
+  private async retryOnTaonInitialization503(
+    response: FetchResponse,
+    fetchConfig: TaonFetchRequestConfig,
+    abortSignal: AbortSignal,
+  ): Promise<FetchResponse> {
+    const MAX_RETRIES = 5;
+    const DEFAULT_RETRY_MS = 1_000;
+    const MAX_RETRY_MS = 10_000;
+
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      if (
+        response.status !== CoreModels.TaonRetryHttpErrorStatus ||
+        response.headers.get(CoreModels.TaonXStatusHeader) !== 'initializing'
+      ) {
+        break;
+      }
+
+      if (
+        typeof ReadableStream !== 'undefined' &&
+        fetchConfig.body instanceof ReadableStream
+      ) {
+        break;
+      }
+
+      if (abortSignal.aborted) {
+        throw abortSignal.reason;
+      }
+
+      const retryAfterHeader = response.headers.get(
+        CoreModels.TaonRetryLogicHeader,
+      );
+
+      let delayMs = DEFAULT_RETRY_MS;
+
+      if (retryAfterHeader) {
+        const seconds = Number(retryAfterHeader);
+
+        if (Number.isFinite(seconds) && seconds >= 0) {
+          delayMs = seconds * 1000;
+        } else {
+          const retryDate = Date.parse(retryAfterHeader);
+
+          if (Number.isFinite(retryDate)) {
+            delayMs = Math.max(0, retryDate - Date.now());
+          }
+        }
+      }
+
+      delayMs = Math.min(delayMs, MAX_RETRY_MS);
+
+      // Release the previous response body before retrying.
+      await response.body?.cancel().catch(() => {});
+
+      await new Promise<void>((resolve, reject) => {
+        if (abortSignal.aborted) {
+          reject(abortSignal.reason);
+          return;
+        }
+
+        const timeoutId = setTimeout(() => {
+          abortSignal.removeEventListener('abort', onAbort);
+          resolve();
+        }, delayMs);
+
+        const onAbort = () => {
+          clearTimeout(timeoutId);
+          abortSignal.removeEventListener('abort', onAbort);
+          reject(abortSignal.reason);
+        };
+
+        abortSignal.addEventListener('abort', onAbort, { once: true });
+      });
+
+      if (abortSignal.aborted) {
+        throw abortSignal.reason;
+      }
+
+      response = await this.executeFetch(fetchConfig);
+    }
+
+    return response;
+  }
   //#endregion
 }
 
