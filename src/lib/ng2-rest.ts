@@ -1426,14 +1426,24 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
     fetchConfig: TaonFetchRequestConfig,
     abortSignal: AbortSignal,
   ): Promise<FetchResponse> {
-    const MAX_RETRIES = 5;
+    const headerMaxRetries = Number(
+      response.headers.get(CoreModels.TaonMaxRetriesLogicHeader),
+    );
+    const MAX_RETRIES =
+      _.isNumber(headerMaxRetries) &&
+      headerMaxRetries > 0 &&
+      headerMaxRetries < 1000
+        ? headerMaxRetries
+        : 5;
+
     const DEFAULT_RETRY_MS = 1_000;
     const MAX_RETRY_MS = 10_000;
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       if (
         response.status !== CoreModels.TaonRetryHttpErrorStatus ||
-        response.headers.get(CoreModels.TaonXStatusHeader) !== 'initializing'
+        response.headers.get(CoreModels.TaonXStatusHeader) !==
+          CoreModels.TaonXStatusInitializing
       ) {
         break;
       }
