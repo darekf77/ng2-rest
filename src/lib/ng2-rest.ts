@@ -1479,7 +1479,8 @@ class ResourceResponseHttp<DATA = any, ERROR = any> extends ResourceResponse<
         }
       }
 
-      delayMs = Math.min(delayMs, MAX_RETRY_MS);
+      const delayMultiplier = attempt >= Math.ceil(MAX_RETRIES / 2) ? 2 : 1;
+      delayMs = Math.min(delayMs * delayMultiplier, MAX_RETRY_MS);
 
       // Release the previous response body before retrying.
       await response.body?.cancel().catch(() => {});
