@@ -1,6 +1,7 @@
 /_changelog
 /!templates-subprojects/**/package.json
 /.ai
+/.ai/examples
 /.babelrc
 /.DS_Store
 /.editorconfig
@@ -27,6 +28,11 @@
 /*.sqlite
 /**/.DS_Store
 /**/*.i18n.data.ts
+/**/dist-*
+/**/dist*
+/**/tmp-*
+/**/tmp*
+/**/tsconfig*
 /AGENTS.md
 /angular.json
 /browser
